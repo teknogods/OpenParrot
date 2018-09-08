@@ -27,6 +27,7 @@ static InitFunction initFunction_SOR([]()
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
 	init_FastIoEmu();
 	init_RfidEmu(X2Type::RFID);
+	// TODO: DOCUMENTS PATCHES
 	safeJMP(imageBase + 0xFA350, ReturnTrue);
 	safeJMP(imageBase + 0xF8FC0, ReturnTrue);
 	// Patch data dir to game dir pls D:/ -> .\\
