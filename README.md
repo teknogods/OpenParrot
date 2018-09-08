@@ -3,7 +3,7 @@
 REQUIRED FOR THIS PROJECT: https://github.com/teknogods/TeknoParrotUI
 
 HOW TO COMPILE (VISUAL STUDIO):
-1. Execute premake.bat for vs2017, for older versions: please dit the bat accordingly.
+1. Execute premake.bat for vs2017, for older versions: please edit the bat accordingly.
 2. Open in Visual Studio via .sln and compile. (x86 or x64)
 
 How to easiest work on new titles: (For devs)
