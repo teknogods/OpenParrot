@@ -6,7 +6,7 @@ BOUNTIES FOR THIS PROJECT: https://docs.google.com/spreadsheets/d/1gC2vCqWq93Blm
 
 HOW TO COMPILE (VISUAL STUDIO):
 1. Execute premake.bat for vs2017, for older versions: please edit the bat accordingly.
-2. Open in Visual Studio via .sln and compile. (x86 or x64) 
+2. Open in Visual Studio via .sln and compile. (x86 or x64)
 
 How to easiest work on new titles: (For devs) (See STREAM: https://www.twitch.tv/videos/308359681 )
 1. Run TeknoParrotUi with command line with some profile that is compatible with your game or create a new XML with according buttons / jvs modes. (TeknoParrotUi.exe --profile=ggxx.xml very good for stick games)
