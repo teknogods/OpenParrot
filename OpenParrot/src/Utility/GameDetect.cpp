@@ -201,6 +201,11 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::SchoolOfRagnarok;
 			isNesica = true;
 		}
+		if (*(uint32_t*)(moduleBase + 0x1C04) == 0x7401C3F6)
+		{
+			currentGame = GameID::PokkenTournament;
+			break;
+		}
 #endif
 
 #ifdef _DEBUG

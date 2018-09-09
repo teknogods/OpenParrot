@@ -38,4 +38,5 @@ enum class GameID
 	RaidenIV,
 	VirtuaRLimit,
 	SchoolOfRagnarok,
+	PokkenTournament,
 };
