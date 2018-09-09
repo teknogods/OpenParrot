@@ -27,7 +27,7 @@ static InitFunction initFunction_SOR([]()
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
 	init_FastIoEmu();
 	init_RfidEmu(X2Type::RFID);
-	// TODO: DOCUMENTS PATCHES
+	// TODO: DOCUMENT PATCHES
 	safeJMP(imageBase + 0xFA350, ReturnTrue);
 	safeJMP(imageBase + 0xF8FC0, ReturnTrue);
 	// Patch data dir to game dir pls D:/ -> .\\
@@ -36,6 +36,7 @@ static InitFunction initFunction_SOR([]()
 	init_NesysEmu();
 	if (ToBool(config["General"]["Windowed"]))
 	{
+		// TODO: DOCUMENT PATCHES
 		injector::WriteMemory<LONGLONG>(imageBase + 0xFF703C, 0xF633C1FFC1FFC933, true);
 		injector::WriteMemory<DWORD>(imageBase + 0xFF703C+0x08, 0xC6FFC6FF, true);
 	}
