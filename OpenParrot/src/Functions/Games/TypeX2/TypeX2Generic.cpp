@@ -173,7 +173,7 @@ static InitFunction initFunction([]()
 	{
 	case X2Type::VRL:
 		{
-			// TODO: DOCUMENTS PATCHES
+			// TODO: DOCUMENT PATCHES
 			//injector::MakeNOP(0x0040E22E, 2, true);
 			injector::WriteMemory<DWORD>(0x0041C800, 0x08C2C033, true);
 			injector::WriteMemory<BYTE>(0x0041C804, 0x00, true);
@@ -184,14 +184,14 @@ static InitFunction initFunction([]()
 		}
 	case X2Type::Raiden4:
 		{
-			// TODO: DOCUMENTS PATCHES
+			// TODO: DOCUMENT PATCHES
 			//injector::WriteMemory<uint32_t>(0x49DDB0, 0xC3C301B0, true);
 			injector::WriteMemory<BYTE>(0x00496EA0, 0xEB, true);
 			break;
 		}
 	case X2Type::BG4:
 		{
-			// TODO: DOCUMENTS PATCHES
+			// TODO: DOCUMENT PATCHES
 			injector::MakeNOP(0x4CBCB8, 10);
 			injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
 			injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);
@@ -209,7 +209,7 @@ static InitFunction initFunction([]()
 		}
 	case X2Type::Lupin3:
 		{
-			// TODO: DOCUMENTS PATCHES
+			// TODO: DOCUMENT PATCHES
 			injector::MakeNOP(0x48C66C, 12);
 
 			break;
@@ -218,20 +218,20 @@ static InitFunction initFunction([]()
 
 	if(GameDetect::currentGame == GameID::KOFMIRA)
 	{
-		// TODO: DOCUMENTS PATCHES
+		// TODO: DOCUMENT PATCHES
 		injector::WriteMemory<DWORD>(0x0040447C, 0x000800B8, true);
 		injector::WriteMemory<WORD>(0x0040447C+4, 0x9000, true);
 	}
 
 	if(GameDetect::currentGame == GameID::TetrisGM3)
 	{
-		// TODO: DOCUMENTS PATCHES
+		// TODO: DOCUMENT PATCHES
 		injector::WriteMemory<DWORD>(0x0046A0AC, 0x00005C2E, true);
 	}
 
 	if(GameDetect::currentGame == GameID::SamuraiSpiritsSen)
 	{
-		// TODO: DOCUMENTS PATCHES
+		// TODO: DOCUMENT PATCHES
 		injector::WriteMemory<DWORD>(0x0040117A, 0x90909090, true);
 		injector::WriteMemory<BYTE>(0x0040117A+4, 0x90, true);
 		injector::WriteMemory<WORD>(0x00401188, 0x9090, true);

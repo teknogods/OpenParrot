@@ -2,10 +2,6 @@
 #include <Utility/InitFunction.h>
 #include "Global.h"
 
-DWORD dongleRegion = 1;
-BYTE pcbModelType = 2;
-DWORD sysCRC;
-char dongleGameId[4];
 #pragma optimize("", off)
 void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 {
