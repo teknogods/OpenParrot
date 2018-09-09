@@ -11,17 +11,6 @@ static void RunMain();
 static BYTE originalCode[20];
 extern "C" PBYTE originalEP = 0;
 
-void Main_UnprotectModule(HMODULE hModule)
-{
-	PIMAGE_DOS_HEADER header = (PIMAGE_DOS_HEADER)hModule;
-	PIMAGE_NT_HEADERS ntHeader = (PIMAGE_NT_HEADERS)((DWORD_PTR)hModule + header->e_lfanew);
-
-	// unprotect the entire PE image
-	SIZE_T size = ntHeader->OptionalHeader.SizeOfImage;
-	DWORD oldProtect;
-	VirtualProtect((LPVOID)hModule, size, PAGE_EXECUTE_READWRITE, &oldProtect);
-}
-
 #ifdef _M_AMD64
 extern "C" void Main_DoResume();
 #endif
@@ -30,7 +19,12 @@ static void Main_DoInit()
 {
 	RunMain();
 
+	DWORD oldProtect;
+	VirtualProtect(originalEP, 20, PAGE_EXECUTE_READWRITE, &oldProtect);
+
 	memcpy(originalEP, &originalCode, sizeof(originalCode));
+
+	VirtualProtect(originalEP, 20, oldProtect, &oldProtect);
 
 #if _M_IX86
 	__asm jmp originalEP
@@ -49,11 +43,12 @@ static void Main_SetSafeInit()
 		PIMAGE_DOS_HEADER header = (PIMAGE_DOS_HEADER)hModule;
 		PIMAGE_NT_HEADERS ntHeader = (PIMAGE_NT_HEADERS)((DWORD_PTR)hModule + header->e_lfanew);
 
-		Main_UnprotectModule(hModule);
-
 		// back up original code
 		PBYTE ep = (PBYTE)((DWORD_PTR)hModule + ntHeader->OptionalHeader.AddressOfEntryPoint);
 		memcpy(originalCode, ep, sizeof(originalCode));
+
+		DWORD oldProtect;
+		VirtualProtect(ep, 20, PAGE_EXECUTE_READWRITE, &oldProtect);
 
 #ifdef _M_IX86
 		// patch to call our EP
@@ -67,6 +62,8 @@ static void Main_SetSafeInit()
 		ep[10] = 0xFF;
 		ep[11] = 0xE0;
 #endif
+
+		VirtualProtect(ep, 20, oldProtect, &oldProtect);
 
 		originalEP = ep;
 	}
