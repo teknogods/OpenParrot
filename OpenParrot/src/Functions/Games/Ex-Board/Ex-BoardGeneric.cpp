@@ -73,55 +73,7 @@ DWORD process_streamExBoard(UINT8 *stream, DWORD srcsize, BYTE *dst, DWORD dstsi
 		memcpy(&SRAM[addr], &stream[6], size);
 		break;
 	}
-#if 0
-	case 0xfb:
-		r.push_back(0x76);
-		r.push_back(0xfb);
 
-		if (stream[4] == 0)
-		{
-			r.push_back(80 + 80 + 5);
-			int a3 = 0;
-			int a5 = 3;
-			for (int i = 0; i < 20; i++) {
-				// 3
-				if (i & 1) {
-					for (int k = 0; k < 3; k++)
-						r.push_back(tbl0[a3 + k]);
-					a3 += 12;
-				}
-				else {
-					for (int k = 0; k < 5; k++)
-						r.push_back(tbl0[a5 + k]);
-					a5 += 12;
-				}
-			}
-
-			a3 = 1;
-			a5 = 4;
-			for (int i = 0; i < 20; i++) {
-				// 3
-				if (i & 1) {
-					for (int k = 0; k < 3; k++)
-						r.push_back(tbl0[a3 + k]);
-					a3 += 12;
-				}
-				else {
-					for (int k = 0; k < 5; k++)
-						r.push_back(tbl0[a5 + k]);
-					a5 += 12;
-				}
-			}
-		}
-		else {
-			r.push_back(0xf4);
-			for (int i = 0; i < 0xef; i++)
-				r.push_back(0);
-		}
-		r.push_back(0x70);
-		r.push_back(0x42);
-		break;
-#else
 	case 0xfb:
 	{
 		//A5 FB 07 00 00 EF 5A 
@@ -150,7 +102,6 @@ DWORD process_streamExBoard(UINT8 *stream, DWORD srcsize, BYTE *dst, DWORD dstsi
 		break;
 	}
 
-#endif
 	case 0xfe:
 		r.push_back(0x76);
 		r.push_back(0xfe);
@@ -351,7 +302,10 @@ BOOL WINAPI CloseHandleWrap(
 )
 {
 	if (hObject == (HANDLE)0x8001)
+	{
+		reset_addressedExBoard();
 		return TRUE;
+	}
 	CloseHandle(hObject);
 }
 
@@ -369,17 +323,6 @@ BOOL __stdcall ExitWindowsExWrap(UINT uFlags, DWORD dwReason)
 {
 	return FALSE;
 }
-
-int __stdcall ShowCursorWrap(BOOL bShow)
-{
-	return ShowCursor(TRUE);
-}
-
-HCURSOR __stdcall SetCursorWrap(HCURSOR hCursor)
-{
-	return NULL;
-}
-
 
 SHORT __stdcall GetAsyncKeyStateWrap(int vKey)
 {
@@ -465,15 +408,10 @@ static InitFunction ExBoardGenericFunc([]()
 	iatHook("IpgExKey.dll", GetKeyLicenseWrap, "_GetKeyLicense@0");
 	iatHook("user32.dll", ChangeDisplaySettingsWrap, "ChangeDisplaySettingsA");
 	iatHook("user32.dll", ExitWindowsExWrap, "ExitWindowsEx");
-	iatHook("user32.dll", ShowCursorWrap, "ShowCursor");
-	iatHook("user32.dll", SetCursorWrap, "SetCursor");
 	iatHook("user32.dll", GetAsyncKeyStateWrap, "GetAsyncKeyState");
 	iatHook("user32.dll", SetWindowPosWrap, "SetWindowPos");
 	iatHook("user32.dll", CreateWindowExWWrap, "CreateWindowExW");
 	iatHook("user32.dll", CreateWindowExAWrap, "CreateWindowExA");
-
-
-
 	SRAM_load();
 
 }, GameID::ExBoardGeneric);
