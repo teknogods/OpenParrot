@@ -193,6 +193,10 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::TypeXGeneric;
 		X2Type = X2Type::Lupin3;
 		break;
+	case 0xcdf01376: // Battle Fantasia
+		currentGame = GameID::TypeXGeneric;
+		X2Type = X2Type::BattleFantasia;
+		break;
 #endif
 	default:
 		auto moduleBase = (uintptr_t)GetModuleHandle(nullptr);
