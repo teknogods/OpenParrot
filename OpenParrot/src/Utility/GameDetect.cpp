@@ -65,7 +65,6 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::SpicaAdventure;
 		X2Type = X2Type::Generic;
 		break;
-	//case 0xcdf01376: // Battle Fantasia
 	case 0xf9297ecb: // BlazBlue
 		currentGame = GameID::BlazBlue;
 		X2Type = X2Type::Generic;
@@ -78,7 +77,6 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::BlazBlueCS;
 		X2Type = X2Type::Generic;
 		break;
-	// case 0xea1984ff: // Deathsmiles II
 	case 0xe064ed48: // Giga Wing Generations
 		currentGame = GameID::GigaWingGenerations;
 		X2Type = X2Type::Generic;
@@ -188,7 +186,7 @@ void GameDetect::DetectCurrentGame()
 		auto moduleBase = (uintptr_t)GetModuleHandle(nullptr);
 		// SPECIAL BYTE PATTERNS (IF PE CHANGES DUE TO DYNAMIC IMAGEBASE)
 #if _M_IX86
-		if (*(uint32_t*)(moduleBase + 0x30E838) == 0x6A50016A)
+		if (*(uint32_t*)(moduleBase + 0x2182) == 0xE995C969)
 		{
 			currentGame = GameID::MachStorm;
 			break;
