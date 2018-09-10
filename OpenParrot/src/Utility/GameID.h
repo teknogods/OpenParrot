@@ -39,4 +39,5 @@ enum class GameID
 	VirtuaRLimit,
 	SchoolOfRagnarok,
 	PokkenTournament,
+	ExBoardGeneric
 };
