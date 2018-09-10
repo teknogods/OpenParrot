@@ -224,8 +224,6 @@ static HANDLE __stdcall CreateFileAWrapExBoard(LPCSTR lpFileName,
 		hTemplateFile);
 }
 
-extern int* wheelSection;
-
 BOOL __stdcall WriteFileWrapExBoard(HANDLE hFile,
 	LPVOID lpBuffer,
 	DWORD nNumberOfBytesToWrite,
@@ -259,7 +257,7 @@ BOOL __stdcall ClearCommErrorWrap(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpSt
 	if(lpStat)
 	{
 		OutputDebugStringA("CLEAR COMM ERROR COM1");
-		if(g_replyBuffers[hFile].empty())
+		if(!g_replyBuffers[hFile].empty())
 		{
 			lpStat->cbInQue = g_replyBuffers[hFile].size();
 		}
@@ -268,16 +266,20 @@ BOOL __stdcall ClearCommErrorWrap(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpSt
 			lpStat->cbInQue = 0;
 		}
 
-		lpStat->cbInQue += 8;
+		if (is_addressedExBoard())
+		{
 
-		g_replyBuffers[hFile].push_back(0x76);
-		g_replyBuffers[hFile].push_back(0xFD);
-		g_replyBuffers[hFile].push_back(0x08);
-		g_replyBuffers[hFile].push_back(0x00); // Control Byte 1
-		g_replyBuffers[hFile].push_back(0x00); // Control Byte 2
-		g_replyBuffers[hFile].push_back(0x00); // Control Byte 3
-		g_replyBuffers[hFile].push_back(0x00); // Control Byte 4
-		g_replyBuffers[hFile].push_back(0x42);
+			lpStat->cbInQue += 8;
+
+			g_replyBuffers[hFile].push_back(0x76);
+			g_replyBuffers[hFile].push_back(0xFD);
+			g_replyBuffers[hFile].push_back(0x08);
+			g_replyBuffers[hFile].push_back(0x00); // Control Byte 1
+			g_replyBuffers[hFile].push_back(0x00); // Control Byte 2
+			g_replyBuffers[hFile].push_back(0x00); // Control Byte 3
+			g_replyBuffers[hFile].push_back(0x00); // Control Byte 4
+			g_replyBuffers[hFile].push_back(0x42);
+		}
 	}
 
 	return true;
@@ -412,6 +414,7 @@ static InitFunction ExBoardGenericFunc([]()
 	iatHook("user32.dll", SetWindowPosWrap, "SetWindowPos");
 	iatHook("user32.dll", CreateWindowExWWrap, "CreateWindowExW");
 	iatHook("user32.dll", CreateWindowExAWrap, "CreateWindowExA");
+
 	SRAM_load();
 
 }, GameID::ExBoardGeneric);
