@@ -62,6 +62,11 @@ void GameDetect::DetectCurrentGame()
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
+	case 0xae41d855:
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
 	case 0x6DA10E60:
 		currentGame = GameID::FordRacing;
 		break;
