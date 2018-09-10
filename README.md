@@ -2,6 +2,8 @@
 
 REQUIRED FOR THIS PROJECT: https://github.com/teknogods/TeknoParrotUI
 
+BOUNTIES FOR THIS PROJECT: https://docs.google.com/spreadsheets/d/1gC2vCqWq93Blmg6XsbVYxEsMU3y1p6WPzbnkbtrg_k0/edit?usp=sharing
+
 HOW TO COMPILE (VISUAL STUDIO):
 1. Execute premake.bat for vs2017, for older versions: please edit the bat accordingly.
 2. Open in Visual Studio via .sln and compile. (x86 or x64) 
