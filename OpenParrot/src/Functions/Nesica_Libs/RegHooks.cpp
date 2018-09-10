@@ -6,6 +6,7 @@
 DWORD GameResult = 0;
 DWORD IOErrorCoin = 0;
 DWORD IOErrorCredit = 0;
+DWORD EventModeEnable = 0;
 
 DWORD FillDwordInformation(const char *setting, const char *subkey, DWORD defaultValue)
 {
@@ -98,6 +99,11 @@ LSTATUS __stdcall RegSetValueExWWrap(
 			{
 				PromptError(IOErrorCredit, 2);
 			}
+		}
+		else if (wcscmp(lpValueName, L"EventModeEnable") == 0)
+		{
+			// USED IN SKULLGIRLS
+			EventModeEnable = *(DWORD*)lpData;
 		}
 		else
 		{
@@ -201,7 +207,7 @@ LSTATUS __stdcall RegQueryValueExWWrap(
 		}
 		else if (wcscmp(lpValueName, L"EventModeEnable") == 0) // REG_DWORD
 		{
-			*lpData = FillDwordInformation("NESiCA", "EventModeEnable", 0); // 0 = DISABLE / 1 = ENABLE
+			*lpData = FillDwordInformation("NESiCA", "EventModeEnable", EventModeEnable); // 0 = DISABLE / 1 = ENABLE
 			*lpcbData = 4;
 		}
 		else if (wcscmp(lpValueName, L"UserSelectEnable") == 0) // REG_DWORD
