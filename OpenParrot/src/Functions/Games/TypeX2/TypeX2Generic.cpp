@@ -214,6 +214,12 @@ static InitFunction initFunction([]()
 
 			break;
 		}
+	case X2Type::BattleFantasia:
+		{
+			// TODO: DISABLE DUAL INPUT PLS
+			OutputDebugStringA("Please fix the dual input issue sir");
+			break;
+		}
 	}
 
 	if(GameDetect::currentGame == GameID::KOFMIRA)
