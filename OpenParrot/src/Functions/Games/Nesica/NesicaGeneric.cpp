@@ -5,12 +5,15 @@
 #include "Functions/Nesica_Libs/FastIoEmu.h"
 #include "Functions/Nesica_Libs/RfidEmu.h"
 #include "Functions/Nesica_Libs/NesysEmu.h"
+#include "Functions/Nesica_Libs/RegHooks.h"
 
 static InitFunction initFunction([]()
 {
 	init_FastIoEmu();
-	init_RfidEmu(X2Type::RFID);
-	init_NesysEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if(GameDetect::enableNesysEmu)
+		init_NesysEmu();
 #if _M_IX86
 	if(GameDetect::NesicaKey != NesicaKey::None)
 		init_CryptoPipe(GameDetect::NesicaKey);
@@ -26,7 +29,7 @@ static InitFunction initFunction_SOR([]()
 {
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
 	init_FastIoEmu();
-	init_RfidEmu(X2Type::RFID);
+	init_RfidEmu();
 	// TODO: DOCUMENT PATCHES
 	safeJMP(imageBase + 0xFA350, ReturnTrue);
 	safeJMP(imageBase + 0xF8FC0, ReturnTrue);

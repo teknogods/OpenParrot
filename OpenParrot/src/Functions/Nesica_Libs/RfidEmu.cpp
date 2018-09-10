@@ -50,7 +50,6 @@ typedef signed short SINT32;
 typedef unsigned char UINT8;
 typedef unsigned short UINT16;
 HANDLE hConnection = (HANDLE)0x1337;
-X2Type gameType;
 static uint8_t g_jvsIOValues[64];
 typedef BOOL(__stdcall *LPCloseHandle)(HANDLE hObject);
 static LPCloseHandle __CloseHandle = NULL;
@@ -346,45 +345,17 @@ int handle0x13(jprot_encoder *r)
 
 int handle0x14(jprot_encoder *r)
 {
-	if (gameType == X2Type::RFID)
-	{
-		r->report(JVS_REPORT_OK);
-		r->push(1);
-		r->push(7);
-		r->push(0);
-		r->push(8);
-		r->push(0);
-		r->push(0x12);
-		r->push(8);
-		r->push(0);
-		r->push(0);
-		r->push(0);
-		return 1;
-	}
-	if(gameType == X2Type::Digital)
-	{
-		r->report(JVS_REPORT_OK);
-
-		r->push(JVS_IOFUNC_SWINPUT);
-		{
-			r->push(JVS_SUPPORT_PLAYERS); // 2 players
-			r->push(14); // 14 bot�es
-			r->push(0); // null
-		}
-		r->push(JVS_IOFUNC_COINTYPE);
-		{
-			r->push(JVS_SUPPORT_SLOTS); // 2 slots
-			r->push(0); // null
-			r->push(0); // null
-		}
-
-		r->push(JVS_IOFUNC_EXITCODE);
-		{
-			r->push(0);
-			r->push(0);
-			r->push(0);
-		}
-	}
+	r->report(JVS_REPORT_OK);
+	r->push(1);
+	r->push(7);
+	r->push(0);
+	r->push(8);
+	r->push(0);
+	r->push(0x12);
+	r->push(8);
+	r->push(0);
+	r->push(0);
+	r->push(0);
 	return 1;
 }
 
@@ -399,19 +370,7 @@ int handle0x01(jprot_encoder *r)
 int handle0x20(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
-
-	if(gameType == X2Type::Digital)
-	{
-		if (g_jvsIOValues[24])
-			r->push(0x80);
-		else
-			r->push(0);
-	}
-	else
-	{
-		r->push(0);
-	}
-
+	r->push(0);
 	r->push(0);
 	r->push(0);
 	r->push(0);
@@ -421,36 +380,13 @@ int handle0x20(jprot_encoder *r)
 
 int handle0x21(jprot_encoder *r)
 {
-	if(gameType == X2Type::RFID)
-	{
-		int currstate = 0;// inputMgr.GetState(P1_COIN);
-		if (!coinstate[0] && (currstate)) {
-			++p1coin;
-		}
-		coinstate[0] = currstate;
-
-		currstate = 0;// inputMgr.GetState(P2_COIN);
-		if (!coinstate[1] && (currstate)) {
-			++p2coin;
-
-		}
-		coinstate[1] = currstate;
-
-		//logcmd("Lendo o ficheiro... \n");
-		r->report(JVS_REPORT_OK);
-		r->push(p1coin >> 8);
-		r->push(p1coin & 0xFF);
-		r->push(p2coin >> 8);
-		r->push(p2coin & 0xFF);
-		return 2;
-	}
-	int currstate = g_jvsIOValues[25];
+	int currstate = 0;// inputMgr.GetState(P1_COIN);
 	if (!coinstate[0] && (currstate)) {
 		++p1coin;
 	}
 	coinstate[0] = currstate;
 
-	currstate = g_jvsIOValues[26];
+	currstate = 0;// inputMgr.GetState(P2_COIN);
 	if (!coinstate[1] && (currstate)) {
 		++p2coin;
 
@@ -825,10 +761,9 @@ HANDLE __stdcall Hookz_CreateFileA(LPCSTR lpFileName,
 #define __XHOOKn(mod, name)	\
 	MH_CreateHookApi(L ## mod, #name, &Hookz_##name, (void**)&__##name)
 
-void init_RfidEmu(X2Type type)
+void init_RfidEmu()
 {
 	MH_Initialize();
-	gameType = X2Type::RFID;
 	__XHOOKn("kernel32.dll", CreateFileA);
 	//__XHOOKn("kernel32.dll", CreateFileW);
 	__XHOOKn("kernel32.dll", WriteFile);

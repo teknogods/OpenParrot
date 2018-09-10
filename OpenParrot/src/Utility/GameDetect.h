@@ -13,6 +13,7 @@ public:
 	static NesicaKey NesicaKey;
 	static std::string GetGameName();
 	static std::string GameDetect::GetGameName(GameID game);
+	static bool enableNesysEmu;
 
 private:
 	static bool isNesica;
