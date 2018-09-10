@@ -8,7 +8,8 @@ enum class NesicaKey
 	BlazBlueChronoPhantasma = 3,
 	KOFXIIIClimax = 4,
 	Persona4Ultimix = 5,
-	USF4 = 6
+	USF4 = 6,
+	NoNet = 7,
 };
 
 void init_CryptoPipe(NesicaKey id);

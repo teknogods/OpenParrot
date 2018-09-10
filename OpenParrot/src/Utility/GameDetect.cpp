@@ -2,6 +2,7 @@
 #include "GameDetect.h"
 #pragma optimize("", off)
 bool GameDetect::isNesica = false;
+bool GameDetect::enableNesysEmu = true;
 NesicaKey GameDetect::NesicaKey;
 X2Type GameDetect::X2Type = X2Type::None;
 
@@ -51,6 +52,12 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0xffe46764: // Akai Katana Shin
 	case 0x48362a6a:
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+		// SF 3rd Strike
+	case 0x9369715e:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
