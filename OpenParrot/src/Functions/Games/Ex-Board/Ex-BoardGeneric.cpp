@@ -358,17 +358,27 @@ HWND __stdcall CreateWindowExWWrap(DWORD dwExStyle,
 	LPVOID lpParam)
 {
 	dwExStyle = 0;
-	dwStyle = WS_OVERLAPPEDWINDOW;
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		dwStyle = WS_OVERLAPPEDWINDOW;
 
-	RECT r;
-	r.bottom = nHeight;
-	r.top = 0;
-	r.right = nWidth;
-	r.left = 0;
-	AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, FALSE);
+		RECT r;
+		r.bottom = nHeight;
+		r.top = 0;
+		r.right = nWidth;
+		r.left = 0;
+		AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, FALSE);
 
-	return CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, r.right, r.bottom, hWndParent,
+		return CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, r.right, r.bottom, hWndParent,
+			hMenu, hInstance, lpParam);
+	}
+
+	dwStyle = WS_EX_TOPMOST | WS_POPUP;
+	x = 0;
+	y = 0;
+	return CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent,
 		hMenu, hInstance, lpParam);
+
 }
 
 HWND __stdcall CreateWindowExAWrap(DWORD dwExStyle,
@@ -383,21 +393,30 @@ HWND __stdcall CreateWindowExAWrap(DWORD dwExStyle,
 	HMENU hMenu,
 	HINSTANCE hInstance,
 	LPVOID lpParam)
-{
+{	
 	dwExStyle = 0;
-	dwStyle = WS_OVERLAPPEDWINDOW;
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		dwStyle = WS_OVERLAPPEDWINDOW;
 
-	RECT r;
-	r.right = nWidth;
-	r.bottom = nHeight;
-	r.top = 0;
-	r.left = 0;
-	AdjustWindowRect(&r, dwStyle, FALSE);
+		RECT r;
+		r.right = nWidth;
+		r.bottom = nHeight;
+		r.top = 0;
+		r.left = 0;
+		AdjustWindowRect(&r, dwStyle, FALSE);
 
-	nWidth = r.right - r.left;
-	nHeight = r.bottom - r.top;
+		nWidth = r.right - r.left;
+		nHeight = r.bottom - r.top;
 
-	return CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, 0, 0, nWidth, nHeight, hWndParent,
+		return CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, 0, 0, nWidth, nHeight, hWndParent,
+			hMenu, hInstance, lpParam);
+	}
+
+	dwStyle = WS_EX_TOPMOST | WS_POPUP;
+	x = 0;
+	y = 0;
+	return CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent,
 		hMenu, hInstance, lpParam);
 }
 
