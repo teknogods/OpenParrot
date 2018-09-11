@@ -69,3 +69,4 @@ project "udis86"
 
 include "OpenParrot"
 include "OpenParrotLoader"
+include "OpenParrotKonamiLoader"
