@@ -247,6 +247,8 @@ BOOL __stdcall WriteFileWrapExBoard(HANDLE hFile,
 	return WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 }
 
+extern int* ffbOffset;
+
 BOOL __stdcall ClearCommErrorWrap(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpStat)
 {
 	if (hFile != (HANDLE)0x8001)
@@ -274,10 +276,10 @@ BOOL __stdcall ClearCommErrorWrap(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpSt
 			g_replyBuffers[hFile].push_back(0x76);
 			g_replyBuffers[hFile].push_back(0xFD);
 			g_replyBuffers[hFile].push_back(0x08);
-			g_replyBuffers[hFile].push_back(0x00); // Control Byte 1
-			g_replyBuffers[hFile].push_back(0x00); // Control Byte 2
-			g_replyBuffers[hFile].push_back(0x00); // Control Byte 3
-			g_replyBuffers[hFile].push_back(0x00); // Control Byte 4
+			g_replyBuffers[hFile].push_back(*ffbOffset & 0xFF); // Control Byte 1
+			g_replyBuffers[hFile].push_back(*ffbOffset >> 8 & 0xFF); // Control Byte 2
+			g_replyBuffers[hFile].push_back(*ffbOffset >> 16 & 0xFF); // Control Byte 3
+			g_replyBuffers[hFile].push_back(*ffbOffset >> 24 & 0xFF); // Control Byte 4
 			g_replyBuffers[hFile].push_back(0x42);
 		}
 	}
