@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include "libavs-win32.h"
+#include "libacio.h"
 
 typedef signed(__stdcall *dll_entry_main)();
 typedef signed(__stdcall *dll_entry_init)();
@@ -30,6 +31,12 @@ int main(int argc, char* argv[])
 
 	init_libavs();
 
+	// Add some sleep just in case.
+	Sleep(1000);
+
+	init_libacioHooks();
+
+	// Add some sleep just in case.
 	Sleep(1000);
 
 	auto gameBinary = LoadLibraryA(argv[1]);
