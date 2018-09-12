@@ -221,6 +221,10 @@ void init_FastIoEmu()
 		injector::MakeJMP(GetProcAddress(GetModuleHandleA(libName), "iDmacDrvClose"), iDmacDrvClose);
 	if ((DWORD)GetProcAddress(GetModuleHandleA(libName), "iDmacDrvOpen") != 0)
 		injector::MakeJMP(GetProcAddress(GetModuleHandleA(libName), "iDmacDrvOpen"), iDmacDrvOpen);
+	if ((DWORD)GetProcAddress(GetModuleHandleA(libName), "iDmacDrvRegisterWrite") != 0)
+		injector::MakeJMP(GetProcAddress(GetModuleHandleA(libName), "iDmacDrvRegisterWrite"), iDmacDrvRegisterWrite);
+	if ((DWORD)GetProcAddress(GetModuleHandleA(libName), "iDmacDrvRegisterRead") != 0)
+		injector::MakeJMP(GetProcAddress(GetModuleHandleA(libName), "iDmacDrvRegisterRead"), iDmacDrvRegisterRead);
 #else
 	const wchar_t* libName = L"idmacdrv64.dll";
 	MH_CreateHookApi(libName, "iDmacDrvClose", &iDmacDrvClose, NULL);
