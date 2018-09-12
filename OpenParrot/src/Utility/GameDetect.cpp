@@ -13,11 +13,17 @@ void GameDetect::DetectCurrentGame()
 	switch (crcResult)
 	{
 #if _M_IX86
+	case 0xd3f62267:
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
 	case 0x4bcfbc4f:
 		currentGame = GameID::GrooveCoaster2;
 		isNesica = true;
 		break;
 	case 0xcb4ab9d6:
+	case 0x385ad385:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::USF4;
 		isNesica = true;
