@@ -79,6 +79,11 @@ DWORD LinkRC5Data(const char* file, void* buf, int gameId)
 		}
 		break;
 	default:
+		for (int i = 0; i < 308; i++)
+		{
+			sscanf(&key_usf4[i * 2], "%02x", &num);
+			key[i] = num;
+		}
 		break;
 	}
 	memcpy(buf, key, 308);

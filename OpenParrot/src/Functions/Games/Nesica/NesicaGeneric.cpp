@@ -15,8 +15,7 @@ static InitFunction initFunction([]()
 	if(GameDetect::enableNesysEmu)
 		init_NesysEmu();
 #if _M_IX86
-	if(GameDetect::NesicaKey != NesicaKey::None)
-		init_CryptoPipe(GameDetect::NesicaKey);
+	init_CryptoPipe(GameDetect::NesicaKey);
 #endif
 }, GameID::Nesica);
 
