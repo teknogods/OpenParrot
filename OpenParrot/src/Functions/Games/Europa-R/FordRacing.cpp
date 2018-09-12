@@ -49,5 +49,11 @@ static InitFunction fordRacingFunc([]()
 	// Hook FFB calls
 	injector::MakeJMP(0x00467C9A, FordRacingFfbFunc);
 
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		// TODO: fix mouse to work without alt-tab, make window moveable
+		injector::MakeNOP(0x466A70 + 0x1BB, 5);
+	}
+
 }, GameID::FordRacing);
 #endif
