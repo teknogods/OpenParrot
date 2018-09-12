@@ -28,13 +28,24 @@ void GameDetect::DetectCurrentGame()
 		NesicaKey = NesicaKey::BlazBlueCentralFriction;
 		isNesica = true;
 		break;
+	case 0xd98bed41: // Crimzon Clover
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
 	case 0xde1b6797:
 	case 0xaff18f9b:
+	case 0x8f4d9755: // 302510 I/O ERROR
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::BlazBlueChronoPhantasma;
 		isNesica = true;
 		break;
-	case 0x05e53803:
+	case 0x5c095b93: // Daemon Bride
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::BlazBlueChronoPhantasma;
+		isNesica = true;
+		break;
+	case 0x05e53803: // KOF XIII Climax
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::KOFXIIIClimax;
 		isNesica = true;
