@@ -33,6 +33,11 @@ void GameDetect::DetectCurrentGame()
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
+	case 0xd32f9ec1: // Goketsuji Ichizoku - Matsuri Senzo Kuyo
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
 	case 0xde1b6797:
 	case 0xaff18f9b:
 	case 0x8f4d9755: // 302510 I/O ERROR

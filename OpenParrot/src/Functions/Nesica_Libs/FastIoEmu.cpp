@@ -197,6 +197,7 @@ void init_FastIoEmu()
 	MH_Initialize();
 #if _M_IX86
 	const char* libName = "idmacdrv32.dll";
+	LoadLibraryA(libName);
 	if((DWORD)GetProcAddress(GetModuleHandleA(libName), "iDmacDrvMemoryBufferWrite") != 0)
 		injector::MakeJMP(GetProcAddress(GetModuleHandleA(libName), "iDmacDrvMemoryBufferWrite"), iDmacDrvMemoryBufferWrite);
 	if ((DWORD)GetProcAddress(GetModuleHandleA(libName), "iDmacDrvMemoryBufferRead") != 0)
