@@ -67,6 +67,11 @@ void GameDetect::DetectCurrentGame()
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
+	case 0x28503c4c: // Nitroplus Blasterz 303910
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
 	case 0x6DA10E60:
 		currentGame = GameID::FordRacing;
 		break;
