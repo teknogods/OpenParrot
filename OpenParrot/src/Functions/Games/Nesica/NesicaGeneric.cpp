@@ -24,6 +24,21 @@ static int ReturnTrue()
 	return 1;
 }
 
+static InitFunction initFunction_GC2([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	init_NesysEmu();
+
+	// C:\\TypeXZEROTemp.dat check
+	safeJMP(imageBase + 0xF81B0, ReturnTrue);
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::GrooveCoaster2);
+
 static InitFunction initFunction_SOR([]()
 {
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
