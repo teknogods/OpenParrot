@@ -204,28 +204,6 @@ public:
 		push(v);
 	}
 	void end_stream() {
-#if 0
-		if (xpos == (statusaddr + 1)) {
-			clear();
-			return;
-		}
-		// codifica o tamanho da stream
-		buffer[sizeaddr] = (BYTE)xpos - sizeaddr;
-
-		// calcula o checksum
-		DWORD sum = 0;
-		for (DWORD i = sumaddr; i<xpos; i++) {
-			sum += (DWORD)(buffer[i] & 0xFF);
-		}
-		sum &= 0xFF;
-		if ((sum == 0xD0) || (sum == 0xE0)) {
-			push(0xD0);
-			push(sum - 1);
-		}
-		else
-			push(sum);
-		size_ = xpos;
-#else
 		if (xpos == (statusaddr + 1)) {
 			clear();
 			return;
@@ -253,7 +231,6 @@ public:
 		sum &= 0xFF;
 		push(sum);
 		size_ = xpos;
-#endif
 	}
 
 
