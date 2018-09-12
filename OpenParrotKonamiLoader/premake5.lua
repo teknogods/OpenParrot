@@ -14,7 +14,7 @@ project "OpenParrotKonamiLoader"
 	includedirs { "src", "deps_inc" }
 	libdirs { }
 
-	links { }
+	links { "MinHook", "udis86" }
 
 	postbuildcommands { }
 

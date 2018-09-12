@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <injector/injector.hpp>
 
 DWORD mainModuleBase;
 
@@ -512,5 +513,96 @@ const char *ac_io_version()
 
 int init_libacioHooks()
 {
+	// Hook ton of APIs
+	LoadLibrary("libacio.dll");
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_begin_get_status"), ac_io_begin_get_status);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_end"), ac_io_end);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_end_get_status"), ac_io_end_get_status);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_get_version"), ac_io_get_version);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_control_lamp_bright"), ac_io_hbhi_control_lamp_bright);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_control_lamp_mode"), ac_io_hbhi_control_lamp_mode);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_control_lamp_off"), ac_io_hbhi_control_lamp_off);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_control_lamp_on"), ac_io_hbhi_control_lamp_on);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_control_parallel_off"), ac_io_hbhi_control_parallel_off);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_control_parallel_on"), ac_io_hbhi_control_parallel_on);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_control_reset"), ac_io_hbhi_control_reset);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_create_get_status_thread"), ac_io_hbhi_create_get_status_thread);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_destroy_get_status_thread"), ac_io_hbhi_destroy_get_status_thread);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_get_coin_input_wave_buffer"), ac_io_hbhi_get_coin_input_wave_buffer);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_get_watchdog_status"), ac_io_hbhi_get_watchdog_status);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_lock_coincounter"), ac_io_hbhi_lock_coincounter);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_carddispenser_disburse"), ac_io_hbhi_req_carddispenser_disburse);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_carddispenser_get_status"), ac_io_hbhi_req_carddispenser_get_status);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_carddispenser_init"), ac_io_hbhi_req_carddispenser_init);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_coin_input_wave"), ac_io_hbhi_req_coin_input_wave);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_get_control_status"), ac_io_hbhi_req_get_control_status);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_secplug_check"), ac_io_hbhi_req_secplug_check);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_secplug_check_isfinished"), ac_io_hbhi_req_secplug_check_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_secplug_check_softwareplug"), ac_io_hbhi_req_secplug_check_softwareplug);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_secplug_check_systemplug"), ac_io_hbhi_req_secplug_check_systemplug);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_secplug_missing_check"), ac_io_hbhi_req_secplug_missing_check);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_reset_coin_slot_noise_flag"), ac_io_hbhi_reset_coin_slot_noise_flag);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_secplug_missing_check_isfinished"), ac_io_hbhi_req_secplug_missing_check_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_volume_control"), ac_io_hbhi_req_volume_control);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_volume_control_isfinished"), ac_io_hbhi_req_volume_control_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_set_framing_err_packet_send_interval"), ac_io_hbhi_set_framing_err_packet_send_interval);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_set_watchdog_time"), ac_io_hbhi_set_watchdog_time);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_unlock_coincounter"), ac_io_hbhi_unlock_coincounter);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_update_control_status_buffer"), ac_io_hbhi_update_control_status_buffer);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hgth_update_recvdata"), ac_io_hgth_update_recvdata);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_set_soft_watch_dog"), ac_io_set_soft_watch_dog);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_soft_watch_dog_off"), ac_io_soft_watch_dog_off);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_soft_watch_dog_on"), ac_io_soft_watch_dog_on);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_update"), ac_io_update);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hdxs_update_control_status_buffer"), ac_io_hdxs_update_control_status_buffer);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_is_felica"), ac_io_icca_is_felica);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_secplug_set_encodedpasswd"), ac_io_secplug_set_encodedpasswd);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_get_firmware_update_device_index"), ac_io_get_firmware_update_device_index);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_get_version_string"), ac_io_get_version_string);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_get_watchdog_time_min"), ac_io_hbhi_get_watchdog_time_min);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_get_watchdog_time_now"), ac_io_hbhi_get_watchdog_time_now);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hdxs_led_scroll"), ac_io_hdxs_led_scroll);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hdxs_led_set_pattern"), ac_io_hdxs_led_set_pattern);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hdxs_led_set_rgb_mask"), ac_io_hdxs_led_set_rgb_mask);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_send_keep_alive_packet"), ac_io_icca_send_keep_alive_packet);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_watchdog_off"), ac_io_hbhi_watchdog_off);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hgth_set_senddata"), ac_io_hgth_set_senddata);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_begin"), ac_io_begin);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_get_node_no"), ac_io_get_node_no);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_get_rs232c_status"), ac_io_get_rs232c_status);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_add_coin"), ac_io_hbhi_add_coin);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_consume_coinstock"), ac_io_hbhi_consume_coinstock);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_control_coin_blocker_close"), ac_io_hbhi_control_coin_blocker_close);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_control_coin_blocker_open"), ac_io_hbhi_control_coin_blocker_open);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_current_coinstock"), ac_io_hbhi_current_coinstock);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_get_control_status_buffer"), ac_io_hbhi_get_control_status_buffer);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_get_softwareid"), ac_io_hbhi_get_softwareid);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_get_systemid"), ac_io_hbhi_get_systemid);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_carddispenser_disburse_isfinished"), ac_io_hbhi_req_carddispenser_disburse_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_carddispenser_get_status_isfinished"), ac_io_hbhi_req_carddispenser_get_status_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hbhi_req_carddispenser_init_isfinished"), ac_io_hbhi_req_carddispenser_init_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hdxs_get_control_status_buffer"), ac_io_hdxs_get_control_status_buffer);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hdxs_set_framing_err_packet_send_interval"), ac_io_hdxs_set_framing_err_packet_send_interval);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hgth_directreq_set_handle_limit"), ac_io_hgth_directreq_set_handle_limit);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hgth_directreq_set_handle_limit_isfinished"), ac_io_hgth_directreq_set_handle_limit_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_hgth_get_recvdata"), ac_io_hgth_get_recvdata);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_cardunit_init"), ac_io_icca_cardunit_init);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_cardunit_init_isfinished"), ac_io_icca_cardunit_init_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_device_control_iccard_power_supply_off"), ac_io_icca_device_control_iccard_power_supply_off);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_device_control_iccard_power_supply_on"), ac_io_icca_device_control_iccard_power_supply_on);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_device_control_isfinished"), ac_io_icca_device_control_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_get_keep_alive_error"), ac_io_icca_get_keep_alive_error);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_get_status"), ac_io_icca_get_status);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_get_uid_felica"), ac_io_icca_get_uid_felica);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_req_uid"), ac_io_icca_req_uid);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_req_uid_isfinished"), ac_io_icca_req_uid_isfinished);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_icca_workflow"), ac_io_icca_workflow);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_is_active"), ac_io_is_active);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_is_active2"), ac_io_is_active2);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_is_active_device"), ac_io_is_active_device);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_reset"), ac_io_reset);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_set_get_status_device"), ac_io_set_get_status_device);
+	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_version"), ac_io_version);
+
 	return 1;
 }
