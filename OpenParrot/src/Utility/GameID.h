@@ -40,5 +40,6 @@ enum class GameID
 	SchoolOfRagnarok,
 	PokkenTournament,
 	ExBoardGeneric,
-	GrooveCoaster2
+	GrooveCoaster2,
+	PuzzleBobble
 };
