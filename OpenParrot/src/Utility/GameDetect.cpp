@@ -136,7 +136,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0x358ec3ff: // Puzzle Bobble
-		currentGame = GameID::Nesica;
+		currentGame = GameID::PuzzleBobble;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;

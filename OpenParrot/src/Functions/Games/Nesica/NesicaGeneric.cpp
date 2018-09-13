@@ -39,6 +39,18 @@ static InitFunction initFunction_GC2([]()
 #endif
 }, GameID::GrooveCoaster2);
 
+static InitFunction initFunction_PB([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	init_NesysEmu();
+
+	// Nesys error workaround
+	injector::WriteMemoryRaw(imageBase + 0xA77B, "\xA3\xEC\x0D\x4F\x00\x90", 6, true);
+}, GameID::PuzzleBobble);
+
 static InitFunction initFunction_SOR([]()
 {
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
