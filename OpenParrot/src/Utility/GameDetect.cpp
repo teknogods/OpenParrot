@@ -78,6 +78,7 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0xffe46764: // Akai Katana Shin
 	case 0x48362a6a:
+	case 0x2e65f7ad:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
@@ -94,6 +95,47 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0x28503c4c: // Nitroplus Blasterz 303910
+	case 0x6673e73b:
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x57c889e6: // Space Invaders
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x62c933d9: // Strania - The Stella Machina
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x549627f4: // Aquapazza Aquaplus Dream Match
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0xc0cbafd3: // Do Not Fall - Run for Your Drink
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x87670e0f: // Elevator Action
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x29025abc: // En-Eins Perfektewelt
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x3a998b11: // Rastan Saga
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x358ec3ff: // Puzzle Bobble
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
