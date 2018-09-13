@@ -279,9 +279,8 @@ char __cdecl ac_io_get_node_no(int a1)
 
 DWORD *__cdecl ac_io_get_rs232c_status(DWORD *a1) // JGT
 {
-	// TODO
-	// UNK RET
-	return 0;
+	memset(a1, 0, 0x54);
+	return a1;
 }
 
 DWORD coinDw = 0;
@@ -321,9 +320,9 @@ char __cdecl ac_io_hbhi_current_coinstock(signed int a1, DWORD *a2) // JGT
 
 int __cdecl ac_io_hbhi_get_control_status_buffer(int a1) // JGT
 {
-	// TODO
-	// TODO UNK RET
-	return 1;
+	// Apparently a1 is button bits ?
+	a1 = 0;
+	return 0;
 }
 
 int __cdecl ac_io_hbhi_get_softwareid(DWORD *a1) // JGT
@@ -438,10 +437,10 @@ bool __cdecl ac_io_icca_get_keep_alive_error(int a1, DWORD *a2)
 	return 0;
 }
 
-char __cdecl ac_io_icca_get_status(int a1, int a2) // JGT
+char __cdecl ac_io_icca_get_status(int a1, DWORD *a2) // JGT
 {
-	// TODO
-	// TODO UNK RET
+	// ALSO FE ?
+	*a2 = 0x0000000A;
 	return 1;
 }
 
@@ -468,6 +467,11 @@ bool __cdecl ac_io_icca_req_uid_isfinished(int a1, DWORD *a2) // JGT
 
 int __cdecl ac_io_icca_workflow(int a1, int a2) // JGT
 {
+	// This requires some smarts, not sure if required for JGT
+	if(a1 == 0 && a1 == 1)
+	{
+		return 0;
+	}
 	// TODO
 	// TODO UNK RET
 	return 1;
@@ -504,12 +508,12 @@ int __cdecl ac_io_set_get_status_device(int a1)
 	return a1;
 }
 
-const char *ac_io_version()
-{
-	// TODO
-	// TODO UNK RET
-	return "1337";
-}
+//const char *ac_io_version()
+//{
+//	// TODO
+//	// TODO UNK RET
+//	return "1337";
+//}
 
 int init_libacioHooks()
 {
@@ -602,7 +606,7 @@ int init_libacioHooks()
 	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_is_active_device"), ac_io_is_active_device);
 	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_reset"), ac_io_reset);
 	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_set_get_status_device"), ac_io_set_get_status_device);
-	injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_version"), ac_io_version);
+	//injector::MakeJMP(GetProcAddress(GetModuleHandleA("libacio.dll"), "ac_io_version"), ac_io_version);
 
 	return 1;
 }
