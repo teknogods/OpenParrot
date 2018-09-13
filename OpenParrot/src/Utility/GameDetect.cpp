@@ -88,6 +88,7 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
+		GameDetect::enableNesysEmu = false;
 		break;
 	case 0xae41d855:
 		currentGame = GameID::Nesica;
@@ -137,6 +138,37 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0x358ec3ff: // Puzzle Bobble
 		currentGame = GameID::PuzzleBobble;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0xabc41e0a: // Homura
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x19ba6a0c: // Vampire Savior - The Lord of Vampire
+	case 0x7cc54950: // Test.exe
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		GameDetect::enableNesysEmu = false;
+		break;
+	case 0x6496a142: // Hyper Street Fighter II
+	case 0xb686d3ac: // Test.exe
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		GameDetect::enableNesysEmu = false;
+		break; //6e5c8b5b
+	case 0x6e5c8b5b: // Street Fighter Zero 3
+	case 0x609d8b35: // Test.exe
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		GameDetect::enableNesysEmu = false;
+		break;
+	case 0xdd275161: // Sugoi! Arcana Heart 2 (Nesica)
+		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
