@@ -330,7 +330,7 @@ BOOL __stdcall Hook_ClearCommError(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpS
 	MH_CreateHookApi(L ## mod, #name, &Hook_##name, (void**)&__##name)
 
 static InitFunction jvsInit([]()
-{	
+{
 	if (GameDetect::IsNesicaGame())
 	{
 		return;

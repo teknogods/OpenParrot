@@ -337,6 +337,18 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::PokkenTournament;
 			break;
 		}
+		// PATCHES 0-9
+		if (*(uint32_t*)(moduleBase + 0x2F00) == 0xFFCB8B48)
+		{
+			currentGame = GameID::WMMT5;
+			break;
+		}
+		// PATCHES 10-21
+		if (*(uint32_t*)(moduleBase + 0x2F00) == 0x084AFF48)
+		{
+			currentGame = GameID::WMMT5;
+			break;
+		}
 #endif
 
 #ifdef _DEBUG
