@@ -153,6 +153,11 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		GameDetect::enableNesysEmu = false;
 		break;
+	case 0xf6e33d2b: // Exception
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
 	case 0x6496a142: // Hyper Street Fighter II
 	case 0xb686d3ac: // Test.exe
 		currentGame = GameID::Nesica;
