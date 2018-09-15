@@ -50,69 +50,6 @@ typedef signed short SINT32;
 typedef unsigned char UINT8;
 typedef unsigned short UINT16;
 HANDLE hConnection = (HANDLE)0x1337;
-static uint8_t g_jvsIOValues[64];
-typedef BOOL(__stdcall *LPCloseHandle)(HANDLE hObject);
-static LPCloseHandle __CloseHandle = NULL;
-
-typedef BOOL(__stdcall *LPGetCommModemStatus)(HANDLE hFile, LPDWORD lpModemStat);
-static LPGetCommModemStatus __GetCommModemStatus = NULL;
-
-typedef BOOL(__stdcall *LPEscapeCommFunction)(HANDLE hFile, DWORD dwFunc);
-static LPEscapeCommFunction __EscapeCommFunction = NULL;
-
-typedef BOOL(__stdcall *LPClearCommError)(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpStat);
-static LPClearCommError __ClearCommError = NULL;
-
-typedef BOOL(__stdcall *LPSetupComm)(HANDLE hFile, DWORD dwInQueue, DWORD dwOutQueue);
-static LPSetupComm  __SetupComm = NULL;
-
-typedef BOOL(__stdcall *LPGetCommState)(HANDLE hFile, LPDCB lpDCB);
-static LPGetCommState  __GetCommState = NULL;
-
-typedef BOOL(__stdcall *LPSetCommState)(HANDLE hFile, LPDCB lpDCB);
-static LPSetCommState  __SetCommState = NULL;
-
-typedef BOOL(__stdcall *LPSetCommMask)(HANDLE hFile, DWORD dwEvtMask);
-static LPSetCommMask  __SetCommMask = NULL;
-
-typedef BOOL(__stdcall *LPGetCommTimeouts)(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts);
-static LPGetCommTimeouts  __GetCommTimeouts = NULL;
-
-typedef BOOL(__stdcall *LPSetCommTimeouts)(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts);
-static LPSetCommTimeouts  __SetCommTimeouts = NULL;
-
-typedef BOOL(__stdcall *LPWriteFile)(HANDLE hFile,
-	LPVOID lpBuffer,
-	DWORD nNumberOfBytesToWrite,
-	LPDWORD lpNumberOfBytesWritten,
-	LPOVERLAPPED lpOverlapped);
-static LPWriteFile __WriteFile = NULL;
-typedef BOOL(__stdcall *LPReadFile)(HANDLE hFile,
-	LPVOID lpBuffer,
-	DWORD nNumberOfBytesToRead,
-	LPDWORD lpNumberOfBytesRead,
-	LPOVERLAPPED lpOverlapped);
-typedef BOOL(__stdcall *LPCloseHandle)(HANDLE hObject);
-static LPReadFile __ReadFile = NULL;
-
-
-typedef HANDLE(__stdcall *LPCreateFileA)(LPCSTR lpFileName,
-	DWORD dwDesiredAccess,
-	DWORD dwShareMode,
-	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-	DWORD dwCreationDisposition,
-	DWORD dwFlagsAndAttributes,
-	HANDLE hTemplateFile);
-static LPCreateFileA  __CreateFileA = NULL;
-
-typedef HANDLE(__stdcall *LPCreateFileW)(LPCWSTR lpFileName,
-	DWORD dwDesiredAccess,
-	DWORD dwShareMode,
-	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-	DWORD dwCreationDisposition,
-	DWORD dwFlagsAndAttributes,
-	HANDLE hTemplateFile);
-static LPCreateFileW  __CreateFileW = NULL;
 
 static const char *Rfid_IO_Id = "TAITO CORP.;RFID CTRL P.C.B.;Ver1.00;";
 
@@ -507,14 +444,11 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 	r.read(dst, dstsize);
 	return r.size();
 }
-
-#define __XHOOKn(mod, name)	\
-	MH_CreateHookApi(L ## mod, #name, &Hookz_##name, (void**)&__##name)
-
-BOOL __stdcall Hookz_GetCommModemStatus(HANDLE hFile, LPDWORD lpModemStat)
+BOOL(__stdcall *g_origGetCommModemStatus)(HANDLE hFile, LPDWORD lpModemStat);
+BOOL __stdcall GetCommModemStatusWrap(HANDLE hFile, LPDWORD lpModemStat)
 {
 	if (hFile != hConnection) {
-		return __GetCommModemStatus(hFile, lpModemStat);
+		return g_origGetCommModemStatus(hFile, lpModemStat);
 	}
 	if (is_addressed())
 		*lpModemStat = 0x10;
@@ -525,11 +459,11 @@ BOOL __stdcall Hookz_GetCommModemStatus(HANDLE hFile, LPDWORD lpModemStat)
 	info(true, "--------------------------------------------");
 #endif
 	return TRUE;
-}
-BOOL __stdcall Hookz_EscapeCommFunction(HANDLE hFile, DWORD dwFunc)
+}BOOL(__stdcall *g_origEscapeCommFunction)(HANDLE hFile, DWORD dwFunc);
+BOOL __stdcall EscapeCommFunctionWrap(HANDLE hFile, DWORD dwFunc)
 {
 	if (hFile != hConnection) {
-		return __EscapeCommFunction(hFile, dwFunc);
+		return g_origEscapeCommFunction(hFile, dwFunc);
 	}
 	bool ret = true;// __EscapeCommFunction(hFile, dwFunc);
 #ifdef LogRFID
@@ -539,10 +473,11 @@ BOOL __stdcall Hookz_EscapeCommFunction(HANDLE hFile, DWORD dwFunc)
 	return ret;
 }
 
-BOOL __stdcall Hookz_ClearCommError(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpStat)
+BOOL(__stdcall *g_origClearCommError)(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpStat);
+BOOL __stdcall ClearCommErrorWrap(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpStat)
 {
 	if (hFile != hConnection) {
-		return __ClearCommError(hFile, lpErrors, lpStat);
+		return g_origClearCommError(hFile, lpErrors, lpStat);
 	}
 #ifdef LogRFID
 	info(true, "ClearCommError(hFile=%d, lpErrors=%p, lpStat=%p) -> result=%08X", hFile, lpErrors, lpStat, 1);
@@ -557,11 +492,12 @@ BOOL __stdcall Hookz_ClearCommError(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lp
 	return true;
 }
 
-BOOL __stdcall Hookz_SetupComm(HANDLE hFile, DWORD dwInQueue, DWORD dwOutQueue)
+BOOL(__stdcall *g_origSetupComm)(HANDLE hFile, DWORD dwInQueue, DWORD dwOutQueue);
+BOOL __stdcall SetupCommWrap(HANDLE hFile, DWORD dwInQueue, DWORD dwOutQueue)
 {
 
 	if (hFile != hConnection) {
-		return __SetupComm(hFile, dwInQueue, dwOutQueue);
+		return g_origSetupComm(hFile, dwInQueue, dwOutQueue);
 	}
 #ifdef LogRFID
 	info(true, "SetupComm(hFile=%d, dwInQueue='%08X', dwOutQueue='%08X') -> result=%08X", hFile, dwInQueue, dwOutQueue, 1);
@@ -569,10 +505,12 @@ BOOL __stdcall Hookz_SetupComm(HANDLE hFile, DWORD dwInQueue, DWORD dwOutQueue)
 #endif
 	return TRUE;
 }
-BOOL __stdcall Hookz_GetCommState(HANDLE hFile, LPDCB lpDCB)
+
+BOOL(__stdcall *g_origGetCommState)(HANDLE hFile, LPDCB lpDCB);
+BOOL __stdcall GetCommStateWrap(HANDLE hFile, LPDCB lpDCB)
 {
 	if (hFile != hConnection) {
-		return __GetCommState(hFile, lpDCB);
+		return g_origGetCommState(hFile, lpDCB);
 	}
 #ifdef LogRFID
 	info(true, "GetCommState(hFile=%d, lpDCB=%p) -> result=%08X", hFile, lpDCB, 1);
@@ -581,10 +519,11 @@ BOOL __stdcall Hookz_GetCommState(HANDLE hFile, LPDCB lpDCB)
 	return TRUE;
 }
 
-BOOL __stdcall Hookz_SetCommState(HANDLE hFile, LPDCB lpDCB)
+BOOL(__stdcall *g_origSetCommState)(HANDLE hFile, LPDCB lpDCB);
+BOOL __stdcall SetCommStateWrap(HANDLE hFile, LPDCB lpDCB)
 {
 	if (hFile != hConnection) {
-		return __SetCommState(hFile, lpDCB);
+		return g_origSetCommState(hFile, lpDCB);
 	}
 #ifdef LogRFID
 	info(true, "SetCommState(hFile=%d, lpDCB=%p) -> result=%08X", hFile, lpDCB, 1);
@@ -593,11 +532,12 @@ BOOL __stdcall Hookz_SetCommState(HANDLE hFile, LPDCB lpDCB)
 	return TRUE;
 }
 
-BOOL __stdcall Hookz_SetCommMask(HANDLE hFile, DWORD dwEvtMask)
+BOOL(__stdcall *g_origSetCommMask)(HANDLE hFile, DWORD dwEvtMask);
+BOOL __stdcall SetCommMaskWrap(HANDLE hFile, DWORD dwEvtMask)
 {
 
 	if (hFile != hConnection) {
-		return __SetCommMask(hFile, dwEvtMask);
+		return g_origSetCommMask(hFile, dwEvtMask);
 	}
 #ifdef LogRFID
 	info(true, "SetCommMask(hFile=%d, dwEvtMask='%08X') -> result=%08X", hFile, dwEvtMask, true);
@@ -606,11 +546,12 @@ BOOL __stdcall Hookz_SetCommMask(HANDLE hFile, DWORD dwEvtMask)
 	return TRUE;
 }
 
-BOOL __stdcall Hookz_GetCommTimeouts(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts)
+BOOL(__stdcall *g_origGetCommTimeouts)(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts);
+BOOL __stdcall GetCommTimeoutsWrap(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts)
 {
 
 	if (hFile != hConnection) {
-		return __GetCommTimeouts(hFile, lpCommTimeouts);
+		return g_origGetCommTimeouts(hFile, lpCommTimeouts);
 	}
 #ifdef LogRFID
 	info(true, "GetCommTimeouts(hFile=%d, lpCommTimeouts=%p) -> result=%08X", hFile, lpCommTimeouts, TRUE);
@@ -619,11 +560,12 @@ BOOL __stdcall Hookz_GetCommTimeouts(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts
 	return TRUE;
 }
 
-BOOL __stdcall Hookz_SetCommTimeouts(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts)
+BOOL(__stdcall *g_origSetCommTimeouts)(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts);
+BOOL __stdcall SetCommTimeoutsWrap(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts)
 {
 
 	if (hFile != hConnection) {
-		return __SetCommTimeouts(hFile, lpCommTimeouts);
+		return g_origSetCommTimeouts(hFile, lpCommTimeouts);
 	}
 #ifdef LogRFID
 	info(true, "SetCommTimeouts(hFile=%d, lpCommTimeouts=%p) -> result=%08X", hFile, lpCommTimeouts, TRUE);
@@ -632,14 +574,19 @@ BOOL __stdcall Hookz_SetCommTimeouts(HANDLE hFile, LPCOMMTIMEOUTS lpCommTimeouts
 	return TRUE;
 }
 
-BOOL __stdcall Hookz_WriteFile(HANDLE hFile,
+BOOL(__stdcall *g_origWriteFile)(HANDLE hFile,
+	LPVOID lpBuffer,
+	DWORD nNumberOfBytesToWrite,
+	LPDWORD lpNumberOfBytesWritten,
+	LPOVERLAPPED lpOverlapped);
+BOOL __stdcall WriteFileWrap(HANDLE hFile,
 	LPVOID lpBuffer,
 	DWORD nNumberOfBytesToWrite,
 	LPDWORD lpNumberOfBytesWritten,
 	LPOVERLAPPED lpOverlapped)
 {
 	if (hFile != hConnection) {
-		return __WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+		return g_origWriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 	}
 	static BYTE rbuffer[1024];
 
@@ -658,14 +605,19 @@ BOOL __stdcall Hookz_WriteFile(HANDLE hFile,
 	return TRUE;
 }
 
-BOOL __stdcall  Hookz_ReadFile(HANDLE hFile,
+BOOL(__stdcall *g_origReadFile)(HANDLE hFile,
+	LPVOID lpBuffer,
+	DWORD nNumberOfBytesToRead,
+	LPDWORD lpNumberOfBytesRead,
+	LPOVERLAPPED lpOverlapped);
+BOOL __stdcall  ReadFileWrap(HANDLE hFile,
 	LPVOID lpBuffer,
 	DWORD nNumberOfBytesToRead,
 	LPDWORD lpNumberOfBytesRead,
 	LPOVERLAPPED lpOverlapped)
 {
 	if (hFile != hConnection) {
-		return __ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
+		return g_origReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
 	}
 
 #ifdef LogRFID
@@ -697,10 +649,11 @@ BOOL __stdcall  Hookz_ReadFile(HANDLE hFile,
 	return TRUE;
 }
 
-BOOL __stdcall Hookz_CloseHandle(HANDLE hObject)
+BOOL(__stdcall *g_origCloseHandle)(HANDLE hObject);
+BOOL __stdcall CloseHandleWrap(HANDLE hObject)
 {
 	if (hObject != hConnection) {
-		return __CloseHandle(hObject);
+		return g_origCloseHandle(hObject);
 	}
 #ifdef LogRFID
 	info(true, "CloseHandle(hObject=%d) -> result=%08X", hObject, TRUE);
@@ -708,8 +661,17 @@ BOOL __stdcall Hookz_CloseHandle(HANDLE hObject)
 #endif
 	return TRUE;
 }
+
 DWORD priority = 0;
-HANDLE __stdcall Hookz_CreateFileA(LPCSTR lpFileName,
+char moveBuf[256];
+HANDLE(__stdcall *g_origCreateFileA)(LPCSTR lpFileName,
+	DWORD dwDesiredAccess,
+	DWORD dwShareMode,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+	DWORD dwCreationDisposition,
+	DWORD dwFlagsAndAttributes,
+	HANDLE hTemplateFile);
+HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 	DWORD dwDesiredAccess,
 	DWORD dwShareMode,
 	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
@@ -726,7 +688,20 @@ HANDLE __stdcall Hookz_CreateFileA(LPCSTR lpFileName,
 		return hConnection;
 	}
 
-	return __CreateFileA(lpFileName,
+	if(!strncmp(lpFileName, "D:\\", 3) || !strncmp(lpFileName, "D:/", 3) || !strncmp(lpFileName, "d:/", 3), !strncmp(lpFileName, "d:\\", 3))
+	{
+		memset(moveBuf, 0, 256);
+		sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+		return g_origCreateFileA(moveBuf,
+			dwDesiredAccess,
+			dwShareMode,
+			lpSecurityAttributes,
+			dwCreationDisposition,
+			dwFlagsAndAttributes,
+			hTemplateFile);
+	}
+
+	return g_origCreateFileA(lpFileName,
 		dwDesiredAccess,
 		dwShareMode,
 		lpSecurityAttributes,
@@ -735,25 +710,98 @@ HANDLE __stdcall Hookz_CreateFileA(LPCSTR lpFileName,
 		hTemplateFile);
 }
 
-#define __XHOOKn(mod, name)	\
-	MH_CreateHookApi(L ## mod, #name, &Hookz_##name, (void**)&__##name)
+wchar_t moveBufW[256];
+
+HANDLE(__stdcall *g_origCreateFileW)(LPCWSTR lpFileName,
+	DWORD dwDesiredAccess,
+	DWORD dwShareMode,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+	DWORD dwCreationDisposition,
+	DWORD dwFlagsAndAttributes,
+	HANDLE hTemplateFile);
+HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
+	DWORD dwDesiredAccess,
+	DWORD dwShareMode,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+	DWORD dwCreationDisposition,
+	DWORD dwFlagsAndAttributes,
+	HANDLE hTemplateFile)
+{
+	if (!wcscmp(lpFileName, L"COM2"))
+	{
+#ifdef LogRFID
+		info(true, "CreateFile(lpFileName=%s) -> result=%08X", lpFileName, hConnection);
+		info(true, "--------------------------------------------");
+#endif
+		return hConnection;
+	}
+
+	if (!wcsncmp(lpFileName, L"D:\\", 3) || !wcsncmp(lpFileName, L"D:/", 3) || !wcsncmp(lpFileName, L"d:/", 3), !wcsncmp(lpFileName, L"d:\\", 3))
+	{
+		memset(moveBufW, 0, 256);
+		swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+		return g_origCreateFileW(moveBufW,
+			dwDesiredAccess,
+			dwShareMode,
+			lpSecurityAttributes,
+			dwCreationDisposition,
+			dwFlagsAndAttributes,
+			hTemplateFile);
+	}
+
+	return g_origCreateFileW(lpFileName,
+		dwDesiredAccess,
+		dwShareMode,
+		lpSecurityAttributes,
+		dwCreationDisposition,
+		dwFlagsAndAttributes,
+		hTemplateFile);
+}
+
+static DWORD(__stdcall *g_origGetFileAttributesA)(LPCSTR lpFileName);
+static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
+{
+	if (!strncmp(lpFileName, "D:\\", 3) || !strncmp(lpFileName, "D:/", 3) || !strncmp(lpFileName, "d:/", 3), !strncmp(lpFileName, "d:\\", 3))
+	{
+		memset(moveBuf, 0, 256);
+		sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+		return g_origGetFileAttributesA(moveBuf);
+	}
+	return g_origGetFileAttributesA(lpFileName);
+}
+
+static DWORD(__stdcall *g_origGetFileAttributesW)(LPCWSTR lpFileName);
+static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
+{
+	if (!wcsncmp(lpFileName, L"D:\\", 3) || !wcsncmp(lpFileName, L"D:/", 3) || !wcsncmp(lpFileName, L"d:/", 3), !wcsncmp(lpFileName, L"d:\\", 3))
+	{
+		memset(moveBufW, 0, 256);
+		swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+		return g_origGetFileAttributesW(moveBufW);
+	}
+	return g_origGetFileAttributesW(lpFileName);
+}
 
 void init_RfidEmu()
 {
 	MH_Initialize();
-	__XHOOKn("kernel32.dll", CreateFileA);
-	//__XHOOKn("kernel32.dll", CreateFileW);
-	__XHOOKn("kernel32.dll", WriteFile);
-	__XHOOKn("kernel32.dll", ReadFile);
-	__XHOOKn("kernel32.dll", CloseHandle);
-	__XHOOKn("kernel32.dll", GetCommModemStatus);
-	__XHOOKn("kernel32.dll", EscapeCommFunction);
-	__XHOOKn("kernel32.dll", ClearCommError);
-	__XHOOKn("kernel32.dll", SetCommMask);
-	__XHOOKn("kernel32.dll", SetupComm);
-	__XHOOKn("kernel32.dll", GetCommState);
-	__XHOOKn("kernel32.dll", SetCommState);
-	__XHOOKn("kernel32.dll", SetCommTimeouts);
-	__XHOOKn("kernel32.dll", GetCommTimeouts);
+	CreateDirectoryA("OpenParrot", nullptr);
+	MH_CreateHookApi(L"kernel32.dll", "GetFileAttributesA", GetFileAttributesAWrap, (void**)&g_origGetFileAttributesA);
+	MH_CreateHookApi(L"kernel32.dll", "GetFileAttributesW", GetFileAttributesWWrap, (void**)&g_origGetFileAttributesW);
+	MH_CreateHookApi(L"kernel32.dll", "CreateFileW", CreateFileWWrap, (void**)&g_origCreateFileW);
+	MH_CreateHookApi(L"kernel32.dll", "CreateFileA", CreateFileAWrap, (void**)&g_origCreateFileA);
+	MH_CreateHookApi(L"kernel32.dll", "CreateFileW", CreateFileWWrap, (void**)&g_origCreateFileW);
+	MH_CreateHookApi(L"kernel32.dll", "WriteFile", WriteFileWrap, (void**)&g_origWriteFile);
+	MH_CreateHookApi(L"kernel32.dll", "ReadFile", ReadFileWrap, (void**)&g_origReadFile);
+	MH_CreateHookApi(L"kernel32.dll", "CloseHandle", CloseHandleWrap, (void**)&g_origCloseHandle);
+	MH_CreateHookApi(L"kernel32.dll", "GetCommModemStatus", GetCommModemStatusWrap, (void**)&g_origGetCommModemStatus);
+	MH_CreateHookApi(L"kernel32.dll", "EscapeCommFunction", EscapeCommFunctionWrap, (void**)&g_origEscapeCommFunction);
+	MH_CreateHookApi(L"kernel32.dll", "ClearCommError", ClearCommErrorWrap, (void**)&g_origClearCommError);
+	MH_CreateHookApi(L"kernel32.dll", "SetCommMask", SetCommMaskWrap, (void**)&g_origSetCommMask);
+	MH_CreateHookApi(L"kernel32.dll", "SetupComm", SetupCommWrap, (void**)&g_origSetupComm);
+	MH_CreateHookApi(L"kernel32.dll", "GetCommState", GetCommStateWrap, (void**)&g_origGetCommState);
+	MH_CreateHookApi(L"kernel32.dll", "SetCommState", SetCommStateWrap, (void**)&g_origSetCommState);
+	MH_CreateHookApi(L"kernel32.dll", "SetCommTimeouts", SetCommTimeoutsWrap, (void**)&g_origSetCommTimeouts);
+	MH_CreateHookApi(L"kernel32.dll", "GetCommTimeouts", GetCommTimeoutsWrap, (void**)&g_origGetCommTimeouts);
 	MH_EnableHook(MH_ALL_HOOKS);
 }
