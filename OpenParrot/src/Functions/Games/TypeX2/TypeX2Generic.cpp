@@ -70,7 +70,7 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 
 static std::map<HANDLE, std::deque<BYTE>> g_replyBuffers;
 
-static BOOL __stdcall ReadFileWrap(HANDLE hFile,
+static BOOL __stdcall ReadFileWrapTx2(HANDLE hFile,
 	LPVOID lpBuffer,
 	DWORD nNumberOfBytesToRead,
 	LPDWORD lpNumberOfBytesRead,
@@ -92,7 +92,7 @@ static BOOL __stdcall ReadFileWrap(HANDLE hFile,
 	return ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
 }
 
-static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
+static DWORD __stdcall GetFileAttributesAWrapTx2(LPCSTR lpFileName)
 {
 	if (GameDetect::X2Type == X2Type::BG4 && lpFileName[1] == ':' && lpFileName[2] == '\\')
 	{
@@ -103,7 +103,7 @@ static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 
 extern int* wheelSection;
 
-BOOL __stdcall WriteFileWrap(HANDLE hFile,
+BOOL __stdcall WriteFileWrapTx2(HANDLE hFile,
 	LPVOID lpBuffer,
 	DWORD nNumberOfBytesToWrite,
 	LPDWORD lpNumberOfBytesWritten,
@@ -178,8 +178,8 @@ static InitFunction initFunction([]()
 			injector::WriteMemory<DWORD>(0x0041C800, 0x08C2C033, true);
 			injector::WriteMemory<BYTE>(0x0041C804, 0x00, true);
 
-			iatHook("kernel32.dll", ReadFileWrap, "ReadFile");
-			iatHook("kernel32.dll", WriteFileWrap, "WriteFile");
+			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
+			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
 			break;
 		}
 	case X2Type::Raiden4:
@@ -201,9 +201,9 @@ static InitFunction initFunction([]()
 				injector::MakeRET(0x5F21B0, 4);
 			}
 
-			iatHook("kernel32.dll", ReadFileWrap, "ReadFile");
-			iatHook("kernel32.dll", WriteFileWrap, "WriteFile");
-			iatHook("kernel32.dll", GetFileAttributesAWrap, "GetFileAttributesA");
+			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
+			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
+			iatHook("kernel32.dll", GetFileAttributesAWrapTx2, "GetFileAttributesA");
 
 			break;
 		}

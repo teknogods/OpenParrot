@@ -249,7 +249,7 @@ BOOL __stdcall WriteFileWrapExBoard(HANDLE hFile,
 
 extern int* ffbOffset;
 
-BOOL __stdcall ClearCommErrorWrap(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpStat)
+BOOL __stdcall ClearCommErrorWrapExBoard(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpStat)
 {
 	if (hFile != (HANDLE)0x8001)
 	{
@@ -287,7 +287,7 @@ BOOL __stdcall ClearCommErrorWrap(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpSt
 	return true;
 }
 
-BOOL __stdcall GetCommModemStatusWrap(HANDLE hFile, LPDWORD lpModemStat)
+BOOL __stdcall GetCommModemStatusWrapExBoard(HANDLE hFile, LPDWORD lpModemStat)
 {
 	if (hFile != (HANDLE)0x8001) {
 		return GetCommModemStatus(hFile, lpModemStat);
@@ -301,7 +301,7 @@ BOOL __stdcall GetCommModemStatusWrap(HANDLE hFile, LPDWORD lpModemStat)
 	return TRUE;
 }
 
-BOOL WINAPI CloseHandleWrap(
+BOOL WINAPI CloseHandleWrapExBoard(
 	_In_ HANDLE hObject
 )
 {
@@ -425,9 +425,9 @@ static InitFunction ExBoardGenericFunc([]()
 	iatHook("kernel32.dll", CreateFileAWrapExBoard, "CreateFileA");
 	iatHook("kernel32.dll", ReadFileWrapExBoard, "ReadFile");
 	iatHook("kernel32.dll", WriteFileWrapExBoard, "WriteFile");
-	iatHook("kernel32.dll", ClearCommErrorWrap, "ClearCommError");
-	iatHook("kernel32.dll", GetCommModemStatusWrap, "GetCommModemStatus");	
-	iatHook("kernel32.dll", CloseHandleWrap, "CloseHandle");
+	iatHook("kernel32.dll", ClearCommErrorWrapExBoard, "ClearCommError");
+	iatHook("kernel32.dll", GetCommModemStatusWrapExBoard, "GetCommModemStatus");
+	iatHook("kernel32.dll", CloseHandleWrapExBoard, "CloseHandle");
 	iatHook("IpgExKey.dll", GetKeyLicenseWrap, "_GetKeyLicense@0");
 	iatHook("user32.dll", ChangeDisplaySettingsWrap, "ChangeDisplaySettingsA");
 	iatHook("user32.dll", ExitWindowsExWrap, "ExitWindowsEx");
