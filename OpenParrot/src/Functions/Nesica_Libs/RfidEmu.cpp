@@ -739,7 +739,7 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 	if (!wcsncmp(lpFileName, L"D:\\", 3) || !wcsncmp(lpFileName, L"D:/", 3) || !wcsncmp(lpFileName, L"d:/", 3), !wcsncmp(lpFileName, L"d:\\", 3))
 	{
 		memset(moveBufW, 0, 256);
-		swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+		swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);
 		return g_origCreateFileW(moveBufW,
 			dwDesiredAccess,
 			dwShareMode,
@@ -776,7 +776,7 @@ static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
 	if (!wcsncmp(lpFileName, L"D:\\", 3) || !wcsncmp(lpFileName, L"D:/", 3) || !wcsncmp(lpFileName, L"d:/", 3), !wcsncmp(lpFileName, L"d:\\", 3))
 	{
 		memset(moveBufW, 0, 256);
-		swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+		swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);
 		return g_origGetFileAttributesW(moveBufW);
 	}
 	return g_origGetFileAttributesW(lpFileName);
