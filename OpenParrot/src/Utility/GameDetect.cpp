@@ -164,7 +164,7 @@ void GameDetect::DetectCurrentGame()
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		GameDetect::enableNesysEmu = false;
-		break; //6e5c8b5b
+		break;
 	case 0x6e5c8b5b: // Street Fighter Zero 3
 	case 0x609d8b35: // Test.exe
 		currentGame = GameID::Nesica;
@@ -173,6 +173,36 @@ void GameDetect::DetectCurrentGame()
 		GameDetect::enableNesysEmu = false;
 		break;
 	case 0xdd275161: // Sugoi! Arcana Heart 2 (Nesica)
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x42243e28: // Arcana Heart 2
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x47f8fb43: // Arcana Heart 3 - LOVE MAX SIX STARS!!!!!!
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x5bb8a4ca: // Raiden III
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0xd0fea58c: // Raiden IV
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0xe378e178: // Senko no Ronde DUO
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+	case 0x5503983f: // Trouble Witches AC - Amalgam no Joutachi
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
