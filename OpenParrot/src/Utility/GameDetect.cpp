@@ -34,6 +34,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0x2809c7c0: // Ikaruga
+	case 0xef4c3efd:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
