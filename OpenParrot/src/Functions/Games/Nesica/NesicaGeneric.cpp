@@ -34,6 +34,9 @@ static InitFunction initFunction_GC2([]()
 
 	// C:\\TypeXZEROTemp.dat check
 	safeJMP(imageBase + 0xF81B0, ReturnTrue);
+
+	// Unstuck the game from some dumb mouse scanner func
+	injector::MakeNOP(imageBase + 0xA3FF6, 2);
 #if _M_IX86
 	init_CryptoPipe(GameDetect::NesicaKey);
 #endif
