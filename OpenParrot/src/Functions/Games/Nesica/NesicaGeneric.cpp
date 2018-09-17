@@ -61,8 +61,9 @@ static InitFunction initFunction_MB([]()
 	init_RfidEmu();
 	init_RegHooks();
 	init_NesysEmu();
+#if _M_IX86
 	init_CryptoPipe(GameDetect::NesicaKey);
-
+#endif
 	// Skip Initilization wait time.
 	injector::MakeNOP(imageBase + 0x56B21, 2);
 }, GameID::MagicalBeat);
@@ -74,8 +75,9 @@ static InitFunction initFunction_CC([]()
 	init_RfidEmu();
 	init_RegHooks();
 	init_NesysEmu();
+#if _M_IX86
 	init_CryptoPipe(GameDetect::NesicaKey);
-
+#endif
 	// Skip stuck on Warning screen. NESYS emu must be improved for this to work properly!
 	injector::MakeNOP(imageBase + 0x1015E7, 2);
 }, GameID::CrimzonClover);
