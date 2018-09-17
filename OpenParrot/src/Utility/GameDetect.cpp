@@ -29,7 +29,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0x1d396bf2:
-		currentGame = GameID::Nesica;
+		currentGame = GameID::MagicalBeat;
 		NesicaKey = NesicaKey::MagicalBeat;
 		isNesica = true;
 		break;
