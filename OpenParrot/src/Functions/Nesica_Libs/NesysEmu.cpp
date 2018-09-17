@@ -2,6 +2,7 @@
 #include "NesysEmu.h"
 //#if _M_IX86
 #include "Utility/Utils.h"
+#include "NesysNewsFile.h"
 #pragma optimize("", off)
 NesysEmu::NesysEmu()
 	: m_initialized(false)
@@ -66,8 +67,8 @@ NesysEmu::NesysEmu()
 		strcpy(response->tenpo.pref_name, "t33l");
 
 		response->news.type = 0;
-		response->news.size = 1337;
-		strcpy(response->news.iFilePath, "/wat");
+		response->news.size = strlen("./OpenParrot/news.png");
+		strcpy(response->news.iFilePath, "./OpenParrot/news.png");
 
 		response->serverSize = strlen(wat);
 		memcpy(response->server, wat, strlen(wat));
@@ -525,8 +526,21 @@ DWORD WINAPI GetIfEntryFunc(
 	return 0;
 }
 
+void WriteNewsFile()
+{
+	// News for NESYS Emu
+	FILE *pFile = fopen(".\\OpenParrot\\news.png", "wb");
+	if (pFile != NULL)
+	{
+		fwrite(nesysNews, sizeof(char), sizeof(nesysNews), pFile);
+		fclose(pFile);
+	}
+}
+
 void init_NesysEmu()
 {
+	CreateDirectoryA("OpenParrot", nullptr);
+	WriteNewsFile();
 	MH_Initialize();
 	MH_CreateHookApi(L"iphlpapi.dll", "GetIfEntry", GetIfEntryFunc, (void**)&g_origGetIfEntry);
 	MH_EnableHook(MH_ALL_HOOKS);

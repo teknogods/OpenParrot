@@ -43,5 +43,6 @@ enum class GameID
 	GrooveCoaster2,
 	PuzzleBobble,
 	WMMT5,
-	MagicalBeat
+	MagicalBeat,
+	CrimzonClover
 };

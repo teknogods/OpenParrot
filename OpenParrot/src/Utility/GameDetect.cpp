@@ -33,13 +33,19 @@ void GameDetect::DetectCurrentGame()
 		NesicaKey = NesicaKey::MagicalBeat;
 		isNesica = true;
 		break;
+	case 0x2809c7c0: // Ikaruga
+		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::None;
+		isNesica = true;
+		break;
+
 	case 0x6e67076f:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::BlazBlueCentralFriction;
 		isNesica = true;
 		break;
 	case 0xd98bed41: // Crimzon Clover
-		currentGame = GameID::Nesica;
+		currentGame = GameID::CrimzonClover;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
