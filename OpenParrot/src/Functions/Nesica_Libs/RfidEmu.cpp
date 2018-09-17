@@ -662,8 +662,49 @@ BOOL __stdcall CloseHandleWrap(HANDLE hObject)
 	return TRUE;
 }
 
+static char moveBuf[256];
+LPCSTR ParseFileNamesA(LPCSTR lpFileName)
+{
+	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
+	{
+		memset(moveBuf, 0, 256);
+		if(lpFileName[2] == '\\' || lpFileName[2] == '/')
+		{
+			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+		}
+		else
+		{
+			// Magical Beat has d: WTF?
+			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 2);
+		}
+		return moveBuf;
+	}
+
+	return lpFileName;
+}
+
+wchar_t moveBufW[256];
+LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
+{
+	if (!wcsncmp(lpFileName, L"D:", 2) || !wcsncmp(lpFileName, L"d:", 2))
+	{
+		memset(moveBuf, 0, 256);
+		if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+		{
+			swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);
+		}
+		else
+		{
+			// Magical Beat has d: WTF?
+			swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 2);
+		}
+		return moveBufW;
+	}
+
+	return lpFileName;
+}
+
 DWORD priority = 0;
-char moveBuf[256];
 HANDLE(__stdcall *g_origCreateFileA)(LPCSTR lpFileName,
 	DWORD dwDesiredAccess,
 	DWORD dwShareMode,
@@ -688,20 +729,7 @@ HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 		return hConnection;
 	}
 
-	if(!strncmp(lpFileName, "D:\\", 3) || !strncmp(lpFileName, "D:/", 3) || !strncmp(lpFileName, "d:/", 3), !strncmp(lpFileName, "d:\\", 3))
-	{
-		memset(moveBuf, 0, 256);
-		sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-		return g_origCreateFileA(moveBuf,
-			dwDesiredAccess,
-			dwShareMode,
-			lpSecurityAttributes,
-			dwCreationDisposition,
-			dwFlagsAndAttributes,
-			hTemplateFile);
-	}
-
-	return g_origCreateFileA(lpFileName,
+	return g_origCreateFileA(ParseFileNamesA(lpFileName),
 		dwDesiredAccess,
 		dwShareMode,
 		lpSecurityAttributes,
@@ -709,8 +737,6 @@ HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 		dwFlagsAndAttributes,
 		hTemplateFile);
 }
-
-wchar_t moveBufW[256];
 
 HANDLE(__stdcall *g_origCreateFileW)(LPCWSTR lpFileName,
 	DWORD dwDesiredAccess,
@@ -736,20 +762,7 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 		return hConnection;
 	}
 
-	if (!wcsncmp(lpFileName, L"D:\\", 3) || !wcsncmp(lpFileName, L"D:/", 3) || !wcsncmp(lpFileName, L"d:/", 3), !wcsncmp(lpFileName, L"d:\\", 3))
-	{
-		memset(moveBufW, 0, 256);
-		swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);
-		return g_origCreateFileW(moveBufW,
-			dwDesiredAccess,
-			dwShareMode,
-			lpSecurityAttributes,
-			dwCreationDisposition,
-			dwFlagsAndAttributes,
-			hTemplateFile);
-	}
-
-	return g_origCreateFileW(lpFileName,
+	return g_origCreateFileW(ParseFileNamesW(lpFileName),
 		dwDesiredAccess,
 		dwShareMode,
 		lpSecurityAttributes,
@@ -761,31 +774,39 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 static DWORD(__stdcall *g_origGetFileAttributesA)(LPCSTR lpFileName);
 static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 {
-	if (!strncmp(lpFileName, "D:\\", 3) || !strncmp(lpFileName, "D:/", 3) || !strncmp(lpFileName, "d:/", 3), !strncmp(lpFileName, "d:\\", 3))
-	{
-		memset(moveBuf, 0, 256);
-		sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-		return g_origGetFileAttributesA(moveBuf);
-	}
-	return g_origGetFileAttributesA(lpFileName);
+	return g_origGetFileAttributesA(ParseFileNamesA(lpFileName));
 }
 
 static DWORD(__stdcall *g_origGetFileAttributesW)(LPCWSTR lpFileName);
 static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
 {
-	if (!wcsncmp(lpFileName, L"D:\\", 3) || !wcsncmp(lpFileName, L"D:/", 3) || !wcsncmp(lpFileName, L"d:/", 3), !wcsncmp(lpFileName, L"d:\\", 3))
-	{
-		memset(moveBufW, 0, 256);
-		swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);
-		return g_origGetFileAttributesW(moveBufW);
-	}
-	return g_origGetFileAttributesW(lpFileName);
+	return g_origGetFileAttributesW(ParseFileNamesW(lpFileName));
+}
+
+static BOOL(__stdcall *g_origCreateDirectoryA)(LPCSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+static BOOL __stdcall CreateDirectoryAWrap(
+	LPCSTR                lpPathName,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes
+)
+{
+	return g_origCreateDirectoryA(ParseFileNamesA(lpPathName), lpSecurityAttributes);
+}
+
+static BOOL(__stdcall *g_origCreateDirectoryW)(LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+static BOOL __stdcall CreateDirectoryWWrap(
+	LPCWSTR                lpPathName,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes
+)
+{
+	return g_origCreateDirectoryW(ParseFileNamesW(lpPathName), lpSecurityAttributes);
 }
 
 void init_RfidEmu()
 {
 	MH_Initialize();
 	CreateDirectoryA("OpenParrot", nullptr);
+	MH_CreateHookApi(L"kernel32.dll", "CreateDirectoryA", CreateDirectoryAWrap, (void**)&g_origCreateDirectoryA);
+	MH_CreateHookApi(L"kernel32.dll", "CreateDirectoryW", CreateDirectoryWWrap, (void**)&g_origCreateDirectoryW);
 	MH_CreateHookApi(L"kernel32.dll", "GetFileAttributesA", GetFileAttributesAWrap, (void**)&g_origGetFileAttributesA);
 	MH_CreateHookApi(L"kernel32.dll", "GetFileAttributesW", GetFileAttributesWWrap, (void**)&g_origGetFileAttributesW);
 	MH_CreateHookApi(L"kernel32.dll", "CreateFileW", CreateFileWWrap, (void**)&g_origCreateFileW);
