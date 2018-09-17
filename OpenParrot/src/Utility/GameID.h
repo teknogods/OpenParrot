@@ -42,5 +42,6 @@ enum class GameID
 	ExBoardGeneric,
 	GrooveCoaster2,
 	PuzzleBobble,
-	WMMT5
+	WMMT5,
+	MagicalBeat
 };

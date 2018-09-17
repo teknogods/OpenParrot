@@ -51,6 +51,19 @@ static InitFunction initFunction_PB([]()
 	injector::WriteMemoryRaw(imageBase + 0xA77B, "\xA3\xEC\x0D\x4F\x00\x90", 6, true);
 }, GameID::PuzzleBobble);
 
+static InitFunction initFunction_MB([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	init_NesysEmu();
+	init_CryptoPipe(GameDetect::NesicaKey);
+
+	// Skip Initilization wait time.
+	injector::MakeNOP(imageBase + 0x56B21, 2);
+}, GameID::MagicalBeat);
+
 static InitFunction initFunction_SOR([]()
 {
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);

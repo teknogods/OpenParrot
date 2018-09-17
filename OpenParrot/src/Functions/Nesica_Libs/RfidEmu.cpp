@@ -683,7 +683,7 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 	return lpFileName;
 }
 
-wchar_t moveBufW[256];
+static wchar_t moveBufW[256];
 LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 {
 	if (!wcsncmp(lpFileName, L"D:", 2) || !wcsncmp(lpFileName, L"d:", 2))
