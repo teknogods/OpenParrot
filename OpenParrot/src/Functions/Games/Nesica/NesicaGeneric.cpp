@@ -64,6 +64,19 @@ static InitFunction initFunction_MB([]()
 	injector::MakeNOP(imageBase + 0x56B21, 2);
 }, GameID::MagicalBeat);
 
+static InitFunction initFunction_CC([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	init_NesysEmu();
+	init_CryptoPipe(GameDetect::NesicaKey);
+
+	// Skip stuck on Warning screen. NESYS emu must be improved for this to work properly!
+	injector::MakeNOP(imageBase + 0x1015E7, 2);
+}, GameID::CrimzonClover);
+
 static InitFunction initFunction_SOR([]()
 {
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);

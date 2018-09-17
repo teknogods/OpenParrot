@@ -801,10 +801,30 @@ static BOOL __stdcall CreateDirectoryWWrap(
 	return g_origCreateDirectoryW(ParseFileNamesW(lpPathName), lpSecurityAttributes);
 }
 
+static HANDLE(__stdcall *g_origFindFirstFileA)(LPCSTR lpFileName, LPWIN32_FIND_DATAA lpFindFileData);
+static HANDLE __stdcall FindFirstFileAWrap(
+	LPCSTR             lpFileName,
+	LPWIN32_FIND_DATAA lpFindFileData
+)
+{
+	return g_origFindFirstFileA(ParseFileNamesA(lpFileName), lpFindFileData);
+}
+
+static HANDLE(__stdcall *g_origFindFirstFileW)(LPCWSTR lpFileName, LPWIN32_FIND_DATAA lpFindFileData);
+static HANDLE __stdcall FindFirstFileWWrap(
+	LPCWSTR             lpFileName,
+	LPWIN32_FIND_DATAA lpFindFileData
+)
+{
+	return g_origFindFirstFileW(ParseFileNamesW(lpFileName), lpFindFileData);
+}
+
 void init_RfidEmu()
 {
 	MH_Initialize();
 	CreateDirectoryA("OpenParrot", nullptr);
+	MH_CreateHookApi(L"kernel32.dll", "FindFirstFileA", FindFirstFileAWrap, (void**)&g_origFindFirstFileA);
+	MH_CreateHookApi(L"kernel32.dll", "FindFirstFileW", FindFirstFileWWrap, (void**)&g_origFindFirstFileW);
 	MH_CreateHookApi(L"kernel32.dll", "CreateDirectoryA", CreateDirectoryAWrap, (void**)&g_origCreateDirectoryA);
 	MH_CreateHookApi(L"kernel32.dll", "CreateDirectoryW", CreateDirectoryWWrap, (void**)&g_origCreateDirectoryW);
 	MH_CreateHookApi(L"kernel32.dll", "GetFileAttributesA", GetFileAttributesAWrap, (void**)&g_origGetFileAttributesA);
