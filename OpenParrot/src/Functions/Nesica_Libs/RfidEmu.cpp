@@ -811,7 +811,6 @@ void init_RfidEmu()
 	MH_CreateHookApi(L"kernel32.dll", "GetFileAttributesW", GetFileAttributesWWrap, (void**)&g_origGetFileAttributesW);
 	MH_CreateHookApi(L"kernel32.dll", "CreateFileW", CreateFileWWrap, (void**)&g_origCreateFileW);
 	MH_CreateHookApi(L"kernel32.dll", "CreateFileA", CreateFileAWrap, (void**)&g_origCreateFileA);
-	MH_CreateHookApi(L"kernel32.dll", "CreateFileW", CreateFileWWrap, (void**)&g_origCreateFileW);
 	MH_CreateHookApi(L"kernel32.dll", "WriteFile", WriteFileWrap, (void**)&g_origWriteFile);
 	MH_CreateHookApi(L"kernel32.dll", "ReadFile", ReadFileWrap, (void**)&g_origReadFile);
 	MH_CreateHookApi(L"kernel32.dll", "CloseHandle", CloseHandleWrap, (void**)&g_origCloseHandle);
