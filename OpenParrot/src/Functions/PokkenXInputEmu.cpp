@@ -1,5 +1,4 @@
 #pragma optimize("", off)
-#ifdef _M_AMD64
 #include "StdInc.h"
 #include "Utility/GameDetect.h"
 #include "Utility/InitFunction.h"
@@ -311,7 +310,7 @@ __in XINPUT_VIBRATION_EX* pVibration					// The vibration information to send to
 
 static InitFunction XInputHook([]()
 {
-	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok)
+	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3)
 	{
 		controllerInit = true;
 
@@ -331,4 +330,3 @@ static InitFunction XInputHook([]()
 	}
 });
 #pragma optimize("", on)
-#endif
