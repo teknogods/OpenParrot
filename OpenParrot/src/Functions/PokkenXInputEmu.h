@@ -1,5 +1,4 @@
 #include "StdInc.h"
-#ifdef _M_AMD64
 
 //
 // Stricture used for our Xbox One Controller
@@ -151,4 +150,3 @@ typedef struct _XINPUT_KEYSTROKE
 	BYTE    UserIndex;
 	BYTE    HidCode;
 } XINPUT_KEYSTROKE, *PXINPUT_KEYSTROKE;
-#endif

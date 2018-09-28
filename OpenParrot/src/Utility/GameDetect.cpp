@@ -13,6 +13,9 @@ void GameDetect::DetectCurrentGame()
 	switch (crcResult)
 	{
 #if _M_IX86
+	case 0xb8f2836d:
+		currentGame = GameID::Daytona3;
+		break;
 	case 0xd3f62267:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::None;
