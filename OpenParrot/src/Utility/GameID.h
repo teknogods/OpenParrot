@@ -44,5 +44,6 @@ enum class GameID
 	PuzzleBobble,
 	WMMT5,
 	MagicalBeat,
-	CrimzonClover
+	CrimzonClover,
+	Daytona3
 };
