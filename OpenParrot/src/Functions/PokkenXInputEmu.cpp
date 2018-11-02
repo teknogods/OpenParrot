@@ -308,6 +308,10 @@ __in XINPUT_VIBRATION_EX* pVibration					// The vibration information to send to
 	}
 }
 
+LPCWSTR libName = L"xinput1_3.dll";
+LPCWSTR daytonalibName = L"xinput9_1_0.dll";
+LPCWSTR ptrToUse;
+
 static InitFunction XInputHook([]()
 {
 	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3)
@@ -316,17 +320,22 @@ static InitFunction XInputHook([]()
 
 		MH_Initialize();
 
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetState, NULL);
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputSetState", &XInputSetState, NULL);
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetCapabilities", &XInputGetCapabilities, NULL);
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputEnable", &XInputEnable, NULL);
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetDSoundAudioDeviceGuids", &XInputGetDSoundAudioDeviceGuids, NULL);
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetBatteryInformation", &XInputGetBatteryInformation, NULL);
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetKeystroke", &XInputGetKeystroke, NULL);
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetStateEx", &XInputGetStateEx, NULL);
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputSetStateEx", &XInputSetStateEx, NULL);
+		if (GameDetect::currentGame == GameID::Daytona3)
+			ptrToUse = daytonalibName;
+		else
+			ptrToUse = libName;
+
+		MH_CreateHookApi(ptrToUse, "XInputGetState", &XInputGetState, NULL);
+		MH_CreateHookApi(ptrToUse, "XInputSetState", &XInputSetState, NULL);
+		MH_CreateHookApi(ptrToUse, "XInputGetCapabilities", &XInputGetCapabilities, NULL);
+		MH_CreateHookApi(ptrToUse, "XInputEnable", &XInputEnable, NULL);
+		MH_CreateHookApi(ptrToUse, "XInputGetDSoundAudioDeviceGuids", &XInputGetDSoundAudioDeviceGuids, NULL);
+		MH_CreateHookApi(ptrToUse, "XInputGetBatteryInformation", &XInputGetBatteryInformation, NULL);
+		MH_CreateHookApi(ptrToUse, "XInputGetKeystroke", &XInputGetKeystroke, NULL);
+		MH_CreateHookApi(ptrToUse, "XInputGetStateEx", &XInputGetStateEx, NULL);
+		MH_CreateHookApi(ptrToUse, "XInputSetStateEx", &XInputSetStateEx, NULL);
 
 		MH_EnableHook(MH_ALL_HOOKS);
 	}
 });
-#pragma optimize("", on)
+#pragma optimize("", on)´

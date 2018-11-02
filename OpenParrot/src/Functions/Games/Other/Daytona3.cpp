@@ -1,4 +1,4 @@
-#include <StdInc.h>
+﻿#include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #include "Utility\Hooking.Patterns.h"
@@ -41,20 +41,23 @@ static void InjectKeys()
 	if (track != 0)
 	{
 		BYTE track1 = *(BYTE *)(track + 0x4);
-		info(true, "%02X %02X", track1, gamestate);
-		if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
+		if (track1 != 0)
 		{
-			BYTE reverse = wheel * 0xFF;
-			if (reverse == 0x00)
-				*(BYTE *)(imageBase + 0x15B4678) = 0xFF;
+			info(true, "%02X %02X", track1, gamestate);
+			if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
+			{
+				BYTE reverse = wheel * 0xFF;
+				if (reverse == 0x00)
+					*(BYTE *)(imageBase + 0x15B4678) = 0xFF;
+				else
+					*(BYTE *)(imageBase + 0x15B4678) = reverse;
+				info(true, "Reverse wheel");
+			}
 			else
-				*(BYTE *)(imageBase + 0x15B4678) = reverse;
-			info(true, "Reverse wheel");
-		}
-		else
-		{
-			*(BYTE *)(imageBase + 0x15B4678) = wheel;
-			info(true, "Normal wheel1");
+			{
+				*(BYTE *)(imageBase + 0x15B4678) = wheel;
+				info(true, "Normal wheel1");
+			}
 		}
 	}
 	else
@@ -65,35 +68,43 @@ static void InjectKeys()
 	
 
 	
-	if(wheel <= 0x40)
+	if (wheel <= 0x40)
 	{
 		//Menu Left
 		DWORD p = *(DWORD *)(imageBase + 0x1AAFFF0);
-		DWORD p1 = *(DWORD *)(p + 0x00);
 		if (p != 0)
 		{
-			*(BYTE *)(p1 + 0x25) = 0xFF;
+			DWORD p1 = *(DWORD *)(p + 0x00);
+			if (p1 != 0)
+			{
+				*(BYTE *)(p1 + 0x25) = 0xFF;
+			}
 		}
-
 	}
-	else if(wheel >= 0xC0)
+	else if (wheel >= 0xC0)
 	{
 		//Menu Right
 		DWORD p = *(DWORD *)(imageBase + 0x1AAFFF0);
-		DWORD p1 = *(DWORD *)(p + 0x00);
-		if (p1 != 0)
+		if (p != 0)
 		{
-			*(BYTE *)(p1 + 0x27) = 0xFF;
+			DWORD p1 = *(DWORD *)(p + 0x00);
+			if (p1 != 0)
+			{
+				*(BYTE *)(p1 + 0x27) = 0xFF;
+			}
 		}
 	}
 	else
 	{
 		DWORD p = *(DWORD *)(imageBase + 0x1AAFFF0);
-		DWORD p1 = *(DWORD *)(p + 0x00);
-		if (p1 != 0)
+		if (p != 0)
 		{
-			*(BYTE *)(p1 + 0x25) = 0x00;
-			*(BYTE *)(p1 + 0x27) = 0x00;
+			DWORD p1 = *(DWORD *)(p + 0x00);
+			if (p1 != 0)
+			{
+				*(BYTE *)(p1 + 0x25) = 0x00;
+				*(BYTE *)(p1 + 0x27) = 0x00;
+			}
 		}
 	}
 
@@ -101,19 +112,25 @@ static void InjectKeys()
 	{
 		//Inject Start
 		DWORD p = *(DWORD *)(imageBase + 0x1AB0010);
-		DWORD p1 = *(DWORD *)(p + 0x00);
-		if (p1 != 0)
+		if (p != 0)
 		{
-			*(DWORD *)(p1 + 0x08) = 0x01;
+			DWORD p1 = *(DWORD *)(p + 0x00);
+			if (p1 != 0)
+			{
+				*(DWORD *)(p1 + 0x08) = 0x01;
+			}
 		}
 	}
 	else
 	{
 		DWORD p = *(DWORD *)(imageBase + 0x1AB0010);
-		DWORD p1 = *(DWORD *)(p + 0x00);
-		if (p1 != 0)
+		if (p != 0)
 		{
-			*(DWORD *)(p1 + 0x08) = 0x00;
+			DWORD p1 = *(DWORD *)(p + 0x00);
+			if (p1 != 0)
+			{
+				*(DWORD *)(p1 + 0x08) = 0x00;
+			}
 		}
 	}
 
@@ -130,7 +147,7 @@ static void InjectKeys()
 		shiftup = false;
 	}
 
-	if ((buttons == 0x04) && (gear > 0x00)) //crashes right now
+	if ((buttons == 0x04) && (gear > 0x00))
 	{
 		if (!shiftdown)
 		{
