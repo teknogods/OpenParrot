@@ -41,7 +41,7 @@ static void InjectKeys()
 	if (track != 0)
 	{
 		BYTE track1 = *(BYTE *)(track + 0x4);
-		if (track1 != 0)
+		
 		{
 			info(true, "%02X %02X", track1, gamestate);
 			if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
