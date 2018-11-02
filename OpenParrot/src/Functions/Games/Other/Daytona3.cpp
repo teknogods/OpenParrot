@@ -37,7 +37,7 @@ static void InjectKeys()
 	
 	*(BYTE *)(imageBase + 0x15B4679) = gas;
 	*(BYTE *)(imageBase + 0x15B467A) = brake;
-	DWORD track = *(DWORD *)(imageBase + 0x1228C78);
+	DWORD track = *(DWORD *)(imageBase + 0x011B0148);
 	if (track != 0)
 	{
 		BYTE track1 = *(BYTE *)(track + 0x4);
