@@ -11,6 +11,7 @@ extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
+extern bool daytonaPressStart;
 uintptr_t imageBase;
 bool shiftup = false;
 bool shiftdown = false;
@@ -27,6 +28,7 @@ void ShiftDown(BYTE shift)
 
 static void InjectKeys()
 {
+	
 	DWORD buttons2 = *wheelSection;
 	DWORD buttons = *ffbOffset;
 	BYTE wheel = *ffbOffset2;
@@ -44,8 +46,6 @@ static void InjectKeys()
 #ifdef _DEBUG
 		info(true, "%02X %02X", track1, gamestate);
 #endif
-		if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
-		{
 			if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
 			{
 				BYTE reverse = wheel * 0xFF;
@@ -72,8 +72,7 @@ static void InjectKeys()
 			info(true, "Normal wheel2");
 #endif
 		}
-	}
-	
+
 	if (wheel <= 0x40)
 	{
 		//Menu Left
@@ -242,7 +241,6 @@ int __stdcall ControlsFunction()
 
 static InitFunction Daytona3Func([]()
 {
-
     imageBase = (uintptr_t)GetModuleHandleA(0);
 	injector::WriteMemoryRaw(imageBase + 0xDD697, "\x90\x90\x90\x90\x90\x90\x38\x05\xC8\xF9\x5A\x01\x90\x90\x90\x90\x90\x90", 18, true);
 	injector::WriteMemoryRaw(imageBase + 0x12958F, "\x33\xC0\x8A\x45\x08\x90\x90\x90\x90\x72\x08\x66\xA3\x46\xFC\x5A\x01\xEB\x06\x66\xA3\x44\xFC\x5A\x01\x31\xFF\x31\xF6\x47\xBE\x0F\x00\x00\x00\xEB\x4C\x90\x90\x90\x90", 41, true);
@@ -252,6 +250,10 @@ static InitFunction Daytona3Func([]()
 	injector::MakeNOP(imageBase + 0x1DE10D, 6); 
 	injector::MakeNOP(imageBase + 0x29B481, 3);
 	injector::MakeNOP(imageBase + 0x29B513, 4);
+	if (ToBool(config["General"]["MSAA4X Disable"]))
+	{
+		injector::WriteMemoryRaw(imageBase + 0x17CD3D, "\x00", 1, true);
+	}
 	MH_Initialize();
 	MH_CreateHook((void*)(imageBase + 0x1E9280), ControlsFunction, (void**)&g_origControlsFunction);
 	MH_EnableHook(MH_ALL_HOOKS);
