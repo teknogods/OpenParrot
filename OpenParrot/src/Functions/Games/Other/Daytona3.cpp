@@ -11,7 +11,7 @@ extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
-extern bool daytonaPressStart;
+bool daytonaPressStart = false;
 uintptr_t imageBase;
 bool shiftup = false;
 bool shiftdown = false;
@@ -34,11 +34,13 @@ static void InjectKeys()
 	BYTE wheel = *ffbOffset2;
 	BYTE gas = *ffbOffset3;
 	BYTE brake = *ffbOffset4;
+	
 	BYTE gamestate = *(BYTE *)(imageBase + 0x15B5744);
 	BYTE gear = *(BYTE *)(imageBase + 0x15B468C);
 	
 	*(BYTE *)(imageBase + 0x15B4679) = gas;
 	*(BYTE *)(imageBase + 0x15B467A) = brake;
+	
 	DWORD track = *(DWORD *)(imageBase + 0x011B0148);
 	if (track != 0)
 	{
@@ -72,6 +74,15 @@ static void InjectKeys()
 			info(true, "Normal wheel2");
 #endif
 		}
+
+	if (gas >= 0x40)
+	{
+		daytonaPressStart = true;
+	}
+	else
+	{
+		daytonaPressStart = false;
+	}
 
 	if (wheel <= 0x40)
 	{
