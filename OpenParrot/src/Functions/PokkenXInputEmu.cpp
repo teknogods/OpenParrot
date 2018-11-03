@@ -326,7 +326,6 @@ __in XINPUT_VIBRATION_EX* pVibration					// The vibration information to send to
 	}
 }
 
-<<<<<<< HEAD
 LPCWSTR libName = L"xinput1_3.dll";
 LPCWSTR daytonalibName = L"xinput9_1_0.dll";
 LPCWSTR ptrToUse;
@@ -358,36 +357,3 @@ static InitFunction XInputHook([]()
 	}
 });
 #pragma optimize("", on)´
-=======
-LPCWSTR libName = L"xinput1_3.dll";
-LPCWSTR daytonalibName = L"xinput9_1_0.dll";
-LPCWSTR ptrToUse;
-
-static InitFunction XInputHook([]()
-{
-	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3)
-	{
-		controllerInit = true;
-
-		MH_Initialize();
-
-		if (GameDetect::currentGame == GameID::Daytona3)
-			ptrToUse = daytonalibName;
-		else
-			ptrToUse = libName;
-
-		MH_CreateHookApi(ptrToUse, "XInputGetState", &XInputGetState, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputSetState", &XInputSetState, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetCapabilities", &XInputGetCapabilities, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputEnable", &XInputEnable, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetDSoundAudioDeviceGuids", &XInputGetDSoundAudioDeviceGuids, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetBatteryInformation", &XInputGetBatteryInformation, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetKeystroke", &XInputGetKeystroke, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetStateEx", &XInputGetStateEx, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputSetStateEx", &XInputSetStateEx, NULL);
-
-		MH_EnableHook(MH_ALL_HOOKS);
-	}
-});
-#pragma optimize("", on)
->>>>>>> c000b7c7ca96e0804e4505624bbd470887a189d8

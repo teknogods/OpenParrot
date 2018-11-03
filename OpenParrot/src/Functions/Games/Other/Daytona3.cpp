@@ -41,16 +41,11 @@ static void InjectKeys()
 	if (track != 0)
 	{
 		BYTE track1 = *(BYTE *)(track + 0x4);
-<<<<<<< HEAD
-		
-=======
 #ifdef _DEBUG
 		info(true, "%02X %02X", track1, gamestate);
 #endif
 		if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
->>>>>>> c000b7c7ca96e0804e4505624bbd470887a189d8
 		{
-			info(true, "%02X %02X", track1, gamestate);
 			if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
 			{
 				BYTE reverse = wheel * 0xFF;
@@ -58,38 +53,26 @@ static void InjectKeys()
 					*(BYTE *)(imageBase + 0x15B4678) = 0xFF;
 				else
 					*(BYTE *)(imageBase + 0x15B4678) = reverse;
+#ifdef _DEBUG
 				info(true, "Reverse wheel");
+#endif
 			}
 			else
-<<<<<<< HEAD
 			{
 				*(BYTE *)(imageBase + 0x15B4678) = wheel;
-				info(true, "Normal wheel1");
-			}
-=======
-				*(BYTE *)(imageBase + 0x15B4678) = reverse;
 #ifdef _DEBUG
-			info(true, "Reverse wheel");
+				info(true, "Normal wheel1");
 #endif
+			}
 		}
 		else
 		{
 			*(BYTE *)(imageBase + 0x15B4678) = wheel;
 #ifdef _DEBUG
-			info(true, "Normal wheel1");
+			info(true, "Normal wheel2");
 #endif
->>>>>>> c000b7c7ca96e0804e4505624bbd470887a189d8
 		}
 	}
-	else
-	{
-		*(BYTE *)(imageBase + 0x15B4678) = wheel;
-#ifdef _DEBUG
-		info(true, "Normal wheel2");
-#endif
-	}
-	
-
 	
 	if (wheel <= 0x40)
 	{
