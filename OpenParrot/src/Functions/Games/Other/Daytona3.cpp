@@ -41,7 +41,14 @@ static void InjectKeys()
 	if (track != 0)
 	{
 		BYTE track1 = *(BYTE *)(track + 0x4);
+<<<<<<< HEAD
 		
+=======
+#ifdef _DEBUG
+		info(true, "%02X %02X", track1, gamestate);
+#endif
+		if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
+>>>>>>> c000b7c7ca96e0804e4505624bbd470887a189d8
 		{
 			info(true, "%02X %02X", track1, gamestate);
 			if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
@@ -54,16 +61,32 @@ static void InjectKeys()
 				info(true, "Reverse wheel");
 			}
 			else
+<<<<<<< HEAD
 			{
 				*(BYTE *)(imageBase + 0x15B4678) = wheel;
 				info(true, "Normal wheel1");
 			}
+=======
+				*(BYTE *)(imageBase + 0x15B4678) = reverse;
+#ifdef _DEBUG
+			info(true, "Reverse wheel");
+#endif
+		}
+		else
+		{
+			*(BYTE *)(imageBase + 0x15B4678) = wheel;
+#ifdef _DEBUG
+			info(true, "Normal wheel1");
+#endif
+>>>>>>> c000b7c7ca96e0804e4505624bbd470887a189d8
 		}
 	}
 	else
 	{
 		*(BYTE *)(imageBase + 0x15B4678) = wheel;
+#ifdef _DEBUG
 		info(true, "Normal wheel2");
+#endif
 	}
 	
 
@@ -225,8 +248,18 @@ static void InjectKeys()
 	}
 }
 
+int(__stdcall *g_origControlsFunction)();
+
+int __stdcall ControlsFunction()
+{
+	int result = g_origControlsFunction();
+	InjectKeys();
+	return result;
+}
+
 static InitFunction Daytona3Func([]()
 {
+
     imageBase = (uintptr_t)GetModuleHandleA(0);
 	injector::WriteMemoryRaw(imageBase + 0xDD697, "\x90\x90\x90\x90\x90\x90\x38\x05\xC8\xF9\x5A\x01\x90\x90\x90\x90\x90\x90", 18, true);
 	injector::WriteMemoryRaw(imageBase + 0x12958F, "\x33\xC0\x8A\x45\x08\x90\x90\x90\x90\x72\x08\x66\xA3\x46\xFC\x5A\x01\xEB\x06\x66\xA3\x44\xFC\x5A\x01\x31\xFF\x31\xF6\x47\xBE\x0F\x00\x00\x00\xEB\x4C\x90\x90\x90\x90", 41, true);
@@ -236,7 +269,9 @@ static InitFunction Daytona3Func([]()
 	injector::MakeNOP(imageBase + 0x1DE10D, 6); 
 	injector::MakeNOP(imageBase + 0x29B481, 3);
 	injector::MakeNOP(imageBase + 0x29B513, 4);
+	MH_Initialize();
+	MH_CreateHook((void*)(imageBase + 0x1E9280), ControlsFunction, (void**)&g_origControlsFunction);
+	MH_EnableHook(MH_ALL_HOOKS);
 	
-	injector::MakeCALL(imageBase + 0x1DDDFA, InjectKeys);
 }, GameID::Daytona3);
 #endif

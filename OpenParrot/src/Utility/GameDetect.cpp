@@ -369,6 +369,12 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::MachStorm;
 			break;
 		}
+		if(*(uint32_t*)(moduleBase + 0xABB7) == 0x00E445C7 &&
+			*(uint32_t*)(moduleBase + 0xABB7 + 4) == 0xC7000100)
+		{
+			currentGame = GameID::Daytona3;
+			break;
+		}
 #else
 		// X64
 		// School of Ragnarok
