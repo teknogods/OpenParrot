@@ -150,3 +150,5 @@ typedef struct _XINPUT_KEYSTROKE
 	BYTE    UserIndex;
 	BYTE    HidCode;
 } XINPUT_KEYSTROKE, *PXINPUT_KEYSTROKE;
+
+extern bool daytonaPressStart;

@@ -23,8 +23,6 @@ HANDLE XboxOneControllerMutex[4] = { 0 };
 static unsigned short idVendor = 0x045E;
 static unsigned short idProduct = 0x02D1;
 
-static bool daytonaPressStart = false;
-
 int configuration = 1;
 int interface = 0;
 int endpointIn = 0x81;
@@ -356,4 +354,4 @@ static InitFunction XInputHook([]()
 		MH_EnableHook(MH_ALL_HOOKS);
 	}
 });
-#pragma optimize("", on)
+#pragma optimize("", on)´
