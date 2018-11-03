@@ -1,6 +1,5 @@
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
-
 #include <thread>
 
 static uint8_t g_fastIOValues[64];
