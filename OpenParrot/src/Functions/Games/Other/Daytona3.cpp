@@ -229,6 +229,7 @@ static InitFunction Daytona3Func([]()
 {
     imageBase = (uintptr_t)GetModuleHandleA(0);
 	injector::WriteMemoryRaw(imageBase + 0xDD697, "\x90\x90\x90\x90\x90\x90\x38\x05\xC8\xF9\x5A\x01\x90\x90\x90\x90\x90\x90", 18, true);
+	injector::WriteMemoryRaw(imageBase + 0x12958F, "\x33\xC0\x8A\x45\x08\x90\x90\x90\x90\x72\x08\x66\xA3\x46\xFC\x5A\x01\xEB\x06\x66\xA3\x44\xFC\x5A\x01\x31\xFF\x31\xF6\x47\xBE\x0F\x00\x00\x00\xEB\x4C\x90\x90\x90\x90", 41, true);
 	injector::MakeNOP(imageBase + 0x1DDDFA, 5);
 	injector::MakeNOP(imageBase + 0x1DDE1E, 6);
 	injector::MakeNOP(imageBase + 0x1DDE45, 6);
