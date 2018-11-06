@@ -11,7 +11,7 @@
 extern LPCSTR hookPort;
 uintptr_t imageBase;
 static unsigned char hasp_buffer[0xD40];
-static bool isFreePlay = true;
+static bool isFreePlay;
 
 // Data for IC card, Force Feedback etc OFF.
 unsigned char settingData[406] = {
@@ -852,6 +852,7 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 	toAddr.sin_addr.s_addr = inet_addr("225.0.0.1");
 	toAddr.sin_port = htons(50765);
 
+	isFreePlay = ToBool(config["General"]["FreePlay"]);
 
 	if (isFreePlay)
 	{
@@ -1066,7 +1067,6 @@ static InitFunction Wmmt5Func([]()
 		safeJMP(imageBase + 0x806020, ReturnTrue);
 	}
 
-	isFreePlay = ToBool(config["General"]["FreePlay"]);
 
 	std::string value = config["General"]["CustomName"];
 	if (!value.empty())
