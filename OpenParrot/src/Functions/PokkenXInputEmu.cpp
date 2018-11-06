@@ -76,12 +76,12 @@ DWORD WINAPI XInputGetState
 			gamepadState.wButtons |= *ffbOffset;
 		else
 			gamepadState.wButtons |= 0;
-
+#ifndef _M_AMD64
 		if (GameDetect::currentGame == GameID::Daytona3)
 		{
 			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
 		}
-
+#endif
 			if (pState->dwPacketNumber == UINT_MAX)
 				pState->dwPacketNumber = 0;
 			else
@@ -280,11 +280,13 @@ DWORD WINAPI XInputGetStateEx
 		else
 			gamepadState.wButtons = 0;
 
+#ifndef _M_AMD64
 		if (GameDetect::currentGame == GameID::Daytona3)
 		{
 			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
 		}
-
+#endif
+		
 		if (pState->dwPacketNumber == UINT_MAX)
 			pState->dwPacketNumber = 0;
 		else
