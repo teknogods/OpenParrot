@@ -772,6 +772,7 @@ void GenerateDongleData(bool isTerminal)
 }
 
 char customName[256];
+const char *ipaddr;
 
 static DWORD WINAPI SpamCustomName(LPVOID)
 {
@@ -800,14 +801,14 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 
 	sockaddr_in bindAddr = { 0 };
 	bindAddr.sin_family = AF_INET;
-	bindAddr.sin_addr.s_addr = 0;
+	bindAddr.sin_addr.s_addr = inet_addr(ipaddr);
 	bindAddr.sin_port = htons(50765);
 
 	bind(sock, (sockaddr*)&bindAddr, sizeof(bindAddr));
 
 	ip_mreq mreq;
 	mreq.imr_multiaddr.s_addr = inet_addr("225.0.0.1");
-	mreq.imr_interface.s_addr = INADDR_ANY;
+	mreq.imr_interface.s_addr = inet_addr(ipaddr);
 
 	setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq));
 
@@ -918,6 +919,13 @@ static InitFunction Wmmt5Func([]()
 	if (ToBool(config["General"]["TerminalMode"]))
 	{
 		isTerminal = true;
+	}
+	
+	std::string networkip = config["General"]["NetworkAdapterIP"];
+	if (!networkip.empty())
+	{
+		//strcpy(ipaddr, networkip.c_str());
+		ipaddr = networkip.c_str();
 	}
 
 	hookPort = "COM3";
