@@ -266,6 +266,10 @@ static InitFunction Daytona3Func([]()
 	{
 		injector::WriteMemoryRaw(imageBase + 0x17CD3D, "\x00", 1, true);
 	}
+	if (ToBool(config["General"]["Hide Cursor"]))
+	{
+		SetCursorPos(2000, 2000);
+	}
 	MH_Initialize();
 	MH_CreateHook((void*)(imageBase + 0x1E9280), ControlsFunction, (void**)&g_origControlsFunction);
 	MH_EnableHook(MH_ALL_HOOKS);
