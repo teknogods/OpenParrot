@@ -57,6 +57,7 @@ int iround(double num) {
 }
 
 extern int* ffbOffset;
+extern int* ffbOffset2;
 
 DWORD WINAPI XInputGetState
 (
@@ -80,6 +81,10 @@ DWORD WINAPI XInputGetState
 		if (GameDetect::currentGame == GameID::Daytona3)
 		{
 			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
+		}
+		if (GameDetect::currentGame == GameID::Daytona3)
+		{
+			gamepadState.sThumbLX |= (-(33024 - *ffbOffset2) * 255);
 		}
 #endif
 			if (pState->dwPacketNumber == UINT_MAX)
@@ -285,8 +290,11 @@ DWORD WINAPI XInputGetStateEx
 		{
 			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
 		}
+		if (GameDetect::currentGame == GameID::Daytona3)
+		{
+			gamepadState.sThumbLX |= (-(33024 - *ffbOffset2) * 255);
+		}
 #endif
-		
 		if (pState->dwPacketNumber == UINT_MAX)
 			pState->dwPacketNumber = 0;
 		else
