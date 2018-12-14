@@ -252,6 +252,19 @@ unsigned int Hook_hasp_write(int hasp_handle, int hasp_fileid, unsigned int offs
 	return HASP_STATUS_OK;
 }
 
+typedef int (WINAPI *BIND)(SOCKET, CONST SOCKADDR *, INT);
+BIND pbind = NULL;
+
+unsigned int WINAPI hookBind(SOCKET s, const sockaddr *addr, int namelen) {
+	std::string networkip = config["General"]["NetworkAdapterIP"];
+	sockaddr_in gbindAddr = { 0 };
+	gbindAddr.sin_family = AF_INET;
+	gbindAddr.sin_addr.s_addr = inet_addr(networkip.c_str());
+	gbindAddr.sin_port = htons(50765);
+	return pbind(s, (sockaddr*)&gbindAddr, sizeof(gbindAddr));
+}
+
+
 unsigned char saveData[0x2000];
 // BASE: 0x24E0 
 // Campaing honor data: 2998, save 0xB8
@@ -772,6 +785,7 @@ void GenerateDongleData(bool isTerminal)
 }
 
 char customName[256];
+const char *ipaddr;
 
 static DWORD WINAPI SpamCustomName(LPVOID)
 {
@@ -800,14 +814,14 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 
 	sockaddr_in bindAddr = { 0 };
 	bindAddr.sin_family = AF_INET;
-	bindAddr.sin_addr.s_addr = 0;
+	bindAddr.sin_addr.s_addr = inet_addr(ipaddr);
 	bindAddr.sin_port = htons(50765);
-
 	bind(sock, (sockaddr*)&bindAddr, sizeof(bindAddr));
+	
 
 	ip_mreq mreq;
 	mreq.imr_multiaddr.s_addr = inet_addr("225.0.0.1");
-	mreq.imr_interface.s_addr = INADDR_ANY;
+	mreq.imr_interface.s_addr = inet_addr(ipaddr);
 
 	setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq));
 
@@ -851,6 +865,7 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 	toAddr.sin_family = AF_INET;
 	toAddr.sin_addr.s_addr = inet_addr("225.0.0.1");
 	toAddr.sin_port = htons(50765);
+	
 
 	isFreePlay = ToBool(config["General"]["FreePlay"]);
 
@@ -920,6 +935,13 @@ static InitFunction Wmmt5Func([]()
 	{
 		isTerminal = true;
 	}
+	
+	std::string networkip = config["General"]["NetworkAdapterIP"];
+	if (!networkip.empty())
+	{
+		//strcpy(ipaddr, networkip.c_str());
+		ipaddr = networkip.c_str();
+	}
 
 	hookPort = "COM3";
 	imageBase = (uintptr_t)GetModuleHandleA(0);
@@ -933,6 +955,11 @@ static InitFunction Wmmt5Func([]()
 	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_encrypt", Hook_hasp_encrypt, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_login", Hook_hasp_login, NULL);
+
+	//hook bind function
+
+	MH_CreateHookApi(L"Ws2_32", "bind", hookBind, reinterpret_cast<LPVOID*>(&pbind));
+
 
 	GenerateDongleData(isTerminal);
 
