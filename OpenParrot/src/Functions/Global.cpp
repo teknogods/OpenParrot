@@ -1,6 +1,7 @@
 #include <StdInc.h>
 #include <Utility/InitFunction.h>
 #include "Global.h"
+#include "Utility/GameDetect.h"
 
 #pragma optimize("", off)
 void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
@@ -39,7 +40,14 @@ DWORD WINAPI QuitGameThread(__in  LPVOID lpParameter)
 {
 	while (true)
 	{
-		if (GetAsyncKeyState(VK_ESCAPE))
+		if ((GameDetect::currentGame == GameID::Daytona3) && (GetAsyncKeyState(VK_ESCAPE)))
+		{
+#ifndef _DEBUG
+			system("taskkill /f /im InpWrapper.exe");
+			TerminateProcess(GetCurrentProcess(), 0);
+#endif
+		}
+		else if (GetAsyncKeyState(VK_ESCAPE))
 		{
 #ifndef _DEBUG
 			TerminateProcess(GetCurrentProcess(), 0);
