@@ -252,18 +252,6 @@ unsigned int Hook_hasp_write(int hasp_handle, int hasp_fileid, unsigned int offs
 	return HASP_STATUS_OK;
 }
 
-typedef int (WINAPI *BIND)(SOCKET, CONST SOCKADDR *, INT);
-BIND pbind = NULL;
-
-unsigned int WINAPI hookBind(SOCKET s, const sockaddr *addr, int namelen) {
-	std::string networkip = config["General"]["NetworkAdapterIP"];
-	sockaddr_in gbindAddr = { 0 };
-	gbindAddr.sin_family = AF_INET;
-	gbindAddr.sin_addr.s_addr = inet_addr(networkip.c_str());
-	gbindAddr.sin_port = htons(50765);
-	return pbind(s, (sockaddr*)&gbindAddr, sizeof(gbindAddr));
-}
-
 
 unsigned char saveData[0x2000];
 // BASE: 0x24E0 
@@ -956,9 +944,6 @@ static InitFunction Wmmt5Func([]()
 	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_login", Hook_hasp_login, NULL);
 
-	//hook bind function
-
-	MH_CreateHookApi(L"Ws2_32", "bind", hookBind, reinterpret_cast<LPVOID*>(&pbind));
 
 
 	GenerateDongleData(isTerminal);
