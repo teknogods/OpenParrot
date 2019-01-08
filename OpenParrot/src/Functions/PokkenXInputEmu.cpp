@@ -73,7 +73,7 @@ DWORD WINAPI XInputGetState
 	{
 		XINPUT_GAMEPAD gamepadState = { 0 };
 
-		if (GameDetect::currentGame == GameID::Daytona3)
+		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament)
 			gamepadState.wButtons |= *ffbOffset;
 		else
 			gamepadState.wButtons |= 0;
@@ -280,7 +280,7 @@ DWORD WINAPI XInputGetStateEx
 	{
 		XINPUT_GAMEPAD gamepadState = { 0 };
 
-		if (GameDetect::currentGame == GameID::Daytona3)
+		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament)
 			gamepadState.wButtons = *ffbOffset;
 		else
 			gamepadState.wButtons = 0;
