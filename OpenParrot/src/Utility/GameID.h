@@ -45,5 +45,6 @@ enum class GameID
 	WMMT5,
 	MagicalBeat,
 	CrimzonClover,
-	Daytona3
+	Daytona3,
+	MB4
 };

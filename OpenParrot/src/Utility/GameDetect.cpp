@@ -223,6 +223,10 @@ void GameDetect::DetectCurrentGame()
 	case 0x2B41A7EA:
 		currentGame = GameID::SR3;
 		break;
+	case 0x42b00124:
+		currentGame = GameID::MB4;
+		X2Type = X2Type::Generic;
+		break;
 	case 0x47da80e5: // Spica Adventure
 		currentGame = GameID::SpicaAdventure;
 		X2Type = X2Type::Generic;
@@ -446,6 +450,7 @@ bool GameDetect::IsTypeX()
 		case GameID::BG4:
 		case GameID::RaidenIV:
 		case GameID::VirtuaRLimit:
+		case GameID::MB4:
 			return true;
 		default:
 			return false;
