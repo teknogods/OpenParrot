@@ -171,7 +171,13 @@ static InitFunction initFunction([]()
 	
 	switch (GameDetect::X2Type)
 	{
-	case X2Type::VRL:
+		case X2Type::MB4:
+		{
+			// Redirect messagelog file
+			injector::WriteMemoryRaw(0x00AD8B6C, ".\\messagelog.dat\0", 18, true);
+			break;
+		}
+		case X2Type::VRL:
 		{
 			// TODO: DOCUMENT PATCHES
 			//injector::MakeNOP(0x0040E22E, 2, true);
@@ -182,14 +188,14 @@ static InitFunction initFunction([]()
 			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
 			break;
 		}
-	case X2Type::Raiden4:
+		case X2Type::Raiden4:
 		{
 			// TODO: DOCUMENT PATCHES
 			//injector::WriteMemory<uint32_t>(0x49DDB0, 0xC3C301B0, true);
 			injector::WriteMemory<BYTE>(0x00496EA0, 0xEB, true);
 			break;
 		}
-	case X2Type::BG4:
+		case X2Type::BG4:
 		{
 			// TODO: DOCUMENT PATCHES
 			injector::MakeNOP(0x4CBCB8, 10);
@@ -207,14 +213,14 @@ static InitFunction initFunction([]()
 
 			break;
 		}
-	case X2Type::Lupin3:
+		case X2Type::Lupin3:
 		{
 			// TODO: DOCUMENT PATCHES
 			injector::MakeNOP(0x48C66C, 12);
 
 			break;
 		}
-	case X2Type::BattleFantasia:
+		case X2Type::BattleFantasia:
 		{
 			// TODO: DISABLE DUAL INPUT PLS
 			OutputDebugStringA("Please fix the dual input issue sir");
