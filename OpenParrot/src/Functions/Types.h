@@ -9,5 +9,6 @@ enum class X2Type {
 	Lupin3,
 	Generic,
 	GaiaAttack4,
-	BattleFantasia
+	BattleFantasia,
+	MB4
 };

@@ -225,7 +225,7 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0x42b00124:
 		currentGame = GameID::MB4;
-		X2Type = X2Type::Generic;
+		X2Type = X2Type::MB4;
 		break;
 	case 0x47da80e5: // Spica Adventure
 		currentGame = GameID::SpicaAdventure;
