@@ -68,5 +68,6 @@ project "udis86"
 	}
 
 include "OpenParrot"
+include "Opensegaapi"
 include "OpenParrotLoader"
 include "OpenParrotKonamiLoader"
