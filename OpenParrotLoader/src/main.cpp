@@ -128,20 +128,25 @@ DWORD GetVal(HKEY hKey, LPCTSTR lpValue)
 
 int main(int argc, char *argv[])
 {
-	if (argc == 1 || argc > 3)
+	if (argc == 1 || argc > 4)
 	{
 		printf("Please use the following format: ");
-		printf("ParrotLoader.exe c:\\games\\id6\\id6.exe <param>");
+#if _M_IX86
+		printf("OpenParrotLoader.exe <DLL> c:\\games\\id6\\id6.exe <param>");
+#else
+		printf("OpenParrotLoader64.exe <DLL> c:\\games\\id6\\id6.exe <param>");
+#endif		
 		return 0;
 	}
 
 	char dirBuf[256];
-	strcpy(dirBuf, argv[1]);
+	strcpy(dirBuf, argv[2]);
 	char *p = strrchr(dirBuf, '\\');
 	if (p) p[0] = 0;
 
 	WIN32_FIND_DATA filedata;
 	HANDLE hFind;
+	HANDLE hFindDll;
 	WIN32_FIND_DATA filedata2;
 	HANDLE hFind2;
 	char szDir[512];
@@ -149,19 +154,15 @@ int main(int argc, char *argv[])
 	printf("OpenParrot Loader\n");
 	printf("http://www.teknogods.com - Modding Gurus!\n");
 	printf("Supported OS: Windows XP x86 / x64, Windows Vista x86 / x64, Windows 7 x86 / x64, Windows 8 / 8.1 x86 / x64 Windows 10 x86 / x64\n");
-	printf("Code: Reaver, NTAuthority, avail\n");
+	printf("Code: Reaver, NTAuthority, avail and the community\n");
 	GetCurrentDirectoryA(400, szDir);
-#if _M_IX86
-	sprintf_s(szDir2, "%s\\OpenParrot.dll", szDir);
-#else
-	sprintf_s(szDir2, "%s\\OpenParrot64.dll", szDir);
-#endif
-	hFind = FindFirstFile(argv[1], &filedata);
+	sprintf_s(szDir2, "%s\\%s.dll", szDir, argv[1]);
+	hFind = FindFirstFile(argv[2], &filedata);
 	hFind2 = FindFirstFile(szDir2, &filedata2);
 
 	if (hFind == INVALID_HANDLE_VALUE)
 	{
-		printf("Unable to find %s", argv[1]);
+		printf("Unable to find %s", argv[2]);
 		_getch();
 		return 0;
 	}
@@ -172,11 +173,12 @@ int main(int argc, char *argv[])
 		_getch();
 		return 0;
 	}
-	FilePEFile = getPEFileInformation(argv[1]);
+
+	FilePEFile = getPEFileInformation(argv[2]);
 	if (argc == 3)
 	{
 		char bb[256];
-		sprintf(bb, "%s %s", argv[1], argv[2]);
+		sprintf(bb, "%s %s", argv[2], argv[3]);
 		if (!CreateProcess(NULL, // No module name (use command line). 
 			bb,			  // Command line.
 			NULL,             // Process handle not inheritable. 
@@ -196,7 +198,7 @@ int main(int argc, char *argv[])
 	}
 	else if (argc == 2)
 	{
-		if (!CreateProcess(argv[1], // No module name (use command line). 
+		if (!CreateProcess(argv[2], // No module name (use command line). 
 			"",			  // Command line.
 			NULL,             // Process handle not inheritable. 
 			NULL,             // Thread handle not inheritable. 
