@@ -535,6 +535,17 @@ extern "C" {
 		return OPEN_SEGA_SUCCESS;
 	}
 
+
+	__declspec(dllexport) void* SEGAAPI_GetUserData(void* hHandle)
+	{
+		if (hHandle == NULL)
+		{
+			return nullptr;
+		}
+		OPEN_segaapiBuffer_t* buffer = (OPEN_segaapiBuffer_t*)hHandle;
+		return buffer->userData;
+	}
+
 	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_UpdateBuffer(void* hHandle, unsigned int dwStartOffset,
 		unsigned int dwLength)
 	{
