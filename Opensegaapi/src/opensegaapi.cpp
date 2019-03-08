@@ -808,6 +808,11 @@ extern "C" {
 
 	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_Exit(void)
 	{
+		for (auto& g_submixVoice : g_submixVoices)
+		{
+			g_submixVoice->DestroyVoice();
+		}
+
 		// TODO: deinit XA2
 		return OPEN_SEGA_SUCCESS;
 	}
@@ -1018,6 +1023,12 @@ extern "C" {
 		OPEN_segaapiBuffer_t* buffer = (OPEN_segaapiBuffer_t*)hHandle;
 		buffer->channelVolumes[dwChannel] = dwVolume / (float)0xFFFFFFFF;
 		return OPEN_SEGA_SUCCESS;
+	}
+
+	__declspec(dllexport) unsigned int SEGAAPI_GetChannelVolume(void* hHandle, unsigned int dwChannel)
+	{
+		OPEN_segaapiBuffer_t* buffer = (OPEN_segaapiBuffer_t*)hHandle;
+		return buffer->channelVolumes[dwChannel];
 	}
 
 	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_Pause(void* hHandle)
