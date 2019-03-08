@@ -1017,6 +1017,16 @@ extern "C" {
 		return OPEN_SEGA_SUCCESS;
 	}
 
+	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_SetSynthParamMultiple(void* hHandle, unsigned int dwNumParams,
+		OPEN_SynthParamSet* pSynthParams)
+	{
+		for (int i = 0; i < dwNumParams; i++)
+		{
+			SEGAAPI_SetSynthParam(hHandle, pSynthParams[i].param, pSynthParams[i].lPARWValue);
+		}
+		return OPEN_SEGA_SUCCESS;
+	}
+
 	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_SetChannelVolume(void* hHandle, unsigned int dwChannel,
 		unsigned int dwVolume)
 	{
