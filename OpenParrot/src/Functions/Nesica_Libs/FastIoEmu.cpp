@@ -34,6 +34,8 @@ int __cdecl iDmacDrvDmaWrite(int a1, void *lp, UINT_PTR ucb, LPVOID a4)
 	return 0;
 }
 
+static bool coinPressed = false;
+
 int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuffer, LPVOID DeviceResult)
 {
 	DWORD result = 0;
@@ -67,8 +69,26 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		result = 0x01100000;
 		break;
 	case 0x4140:
-	case 0x41C0:
-		result = g_fastIOValues[4];
+		if(g_fastIOValues[4] == 1)
+		{
+			if(!coinPressed)
+			{
+				result = g_fastIOValues[4];
+				coinPressed = true;
+			}
+			else
+			{
+				result = 0;
+			}
+		}
+		else
+		{
+			result = 0;
+			coinPressed = false;
+		}
+		break;
+	case 0x41C0: // coin 2 ?
+		result = 0;
 		// For coin not getting stuck. One ping is enough.
 		//result = CoinPackage;
 		//if (result != 0)
