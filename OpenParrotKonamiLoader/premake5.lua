@@ -2,6 +2,7 @@ project "OpenParrotKonamiLoader"
 	targetname "OpenParrotKonamiLoader"
 	language "C++"
 	kind "ConsoleApp"
+	removeplatforms { "x64" }
 
 	characterset "MBCS"
 

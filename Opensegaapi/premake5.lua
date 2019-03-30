@@ -2,6 +2,7 @@ project "Opensegaapi"
 	targetname "Opensegaapi"
 	language "C++"
 	kind "SharedLib"
+	removeplatforms { "x64" }
 
 	files
 	{
