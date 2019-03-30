@@ -51,21 +51,16 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		result = 0x00FF00FF;
 		break;
 	case 0x4004:
-		// 0x00FF0000;
 		result = 0x00FF0000;
 		break;
 	case 0x4120:
-		// 0x00000010;
-		//result = FourPackage;
 		result = g_fastIOValues[0] + ((DWORD)g_fastIOValues[1] * 0x100) + ((DWORD)g_fastIOValues[2] * 0x10000) + ((DWORD)g_fastIOValues[3] * 0x1000000);
 		break;
 	case 0x412C:
-		// 0x00000001;
 		result = 0x00000000;
 		break;
 	case 0x41A4:
 	case 0x4124:
-		// 0x01100000;
 		result = 0x01100000;
 		break;
 	case 0x4140:
@@ -111,7 +106,6 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 	case 0x4128:
 		result = g_fastIOValues[8];
 		result += g_fastIOValues[9] * 0x100;
-		//result = 0x00FF00FF;
 		break;
 	case 0x41AC:
 		result = 0;
