@@ -1,0 +1,14 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+platform:
+- x64
+- Win32
+before_build:
+- cmd: premake5.exe vs2017
+build:
+  project: OpenParrot.sln
+  verbosity: minimal
+artifacts:
+- path: build\bin\release\
+  name: OpenParrot$(platform)
