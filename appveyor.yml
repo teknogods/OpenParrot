@@ -19,4 +19,4 @@ deploy:
   auth_token:
     secure: a2B+6mDTHuBa0fw8nm739eGJIZBcZp0IenhKvvXvreLR6ZUoHg9pflMP8ahNUK6o
   repository: teknogods/OpenParrot
-  artifact: OpenParrot$(platform).zip
+  artifact: build\bin\OpenParrot$(platform).zip
