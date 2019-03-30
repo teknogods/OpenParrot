@@ -535,6 +535,17 @@ extern "C" {
 		return OPEN_SEGA_SUCCESS;
 	}
 
+
+	__declspec(dllexport) void* SEGAAPI_GetUserData(void* hHandle)
+	{
+		if (hHandle == NULL)
+		{
+			return nullptr;
+		}
+		OPEN_segaapiBuffer_t* buffer = (OPEN_segaapiBuffer_t*)hHandle;
+		return buffer->userData;
+	}
+
 	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_UpdateBuffer(void* hHandle, unsigned int dwStartOffset,
 		unsigned int dwLength)
 	{
@@ -797,6 +808,11 @@ extern "C" {
 
 	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_Exit(void)
 	{
+		for (auto& g_submixVoice : g_submixVoices)
+		{
+			g_submixVoice->DestroyVoice();
+		}
+
 		// TODO: deinit XA2
 		return OPEN_SEGA_SUCCESS;
 	}
@@ -1001,12 +1017,28 @@ extern "C" {
 		return OPEN_SEGA_SUCCESS;
 	}
 
+	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_SetSynthParamMultiple(void* hHandle, unsigned int dwNumParams,
+		OPEN_SynthParamSet* pSynthParams)
+	{
+		for (int i = 0; i < dwNumParams; i++)
+		{
+			SEGAAPI_SetSynthParam(hHandle, pSynthParams[i].param, pSynthParams[i].lPARWValue);
+		}
+		return OPEN_SEGA_SUCCESS;
+	}
+
 	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_SetChannelVolume(void* hHandle, unsigned int dwChannel,
 		unsigned int dwVolume)
 	{
 		OPEN_segaapiBuffer_t* buffer = (OPEN_segaapiBuffer_t*)hHandle;
 		buffer->channelVolumes[dwChannel] = dwVolume / (float)0xFFFFFFFF;
 		return OPEN_SEGA_SUCCESS;
+	}
+
+	__declspec(dllexport) unsigned int SEGAAPI_GetChannelVolume(void* hHandle, unsigned int dwChannel)
+	{
+		OPEN_segaapiBuffer_t* buffer = (OPEN_segaapiBuffer_t*)hHandle;
+		return buffer->channelVolumes[dwChannel];
 	}
 
 	__declspec(dllexport) OPENSEGASTATUS SEGAAPI_Pause(void* hHandle)
