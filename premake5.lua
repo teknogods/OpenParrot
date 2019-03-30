@@ -4,7 +4,7 @@ workspace "OpenParrot"
 
 	flags { "StaticRuntime", "No64BitChecks" }
 
-	systemversion "latest"
+	systemversion "10.0.16299.0"
 
 	symbols "On"
 
