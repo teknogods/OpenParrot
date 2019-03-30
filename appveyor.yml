@@ -12,3 +12,9 @@ build:
 artifacts:
 - path: build\bin\release\
   name: OpenParrot$(platform)
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: a2B+6mDTHuBa0fw8nm739eGJIZBcZp0IenhKvvXvreLR6ZUoHg9pflMP8ahNUK6o
+  repository: teknogods/OpenParrot
+  artifact: OpenParrotWin32.zip;OpenParrotx64.zip
