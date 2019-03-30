@@ -14,7 +14,7 @@ artifacts:
   name: OpenParrot$(platform)
 deploy:
 - provider: GitHub
-  release: OpenParrot$(platform)
+  tag: OpenParrot$(platform)
   description: $(APPVEYOR_REPO_COMMIT_MESSAGE)
   auth_token:
     secure: a2B+6mDTHuBa0fw8nm739eGJIZBcZp0IenhKvvXvreLR6ZUoHg9pflMP8ahNUK6o
