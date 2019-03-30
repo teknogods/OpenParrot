@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 	}
 
 	FilePEFile = getPEFileInformation(argv[2]);
-	if (argc == 3)
+	if (argc == 4)
 	{
 		char bb[256];
 		sprintf(bb, "%s %s", argv[2], argv[3]);
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 	}
-	else if (argc == 2)
+	else if (argc == 3)
 	{
 		if (!CreateProcess(argv[2], // No module name (use command line). 
 			"",			  // Command line.
