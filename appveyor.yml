@@ -1,9 +1,15 @@
-version: 1.0.{build}
+version: 1.0.0.{build}
 image: Visual Studio 2017
 configuration: Release
 platform:
 - x64
 - Win32
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
 before_build:
 - cmd: premake5.exe vs2017
 build:
