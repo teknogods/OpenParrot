@@ -17,11 +17,6 @@ project "OpenParrot"
 
 	links { "MinHook", "udis86" }
 
-	filter "platforms:x64"
-		files { "src/win64init.asm" }
-	
-		targetsuffix "64"
-		
 	prebuildcommands {
 		"if not exist $(TargetDir)output mkdir $(TargetDir)output",
 	}
@@ -30,3 +25,8 @@ project "OpenParrot"
 	  "if exist $(TargetDir)OpenParrot.dll xcopy /y $(TargetDir)OpenParrot.dll $(TargetDir)output\\",
 	  "if exist $(TargetDir)OpenParrot64.dll xcopy /y $(TargetDir)OpenParrot64.dll $(TargetDir)output\\"
 	}
+
+	filter "platforms:x64"
+		files { "src/win64init.asm" }
+	
+		targetsuffix "64"

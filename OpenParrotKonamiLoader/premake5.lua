@@ -17,9 +17,6 @@ project "OpenParrotKonamiLoader"
 
 	links { "MinHook", "udis86" }
 
-	filter "platforms:x64"
-		targetsuffix "64"
-		
 	prebuildcommands {
 		"if not exist $(TargetDir)output mkdir $(TargetDir)output",
 	}
@@ -27,3 +24,6 @@ project "OpenParrotKonamiLoader"
 	postbuildcommands {
 		"if exist $(TargetDir)OpenParrotKonamiLoader.exe xcopy /y $(TargetDir)OpenParrotKonamiLoader.exe $(TargetDir)output\\"
 	}
+
+	filter "platforms:x64"
+		targetsuffix "64"
