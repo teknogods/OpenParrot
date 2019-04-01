@@ -20,3 +20,12 @@ project "OpenParrotLoader"
 
 	filter "platforms:x64"
 		targetsuffix "64"
+		
+	prebuildcommands {
+		"if not exist $(TargetDir)output mkdir $(TargetDir)output",
+	}
+	
+	postbuildcommands {
+	  "if exist $(TargetDir)OpenParrotLoader.exe xcopy /y $(TargetDir)OpenParrotLoader.exe $(TargetDir)output\\",
+	  "if exist $(TargetDir)OpenParrotLoader64.exe xcopy /y $(TargetDir)OpenParrotLoader64.exe $(TargetDir)output\\"
+	}

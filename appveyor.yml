@@ -1,6 +1,8 @@
 version: 1.0.0.{build}
 image: Visual Studio 2017
 configuration: Release
+# Do not build on tags (GitHub only)
+skip_tags: true
 platform:
 - x64
 - Win32
@@ -16,7 +18,7 @@ build:
   project: OpenParrot.sln
   verbosity: minimal
 artifacts:
-- path: build\bin\release\
+- path: build\bin\release\output\
   name: OpenParrot$(platform)
 deploy:
 - provider: GitHub

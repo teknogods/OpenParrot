@@ -23,3 +23,12 @@ project "OpenParrot"
 		files { "src/win64init.asm" }
 	
 		targetsuffix "64"
+		
+	prebuildcommands {
+		"if not exist $(TargetDir)output mkdir $(TargetDir)output",
+	}
+		
+	postbuildcommands {
+	  "if exist $(TargetDir)OpenParrot.dll xcopy /y $(TargetDir)OpenParrot.dll $(TargetDir)output\\",
+	  "if exist $(TargetDir)OpenParrot64.dll xcopy /y $(TargetDir)OpenParrot64.dll $(TargetDir)output\\"
+	}

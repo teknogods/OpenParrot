@@ -21,3 +21,11 @@ project "OpenParrotKonamiLoader"
 
 	filter "platforms:x64"
 		targetsuffix "64"
+		
+	prebuildcommands {
+		"if not exist $(TargetDir)output mkdir $(TargetDir)output",
+	}
+		
+	postbuildcommands {
+		"if exist $(TargetDir)OpenParrotKonamiLoader.exe xcopy /y $(TargetDir)OpenParrotKonamiLoader.exe $(TargetDir)output\\"
+	}
