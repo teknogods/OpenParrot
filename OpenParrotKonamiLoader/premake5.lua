@@ -17,8 +17,6 @@ project "OpenParrotKonamiLoader"
 
 	links { "MinHook", "udis86" }
 
-	postbuildcommands { }
-
 	filter "platforms:x64"
 		targetsuffix "64"
 		

@@ -17,8 +17,6 @@ project "OpenParrot"
 
 	links { "MinHook", "udis86" }
 
-	postbuildcommands { }
-
 	filter "platforms:x64"
 		files { "src/win64init.asm" }
 	
