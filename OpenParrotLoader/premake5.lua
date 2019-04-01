@@ -16,8 +16,6 @@ project "OpenParrotLoader"
 
 	links { }
 
-	postbuildcommands { }
-
 	filter "platforms:x64"
 		targetsuffix "64"
 		
