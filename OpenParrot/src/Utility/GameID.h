@@ -46,5 +46,7 @@ enum class GameID
 	MagicalBeat,
 	CrimzonClover,
 	Daytona3,
-	MB4
+	MB4,
+	GTIClub3,
+	GRID
 };
