@@ -10,5 +10,5 @@ enum class X2Type {
 	Generic,
 	GaiaAttack4,
 	BattleFantasia,
-	MB4
+	MB4,
 };

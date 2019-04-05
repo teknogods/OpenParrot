@@ -360,6 +360,12 @@ void GameDetect::DetectCurrentGame()
 	case 0xbb359a1a: // Suggoi! Arcana Heart 2
 		currentGame = GameID::ExBoardGeneric;
 		break;
+	case 0x4966e11b:
+		currentGame = GameID::GRID;
+		break;
+	case 0x326ebcd6:
+		currentGame = GameID::GTIClub3;
+		break;
 	//case 0xea1984ff:
 	//	currentGame = GameID::ExBoardGeneric;
 	//	break;
