@@ -119,6 +119,19 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 	case 0x4150u:
 		result = 0x1823C;
 		break;
+	// Packages that are ok to return 0 for now to prevent spam...
+	case 0x4158:
+	case 0x415C:
+	case 0x41D0:
+	case 0x41D4:
+	case 0x41D8:
+	case 0x41DC:
+	case 0x4148:
+	case 0x414C:
+	case 0x41C8:
+	case 0x41CC:
+		result = 0;
+		break;
 	default:
 #ifdef _DEBUG
 		info(true, "Unknown Fast I/O Request: %08X", CommandCode);
