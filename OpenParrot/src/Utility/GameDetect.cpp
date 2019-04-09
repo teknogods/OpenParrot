@@ -385,6 +385,11 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::Daytona3;
 			break;
 		}
+		if(*(uint32_t*)(moduleBase + 0x2CC751) == 0x6B75C084)
+		{
+			currentGame = GameID::DariusBurst;
+			break;
+		}
 #else
 		// X64
 		// School of Ragnarok

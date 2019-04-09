@@ -7,6 +7,7 @@ DWORD GameResult = 0;
 DWORD IOErrorCoin = 0;
 DWORD IOErrorCredit = 0;
 DWORD EventModeEnable = 0;
+DWORD SystemType = 0;
 
 DWORD FillDwordInformation(const char *setting, const char *subkey, DWORD defaultValue)
 {
@@ -228,6 +229,11 @@ LSTATUS __stdcall RegQueryValueExWWrap(
 		else if (wcscmp(lpValueName, L"IOErrorCredit") == 0) // REG_DWORD
 		{
 			*lpData = FillDwordInformation("NESiCA", "IOErrorCredit", IOErrorCredit); // UNK
+			*lpcbData = 4;
+		}
+		else if (wcscmp(lpValueName, L"SystemType") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "SystemType", SystemType);; // UNK
 			*lpcbData = 4;
 		}
 		else
