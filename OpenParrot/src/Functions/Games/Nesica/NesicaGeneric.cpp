@@ -6,6 +6,7 @@
 #include "Functions/Nesica_Libs/RfidEmu.h"
 #include "Functions/Nesica_Libs/NesysEmu.h"
 #include "Functions/Nesica_Libs/RegHooks.h"
+#include "Utility/Hooking.Patterns.h"
 
 static InitFunction initFunction([]()
 {
@@ -41,6 +42,39 @@ static InitFunction initFunction_GC2([]()
 	init_CryptoPipe(GameDetect::NesicaKey);
 #endif
 }, GameID::GrooveCoaster2);
+
+static InitFunction initFunction_DariusBurst([]()
+{
+	init_FastIoEmu();
+	init_RegHooks();
+	init_NesysEmu(true);
+
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+
+	// Ignore cryptopipe check.
+	// NOTE: This could be cause for the non-working TEST MODE. No time to analyze since dump was released and we want to give instant support.
+	injector::WriteMemory<BYTE>(imageBase + 0x2CC753, 0xEB, true);
+
+	// D:
+	injector::WriteMemoryRaw(imageBase + 0x482F38, "\x2E\x5C\x44", 3, true); // D:\%s%04d%02d%02d_%02d%02d%02d_
+	injector::WriteMemoryRaw(imageBase + 0x4830A0, "\x2E\x5C\x44", 3, true); // D:\%s/%s/*
+	injector::WriteMemoryRaw(imageBase + 0x4830AC, "\x2E\x5C\x44", 3, true); // D:\%s/%s
+	injector::WriteMemoryRaw(imageBase + 0x4830B3, "\x2E\x5C\x44", 3, true); // D:\%s/*
+	injector::WriteMemoryRaw(imageBase + 0x49FC90, "\x2E\x5C\x44", 3, true); // D:\%s
+	injector::WriteMemoryRaw(imageBase + 0x4A269C, "\x2E\x5C\x44", 3, true); // EDData
+	injector::WriteMemoryRaw(imageBase + 0x4AA168, "\x2E\x5C\x44", 3, true);
+	injector::WriteMemoryRaw(imageBase + 0x4D460C, "\x2E\x5C\x44", 3, true);
+	injector::WriteMemoryRaw(imageBase + 0x4D46A8, "\x2E\x5C\x44", 3, true); // Proclog
+
+	// D:/
+	injector::WriteMemoryRaw(imageBase + 0x4D44B4, "\x2E\x5C\x44", 3, true);
+
+	// Disable invertion of 2nd screen area
+	// NOTE: Nezarn is pro
+	injector::WriteMemoryRaw(imageBase + 0x4D4E34, "\x30\x2E\x30\x66\x20\x20\x20\x20", 8, true); // 0.0f
+	injector::WriteMemoryRaw(imageBase + 0x4D4E4C, "\x2A\x20\x30\x2E\x30\x66\x20\x20\x20\x20\x20\x2D", 12, true); // * 0.0f -
+
+}, GameID::DariusBurst);
 
 static InitFunction initFunction_PB([]()
 {
