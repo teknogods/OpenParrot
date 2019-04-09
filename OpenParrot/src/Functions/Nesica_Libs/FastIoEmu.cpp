@@ -1,6 +1,7 @@
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include <thread>
+#include "Utility/GameDetect.h"
 
 static uint8_t g_fastIOValues[64];
 
@@ -42,6 +43,7 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 
 	switch (CommandCode)
 	{
+	// TODO: COMMAND CODES SHOULD BE DEFINED PROPERLY!
 	case 0x400:
 	{
 		result = 0x00010201;
@@ -51,9 +53,17 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		result = 0x00FF00FF;
 		break;
 	case 0x4004:
-		result = 0x00FF0000;
+		if(GameDetect::currentGame == GameID::DariusBurst)
+		{
+			// I/O error without this switch
+			result = 0x00FF00FF;
+		}
+		else
+		{
+			result = 0x00FF0000;
+		}
 		break;
-	case 0x4120:
+	case 0x4120: // Player 1 and 2 controls
 		result = g_fastIOValues[0] + ((DWORD)g_fastIOValues[1] * 0x100) + ((DWORD)g_fastIOValues[2] * 0x10000) + ((DWORD)g_fastIOValues[3] * 0x1000000);
 		break;
 	case 0x412C:
@@ -97,8 +107,8 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		//if (result != 0)
 		//	CoinPackageSecond = 0;
 		break;
-	case 0x41A0:
-		result = 0;
+	case 0x41A0: // Player 3 and 4 controls
+		result = g_fastIOValues[10] + ((DWORD)g_fastIOValues[11] * 0x100) + ((DWORD)g_fastIOValues[12] * 0x10000) + ((DWORD)g_fastIOValues[13] * 0x1000000);
 		break;
 	case 0x41A8:
 		result = 0;

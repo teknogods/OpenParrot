@@ -47,6 +47,7 @@ enum class GameID
 	CrimzonClover,
 	Daytona3,
 	MB4,
+	DariusBurst,
 	GTIClub3,
 	GRID
 };
