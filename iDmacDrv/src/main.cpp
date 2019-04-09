@@ -83,6 +83,18 @@ extern "C" __declspec(dllexport) int __cdecl iDmacDrvMemoryWrite(int a1, DWORD B
 	return 0;
 }
 
+extern "C" __declspec(dllexport) int __cdecl iDmacDrvMemoryBufferRead(int a1, DWORD BytesReturned, LPVOID lp, UINT_PTR ucb, LPVOID a5)
+{
+	return 0;
+}
+
+extern "C" __declspec(dllexport) int __cdecl iDmacDrvMemoryBufferWrite(int a1, int a2, void *lp, UINT_PTR ucb, LPVOID a5)
+{
+	return 0;
+}
+
+#ifdef _M_IX86
+
 extern "C" __declspec(dllexport) int __cdecl iDmacDrvMemoryReadExt(int a1, DWORD BytesReturned, int a3, LPVOID lp, DWORD nOutBufferSize, LPVOID a6)
 {
 	return 0;
@@ -93,15 +105,14 @@ extern "C" __declspec(dllexport) int __cdecl iDmacDrvMemoryWriteExt(int a1, int 
 	return 0;
 }
 
-extern "C" __declspec(dllexport) int __cdecl iDmacDrvMemoryBufferRead(int a1, DWORD BytesReturned, LPVOID lp, UINT_PTR ucb, LPVOID a5)
+#else
+
+extern "C" __declspec(dllexport) int __cdecl iDmacDrvProgramDownload()
 {
 	return 0;
 }
 
-extern "C" __declspec(dllexport) int __cdecl iDmacDrvMemoryBufferWrite(int a1, int a2, void *lp, UINT_PTR ucb, LPVOID a5)
-{
-	return 0;
-}
+#endif
 
 int main()
 {
