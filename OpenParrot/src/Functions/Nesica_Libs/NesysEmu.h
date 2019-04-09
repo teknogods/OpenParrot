@@ -110,7 +110,7 @@ public:
 
 	~NesysEmu();
 
-	void Initialize();
+	void Initialize(bool isDarius);
 
 	void Shutdown();
 
@@ -141,4 +141,4 @@ private:
 	std::map<nesys_command, std::function<void(const uint8_t*, size_t)>> m_commandHandlers;
 };
 
-void init_NesysEmu();
+void init_NesysEmu(bool IsDarius = false);

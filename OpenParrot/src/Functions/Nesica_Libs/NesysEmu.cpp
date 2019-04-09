@@ -473,13 +473,17 @@ void NesysEmu::SendResponse(nesys_command command, const void* data, size_t data
 	free(buffer);
 }
 
-void NesysEmu::Initialize()
+void NesysEmu::Initialize(bool isDarius)
 {
 	std::thread([=]()
 	{
 		while (true)
 		{
-			auto pipe = CreateNamedPipeW(L"\\\\.\\pipe\\nesys_games", PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 8192, 8192, 0, nullptr);
+			HANDLE pipe;
+			if(!isDarius)
+				pipe = CreateNamedPipeW(L"\\\\.\\pipe\\nesys_games", PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 8192, 8192, 0, nullptr);
+			else
+				pipe = CreateNamedPipeW(L"\\\\.\\pipe\\nesystest", PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 8192, 8192, 0, nullptr);
 
 			if (pipe == INVALID_HANDLE_VALUE)
 			{
@@ -537,7 +541,7 @@ void WriteNewsFile()
 	}
 }
 
-void init_NesysEmu()
+void init_NesysEmu(bool IsDarius)
 {
 	CreateDirectoryA("OpenParrot", nullptr);
 	WriteNewsFile();
@@ -545,6 +549,6 @@ void init_NesysEmu()
 	MH_CreateHookApi(L"iphlpapi.dll", "GetIfEntry", GetIfEntryFunc, (void**)&g_origGetIfEntry);
 	MH_EnableHook(MH_ALL_HOOKS);
 
-	g_nesysEmu.Initialize();
+	g_nesysEmu.Initialize(IsDarius);
 }
 #pragma optimize("", on)
