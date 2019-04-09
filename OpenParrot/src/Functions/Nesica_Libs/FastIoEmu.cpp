@@ -70,8 +70,18 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		result = 0x00000000;
 		break;
 	case 0x41A4:
-	case 0x4124:
 		result = 0x01100000;
+		break;
+	case 0x4124:
+		if (GameDetect::currentGame == GameID::DariusBurst)
+		{
+			// Sound volume to maximum
+			result = 0xFF;
+		}
+		else
+		{
+			result = 0x01100000;
+		}
 		break;
 	case 0x4140:
 		if(g_fastIOValues[4] == 1)
