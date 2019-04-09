@@ -11,8 +11,6 @@ project "iDmacDrv"
 
 	includedirs { "src", }
 	
-	linkoptions { "/DEF:iDmacDrv/src/Source.def" }
-
 	prebuildcommands {
 		"if not exist $(TargetDir)output mkdir $(TargetDir)output",
 	}
@@ -24,6 +22,8 @@ project "iDmacDrv"
 
 	filter "platforms:x86"	
 		targetsuffix "32"
+		linkoptions { "/DEF:iDmacDrv/src/Source32.def" }
 
 	filter "platforms:x64"	
 		targetsuffix "64"
+		linkoptions { "/DEF:iDmacDrv/src/Source64.def" }

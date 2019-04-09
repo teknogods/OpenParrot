@@ -10,7 +10,7 @@ iDmacDrvRegisterBufferRead @7
 iDmacDrvRegisterBufferWrite @8
 iDmacDrvMemoryRead @9
 iDmacDrvMemoryWrite @10
-iDmacDrvMemoryReadExt @11
-iDmacDrvMemoryWriteExt @12
-iDmacDrvMemoryBufferRead @13
-iDmacDrvMemoryBufferWrite @14
+iDmacDrvMemoryBufferRead @11
+iDmacDrvMemoryBufferWrite @12
+iDmacDrvMemoryReadExt @13
+iDmacDrvMemoryWriteExt @14
