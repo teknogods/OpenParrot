@@ -171,6 +171,12 @@ static InitFunction initFunction([]()
 	
 	switch (GameDetect::X2Type)
 	{
+		case X2Type::Wontertainment:
+		{
+			injector::WriteMemory<BYTE>(0x00B54F88, 0x01, true);
+			injector::WriteMemory<BYTE>(0x00B54F96, 0x01, true);
+			break;
+		}
 		case X2Type::MB4:
 		{
 			// Redirect messagelog file
