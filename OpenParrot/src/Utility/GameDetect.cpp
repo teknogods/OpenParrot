@@ -366,6 +366,10 @@ void GameDetect::DetectCurrentGame()
 	case 0x326ebcd6:
 		currentGame = GameID::GTIClub3;
 		break;
+	case 0xe158763c:
+		currentGame = GameID::TypeXGeneric;
+		X2Type = X2Type::Wontertainment;
+		break;
 	//case 0xea1984ff:
 	//	currentGame = GameID::ExBoardGeneric;
 	//	break;
