@@ -81,6 +81,9 @@ HANDLE __stdcall Hook_CreateFileA(LPCSTR lpFileName,
 
 		if (jvsHandle != INVALID_HANDLE_VALUE)
 		{
+#ifdef _DEBUG
+			info(true, "Closing JVS handle!");
+#endif
 			CloseHandle(jvsHandle);
 			jvsHandle = INVALID_HANDLE_VALUE;
 		}
