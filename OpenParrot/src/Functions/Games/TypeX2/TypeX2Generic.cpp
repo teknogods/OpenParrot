@@ -179,9 +179,11 @@ static InitFunction initFunction([]()
 			injector::WriteMemory<BYTE>(0x004E827D, 0x01, true);
 			// jump from logos to main menu scene (NO ATTRACT enjoy!)
 			injector::WriteMemory<BYTE>(0x004E86CB, 0x05, true);
+			injector::WriteMemory<BYTE>(0x004E8C52, 0x05, true);
+			injector::WriteMemory<BYTE>(0x004E8702, 0x05, true);
 			// card dispenser scene bypass (cause it hangs without one)
-			//injector::WriteMemory<BYTE>(0x004E9391, 0x0A, true);
-			//injector::WriteMemory<BYTE>(0x004E93B3, 0x0A, true);
+			injector::WriteMemory<BYTE>(0x004E9391, 0x0A, true);
+			injector::WriteMemory<BYTE>(0x004E93B3, 0x0A, true);
 			break;
 		}
 		case X2Type::MB4:
