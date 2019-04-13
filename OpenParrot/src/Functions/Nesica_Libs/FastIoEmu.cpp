@@ -148,6 +148,7 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		break;
 	// Packages that are ok to return 0 for now to prevent spam...
 	case 0x4158:
+	case 0x4154:
 	case 0x415C:
 	case 0x41D0:
 	case 0x41D4:
