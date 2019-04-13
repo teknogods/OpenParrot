@@ -2,10 +2,9 @@
 
 // ORIGINALL BASED ON ttx_monitor, modified for RFID. https://github.com/zxmarcos/ttx_monitor
 
-#include "Functions/Types.h"
-
 #include "Utility/InitFunction.h"
 #include <queue>
+#include "Utility/GameDetect.h"
 
 #define JVS_TRUE				0x01
 #define JVS_FALSE				0x00
@@ -729,6 +728,17 @@ HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 		return hConnection;
 	}
 
+	if(GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origCreateFileA(lpFileName,
+			dwDesiredAccess,
+			dwShareMode,
+			lpSecurityAttributes,
+			dwCreationDisposition,
+			dwFlagsAndAttributes,
+			hTemplateFile);
+	}
+	
 	return g_origCreateFileA(ParseFileNamesA(lpFileName),
 		dwDesiredAccess,
 		dwShareMode,
@@ -762,6 +772,17 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 		return hConnection;
 	}
 
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origCreateFileW(lpFileName,
+			dwDesiredAccess,
+			dwShareMode,
+			lpSecurityAttributes,
+			dwCreationDisposition,
+			dwFlagsAndAttributes,
+			hTemplateFile);
+	}
+
 	return g_origCreateFileW(ParseFileNamesW(lpFileName),
 		dwDesiredAccess,
 		dwShareMode,
@@ -774,12 +795,22 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 static DWORD(__stdcall *g_origGetFileAttributesA)(LPCSTR lpFileName);
 static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origGetFileAttributesA(lpFileName);
+	}
+
 	return g_origGetFileAttributesA(ParseFileNamesA(lpFileName));
 }
 
 static DWORD(__stdcall *g_origGetFileAttributesW)(LPCWSTR lpFileName);
 static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origGetFileAttributesW(lpFileName);
+	}
+
 	return g_origGetFileAttributesW(ParseFileNamesW(lpFileName));
 }
 
@@ -789,6 +820,11 @@ static BOOL __stdcall CreateDirectoryAWrap(
 	LPSECURITY_ATTRIBUTES lpSecurityAttributes
 )
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origCreateDirectoryA(lpPathName, lpSecurityAttributes);
+	}
+
 	return g_origCreateDirectoryA(ParseFileNamesA(lpPathName), lpSecurityAttributes);
 }
 
@@ -798,6 +834,11 @@ static BOOL __stdcall CreateDirectoryWWrap(
 	LPSECURITY_ATTRIBUTES lpSecurityAttributes
 )
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origCreateDirectoryW(lpPathName, lpSecurityAttributes);
+	}
+
 	return g_origCreateDirectoryW(ParseFileNamesW(lpPathName), lpSecurityAttributes);
 }
 
@@ -807,6 +848,10 @@ static HANDLE __stdcall FindFirstFileAWrap(
 	LPWIN32_FIND_DATAA lpFindFileData
 )
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origFindFirstFileA(lpFileName, lpFindFileData);
+	}
 	return g_origFindFirstFileA(ParseFileNamesA(lpFileName), lpFindFileData);
 }
 
@@ -816,6 +861,11 @@ static HANDLE __stdcall FindFirstFileWWrap(
 	LPWIN32_FIND_DATAA lpFindFileData
 )
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origFindFirstFileW(lpFileName, lpFindFileData);
+	}
+
 	return g_origFindFirstFileW(ParseFileNamesW(lpFileName), lpFindFileData);
 }
 
