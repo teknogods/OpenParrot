@@ -66,13 +66,7 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 	case 0x4120: // Player 1 and 2 controls
 		result = g_fastIOValues[0] + ((DWORD)g_fastIOValues[1] * 0x100) + ((DWORD)g_fastIOValues[2] * 0x10000) + ((DWORD)g_fastIOValues[3] * 0x1000000);
 		break;
-	case 0x412C:
-		result = 0x00000000;
-		break;
-	case 0x41A4:
-		result = 0x01100000;
-		break;
-	case 0x4124:
+	case 0x4124: // Analogs 1
 		if (GameDetect::currentGame == GameID::DariusBurst)
 		{
 			// Sound volume to maximum
@@ -82,6 +76,23 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		{
 			result = 0x01100000;
 		}
+		break;
+	case 0x4128: // Analogs 2
+		if (GameDetect::currentGame == GameID::GrooveCoaster2)
+		{
+			result = 0xFF;
+		}
+		else
+		{
+			result = g_fastIOValues[8];
+			result += g_fastIOValues[9] * 0x100;
+		}
+		break;
+	case 0x412C:
+		result = 0x00000000;
+		break;
+	case 0x41A4:
+		result = 0x01100000;
 		break;
 	case 0x4140:
 		if(g_fastIOValues[4] == 1)
@@ -122,10 +133,6 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		break;
 	case 0x41A8:
 		result = 0;
-		break;
-	case 0x4128:
-		result = g_fastIOValues[8];
-		result += g_fastIOValues[9] * 0x100;
 		break;
 	case 0x41AC:
 		result = 0;
