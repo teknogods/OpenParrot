@@ -52,11 +52,6 @@ HANDLE hConnection = (HANDLE)0x1337;
 
 static const char *Rfid_IO_Id = "TAITO CORP.;RFID CTRL P.C.B.;Ver1.00;";
 
-void logmsg(const char *format, ...)
-{
-
-}
-
 struct jvs_command_def {
 	UINT8 params;
 	UINT8 reports;
@@ -176,14 +171,34 @@ public:
 		memcpy(dst, &buffer[0], size);
 	}
 
-	void print()
+	void printReply()
 	{
+		static char printer[1024];
+		memset(printer, 0, 1024);
 		if (size()) {
 #ifdef _DEBUG
-			logmsg("WR:  ");
+			sprintf(printer, "R:");
 			for (DWORD i = 0; i<size(); i++)
-				logmsg("%02X ", buffer[i]);
-			logmsg("\n");
+			{
+				sprintf(printer + 2 + (i * 3), "%02X ", buffer[i]);
+			}
+			info(true, printer);
+#endif
+		}
+	}
+
+	void printSource(BYTE* srcbuffer, int strsize)
+	{
+		static char printer[1024];
+		memset(printer, 0, 1024);
+		if (strsize) {
+#ifdef _DEBUG
+			sprintf(printer, "S:");
+			for (DWORD i = 0; i<strsize; i++)
+			{
+				sprintf(printer + 2 + (i * 3), "%02X ", srcbuffer[i]);
+			}
+			info(true, printer);
 #endif
 		}
 	}
@@ -320,7 +335,7 @@ int handle0x30(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
 	WORD val = ((arg2 & 0xFF) << 8) | (arg3 & 0xFF);
 	r->report(JVS_REPORT_OK);
 #ifdef _DEBUG
-	logcmd("-coin %d, %d\n", arg1, val);
+	//logcmd("-coin %d, %d\n", arg1, val);
 #endif
 	switch (arg1)
 	{
@@ -344,7 +359,7 @@ int handle0x31(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
 	WORD val = ((arg2 & 0xFF) << 8) | (arg3 & 0xFF);
 	r->report(JVS_REPORT_OK);
 #ifdef _DEBUG
-	logcmd("+coin %d, %d\n", arg1, val);
+	//logcmd("+coin %d, %d\n", arg1, val);
 #endif
 	switch (arg1)
 	{
@@ -369,9 +384,12 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 
 	if (pstr[0] != JVS_SYNC_CODE) {
 #ifdef _DEBUG
-		logmsg("Invalid Sync code!\n");
+		info(true, "Invalid Sync code!\n");
 #endif
 	}
+#ifdef _DEBUG
+	r.printSource(stream, srcsize);
+#endif
 	node = pstr[1];
 	pktsize = pstr[2];
 	pfunc = &pstr[3];
@@ -427,7 +445,7 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 			break;
 		default:
 #ifdef _DEBUG
-			logcmd("Unknown command %X\n", __ARG__(0));
+			info(true, "Unknown command %X\n", __ARG__(0));
 #endif
 			r.report(JVS_REPORT_OK);
 			increment = 1;
@@ -441,6 +459,9 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 	r.set_status(JVS_STATUS_OK);
 	r.end_stream();
 	r.read(dst, dstsize);
+#ifdef _DEBUG
+	r.printReply();
+#endif
 	return r.size();
 }
 BOOL(__stdcall *g_origGetCommModemStatus)(HANDLE hFile, LPDWORD lpModemStat);
@@ -588,6 +609,7 @@ BOOL __stdcall WriteFileWrap(HANDLE hFile,
 		return g_origWriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 	}
 	static BYTE rbuffer[1024];
+	static BYTE logger[1024];
 
 	DWORD sz = process_stream((LPBYTE)lpBuffer, nNumberOfBytesToWrite, rbuffer, 1024);
 	if (sz != 1) {
