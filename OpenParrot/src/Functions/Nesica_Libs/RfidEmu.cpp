@@ -176,7 +176,7 @@ public:
 		static char printer[1024];
 		memset(printer, 0, 1024);
 		if (size()) {
-#ifdef _DEBUG
+#ifdef PrintRFIDReplies
 			sprintf(printer, "R:");
 			for (DWORD i = 0; i<size(); i++)
 			{
@@ -192,7 +192,7 @@ public:
 		static char printer[1024];
 		memset(printer, 0, 1024);
 		if (strsize) {
-#ifdef _DEBUG
+#ifdef PrintRFIDRequests
 			sprintf(printer, "S:");
 			for (DWORD i = 0; i<strsize; i++)
 			{
@@ -341,6 +341,25 @@ int handleTaito01Call(jprot_encoder *r, DWORD arg1)
 	return 2;
 }
 
+int handleTaito03Call(jprot_encoder *r)
+{
+	r->report(JVS_REPORT_OK);
+	r->push(1);
+	return 2;
+}
+
+int handleTaito04Call(jprot_encoder *r)
+{
+	r->report(JVS_REPORT_OK);
+	return 1;
+}
+
+int handleTaito05Call(jprot_encoder *r)
+{
+	r->report(JVS_REPORT_OK);
+	return 3;
+}
+
 int handleReadSwitchInputs(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
@@ -465,6 +484,15 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 			break;
 		case 0x01:
 			increment = handleTaito01Call(&r, __ARG__(1));
+			break;
+		case 0x03:
+			increment = handleTaito03Call(&r);
+			break;
+		case 0x04:
+			increment = handleTaito04Call(&r);
+			break;
+		case 0x05:
+			increment = handleTaito05Call(&r);
 			break;
 		case 0x10:
 			increment = handleReadIDData(&r);
