@@ -233,25 +233,47 @@ int handleSetAddress(jprot_encoder *r)
 	return 2;
 }
 
+static bool cardInserted = false;
+
 // 0x26 -- read general-purpose input
 int handleReadGeneralPurposeInput(jprot_encoder *r, DWORD arg1)
 {
 	r->report(JVS_REPORT_OK);
 	for(DWORD i = 0; i < arg1; i++)
 	{
-		r->push(0);
+		if (cardInserted)
+			r->push(0x19);
+		else
+			r->push(0);
 	}
 	return 2 + arg1;
 }
+
+// Dumped from my own Japanese Lord Vermilion Nesica XLive card -Reaver
+static char cardData[0x18] = { 0x04, 0xC2, 0x3D, 0xDA, 0x6F, 0x52, 0x80, 0x00, 0x37, 0x30, 0x32, 0x30, 0x33, 0x39, 0x32, 0x30, 0x31, 0x30, 0x32, 0x38, 0x31, 0x35, 0x30, 0x32 };
+
 
 // 0x32 -- read general-purpose output. This is very confusing 0x32 0x01 0x00 returns 0x01 (0x18 times 0x00) 0x01
 // See JVSP manual for more information.
 int handleReadGeneralPurposeOutput(jprot_encoder *r, DWORD arg1)
 {
+#ifdef _DEBUG
+	OutputDebugStringA("Requested card data!");
+#endif
 	r->report(JVS_REPORT_OK);
-	for (DWORD i = 0; i < arg1 * 0x18; i++)
+	if(cardInserted)
 	{
-		r->push(0);
+		for(int i = 0; i < 0x18; i++)
+		{
+			r->push(cardData[i]);
+		}
+	}
+	else
+	{
+		for (DWORD i = 0; i < arg1 * 0x18; i++)
+		{
+			r->push(0);
+		}
 	}
 	r->report(JVS_REPORT_OK);
 	return 2 + arg1;
@@ -312,11 +334,10 @@ int handleGetSlaveFeatures(jprot_encoder *r)
 	return 1;
 }
 
-int handleTaito01Call(jprot_encoder *r)
+int handleTaito01Call(jprot_encoder *r, DWORD arg1)
 {
-	r->report(JVS_REPORT_OK);
+	r->report(JVS_REPORT_OK); 
 	r->push(1);
-	r->push(0);
 	return 2;
 }
 
@@ -443,7 +464,7 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 			increment = handleSetAddress(&r);
 			break;
 		case 0x01:
-			increment = handleTaito01Call(&r);
+			increment = handleTaito01Call(&r, __ARG__(1));
 			break;
 		case 0x10:
 			increment = handleReadIDData(&r);
