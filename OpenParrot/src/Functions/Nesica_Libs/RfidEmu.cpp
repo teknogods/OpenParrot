@@ -409,7 +409,9 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 	// Ignore weird packages
 	if (pstr[1] != 0x00 && pstr[1] != 0x01 && pstr[1] != 0xFF)
 	{
+#ifdef _DEBUG
 		OutputDebugStringA("Invalid package received!");
+#endif
 		return 0;
 	}
 
