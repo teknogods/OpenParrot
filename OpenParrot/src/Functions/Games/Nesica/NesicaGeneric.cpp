@@ -69,6 +69,9 @@ static InitFunction initFunction_GC2([]()
 
 	// Unstuck the game from some dumb mouse scanner func
 	injector::MakeNOP(imageBase + 0xA3FF6, 2);
+
+	// Patch dongle spam on RFID port
+	injector::MakeNOP(imageBase + 0xF90F6, 5);
 #if _M_IX86
 	init_CryptoPipe(GameDetect::NesicaKey);
 #endif

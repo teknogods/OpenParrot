@@ -217,14 +217,15 @@ static WORD p1coin = 0;
 static WORD p2coin = 0;
 static int coinstate[2] = { 0, 0 };
 
-int handle0xF0()
+int handleBusReset()
 {
 	p1coin = 0;
 	p2coin = 0;
 	return 2;
 }
 
-int handle0xF1(jprot_encoder *r)
+// 0xF1 -- set address
+int handleSetAddress(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	isAddressed = 1;
@@ -232,12 +233,36 @@ int handle0xF1(jprot_encoder *r)
 	return 2;
 }
 
-int handle0x2F()
+// 0x26 -- read general-purpose input
+int handleReadGeneralPurposeInput(jprot_encoder *r, DWORD arg1)
+{
+	r->report(JVS_REPORT_OK);
+	for(DWORD i = 0; i < arg1; i++)
+	{
+		r->push(0);
+	}
+	return 2 + arg1;
+}
+
+// 0x32 -- read general-purpose output. This is very confusing 0x32 0x01 0x00 returns 0x01 (0x18 times 0x00) 0x01
+// See JVSP manual for more information.
+int handleReadGeneralPurposeOutput(jprot_encoder *r, DWORD arg1)
+{
+	r->report(JVS_REPORT_OK);
+	for (DWORD i = 0; i < arg1 * 0x18; i++)
+	{
+		r->push(0);
+	}
+	r->report(JVS_REPORT_OK);
+	return 2 + arg1;
+}
+
+int handleReTransmitDataInCaseOfChecksumFailure()
 {
 	return 1;
 }
 
-int handle0x10(jprot_encoder *r)
+int handleReadIDData(jprot_encoder *r)
 {
 	const char *str = NULL;
 	r->report(JVS_REPORT_OK);
@@ -250,28 +275,28 @@ int handle0x10(jprot_encoder *r)
 	return 1;
 }
 
-int handle0x11(jprot_encoder *r)
+int handleGetCommandFormatVersion(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(JVS_COMMAND_REV);
 	return 1;
 }
 
-int handle0x12(jprot_encoder *r)
+int handleGetJVSVersion(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(JVS_BOARD_REV);
 	return 1;
 }
 
-int handle0x13(jprot_encoder *r)
+int handleGetCommunicationVersion(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(JVS_COMM_REV);
 	return 1;
 }
 
-int handle0x14(jprot_encoder *r)
+int handleGetSlaveFeatures(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(1);
@@ -287,7 +312,7 @@ int handle0x14(jprot_encoder *r)
 	return 1;
 }
 
-int handle0x01(jprot_encoder *r)
+int handleTaito01Call(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(1);
@@ -295,7 +320,7 @@ int handle0x01(jprot_encoder *r)
 	return 2;
 }
 
-int handle0x20(jprot_encoder *r)
+int handleReadSwitchInputs(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(0);
@@ -306,7 +331,7 @@ int handle0x20(jprot_encoder *r)
 	return 3;
 }
 
-int handle0x21(jprot_encoder *r)
+int handleReadCoinInputs(jprot_encoder *r)
 {
 	int currstate = 0;// inputMgr.GetState(P1_COIN);
 	if (!coinstate[0] && (currstate)) {
@@ -330,7 +355,7 @@ int handle0x21(jprot_encoder *r)
 	return 2;
 }
 
-int handle0x30(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
+int handleDecreaseNumberOfCoins(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
 {
 	WORD val = ((arg2 & 0xFF) << 8) | (arg3 & 0xFF);
 	r->report(JVS_REPORT_OK);
@@ -354,7 +379,7 @@ int handle0x30(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
 	return 4;
 }
 
-int handle0x31(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
+int handlePayouts(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
 {
 	WORD val = ((arg2 & 0xFF) << 8) | (arg3 & 0xFF);
 	r->report(JVS_REPORT_OK);
@@ -381,6 +406,12 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 
 	r.clear();
 
+	// Ignore weird packages
+	if (pstr[1] != 0x00 && pstr[1] != 0x01 && pstr[1] != 0xFF)
+	{
+		OutputDebugStringA("Invalid package received!");
+		return 0;
+	}
 
 	if (pstr[0] != JVS_SYNC_CODE) {
 #ifdef _DEBUG
@@ -404,44 +435,49 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 		switch (pfunc[0] & 0xFF)
 		{
 		case 0xF0:
-			increment = handle0xF0();
+			increment = handleBusReset();
 			break;
 		case 0xF1:
-			increment = handle0xF1(&r);
-			break;
-		case 0x2F:
-			increment = handle0x2F();
-			break;
-		case 0x10:
-			increment = handle0x10(&r);
-			break;
-		case 0x11:
-			increment = handle0x11(&r);
-			break;
-		case 0x12:
-			increment = handle0x12(&r);
-			break;
-		case 0x13:
-			increment = handle0x13(&r);
-			break;
-		case 0x14:
-			increment = handle0x14(&r);
+			increment = handleSetAddress(&r);
 			break;
 		case 0x01:
-			increment = handle0x01(&r);
+			increment = handleTaito01Call(&r);
+			break;
+		case 0x10:
+			increment = handleReadIDData(&r);
+			break;
+		case 0x11:
+			increment = handleGetCommandFormatVersion(&r);
+			break;
+		case 0x12:
+			increment = handleGetJVSVersion(&r);
+			break;
+		case 0x13:
+			increment = handleGetCommunicationVersion(&r);
+			break;
+		case 0x14:
+			increment = handleGetSlaveFeatures(&r);
 			break;
 		case 0x20:
-			increment = handle0x20(&r);
+			increment = handleReadSwitchInputs(&r);
 			break;
 		case 0x21:
-			increment = handle0x21(&r);
+			increment = handleReadCoinInputs(&r);
+			break;
+		case 0x26:
+			increment = handleReadGeneralPurposeInput(&r, __ARG__(1));
+			break;
+		case 0x2F:
+			increment = handleReTransmitDataInCaseOfChecksumFailure();
 			break;
 		case 0x30:
-			increment = handle0x30(&r, __ARG__(1), __ARG__(2), __ARG__(3));
+			increment = handleDecreaseNumberOfCoins(&r, __ARG__(1), __ARG__(2), __ARG__(3));
 			break;
-
 		case 0x31:
-			increment = handle0x31(&r, __ARG__(1), __ARG__(2), __ARG__(3));
+			increment = handlePayouts(&r, __ARG__(1), __ARG__(2), __ARG__(3));
+			break;
+		case 0x32:
+			increment = handleReadGeneralPurposeOutput(&r, __ARG__(1));
 			break;
 		default:
 #ifdef _DEBUG
