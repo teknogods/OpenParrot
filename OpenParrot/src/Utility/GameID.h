@@ -49,5 +49,7 @@ enum class GameID
 	MB4,
 	DariusBurst,
 	GTIClub3,
-	GRID
+	GRID,
+	UltraStreetFighterIV,
+	UltraStreetFighterIVDevExe
 };
