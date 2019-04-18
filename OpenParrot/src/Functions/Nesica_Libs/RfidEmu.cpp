@@ -242,7 +242,7 @@ int handleReadGeneralPurposeInput(jprot_encoder *r, DWORD arg1)
 	for(DWORD i = 0; i < arg1; i++)
 	{
 		if (cardInserted)
-			r->push(0x19);
+			r->push(0x19); // This should be only injected with first package of the 3, but does not seem to care.
 		else
 			r->push(0);
 	}
@@ -258,7 +258,7 @@ static char cardData[0x18] = { 0x04, 0xC2, 0x3D, 0xDA, 0x6F, 0x52, 0x80, 0x00, 0
 int handleReadGeneralPurposeOutput(jprot_encoder *r, DWORD arg1)
 {
 #ifdef _DEBUG
-	OutputDebugStringA("Requested card data!");
+	//OutputDebugStringA("Requested card data!");
 #endif
 	r->report(JVS_REPORT_OK);
 	if(cardInserted)
@@ -978,6 +978,28 @@ static HANDLE __stdcall FindFirstFileWWrap(
 	return g_origFindFirstFileW(ParseFileNamesW(lpFileName), lpFindFileData);
 }
 
+static DWORD WINAPI InsertCardThread(LPVOID)
+{
+	static bool keyDown;
+	while (true)
+	{
+		if (GetAsyncKeyState(VK_F4))
+		{
+			if (!keyDown)
+			{
+				cardInserted = !cardInserted;
+				keyDown = true;
+			}
+		}
+		else
+		{
+			keyDown = false;
+		}
+		Sleep(100);
+	}
+	return 1;
+}
+
 void init_RfidEmu()
 {
 	MH_Initialize();
@@ -1003,4 +1025,6 @@ void init_RfidEmu()
 	MH_CreateHookApi(L"kernel32.dll", "SetCommTimeouts", SetCommTimeoutsWrap, (void**)&g_origSetCommTimeouts);
 	MH_CreateHookApi(L"kernel32.dll", "GetCommTimeouts", GetCommTimeoutsWrap, (void**)&g_origGetCommTimeouts);
 	MH_EnableHook(MH_ALL_HOOKS);
+
+	CreateThread(0, 0, InsertCardThread, 0, 0, 0);
 }

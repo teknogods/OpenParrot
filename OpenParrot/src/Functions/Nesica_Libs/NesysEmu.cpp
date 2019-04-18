@@ -57,7 +57,7 @@ NesysEmu::NesysEmu()
 			char server[];
 		};
 
-		const char* wat = "card_id=42";
+		const char* wat = "card_id=7020392010281502";
 
 		nesys_cert_init_response* response = (nesys_cert_init_response*)malloc(sizeof(nesys_cert_init_response) + strlen(wat));
 		response->tenpo.tenpo_id = 1337;
@@ -105,6 +105,7 @@ NesysEmu::NesysEmu()
 	// get card
 	m_commandHandlers[LCOMMAND_CARD_SELECT_REQUEST] = [=](const uint8_t* dataa, size_t length)
 	{
+		OutputDebugStringA("Getting card data");
 		struct __declspec(align(4)) _CARD_GETDATA
 		{
 			char cardId[16];
@@ -117,8 +118,9 @@ NesysEmu::NesysEmu()
 
 		FILE* f = fopen(va("card_%.16s_%d.bin", card->cardId, card->dataType), "rb");
 
-		size_t dataSize = 0;
+		size_t dataSize = 16384;
 		char data[16384];
+		memset(data, 0x0, 0x4000);
 
 		if (f)
 		{
@@ -141,8 +143,8 @@ NesysEmu::NesysEmu()
 
 		cardstatus* s = (cardstatus*)malloc(sizeof(cardstatus) + dataSize);
 		s->status = 1;
-		s->times = 0;
-		s->days = 0;
+		s->times = 100;
+		s->days = 100;
 		s->size = dataSize;
 		memcpy(s->data, data, s->size);
 
@@ -203,8 +205,8 @@ NesysEmu::NesysEmu()
 
 		cardstatus* s = (cardstatus*)malloc(sizeof(cardstatus) + card->dataSize);
 		s->status = 1;
-		s->times = 0;
-		s->days = 0;
+		s->times = 100;
+		s->days = 100;
 		s->size = card->dataSize;
 		memcpy(s->data, card->data, s->size);
 
@@ -239,7 +241,7 @@ NesysEmu::NesysEmu()
 		SendResponse(SCOMMAND_INCOME_STATUS_REPLY, &r);
 	};
 
-	m_commandHandlers[LCOMMAND_RANKING_DATA_REQUEST] = [=](const uint8_t* data, size_t length)
+	m_commandHandlers[LCOMMAND_RANKING_DATA_REQUEST] = [=](const uint8_t* dataa, size_t length)
 	{
 		struct ranking
 		{

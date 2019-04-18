@@ -25,6 +25,18 @@ static int ReturnTrue()
 	return 1;
 }
 
+static InitFunction initFunction_USF4([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::UltraStreetFighterIVDevExe);
+
 static InitFunction initFunction_GC2([]()
 {
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
