@@ -6,7 +6,8 @@ project "OpenParrot"
 	files
 	{
 		"src/**.cpp", "src/**.h",
-		"deps/cpp/**.cpp", "deps/inc/**.h"
+		"deps/cpp/**.cpp", "deps/inc/**.h",
+		"src/OpenParrot.aps", "src/OpenParrot.rc"
 	}
 
 	includedirs { "src", "deps/inc/" }
