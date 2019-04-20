@@ -19,7 +19,7 @@ before_build:
     
     del .\OpenParrot\src\OpenParrot.rc
     
-    mv .\OpenParrot\src\OpenParrot.rc .\OpenParrot\src\OpenParrot.rc
+    mv .\OpenParrot\src\OpenParrot2.rc .\OpenParrot\src\OpenParrot.rc
     
 build:
   project: OpenParrot.sln
