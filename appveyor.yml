@@ -14,6 +14,13 @@ assembly_info:
   assembly_informational_version: '{version}'
 before_build:
 - cmd: premake5.exe vs2017
+- ps: >-
+    Get-Content .\OpenParrot\src\OpenParrot.rc | ForEach-Object { $_ -replace "1.0.0.0", $env:appveyor_build_version } | Set-Content .\OpenParrot\src\OpenParrot2.rc
+    
+    del .\OpenParrot\src\OpenParrot.rc
+    
+    mv .\OpenParrot\src\OpenParrot.rc .\OpenParrot\src\OpenParrot.rc
+    
 build:
   project: OpenParrot.sln
   verbosity: minimal
