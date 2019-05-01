@@ -53,7 +53,7 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		result = 0x00FF00FF;
 		break;
 	case 0x4004:
-		if(GameDetect::currentGame == GameID::DariusBurst)
+		if (GameDetect::currentGame == GameID::DariusBurst)
 		{
 			// I/O error without this switch
 			result = 0x00FF00FF;
