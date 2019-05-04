@@ -6,7 +6,8 @@ project "iDmacDrv"
 	files
 	{
 		"src/**.cpp", "src/**.h",
-		"deps/cpp/**.cpp", "deps/inc/**.h"
+		"deps/cpp/**.cpp", "deps/inc/**.h",
+		"src/iDmacDrv.rc"
 	}
 
 	includedirs { "src", }
