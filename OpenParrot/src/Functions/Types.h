@@ -11,4 +11,5 @@ enum class X2Type {
 	GaiaAttack4,
 	BattleFantasia,
 	MB4,
+	Wontertainment,
 };

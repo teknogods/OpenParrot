@@ -26,8 +26,12 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0xcb4ab9d6:
-	case 0x385ad385:
 		currentGame = GameID::Nesica;
+		NesicaKey = NesicaKey::USF4;
+		isNesica = true;
+		break;
+	case 0x385ad385:
+		currentGame = GameID::UltraStreetFighterIVDevExe;
 		NesicaKey = NesicaKey::USF4;
 		isNesica = true;
 		break;
@@ -365,6 +369,10 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0x326ebcd6:
 		currentGame = GameID::GTIClub3;
+		break;
+	case 0xe158763c:
+		currentGame = GameID::TypeXGeneric;
+		X2Type = X2Type::Wontertainment;
 		break;
 	//case 0xea1984ff:
 	//	currentGame = GameID::ExBoardGeneric;

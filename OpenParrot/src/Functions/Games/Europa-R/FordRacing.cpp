@@ -2,6 +2,8 @@
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #if _M_IX86
+
+
 signed int FordRacingControlInit()
 {
 	// start input thread
@@ -32,6 +34,44 @@ int __stdcall FordRacingFfbFunc(DWORD device, DWORD data)
 	return 0;
 }
 
+HWND hWndFORD;
+
+BOOL(__stdcall *g_origDefWindowProcA)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+DWORD WINAPI DefWindowProcAFord(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	hWndFORD = hWnd;
+	return g_origDefWindowProcA(hWnd, message, wParam, lParam);
+}
+
+DWORD WINAPI FordFocus(LPVOID lpParam)
+{
+	while (true)
+	{
+		POINT point;
+		// LEFT-CLICK MOVES WINDOW FROM TOP-LEFT CORNER
+		if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+		{
+			SetWindowPos(hWndFORD, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			GetCursorPos(&point);
+			LPARAM blah = MAKELPARAM(point.x, point.y);
+			int xClick = LOWORD(blah);
+			int yClick = HIWORD(blah);
+			SetWindowPos(hWndFORD, HWND_TOPMOST, xClick, yClick, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		}
+		// RIGHT-CLICK MINIMIZES WINDOW
+		if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+		{
+			ShowWindow(hWndFORD, SW_MINIMIZE);
+		}
+		// ESCAPE QUITS GAME
+		if (0 != GetAsyncKeyState(VK_ESCAPE))
+		{
+			exit(0);
+		}
+
+	}
+}
+
 static InitFunction fordRacingFunc([]()
 {
 
@@ -52,7 +92,16 @@ static InitFunction fordRacingFunc([]()
 	if (ToBool(config["General"]["Windowed"]))
 	{
 		// TODO: fix mouse to work without alt-tab, make window moveable
+		// NOW FIXED: left-click and drag to move window , right-click to minimize window , ESC to close
 		injector::MakeNOP(0x466A70 + 0x1BB, 5);
+		injector::WriteMemory<BYTE>(0x4B3E61, 0x01, true);
+		injector::WriteMemory<BYTE>(0x4B3F35, 0xEB, true);
+
+		CreateThread(NULL, 0, FordFocus, NULL, 0, NULL);
+
+		MH_Initialize();
+		MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcAFord, (void**)&g_origDefWindowProcA);
+		MH_EnableHook(MH_ALL_HOOKS);
 	}
 
 }, GameID::FordRacing);
