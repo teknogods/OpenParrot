@@ -25,6 +25,18 @@ static int ReturnTrue()
 	return 1;
 }
 
+static InitFunction initFunction_USF4([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::UltraStreetFighterIVDevExe);
+
 static InitFunction initFunction_GC2([]()
 {
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
@@ -33,11 +45,45 @@ static InitFunction initFunction_GC2([]()
 	init_RegHooks();
 	init_NesysEmu();
 
+	// Patch D: references
+	//D:
+	injector::WriteMemoryRaw(imageBase + 0x33D344, ".", 2, true);
+	// D:/garbage%d.txt
+	injector::WriteMemoryRaw(imageBase + 0x2B6B08, "./garbage%d.txt", 16, true);
+	// D:/country.dat
+	injector::WriteMemoryRaw(imageBase + 0x2B4B68, "./country.dat", 14, true);
+	injector::WriteMemoryRaw(imageBase + 0x2B4B54, "./country.dat", 14, true);
+	// D:/NesysQueue_Error_%04d_%02d_%02d_%02d_%02d_%02d.txt
+	injector::WriteMemoryRaw(imageBase + 0x2B205C, "./NesysQueue_Error_%04d_%02d_%02d_%02d_%02d_%02d.txt", 53, true);
+	// D:/count.csv
+	injector::WriteMemoryRaw(imageBase + 0x2B1024, "./count.csv", 12, true);
+	injector::WriteMemoryRaw(imageBase + 0x2B0F40, "./count.csv", 12, true);
+	// D:\\%s/
+	injector::WriteMemoryRaw(imageBase + 0x27AD80, "./%s/", 6, true);
+	// D:\\%s/*
+	injector::WriteMemoryRaw(imageBase + 0x27AD78, "./%s/*", 7, true);
+	// "D:\\%s/%s"
+	injector::WriteMemoryRaw(imageBase + 0x27AD6C, "./%s/%s", 8, true);
+	// "D:\\"
+	injector::WriteMemoryRaw(imageBase + 0x27AC44, "./", 3, true);
+	// D:\\%s%04d%02d%02d_%02d%02d%02d_
+	injector::WriteMemoryRaw(imageBase + 0x27AC00, "./%s%04d%02d%02d_%02d%02d%02d_", 31, true);
+	// D:\\%s/%s/*
+	injector::WriteMemoryRaw(imageBase + 0x27AD60, "./%s/%s/*", 10, true);
+	// D:/PlayData/
+	injector::WriteMemoryRaw(imageBase + 0x2A9CB8, "./PlayData/", 12, true);
+
 	// C:\\TypeXZEROTemp.dat check
 	safeJMP(imageBase + 0xF81B0, ReturnTrue);
 
+	// Ignore stupid OutputDebugStringA Scheluder crap
+	injector::MakeNOP(imageBase + 0x2008CC, 7);
+
 	// Unstuck the game from some dumb mouse scanner func
 	injector::MakeNOP(imageBase + 0xA3FF6, 2);
+
+	// Patch dongle spam on RFID port
+	injector::MakeNOP(imageBase + 0xF90F6, 5);
 #if _M_IX86
 	init_CryptoPipe(GameDetect::NesicaKey);
 #endif

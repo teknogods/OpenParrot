@@ -2,10 +2,9 @@
 
 // ORIGINALL BASED ON ttx_monitor, modified for RFID. https://github.com/zxmarcos/ttx_monitor
 
-#include "Functions/Types.h"
-
 #include "Utility/InitFunction.h"
 #include <queue>
+#include "Utility/GameDetect.h"
 
 #define JVS_TRUE				0x01
 #define JVS_FALSE				0x00
@@ -52,11 +51,6 @@ typedef unsigned short UINT16;
 HANDLE hConnection = (HANDLE)0x1337;
 
 static const char *Rfid_IO_Id = "TAITO CORP.;RFID CTRL P.C.B.;Ver1.00;";
-
-void logmsg(const char *format, ...)
-{
-
-}
 
 struct jvs_command_def {
 	UINT8 params;
@@ -150,10 +144,10 @@ public:
 		for (DWORD i = sizeaddr; i<xpos; i++)
 			if (buffer[i] != 0xD0)
 				++sizeK;
-		// codifica o tamanho da stream
+		// encode the size of the stream
 		buffer[sizeaddr] = sizeK;
 
-		// calcula o checksum
+		// calculate the checksum
 		DWORD sum = 0;
 		for (DWORD i = sumaddr, inc = 0; i<xpos; i++) {
 			if (buffer[i] == 0xD0) {
@@ -177,14 +171,34 @@ public:
 		memcpy(dst, &buffer[0], size);
 	}
 
-	void print()
+	void printReply()
 	{
+		static char printer[1024];
+		memset(printer, 0, 1024);
 		if (size()) {
-#ifdef _DEBUG
-			logmsg("WR:  ");
+#ifdef PrintRFIDReplies
+			sprintf(printer, "R:");
 			for (DWORD i = 0; i<size(); i++)
-				logmsg("%02X ", buffer[i]);
-			logmsg("\n");
+			{
+				sprintf(printer + 2 + (i * 3), "%02X ", buffer[i]);
+			}
+			info(true, printer);
+#endif
+		}
+	}
+
+	void printSource(BYTE* srcbuffer, int strsize)
+	{
+		static char printer[1024];
+		memset(printer, 0, 1024);
+		if (strsize) {
+#ifdef PrintRFIDRequests
+			sprintf(printer, "S:");
+			for (DWORD i = 0; i<strsize; i++)
+			{
+				sprintf(printer + 2 + (i * 3), "%02X ", srcbuffer[i]);
+			}
+			info(true, printer);
 #endif
 		}
 	}
@@ -203,14 +217,15 @@ static WORD p1coin = 0;
 static WORD p2coin = 0;
 static int coinstate[2] = { 0, 0 };
 
-int handle0xF0()
+int handleBusReset()
 {
 	p1coin = 0;
 	p2coin = 0;
 	return 2;
 }
 
-int handle0xF1(jprot_encoder *r)
+// 0xF1 -- set address
+int handleSetAddress(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	isAddressed = 1;
@@ -218,12 +233,58 @@ int handle0xF1(jprot_encoder *r)
 	return 2;
 }
 
-int handle0x2F()
+static bool cardInserted = false;
+
+// 0x26 -- read general-purpose input
+int handleReadGeneralPurposeInput(jprot_encoder *r, DWORD arg1)
+{
+	r->report(JVS_REPORT_OK);
+	for(DWORD i = 0; i < arg1; i++)
+	{
+		if (cardInserted)
+			r->push(0x19); // This should be only injected with first package of the 3, but does not seem to care.
+		else
+			r->push(0);
+	}
+	return 2 + arg1;
+}
+
+// Dumped from my own Japanese Lord Vermilion Nesica XLive card -Reaver
+static char cardData[0x18] = { 0x04, 0xC2, 0x3D, 0xDA, 0x6F, 0x52, 0x80, 0x00, 0x37, 0x30, 0x32, 0x30, 0x33, 0x39, 0x32, 0x30, 0x31, 0x30, 0x32, 0x38, 0x31, 0x35, 0x30, 0x32 };
+
+
+// 0x32 -- read general-purpose output. This is very confusing 0x32 0x01 0x00 returns 0x01 (0x18 times 0x00) 0x01
+// See JVSP manual for more information.
+int handleReadGeneralPurposeOutput(jprot_encoder *r, DWORD arg1)
+{
+#ifdef _DEBUG
+	//OutputDebugStringA("Requested card data!");
+#endif
+	r->report(JVS_REPORT_OK);
+	if(cardInserted)
+	{
+		for(int i = 0; i < 0x18; i++)
+		{
+			r->push(cardData[i]);
+		}
+	}
+	else
+	{
+		for (DWORD i = 0; i < arg1 * 0x18; i++)
+		{
+			r->push(0);
+		}
+	}
+	r->report(JVS_REPORT_OK);
+	return 2 + arg1;
+}
+
+int handleReTransmitDataInCaseOfChecksumFailure()
 {
 	return 1;
 }
 
-int handle0x10(jprot_encoder *r)
+int handleReadIDData(jprot_encoder *r)
 {
 	const char *str = NULL;
 	r->report(JVS_REPORT_OK);
@@ -236,28 +297,28 @@ int handle0x10(jprot_encoder *r)
 	return 1;
 }
 
-int handle0x11(jprot_encoder *r)
+int handleGetCommandFormatVersion(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(JVS_COMMAND_REV);
 	return 1;
 }
 
-int handle0x12(jprot_encoder *r)
+int handleGetJVSVersion(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(JVS_BOARD_REV);
 	return 1;
 }
 
-int handle0x13(jprot_encoder *r)
+int handleGetCommunicationVersion(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(JVS_COMM_REV);
 	return 1;
 }
 
-int handle0x14(jprot_encoder *r)
+int handleGetSlaveFeatures(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(1);
@@ -273,15 +334,33 @@ int handle0x14(jprot_encoder *r)
 	return 1;
 }
 
-int handle0x01(jprot_encoder *r)
+int handleTaito01Call(jprot_encoder *r, DWORD arg1)
 {
-	r->report(JVS_REPORT_OK);
+	r->report(JVS_REPORT_OK); 
 	r->push(1);
-	r->push(0);
 	return 2;
 }
 
-int handle0x20(jprot_encoder *r)
+int handleTaito03Call(jprot_encoder *r)
+{
+	r->report(JVS_REPORT_OK);
+	r->push(1);
+	return 2;
+}
+
+int handleTaito04Call(jprot_encoder *r)
+{
+	r->report(JVS_REPORT_OK);
+	return 1;
+}
+
+int handleTaito05Call(jprot_encoder *r)
+{
+	r->report(JVS_REPORT_OK);
+	return 3;
+}
+
+int handleReadSwitchInputs(jprot_encoder *r)
 {
 	r->report(JVS_REPORT_OK);
 	r->push(0);
@@ -292,7 +371,7 @@ int handle0x20(jprot_encoder *r)
 	return 3;
 }
 
-int handle0x21(jprot_encoder *r)
+int handleReadCoinInputs(jprot_encoder *r)
 {
 	int currstate = 0;// inputMgr.GetState(P1_COIN);
 	if (!coinstate[0] && (currstate)) {
@@ -316,12 +395,12 @@ int handle0x21(jprot_encoder *r)
 	return 2;
 }
 
-int handle0x30(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
+int handleDecreaseNumberOfCoins(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
 {
 	WORD val = ((arg2 & 0xFF) << 8) | (arg3 & 0xFF);
 	r->report(JVS_REPORT_OK);
 #ifdef _DEBUG
-	logcmd("-coin %d, %d\n", arg1, val);
+	//logcmd("-coin %d, %d\n", arg1, val);
 #endif
 	switch (arg1)
 	{
@@ -340,12 +419,12 @@ int handle0x30(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
 	return 4;
 }
 
-int handle0x31(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
+int handlePayouts(jprot_encoder *r, DWORD arg1, DWORD arg2, DWORD arg3)
 {
 	WORD val = ((arg2 & 0xFF) << 8) | (arg3 & 0xFF);
 	r->report(JVS_REPORT_OK);
 #ifdef _DEBUG
-	logcmd("+coin %d, %d\n", arg1, val);
+	//logcmd("+coin %d, %d\n", arg1, val);
 #endif
 	switch (arg1)
 	{
@@ -367,12 +446,23 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 
 	r.clear();
 
+	// Ignore weird packages
+	if (pstr[1] != 0x00 && pstr[1] != 0x01 && pstr[1] != 0xFF)
+	{
+#ifdef _DEBUG
+		OutputDebugStringA("Invalid package received!");
+#endif
+		return 0;
+	}
 
 	if (pstr[0] != JVS_SYNC_CODE) {
 #ifdef _DEBUG
-		logmsg("Invalid Sync code!\n");
+		info(true, "Invalid Sync code!\n");
 #endif
 	}
+#ifdef _DEBUG
+	r.printSource(stream, srcsize);
+#endif
 	node = pstr[1];
 	pktsize = pstr[2];
 	pfunc = &pstr[3];
@@ -387,48 +477,62 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 		switch (pfunc[0] & 0xFF)
 		{
 		case 0xF0:
-			increment = handle0xF0();
+			increment = handleBusReset();
 			break;
 		case 0xF1:
-			increment = handle0xF1(&r);
-			break;
-		case 0x2F:
-			increment = handle0x2F();
-			break;
-		case 0x10:
-			increment = handle0x10(&r);
-			break;
-		case 0x11:
-			increment = handle0x11(&r);
-			break;
-		case 0x12:
-			increment = handle0x12(&r);
-			break;
-		case 0x13:
-			increment = handle0x13(&r);
-			break;
-		case 0x14:
-			increment = handle0x14(&r);
+			increment = handleSetAddress(&r);
 			break;
 		case 0x01:
-			increment = handle0x01(&r);
+			increment = handleTaito01Call(&r, __ARG__(1));
+			break;
+		case 0x03:
+			increment = handleTaito03Call(&r);
+			break;
+		case 0x04:
+			increment = handleTaito04Call(&r);
+			break;
+		case 0x05:
+			increment = handleTaito05Call(&r);
+			break;
+		case 0x10:
+			increment = handleReadIDData(&r);
+			break;
+		case 0x11:
+			increment = handleGetCommandFormatVersion(&r);
+			break;
+		case 0x12:
+			increment = handleGetJVSVersion(&r);
+			break;
+		case 0x13:
+			increment = handleGetCommunicationVersion(&r);
+			break;
+		case 0x14:
+			increment = handleGetSlaveFeatures(&r);
 			break;
 		case 0x20:
-			increment = handle0x20(&r);
+			increment = handleReadSwitchInputs(&r);
 			break;
 		case 0x21:
-			increment = handle0x21(&r);
+			increment = handleReadCoinInputs(&r);
+			break;
+		case 0x26:
+			increment = handleReadGeneralPurposeInput(&r, __ARG__(1));
+			break;
+		case 0x2F:
+			increment = handleReTransmitDataInCaseOfChecksumFailure();
 			break;
 		case 0x30:
-			increment = handle0x30(&r, __ARG__(1), __ARG__(2), __ARG__(3));
+			increment = handleDecreaseNumberOfCoins(&r, __ARG__(1), __ARG__(2), __ARG__(3));
 			break;
-
 		case 0x31:
-			increment = handle0x31(&r, __ARG__(1), __ARG__(2), __ARG__(3));
+			increment = handlePayouts(&r, __ARG__(1), __ARG__(2), __ARG__(3));
+			break;
+		case 0x32:
+			increment = handleReadGeneralPurposeOutput(&r, __ARG__(1));
 			break;
 		default:
 #ifdef _DEBUG
-			logcmd("Unknown command %X\n", __ARG__(0));
+			info(true, "Unknown command %X\n", __ARG__(0));
 #endif
 			r.report(JVS_REPORT_OK);
 			increment = 1;
@@ -442,6 +546,9 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 	r.set_status(JVS_STATUS_OK);
 	r.end_stream();
 	r.read(dst, dstsize);
+#ifdef _DEBUG
+	r.printReply();
+#endif
 	return r.size();
 }
 BOOL(__stdcall *g_origGetCommModemStatus)(HANDLE hFile, LPDWORD lpModemStat);
@@ -589,6 +696,7 @@ BOOL __stdcall WriteFileWrap(HANDLE hFile,
 		return g_origWriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 	}
 	static BYTE rbuffer[1024];
+	static BYTE logger[1024];
 
 	DWORD sz = process_stream((LPBYTE)lpBuffer, nNumberOfBytesToWrite, rbuffer, 1024);
 	if (sz != 1) {
@@ -729,6 +837,17 @@ HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 		return hConnection;
 	}
 
+	if(GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origCreateFileA(lpFileName,
+			dwDesiredAccess,
+			dwShareMode,
+			lpSecurityAttributes,
+			dwCreationDisposition,
+			dwFlagsAndAttributes,
+			hTemplateFile);
+	}
+	
 	return g_origCreateFileA(ParseFileNamesA(lpFileName),
 		dwDesiredAccess,
 		dwShareMode,
@@ -762,6 +881,17 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 		return hConnection;
 	}
 
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origCreateFileW(lpFileName,
+			dwDesiredAccess,
+			dwShareMode,
+			lpSecurityAttributes,
+			dwCreationDisposition,
+			dwFlagsAndAttributes,
+			hTemplateFile);
+	}
+
 	return g_origCreateFileW(ParseFileNamesW(lpFileName),
 		dwDesiredAccess,
 		dwShareMode,
@@ -774,12 +904,22 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 static DWORD(__stdcall *g_origGetFileAttributesA)(LPCSTR lpFileName);
 static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origGetFileAttributesA(lpFileName);
+	}
+
 	return g_origGetFileAttributesA(ParseFileNamesA(lpFileName));
 }
 
 static DWORD(__stdcall *g_origGetFileAttributesW)(LPCWSTR lpFileName);
 static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origGetFileAttributesW(lpFileName);
+	}
+
 	return g_origGetFileAttributesW(ParseFileNamesW(lpFileName));
 }
 
@@ -789,6 +929,11 @@ static BOOL __stdcall CreateDirectoryAWrap(
 	LPSECURITY_ATTRIBUTES lpSecurityAttributes
 )
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origCreateDirectoryA(lpPathName, lpSecurityAttributes);
+	}
+
 	return g_origCreateDirectoryA(ParseFileNamesA(lpPathName), lpSecurityAttributes);
 }
 
@@ -798,6 +943,11 @@ static BOOL __stdcall CreateDirectoryWWrap(
 	LPSECURITY_ATTRIBUTES lpSecurityAttributes
 )
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origCreateDirectoryW(lpPathName, lpSecurityAttributes);
+	}
+
 	return g_origCreateDirectoryW(ParseFileNamesW(lpPathName), lpSecurityAttributes);
 }
 
@@ -807,6 +957,10 @@ static HANDLE __stdcall FindFirstFileAWrap(
 	LPWIN32_FIND_DATAA lpFindFileData
 )
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origFindFirstFileA(lpFileName, lpFindFileData);
+	}
 	return g_origFindFirstFileA(ParseFileNamesA(lpFileName), lpFindFileData);
 }
 
@@ -816,7 +970,34 @@ static HANDLE __stdcall FindFirstFileWWrap(
 	LPWIN32_FIND_DATAA lpFindFileData
 )
 {
+	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		return g_origFindFirstFileW(lpFileName, lpFindFileData);
+	}
+
 	return g_origFindFirstFileW(ParseFileNamesW(lpFileName), lpFindFileData);
+}
+
+static DWORD WINAPI InsertCardThread(LPVOID)
+{
+	static bool keyDown;
+	while (true)
+	{
+		if (GetAsyncKeyState(VK_F4))
+		{
+			if (!keyDown)
+			{
+				cardInserted = !cardInserted;
+				keyDown = true;
+			}
+		}
+		else
+		{
+			keyDown = false;
+		}
+		Sleep(100);
+	}
+	return 1;
 }
 
 void init_RfidEmu()
@@ -844,4 +1025,6 @@ void init_RfidEmu()
 	MH_CreateHookApi(L"kernel32.dll", "SetCommTimeouts", SetCommTimeoutsWrap, (void**)&g_origSetCommTimeouts);
 	MH_CreateHookApi(L"kernel32.dll", "GetCommTimeouts", GetCommTimeoutsWrap, (void**)&g_origGetCommTimeouts);
 	MH_EnableHook(MH_ALL_HOOKS);
+
+	CreateThread(0, 0, InsertCardThread, 0, 0, 0);
 }
