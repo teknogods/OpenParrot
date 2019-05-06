@@ -374,6 +374,9 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::TypeXGeneric;
 		X2Type = X2Type::Wontertainment;
 		break;
+	case 0x47922b80: // FNF Drift
+		currentGame = GameID::FNFDrift;
+		break;
 	//case 0xea1984ff:
 	//	currentGame = GameID::ExBoardGeneric;
 	//	break;
