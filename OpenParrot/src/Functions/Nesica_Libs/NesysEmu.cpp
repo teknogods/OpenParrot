@@ -481,11 +481,7 @@ void NesysEmu::Initialize(bool isDarius)
 	{
 		while (true)
 		{
-			HANDLE pipe;
-			if(!isDarius)
-				pipe = CreateNamedPipeW(L"\\\\.\\pipe\\nesys_games", PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 8192, 8192, 0, nullptr);
-			else
-				pipe = CreateNamedPipeW(L"\\\\.\\pipe\\nesystest", PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 8192, 8192, 0, nullptr);
+			HANDLE pipe = CreateNamedPipeW(isDarius ? L"\\\\.\\pipe\\nesystest" : L"\\\\.\\pipe\\nesys_games", PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 8192, 8192, 0, nullptr);
 
 			if (pipe == INVALID_HANDLE_VALUE)
 			{
