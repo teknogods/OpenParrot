@@ -378,7 +378,8 @@ static InitFunction initFunc([]()
 {
 	if (GameDetect::currentGame == GameID::PokkenTournament)
 		return;
-
+	if (GameDetect::currentGame == GameID::FNFDrift)
+		return;
 	MH_Initialize();
 
 	MH_CreateHookApi(L"DINPUT8.dll", "DirectInput8Create", &Hook_DirectInput8Create, (void**)&__DirectInput8Create);
