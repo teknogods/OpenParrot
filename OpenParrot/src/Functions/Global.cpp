@@ -40,16 +40,13 @@ DWORD WINAPI QuitGameThread(__in  LPVOID lpParameter)
 {
 	while (true)
 	{
-		if ((GameDetect::currentGame == GameID::Daytona3) && (GetAsyncKeyState(VK_ESCAPE)))
+		if (GetAsyncKeyState(VK_ESCAPE))
 		{
 #ifndef _DEBUG
-			system("taskkill /f /im InpWrapper.exe");
-			TerminateProcess(GetCurrentProcess(), 0);
-#endif
-		}
-		else if (GetAsyncKeyState(VK_ESCAPE))
-		{
-#ifndef _DEBUG
+			if (GameDetect::currentGame == GameID::Daytona3)
+			{
+				system("taskkill /f /im InpWrapper.exe");
+			}
 			TerminateProcess(GetCurrentProcess(), 0);
 #endif
 			//ExitProcess(0);
