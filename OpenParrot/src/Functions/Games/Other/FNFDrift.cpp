@@ -46,11 +46,10 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		{
 			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
 		}
-		// TEST (shift+numlock TO FIX)
+		// TEST
 		if (*ffbOffset & 0x01)
 		{
-			// injector::WriteMemory<BYTE>((keyboardBuffer + DIK_NUMLOCK), 2, true);
-			// injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LSHIFT), 2, true);			
+			injector::WriteMemory<BYTE>((0x57B33 + BaseAddress), 0xEB, true);
 		}
 		// NITRO ( = START too)
 		if (*ffbOffset & 0x100)
@@ -251,6 +250,13 @@ static InitFunction FNFDriftFunc([]()
 
 	// REMOVE ERROR MESSAGEBOX ON CLOSE
 	injector::WriteMemory<BYTE>((0x6431D + BaseAddress), 0xEB, true);
+
+	// FIX file write on D:
+	injector::WriteMemoryRaw((0x1411F0 + BaseAddress), "\x2E\x5C\x65\x72\x72\x6F\x72\x6C\x6F\x67\x2E\x74\x78\x74\x00", 15, true);
+
+	// TEST KEY FIX (uses BACKSPACE now)
+	injector::MakeNOP((0x57B35 + BaseAddress), 14);
+	injector::WriteMemory<BYTE>((0x57B44 + BaseAddress), DIK_BACK, true);
 
 	CreateThread(NULL, 0, InputRT, NULL, 0, NULL);
 
