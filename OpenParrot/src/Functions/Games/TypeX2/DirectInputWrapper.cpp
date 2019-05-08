@@ -380,6 +380,8 @@ static InitFunction initFunc([]()
 		return;
 	if (GameDetect::currentGame == GameID::FNFDrift)
 		return;
+	if (GameDetect::currentGame == GameID::FNFSC)
+		return;
 	MH_Initialize();
 
 	MH_CreateHookApi(L"DINPUT8.dll", "DirectInput8Create", &Hook_DirectInput8Create, (void**)&__DirectInput8Create);

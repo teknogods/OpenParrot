@@ -377,6 +377,9 @@ void GameDetect::DetectCurrentGame()
 	case 0x47922b80: // FNF Drift
 		currentGame = GameID::FNFDrift;
 		break;
+	case 0x4929f3ca: // FNF SuperCars
+		currentGame = GameID::FNFSC;
+		break;
 	//case 0xea1984ff:
 	//	currentGame = GameID::ExBoardGeneric;
 	//	break;

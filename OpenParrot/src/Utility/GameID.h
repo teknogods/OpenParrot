@@ -52,5 +52,6 @@ enum class GameID
 	GRID,
 	UltraStreetFighterIV,
 	UltraStreetFighterIVDevExe,
-	FNFDrift
+	FNFDrift,
+	FNFSC
 };
