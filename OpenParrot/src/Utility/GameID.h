@@ -54,5 +54,6 @@ enum class GameID
 	UltraStreetFighterIVDevExe,
 	FNFDrift,
 	FNFSC,
-	FNF
+	FNF,
+	FNFSB
 };
