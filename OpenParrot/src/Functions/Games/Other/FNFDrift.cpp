@@ -60,13 +60,15 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		// SHIFT DOWN
 		if (*ffbOffset & 0x2000)
 		{
-			if (!previousDown)
+			if (previousDown == false)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
 				previousDown = true;
 			}
-
-			else
+		}
+		else
+		{
+			if (previousDown == true)
 			{
 				previousDown = false;
 			}
@@ -74,13 +76,15 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		// SHIFT UP
 		if (*ffbOffset & 0x1000)
 		{
-			if (!previousUp)
+			if (previousUp == false)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
 				previousUp = true;
 			}
-
-			else
+		}
+		else
+		{
+			if (previousUp == true)
 			{
 				previousUp = false;
 			}
@@ -106,13 +110,15 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		// MENU LEFT
 		if (*ffbOffset & 0x4000)
 		{
-			if (!previousLeft)
+			if (previousLeft == false)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
 				previousLeft = true;
 			}
-
-			else
+		}
+		else
+		{
+			if (previousLeft == true)
 			{
 				previousLeft = false;
 			}
@@ -120,13 +126,15 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		// MENU RIGHT
 		if (*ffbOffset & 0x8000)
 		{
-			if (!previousRight)
+			if (previousRight == false)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
 				previousRight = true;
 			}
-
-			else
+		}
+		else
+		{
+			if (previousRight == true)
 			{
 				previousRight = false;
 			}

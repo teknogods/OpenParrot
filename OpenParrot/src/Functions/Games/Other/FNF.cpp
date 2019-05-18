@@ -14,6 +14,16 @@ DWORD BaseAddress3 = 0x00400000;
 int horizontal3 = 0;
 int vertical3 = 0;
 HWND hWndRT3 = 0;
+bool movable = false;
+bool polling = false;
+
+static bool previousLeft = false;
+static bool previousRight = false;
+static bool previousUp = false;
+static bool previousDown = false;
+static bool gaspressed = false;
+static bool brakepressed = false;
+
 // controls
 extern int* ffbOffset;
 extern int* ffbOffset2;
@@ -23,26 +33,33 @@ extern int* ffbOffset4;
 BOOL(__stdcall *original_SetWindowPos3)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
 BOOL(__stdcall *original_CreateWindowExA3)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 BOOL(__stdcall *original_DefWindowProcA3)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+BOOL(__stdcall *original_SetCursorPosRT3)(int X, int Y);
 
 DWORD WINAPI DefWindowProcART3(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static int xClick;
 	static int yClick;
 
-		switch (message)
-		{
-		case WM_LBUTTONDOWN:
+	switch (message)
+	{
+	case WM_LBUTTONDOWN:
+		// CURSOR NOT HIDDEN
+		injector::WriteMemory<BYTE>((0x4BF1F + BaseAddress3), 0x01, true);
 
-			SetCapture(hWnd);
-			xClick = LOWORD(lParam);
-			yClick = HIWORD(lParam);
-			break;
+		SetCapture(hWnd);
+		xClick = LOWORD(lParam);
+		yClick = HIWORD(lParam);
+		movable = true;
+		break;
 
-		case WM_LBUTTONUP:
-			ReleaseCapture();
-			break;
+	case WM_LBUTTONUP:
+		ReleaseCapture();
+		movable = false;
+		break;
 
-		case WM_MOUSEMOVE:
+	case WM_MOUSEMOVE:
+	{
+		if (movable == true)
 		{
 			if (GetCapture() == hWnd)
 			{
@@ -56,19 +73,35 @@ DWORD WINAPI DefWindowProcART3(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			}
 			break;
 		}
-
+		else
+		{
+			if (polling == false)
+			{
+				return 0;
+			}
+			if (polling == true)
+			{
+				RECT rect;
+				GetWindowRect(hWndRT3, &rect);
+				int width = rect.right - rect.left;
+				int iWheel0 = (((float)*ffbOffset2) - 128);
+				float wheel = (iWheel0 * 0.0078125f);
+				int iWheel = (int)(horizontal3 * 0.5 * wheel);
+				int xPad = (int)(iWheel + (horizontal3 * 0.5));
+				lParam = MAKELPARAM(xPad, (vertical3 * 0.5));
+				break;
+			}
 		}
+	}
+	}
 	return original_DefWindowProcA3(hWnd, message, wParam, lParam);
 }
 
 DWORD WINAPI InputRT3(LPVOID lpParam)
 {
-	int deltaTimer = 2;
+	int deltaTimer = 16;
 	INT_PTR keyboardBuffer = (0x31B6988 + BaseAddress3);
-	bool previousLeft = false;
-	bool previousRight = false;
-	bool previousUp = false;
-	bool previousDown = false;
+
 
 	while (true)
 	{
@@ -78,8 +111,14 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			exit(0);
 		}
 
-// buttons see bitwise values in TPui//RawThrills.cs
-
+		if (hWndRT3 == 0)
+		{
+			hWndRT3 = FindWindowA(NULL, "Fast n Furious");
+		}
+		HWND hWndTMP = GetForegroundWindow();
+		if (hWndTMP == hWndRT3)
+		{
+			// buttons see bitwise values in TPui//RawThrills.cs
 			// START 
 			if (*ffbOffset & 0x08)
 			{
@@ -99,13 +138,15 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			// SHIFT DOWN
 			if (*ffbOffset & 0x2000)
 			{
-				if (!previousDown)
+				if (previousDown == false)
 				{
 					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
 					previousDown = true;
 				}
-
-				else
+			}
+			else
+			{
+				if (previousDown == true)
 				{
 					previousDown = false;
 				}
@@ -113,13 +154,15 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			// SHIFT UP
 			if (*ffbOffset & 0x1000)
 			{
-				if (!previousUp)
+				if (previousUp == false)
 				{
 					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
 					previousUp = true;
 				}
-
-				else
+			}
+			else
+			{
+				if (previousUp == true)
 				{
 					previousUp = false;
 				}
@@ -145,13 +188,15 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			// MENU LEFT
 			if (*ffbOffset & 0x4000)
 			{
-				if (!previousLeft)
+				if (previousLeft == false)
 				{
 					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
 					previousLeft = true;
 				}
-
-				else
+			}
+			else
+			{
+				if (previousLeft == true)
 				{
 					previousLeft = false;
 				}
@@ -159,126 +204,73 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			// MENU RIGHT
 			if (*ffbOffset & 0x8000)
 			{
-				if (!previousRight)
+				if (previousRight == false)
 				{
 					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
 					previousRight = true;
 				}
-
-				else
+			}
+			else
+			{
+				if (previousRight == true)
 				{
 					previousRight = false;
 				}
 			}
 
-			INPUT input[4];
+			if (movable == false) // then poll ugly mouse input
+			{
+				polling = true;
+				mouse_event(MOUSEEVENTF_MOVE, 0, 0, 0, 0);
+				polling = false;
+			}
+
 			WORD vkey;
-			// WHEEL
-			if (*ffbOffset2 >= 0x85) // RIGHT
-			{
-				vkey = 0x66; // NUMPAD6 key down
-				input[0].type = INPUT_KEYBOARD;
-				input[0].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[0].ki.time = 0;
-				input[0].ki.dwExtraInfo = 0;
-				input[0].ki.wVk = vkey;
-				input[0].ki.dwFlags = 0;
-				vkey = 0x64; // NUMPAD4 key up
-				input[1].type = INPUT_KEYBOARD;
-				input[1].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[1].ki.time = 0;
-				input[1].ki.dwExtraInfo = 0;
-				input[1].ki.wVk = vkey;
-				input[1].ki.dwFlags = KEYEVENTF_KEYUP;
-			}
-			else if (*ffbOffset2 <= 0x75) // LEFT
-			{
-				vkey = 0x66; // NUMPAD6 key up
-				input[0].type = INPUT_KEYBOARD;
-				input[0].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[0].ki.time = 0;
-				input[0].ki.dwExtraInfo = 0;
-				input[0].ki.wVk = vkey;
-				input[0].ki.dwFlags = KEYEVENTF_KEYUP;
-				vkey = 0x64; // NUMPAD4 key down
-				input[1].type = INPUT_KEYBOARD;
-				input[1].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[1].ki.time = 0;
-				input[1].ki.dwExtraInfo = 0;
-				input[1].ki.wVk = vkey;
-				input[1].ki.dwFlags = 0;
-
-			}
-			else // CENTER
-			{
-				vkey = 0x66; // NUMPAD6 key up
-				input[0].type = INPUT_KEYBOARD;
-				input[0].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[0].ki.time = 0;
-				input[0].ki.dwExtraInfo = 0;
-				input[0].ki.wVk = vkey;
-				input[0].ki.dwFlags = KEYEVENTF_KEYUP;
-				vkey = 0x64; // NUMPAD4 key up
-				input[1].type = INPUT_KEYBOARD;
-				input[1].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[1].ki.time = 0;
-				input[1].ki.dwExtraInfo = 0;
-				input[1].ki.wVk = vkey;
-				input[1].ki.dwFlags = KEYEVENTF_KEYUP;
-			}
-
 			// GAS
+			vkey = 0x51; // Q key (qwerty A)
 			if (*ffbOffset3 >= 5)
 			{
-				vkey = 0x51; // Q key (qwerty A)
-				input[2].type = INPUT_KEYBOARD;
-				input[2].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[2].ki.time = 0;
-				input[2].ki.dwExtraInfo = 0;
-				input[2].ki.wVk = vkey;
-				input[2].ki.dwFlags = 0;
+				if (gaspressed == false)
+				{
+					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), 0, 0);
+					gaspressed = true;
+				}
 			}
 			else
 			{
-				vkey = 0x51; // Q key (qwerty A)
-				input[2].type = INPUT_KEYBOARD;
-				input[2].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[2].ki.time = 0;
-				input[2].ki.dwExtraInfo = 0;
-				input[2].ki.wVk = vkey;
-				input[2].ki.dwFlags = KEYEVENTF_KEYUP;
+				if (gaspressed == true)
+				{
+					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+					gaspressed = false;
+				}
 			}
-		
+
 			// BRAKE
+			vkey = 0x57; // W key (qwerty Z)
 			if (*ffbOffset4 >= 5)
 			{
-				vkey = 0x57; // W key (qwerty Z)
-				input[3].type = INPUT_KEYBOARD;
-				input[3].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[3].ki.time = 0;
-				input[3].ki.dwExtraInfo = 0;
-				input[3].ki.wVk = vkey;
-				input[3].ki.dwFlags = 0;
+				if (brakepressed == false)
+				{
+					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), 0, 0);
+					brakepressed = true;
+				}
 			}
 			else
 			{
-				vkey = 0x57; // W key (qwerty Z)
-				input[3].type = INPUT_KEYBOARD;
-				input[3].ki.wScan = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
-				input[3].ki.time = 0;
-				input[3].ki.dwExtraInfo = 0;
-				input[3].ki.wVk = vkey;
-				input[3].ki.dwFlags = KEYEVENTF_KEYUP;
+				if (brakepressed == true)
+				{
+					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+					brakepressed = false;
+				}
 			}
-
-			SendInput(4, input, sizeof(INPUT));
-
+				
 			//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			//	info(true, "test values *ffbOffset2=0x%02X /  *ffbOffset3=0x%02X / *ffbOffset4=0x%02X ", *ffbOffset2, *ffbOffset3, *ffbOffset4);
+			//	info(true, "test values *ffbOffset2=0x%02X /  *iWheel=%d / *wheel=%f ", *ffbOffset2, iWheel, fx);
 			//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			Sleep(deltaTimer);
 		}
+	}
 	return 0;
 }
 
@@ -289,13 +281,15 @@ DWORD WINAPI WindowRT3(LPVOID lpParam)
 			// RIGHT-CLICK MINIMIZES WINDOW
 			if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
 			{
-				HWND hWndTMP = GetForegroundWindow();
 				if (hWndRT3 == 0)
 				{
 					hWndRT3 = FindWindowA(NULL, "Fast n Furious");
 				}
+				HWND hWndTMP = GetForegroundWindow();
 				if (hWndTMP == hWndRT3)
 				{
+					ShowCursor(TRUE);
+					movable = true;
 					original_SetWindowPos3(hWndRT3, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE);
 					ShowWindow(hWndRT3, SW_MINIMIZE);
 				}
@@ -310,7 +304,13 @@ DWORD WINAPI CreateWindowExART3(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWi
 
 DWORD WINAPI SetCursorPosRT3(int X, int Y)
 {
-	return 1;
+		RECT rect;
+		GetWindowRect(hWndRT3, &rect);
+		int width = rect.right - rect.left;
+		int height = rect.bottom - rect.top;
+		int windowcenterx = (rect.left + (width * 0.5));
+		int windowcentery = (rect.top + (height * 0.5));
+		return original_SetCursorPosRT3(windowcenterx, windowcentery);
 }
 
 DWORD WINAPI SetWindowPosRT3(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
@@ -335,20 +335,23 @@ static InitFunction FNFFunc([]()
 	injector::MakeNOP((0x4159B + BaseAddress3), 14);
 	injector::WriteMemory<BYTE>((0x415AA + BaseAddress3), DIK_BACK, true);
 
+	MH_Initialize();
+	MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT3, (void**)&original_SetCursorPosRT3);
+	MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcART3, (void**)&original_DefWindowProcA3);
+	MH_EnableHook(MH_ALL_HOOKS);
+
 	CreateThread(NULL, 0, InputRT3, NULL, 0, NULL);
 
 	if (ToBool(config["General"]["Windowed"]))
 	{
 	// CURSOR NOT HIDDEN
-	injector::WriteMemory<BYTE>((0x4BF1F + BaseAddress3), 0x01, true);
+	//injector::WriteMemory<BYTE>((0x4BF1F + BaseAddress3), 0x01, true);
 		
 	CreateThread(NULL, 0, WindowRT3, NULL, 0, NULL);
 
 	MH_Initialize();
 	MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART3, (void**)&original_CreateWindowExA3);
-	MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT3, NULL);
 	MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT3, (void**)&original_SetWindowPos3);
-	MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcART3, (void**)&original_DefWindowProcA3);
 	MH_EnableHook(MH_ALL_HOOKS);
 	}
 
