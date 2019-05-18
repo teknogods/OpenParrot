@@ -383,6 +383,9 @@ void GameDetect::DetectCurrentGame()
 	case 0x93888a27: // FNF
 		currentGame = GameID::FNF;
 		break;
+	case 0x6449d9b1: // FNF SuperBikes
+		currentGame = GameID::FNFSB;
+		break;
 	//case 0xea1984ff:
 	//	currentGame = GameID::ExBoardGeneric;
 	//	break;
