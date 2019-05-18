@@ -64,13 +64,15 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// SHIFT DOWN
 		if (*ffbOffset & 0x2000)
 		{
-			if (!previousDown)
+			if (previousDown == false)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
 				previousDown = true;
 			}
-
-			else
+		}
+		else
+		{
+			if (previousDown == true)
 			{
 				previousDown = false;
 			}
@@ -78,13 +80,15 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// SHIFT UP
 		if (*ffbOffset & 0x1000)
 		{
-			if (!previousUp)
+			if (previousUp == false)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
 				previousUp = true;
 			}
-
-			else
+		}
+		else
+		{
+			if (previousUp == true)
 			{
 				previousUp = false;
 			}
@@ -110,13 +114,15 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// MENU LEFT
 		if (*ffbOffset & 0x4000)
 		{
-			if (!previousLeft)
+			if (previousLeft == false)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
 				previousLeft = true;
 			}
-
-			else
+		}
+		else
+		{
+			if (previousLeft == true)
 			{
 				previousLeft = false;
 			}
@@ -124,13 +130,15 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// MENU RIGHT
 		if (*ffbOffset & 0x8000)
 		{
-			if (!previousRight)
+			if (previousRight == false)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
 				previousRight = true;
 			}
-
-			else
+		}
+		else
+		{
+			if (previousRight == true)
 			{
 				previousRight = false;
 			}
@@ -181,6 +189,10 @@ DWORD WINAPI FullscreenRT2(LPVOID lpParam)
 			if (currentwidth != horizontal2)
 				original_SetWindowPos2(hWndRT2, NULL, 0, 0, horizontal2, vertical2, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 			if (currentheight != vertical2)
+				original_SetWindowPos2(hWndRT2, NULL, 0, 0, horizontal2, vertical2, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+			if (rect.left != 0)
+				original_SetWindowPos2(hWndRT2, NULL, 0, 0, horizontal2, vertical2, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+			if (rect.top != 0)
 				original_SetWindowPos2(hWndRT2, NULL, 0, 0, horizontal2, vertical2, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 		}
 		Sleep(2000);
@@ -236,6 +248,10 @@ DWORD WINAPI DefWindowProcART2(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			int yMouse = HIWORD(lParam);
 			int xWindow = rcWindow.left + xMouse - xClick;
 			int yWindow = rcWindow.top + yMouse - yClick;
+			if (xWindow >= (horizontal2 - 100))
+				xWindow = 0;
+			if (yWindow >= (vertical2 - 100))
+				yWindow = 0;
 			original_SetWindowPos2(hWnd, NULL, xWindow, yWindow, 1360, 768, SWP_NOSIZE | SWP_NOZORDER);
 		}
 		break;
