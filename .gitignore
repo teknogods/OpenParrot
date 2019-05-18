@@ -19,3 +19,4 @@ ParrotLoader/ParrotLoader\.vcxproj\.user
 
 *.user
 *.aps
+OpenParrot/src/Functions/Games/Other/FNFSB2.cpp
