@@ -151,9 +151,9 @@ int main(int argc, char *argv[])
 	HANDLE hFind2;
 	char szDir[512];
 	char szDir2[512];
-	printf("OpenParrot Loader\n");
+	printf("OpenParrot Loader - https://github.com/teknogods/OpenParrot\n");
 	printf("http://www.teknogods.com - Modding Gurus!\n");
-	printf("Supported OS: Windows XP x86 / x64, Windows Vista x86 / x64, Windows 7 x86 / x64, Windows 8 / 8.1 x86 / x64 Windows 10 x86 / x64\n");
+	printf("Supported OS: Windows XP x86 / x64, Windows Vista x86 / x64, Windows 7 x86 / x64, Windows 8 / 8.1 x86 / x64, Windows 10 x86 / x64\n");
 	printf("Code: Reaver, NTAuthority, avail and the community\n");
 	GetCurrentDirectoryA(400, szDir);
 	sprintf_s(szDir2, "%s\\%s.dll", szDir, argv[1]);
