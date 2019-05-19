@@ -51,5 +51,9 @@ enum class GameID
 	GTIClub3,
 	GRID,
 	UltraStreetFighterIV,
-	UltraStreetFighterIVDevExe
+	UltraStreetFighterIVDevExe,
+	FNFDrift,
+	FNFSC,
+	FNF,
+	FNFSB
 };
