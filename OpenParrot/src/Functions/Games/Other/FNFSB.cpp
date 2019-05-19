@@ -8,6 +8,9 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
+#define WINDOW_TITLE "Fast n Furious SuperBikes"
+#define KEYBOARD_ADDR 0x31943C8
+
 DWORD BaseAddress4 = 0x00400000;
 int horizontal4 = 0;
 int vertical4 = 0;
@@ -78,7 +81,7 @@ DWORD WINAPI DefWindowProcART4(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 DWORD WINAPI InputRT4(LPVOID lpParam)
 {
 	int deltaTimer = 16;
-	INT_PTR keyboardBuffer = (0x31943C8 + BaseAddress4);
+	INT_PTR keyboardBuffer = (KEYBOARD_ADDR + BaseAddress4);
 	bool previousLeft = false;
 	bool previousRight = false;
 	bool previousUp = false;
@@ -240,7 +243,7 @@ DWORD WINAPI WindowRT4(LPVOID lpParam)
 			HWND hWndTMP = GetForegroundWindow();
 			if (hWndRT4 == 0)
 			{
-				hWndRT4 = FindWindowA(NULL, "Fast n Furious SuperBikes");
+				hWndRT4 = FindWindowA(NULL, WINDOW_TITLE);
 			}
 			if (hWndTMP == hWndRT4)
 			{
@@ -256,7 +259,7 @@ DWORD WINAPI WindowRT4(LPVOID lpParam)
 			HWND hWndTMP = GetForegroundWindow();
 			if (hWndRT4 == 0)
 			{
-				hWndRT4 = FindWindowA(NULL, "Fast n Furious SuperBikes");
+				hWndRT4 = FindWindowA(NULL, WINDOW_TITLE);
 			}
 			if (hWndTMP == hWndRT4)
 			{
@@ -293,7 +296,7 @@ DWORD WINAPI WindowRT4(LPVOID lpParam)
 
 DWORD WINAPI CreateWindowExART4(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
-	return original_CreateWindowExA4(dwExStyle, lpClassName, "Fast n Furious SuperBikes", 0x96C60000, X, Y, (nWidth+16), (nHeight+39), hWndParent, hMenu, hInstance, lpParam);
+	return original_CreateWindowExA4(dwExStyle, lpClassName, WINDOW_TITLE, 0x96C60000, X, Y, (nWidth+16), (nHeight+39), hWndParent, hMenu, hInstance, lpParam);
 }
 
 DWORD WINAPI SetCursorPosRT4(int X, int Y)

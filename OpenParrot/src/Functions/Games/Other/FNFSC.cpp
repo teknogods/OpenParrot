@@ -9,6 +9,11 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 #define clamp( x, xmin, xmax ) min( xmax, max( x, xmin ) )
+
+#define WINDOW_TITLE "FNF SuperCars"
+#define KEYBOARD_ADDR 0x437F6F8
+#define KEYBOARD_ADDR2 0x437FC08
+
 typedef unsigned int U32;
 
 DWORD BaseAddress2 = 0x00400000;
@@ -28,8 +33,8 @@ BOOL(__stdcall *original_CreateWindowExA2)(DWORD dwExStyle, LPCSTR lpClassName, 
 DWORD WINAPI InputRT2(LPVOID lpParam)
 {
 	int deltaTimer = 16;
-	INT_PTR keyboardBuffer = (0x437F6F8 + BaseAddress2);
-	INT_PTR keyboardBuffer2 = (0x437FC08 + BaseAddress2);
+	INT_PTR keyboardBuffer = (KEYBOARD_ADDR + BaseAddress2);
+	INT_PTR keyboardBuffer2 = (KEYBOARD_ADDR2 + BaseAddress2);
 	bool previousLeft = false;
 	bool previousRight = false;
 	bool previousUp = false;
@@ -177,7 +182,7 @@ DWORD WINAPI FullscreenRT2(LPVOID lpParam)
 		HWND hWndTMP = GetForegroundWindow();
 		if (hWndRT2 == 0)
 		{
-			hWndRT2 = FindWindowA(NULL, "FNF SuperCars");
+			hWndRT2 = FindWindowA(NULL, WINDOW_TITLE);
 		}
 		if (hWndTMP == hWndRT2)
 		{
@@ -209,7 +214,7 @@ DWORD WINAPI WindowRT2(LPVOID lpParam)
 				HWND hWndTMP = GetForegroundWindow();
 				if (hWndRT2 == 0)
 				{
-					hWndRT2 = FindWindowA(NULL, "FNF SuperCars");
+					hWndRT2 = FindWindowA(NULL, WINDOW_TITLE);
 				}
 				if (hWndTMP == hWndRT2)
 				{
@@ -263,7 +268,7 @@ DWORD WINAPI DefWindowProcART2(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 DWORD WINAPI CreateWindowExART2(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
-		return original_CreateWindowExA2(dwExStyle, lpClassName, "FNF SuperCars", 0x96000000, 0, 0, 1360, 768, hWndParent, hMenu, hInstance, lpParam);
+		return original_CreateWindowExA2(dwExStyle, lpClassName, WINDOW_TITLE, 0x96000000, 0, 0, 1360, 768, hWndParent, hMenu, hInstance, lpParam);
 }
 
 DWORD WINAPI SetCursorPosRT2(int X, int Y)

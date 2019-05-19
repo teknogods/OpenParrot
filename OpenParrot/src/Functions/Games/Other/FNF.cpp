@@ -10,6 +10,9 @@
 
 #define clamp( x, xmin, xmax ) min( xmax, max( x, xmin ) )
 
+#define WINDOW_TITLE "Fast n Furious"
+#define KEYBOARD_ADDR 0x31B6988
+
 DWORD BaseAddress3 = 0x00400000;
 int horizontal3 = 0;
 int vertical3 = 0;
@@ -100,7 +103,7 @@ DWORD WINAPI DefWindowProcART3(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 DWORD WINAPI InputRT3(LPVOID lpParam)
 {
 	int deltaTimer = 16;
-	INT_PTR keyboardBuffer = (0x31B6988 + BaseAddress3);
+	INT_PTR keyboardBuffer = (KEYBOARD_ADDR + BaseAddress3);
 
 
 	while (true)
@@ -113,7 +116,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 
 		if (hWndRT3 == 0)
 		{
-			hWndRT3 = FindWindowA(NULL, "Fast n Furious");
+			hWndRT3 = FindWindowA(NULL, WINDOW_TITLE);
 		}
 		HWND hWndTMP = GetForegroundWindow();
 		if (hWndTMP == hWndRT3)
@@ -283,7 +286,7 @@ DWORD WINAPI WindowRT3(LPVOID lpParam)
 			{
 				if (hWndRT3 == 0)
 				{
-					hWndRT3 = FindWindowA(NULL, "Fast n Furious");
+					hWndRT3 = FindWindowA(NULL, WINDOW_TITLE);
 				}
 				HWND hWndTMP = GetForegroundWindow();
 				if (hWndTMP == hWndRT3)
@@ -299,7 +302,7 @@ DWORD WINAPI WindowRT3(LPVOID lpParam)
 
 DWORD WINAPI CreateWindowExART3(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
-	return original_CreateWindowExA3(dwExStyle, lpClassName, "Fast n Furious", 0x96C60000, X, Y, (nWidth+16), (nHeight+39), hWndParent, hMenu, hInstance, lpParam);
+	return original_CreateWindowExA3(dwExStyle, lpClassName, WINDOW_TITLE, 0x96C60000, X, Y, (nWidth+16), (nHeight+39), hWndParent, hMenu, hInstance, lpParam);
 }
 
 DWORD WINAPI SetCursorPosRT3(int X, int Y)

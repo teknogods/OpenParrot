@@ -10,6 +10,9 @@
 
 #define clamp( x, xmin, xmax ) min( xmax, max( x, xmin ) )
 
+#define WINDOW_TITLE "FNF Drift"
+#define KEYBOARD_ADDR 0x41B5920
+
 DWORD BaseAddress = 0x00400000;
 int horizontal = 0;
 int vertical = 0;
@@ -27,7 +30,7 @@ BOOL(__stdcall *original_CreateWindowExA)(DWORD dwExStyle, LPCSTR lpClassName, L
 DWORD WINAPI InputRT(LPVOID lpParam)
 {
 	int deltaTimer = 16;
-	INT_PTR keyboardBuffer = (0x41B5920 + BaseAddress);
+	INT_PTR keyboardBuffer = (KEYBOARD_ADDR + BaseAddress);
 	bool previousLeft = false;
 	bool previousRight = false;
 	bool previousUp = false;
@@ -174,7 +177,7 @@ DWORD WINAPI WindowRT(LPVOID lpParam)
 			HWND hWndTMP = GetForegroundWindow();
 			if (hWndRT == 0)
 			{
-				hWndRT = FindWindowA(NULL, "FNF Drift");
+				hWndRT = FindWindowA(NULL, WINDOW_TITLE);
 			}
 			if (hWndTMP == hWndRT)
 			{
@@ -206,7 +209,7 @@ DWORD WINAPI WindowRT(LPVOID lpParam)
 				HWND hWndTMP = GetForegroundWindow();
 				if (hWndRT == 0)
 				{
-					hWndRT = FindWindowA(NULL, "FNF Drift");
+					hWndRT = FindWindowA(NULL, WINDOW_TITLE);
 				}
 				if (hWndTMP == hWndRT)
 				{
@@ -219,7 +222,7 @@ DWORD WINAPI WindowRT(LPVOID lpParam)
 
 DWORD WINAPI CreateWindowExART(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
-	return original_CreateWindowExA(dwExStyle, lpClassName, "FNF Drift", 0x96C60000, X, Y, (nWidth+16), (nHeight+39), hWndParent, hMenu, hInstance, lpParam);
+	return original_CreateWindowExA(dwExStyle, lpClassName, WINDOW_TITLE, 0x96C60000, X, Y, (nWidth+16), (nHeight+39), hWndParent, hMenu, hInstance, lpParam);
 }
 
 HCURSOR WINAPI SetCursorRT(int X, int Y)
