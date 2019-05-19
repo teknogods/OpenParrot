@@ -32,7 +32,7 @@ NesysEmu::NesysEmu()
 
 		Sleep(100);
 
-		// h
+		// tenpo = shop
 		struct __declspec(align(4)) NESYS_TENPO_TABLE
 		{
 			int tenpo_id;
