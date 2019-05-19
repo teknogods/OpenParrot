@@ -8,8 +8,6 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define clamp( x, xmin, xmax ) min( xmax, max( x, xmin ) )
-
 DWORD BaseAddress4 = 0x00400000;
 int horizontal4 = 0;
 int vertical4 = 0;
@@ -43,15 +41,11 @@ DWORD WINAPI DefWindowProcART4(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	switch (message)
 	{
 	case WM_LBUTTONDOWN:
-		SetCapture(hWnd);
-		xClick = LOWORD(lParam);
-		yClick = HIWORD(lParam);
 		injector::WriteMemory<BYTE>((0x576CF + BaseAddress4), 0x01, true);
 		movable4 = true;
 		break;
 
 	case WM_LBUTTONUP:
-		ReleaseCapture();
 		injector::WriteMemory<BYTE>((0x576CF + BaseAddress4), 0x00, true);
 		movable4 = false;
 		break;
