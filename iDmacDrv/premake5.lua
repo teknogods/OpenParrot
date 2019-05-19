@@ -23,8 +23,8 @@ project "iDmacDrv"
 
 	filter "platforms:x86"	
 		targetsuffix "32"
-		linkoptions { "/DEF:Source32.def" }
+		linkoptions { "/DEF:.\\Source32.def" }
 
 	filter "platforms:x64"	
 		targetsuffix "64"
-		linkoptions { "/DEF:Source64.def" }
+		linkoptions { "/DEF:.\\Source64.def" }
