@@ -307,13 +307,13 @@ DWORD WINAPI CreateWindowExART3(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWi
 
 DWORD WINAPI SetCursorPosRT3(int X, int Y)
 {
-		RECT rect;
-		GetWindowRect(hWndRT3, &rect);
-		int width = rect.right - rect.left;
-		int height = rect.bottom - rect.top;
-		int windowcenterx = (rect.left + (width * 0.5));
-		int windowcentery = (rect.top + (height * 0.5));
-		return original_SetCursorPosRT3(windowcenterx, windowcentery);
+	RECT rect;
+	GetWindowRect(hWndRT3, &rect);
+	int width = rect.right - rect.left;
+	int height = rect.bottom - rect.top;
+	int windowcenterx = (rect.left + (width * 0.5));
+	int windowcentery = (rect.top + (height * 0.5));
+	return original_SetCursorPosRT3(windowcenterx, windowcentery);
 }
 
 DWORD WINAPI SetWindowPosRT3(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)

@@ -132,9 +132,9 @@ int main(int argc, char *argv[])
 	{
 		printf("Please use the following format: ");
 #if _M_IX86
-		printf("OpenParrotLoader.exe <DLL> c:\\games\\id6\\id6.exe <param>");
+		printf("OpenParrotLoader.exe <DLL> <game exe> <param>");
 #else
-		printf("OpenParrotLoader64.exe <DLL> c:\\games\\id6\\id6.exe <param>");
+		printf("OpenParrotLoader64.exe <DLL> <game exe> <param>");
 #endif		
 		return 0;
 	}
