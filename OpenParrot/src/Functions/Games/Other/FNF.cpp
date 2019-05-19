@@ -62,7 +62,7 @@ DWORD WINAPI DefWindowProcART3(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 	case WM_MOUSEMOVE:
 	{
-		if (movable == true)
+		if (movable)
 		{
 			if (GetCapture() == hWnd)
 			{
@@ -78,11 +78,11 @@ DWORD WINAPI DefWindowProcART3(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		}
 		else
 		{
-			if (polling == false)
+			if (!polling)
 			{
 				return 0;
 			}
-			if (polling == true)
+			if (polling)
 			{
 				RECT rect;
 				GetWindowRect(hWndRT3, &rect);
@@ -141,7 +141,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			// SHIFT DOWN
 			if (*ffbOffset & 0x2000)
 			{
-				if (previousDown == false)
+				if (!previousDown)
 				{
 					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
 					previousDown = true;
@@ -149,7 +149,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			}
 			else
 			{
-				if (previousDown == true)
+				if (previousDown)
 				{
 					previousDown = false;
 				}
@@ -157,7 +157,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			// SHIFT UP
 			if (*ffbOffset & 0x1000)
 			{
-				if (previousUp == false)
+				if (!previousUp)
 				{
 					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
 					previousUp = true;
@@ -165,7 +165,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			}
 			else
 			{
-				if (previousUp == true)
+				if (previousUp)
 				{
 					previousUp = false;
 				}
@@ -191,7 +191,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			// MENU LEFT
 			if (*ffbOffset & 0x4000)
 			{
-				if (previousLeft == false)
+				if (!previousLeft)
 				{
 					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
 					previousLeft = true;
@@ -199,7 +199,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			}
 			else
 			{
-				if (previousLeft == true)
+				if (previousLeft)
 				{
 					previousLeft = false;
 				}
@@ -207,7 +207,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			// MENU RIGHT
 			if (*ffbOffset & 0x8000)
 			{
-				if (previousRight == false)
+				if (!previousRight)
 				{
 					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
 					previousRight = true;
@@ -215,13 +215,13 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			}
 			else
 			{
-				if (previousRight == true)
+				if (previousRight)
 				{
 					previousRight = false;
 				}
 			}
 
-			if (movable == false) // then poll ugly mouse input
+			if (!movable) // then poll ugly mouse input
 			{
 				polling = true;
 				mouse_event(MOUSEEVENTF_MOVE, 0, 0, 0, 0);
@@ -233,7 +233,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			vkey = 0x51; // Q key (qwerty A)
 			if (*ffbOffset3 >= 5)
 			{
-				if (gaspressed == false)
+				if (!gaspressed)
 				{
 					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), 0, 0);
 					gaspressed = true;
@@ -241,7 +241,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			}
 			else
 			{
-				if (gaspressed == true)
+				if (gaspressed)
 				{
 					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 					gaspressed = false;
@@ -252,7 +252,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			vkey = 0x57; // W key (qwerty Z)
 			if (*ffbOffset4 >= 5)
 			{
-				if (brakepressed == false)
+				if (!brakepressed)
 				{
 					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), 0, 0);
 					brakepressed = true;
@@ -260,7 +260,7 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			}
 			else
 			{
-				if (brakepressed == true)
+				if (brakepressed)
 				{
 					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 					brakepressed = false;
@@ -281,22 +281,22 @@ DWORD WINAPI WindowRT3(LPVOID lpParam)
 {
 	while (true)
 	{
-			// RIGHT-CLICK MINIMIZES WINDOW
-			if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+		// RIGHT-CLICK MINIMIZES WINDOW
+		if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+		{
+			if (hWndRT3 == 0)
 			{
-				if (hWndRT3 == 0)
-				{
-					hWndRT3 = FindWindowA(NULL, WINDOW_TITLE);
-				}
-				HWND hWndTMP = GetForegroundWindow();
-				if (hWndTMP == hWndRT3)
-				{
-					ShowCursor(TRUE);
-					movable = true;
-					original_SetWindowPos3(hWndRT3, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE);
-					ShowWindow(hWndRT3, SW_MINIMIZE);
-				}
+				hWndRT3 = FindWindowA(NULL, WINDOW_TITLE);
 			}
+			HWND hWndTMP = GetForegroundWindow();
+			if (hWndTMP == hWndRT3)
+			{
+				ShowCursor(TRUE);
+				movable = true;
+				original_SetWindowPos3(hWndRT3, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE);
+				ShowWindow(hWndRT3, SW_MINIMIZE);
+			}
+		}
 	}
 }
 
@@ -347,15 +347,15 @@ static InitFunction FNFFunc([]()
 
 	if (ToBool(config["General"]["Windowed"]))
 	{
-	// CURSOR NOT HIDDEN
-	//injector::WriteMemory<BYTE>((0x4BF1F + BaseAddress3), 0x01, true);
+		// CURSOR NOT HIDDEN
+		//injector::WriteMemory<BYTE>((0x4BF1F + BaseAddress3), 0x01, true);
 		
-	CreateThread(NULL, 0, WindowRT3, NULL, 0, NULL);
+		CreateThread(NULL, 0, WindowRT3, NULL, 0, NULL);
 
-	MH_Initialize();
-	MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART3, (void**)&original_CreateWindowExA3);
-	MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT3, (void**)&original_SetWindowPos3);
-	MH_EnableHook(MH_ALL_HOOKS);
+		MH_Initialize();
+		MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART3, (void**)&original_CreateWindowExA3);
+		MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT3, (void**)&original_SetWindowPos3);
+		MH_EnableHook(MH_ALL_HOOKS);
 	}
 
 }, GameID::FNF);

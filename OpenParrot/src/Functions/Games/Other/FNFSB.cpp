@@ -55,19 +55,19 @@ DWORD WINAPI DefWindowProcART4(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 	case WM_MOUSEMOVE:
 	{
-		if (movable4 == true)
+		if (movable4)
 		{
 				injector::WriteMemory<BYTE>((0x576CF + BaseAddress4), 0x01, true);
 				return 0;
 		}
 		else
 		{
-			if (polling4 == false)
+			if (!polling4)
 			{
 				injector::WriteMemory<BYTE>((0x576CF + BaseAddress4), 0x01, true);
 				return 0;
 			}
-			if (polling4 == true)
+			if (polling4)
 			{
 				injector::WriteMemory<BYTE>((0x576CF + BaseAddress4), 0x00, true);
 				break;
@@ -97,137 +97,137 @@ DWORD WINAPI InputRT4(LPVOID lpParam)
 
 // buttons see bitwise values in TPui//RawThrills.cs
 
-			// START 
-			if (*ffbOffset & 0x08)
-			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
-			}
-			// TEST
-			if (*ffbOffset & 0x01)
-			{
-				injector::WriteMemory<BYTE>((0x4C424 + BaseAddress4), 0xEB, true);
-			}
-			// NITRO ( = START too)
-			if (*ffbOffset & 0x100)
-			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
-			}
+		// START 
+		if (*ffbOffset & 0x08)
+		{
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
+		}
+		// TEST
+		if (*ffbOffset & 0x01)
+		{
+			injector::WriteMemory<BYTE>((0x4C424 + BaseAddress4), 0xEB, true);
+		}
+		// NITRO ( = START too)
+		if (*ffbOffset & 0x100)
+		{
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
+		}
 
-			// BUTTON 1/ VIEW 1
-			if (*ffbOffset & 0x200)
+		// BUTTON 1/ VIEW 1
+		if (*ffbOffset & 0x200)
+		{
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_F1), 2, true);
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_A), 2, true);
+		}
+		// BUTTON 2/ VIEW 2
+		if (*ffbOffset & 0x400)
+		{
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_F2), 2, true);
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
+		}
+		// BUTTON 3/ VIEW 3
+		if (*ffbOffset & 0x800)
+		{
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_E), 2, true);
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_W), 2, true);
+		}
+		// MENU LEFT
+		if (*ffbOffset & 0x4000)
+		{
+			if (!previousLeft)
 			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_F1), 2, true);
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_A), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
+				previousLeft = true;
 			}
-			// BUTTON 2/ VIEW 2
-			if (*ffbOffset & 0x400)
+		}
+		else
+		{
+			if (previousLeft)
 			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_F2), 2, true);
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
+				previousLeft = false;
 			}
-			// BUTTON 3/ VIEW 3
-			if (*ffbOffset & 0x800)
+		}
+		// MENU RIGHT
+		if (*ffbOffset & 0x8000)
+		{
+			if (!previousRight)
 			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_E), 2, true);
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_W), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
+				previousRight = true;
 			}
-			// MENU LEFT
-			if (*ffbOffset & 0x4000)
+		}
+		else
+		{
+			if (previousRight)
 			{
-				if (previousLeft == false)
-				{
-					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
-					previousLeft = true;
-				}
+				previousRight = false;
 			}
-			else
-			{
-				if (previousLeft == true)
-				{
-					previousLeft = false;
-				}
-			}
-			// MENU RIGHT
-			if (*ffbOffset & 0x8000)
-			{
-				if (previousRight == false)
-				{
-					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
-					previousRight = true;
-				}
-			}
-			else
-			{
-				if (previousRight == true)
-				{
-					previousRight = false;
-				}
-			}
+		}
 
-			RECT rect;
-			GetWindowRect(hWndRT4, &rect);
-			int width = rect.right - rect.left;
-			int height = rect.bottom - rect.top;
-			int windowcenterx = (rect.left + (width * 0.5));
-			int windowcentery = (rect.top + (height * 0.5));
-			// WHEEL
-			int iWheel0 = (((float)*ffbOffset2) - 128);
-			float wheel = (iWheel0 * 0.0078125f);
-			int iWheel = (int)((width - 20) * 0.5 * wheel);
-			double fx = (float)((wheel) * (65535.0f / horizontal4));
+		RECT rect;
+		GetWindowRect(hWndRT4, &rect);
+		int width = rect.right - rect.left;
+		int height = rect.bottom - rect.top;
+		int windowcenterx = (rect.left + (width * 0.5));
+		int windowcentery = (rect.top + (height * 0.5));
+		// WHEEL
+		int iWheel0 = (((float)*ffbOffset2) - 128);
+		float wheel = (iWheel0 * 0.0078125f);
+		int iWheel = (int)((width - 20) * 0.5 * wheel);
+		double fx = (float)((wheel) * (65535.0f / horizontal4));
 
-			if (movable4 == false) // then poll ugly mouse input
-			{
-				polling4 = true;
-				mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
-				polling4 = false;
-			}
+		if (!movable4) // then poll ugly mouse input
+		{
+			polling4 = true;
+			mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
+			polling4 = false;
+		}
 
-			WORD vkey;
-			// GAS
-			vkey = 0x51; // Q key (qwerty A)
-			if (*ffbOffset3 >= 5)
+		WORD vkey;
+		// GAS
+		vkey = 0x51; // Q key (qwerty A)
+		if (*ffbOffset3 >= 5)
+		{
+			if (!gaspressed)
 			{
-				if (gaspressed == false)
-				{
-					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), 0, 0);
-					gaspressed = true;
-				}
+				keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), 0, 0);
+				gaspressed = true;
 			}
-			else
+		}
+		else
+		{
+			if (gaspressed)
 			{
-				if (gaspressed == true)
-				{
-					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-					gaspressed = false;
-				}
+				keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				gaspressed = false;
 			}
+		}
 
-			// BRAKE
-			vkey = 0x57; // W key (qwerty Z)
-			if (*ffbOffset4 >= 5)
+		// BRAKE
+		vkey = 0x57; // W key (qwerty Z)
+		if (*ffbOffset4 >= 5)
+		{
+			if (!brakepressed)
 			{
-				if (brakepressed == false)
-				{
-					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), 0, 0);
-					brakepressed = true;
-				}
+				keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), 0, 0);
+				brakepressed = true;
 			}
-			else
+		}
+		else
+		{
+			if (brakepressed)
 			{
-				if (brakepressed == true)
-				{
-					keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-					brakepressed = false;
-				}
+				keybd_event(vkey, MapVirtualKey(vkey, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				brakepressed = false;
 			}
+		}
 
-			//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			//	info(true, "test values *ffbOffset2=0x%02X /  *iWheel=%d / *wheel=%f ", *ffbOffset2, iWheel, fx);
-			//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//	info(true, "test values *ffbOffset2=0x%02X /  *iWheel=%d / *wheel=%f ", *ffbOffset2, iWheel, fx);
+		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			Sleep(deltaTimer);
+		Sleep(deltaTimer);
 	}
 	return 0;
 }
@@ -301,7 +301,7 @@ DWORD WINAPI CreateWindowExART4(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWi
 
 DWORD WINAPI SetCursorPosRT4(int X, int Y)
 {
-	if ((movable4 == false) && (polling4 == false))
+	if ((!movable4) && (!polling4))
 	{
 		RECT rect;
 		GetWindowRect(hWndRT4, &rect);
@@ -349,12 +349,12 @@ static InitFunction FNFSBFunc([]()
 
 	if (ToBool(config["General"]["Windowed"]))
 	{
-	CreateThread(NULL, 0, WindowRT4, NULL, 0, NULL);
+		CreateThread(NULL, 0, WindowRT4, NULL, 0, NULL);
 
-	MH_Initialize();
-	MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART4, (void**)&original_CreateWindowExA4);
-	MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT4, (void**)&original_SetWindowPos4);
-	MH_EnableHook(MH_ALL_HOOKS);
+		MH_Initialize();
+		MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART4, (void**)&original_CreateWindowExA4);
+		MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT4, (void**)&original_SetWindowPos4);
+		MH_EnableHook(MH_ALL_HOOKS);
 	}
 
 }, GameID::FNFSB);

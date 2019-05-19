@@ -69,7 +69,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// SHIFT DOWN
 		if (*ffbOffset & 0x2000)
 		{
-			if (previousDown == false)
+			if (!previousDown)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
 				previousDown = true;
@@ -77,7 +77,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		}
 		else
 		{
-			if (previousDown == true)
+			if (previousDown)
 			{
 				previousDown = false;
 			}
@@ -85,7 +85,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// SHIFT UP
 		if (*ffbOffset & 0x1000)
 		{
-			if (previousUp == false)
+			if (!previousUp)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
 				previousUp = true;
@@ -93,7 +93,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		}
 		else
 		{
-			if (previousUp == true)
+			if (previousUp)
 			{
 				previousUp = false;
 			}
@@ -119,7 +119,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// MENU LEFT
 		if (*ffbOffset & 0x4000)
 		{
-			if (previousLeft == false)
+			if (!previousLeft)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
 				previousLeft = true;
@@ -127,7 +127,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		}
 		else
 		{
-			if (previousLeft == true)
+			if (previousLeft)
 			{
 				previousLeft = false;
 			}
@@ -135,7 +135,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// MENU RIGHT
 		if (*ffbOffset & 0x8000)
 		{
-			if (previousRight == false)
+			if (!previousRight)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
 				previousRight = true;
@@ -143,7 +143,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		}
 		else
 		{
-			if (previousRight == true)
+			if (previousRight)
 			{
 				previousRight = false;
 			}
@@ -208,20 +208,20 @@ DWORD WINAPI WindowRT2(LPVOID lpParam)
 {
 	while (true)
 	{
-			// RIGHT-CLICK MINIMIZES WINDOW
-			if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+		// RIGHT-CLICK MINIMIZES WINDOW
+		if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+		{
+			HWND hWndTMP = GetForegroundWindow();
+			if (hWndRT2 == 0)
 			{
-				HWND hWndTMP = GetForegroundWindow();
-				if (hWndRT2 == 0)
-				{
-					hWndRT2 = FindWindowA(NULL, WINDOW_TITLE);
-				}
-				if (hWndTMP == hWndRT2)
-				{
-					original_SetWindowPos2(hWndRT2, HWND_BOTTOM, 0, 0, 1360, 768, SWP_NOSIZE);
-					ShowWindow(hWndRT2, SW_MINIMIZE);
-				}
+				hWndRT2 = FindWindowA(NULL, WINDOW_TITLE);
 			}
+			if (hWndTMP == hWndRT2)
+			{
+				original_SetWindowPos2(hWndRT2, HWND_BOTTOM, 0, 0, 1360, 768, SWP_NOSIZE);
+				ShowWindow(hWndRT2, SW_MINIMIZE);
+			}
+		}
 	}
 }
 
@@ -268,7 +268,7 @@ DWORD WINAPI DefWindowProcART2(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 DWORD WINAPI CreateWindowExART2(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
-		return original_CreateWindowExA2(dwExStyle, lpClassName, WINDOW_TITLE, 0x96000000, 0, 0, 1360, 768, hWndParent, hMenu, hInstance, lpParam);
+	return original_CreateWindowExA2(dwExStyle, lpClassName, WINDOW_TITLE, 0x96000000, 0, 0, 1360, 768, hWndParent, hMenu, hInstance, lpParam);
 }
 
 DWORD WINAPI SetCursorPosRT2(int X, int Y)
@@ -301,15 +301,15 @@ static InitFunction FNFSCFunc([]()
 
 	if (ToBool(config["General"]["Windowed"]))
 	{
-	// NO HIDE CURSOR
-	injector::WriteMemory<BYTE>((0x72FCF + BaseAddress2), 0x01, true);
+		// NO HIDE CURSOR
+		injector::WriteMemory<BYTE>((0x72FCF + BaseAddress2), 0x01, true);
 
-	CreateThread(NULL, 0, WindowRT2, NULL, 0, NULL);
+		CreateThread(NULL, 0, WindowRT2, NULL, 0, NULL);
 
-	MH_Initialize();
-	MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcART2, (void**)&original_DefWindowProcA2);
-	MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT2, NULL);
-	MH_EnableHook(MH_ALL_HOOKS);
+		MH_Initialize();
+		MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcART2, (void**)&original_DefWindowProcA2);
+		MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT2, NULL);
+		MH_EnableHook(MH_ALL_HOOKS);
 	}
 	else
 	{

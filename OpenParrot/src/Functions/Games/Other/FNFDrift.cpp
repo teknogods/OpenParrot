@@ -63,7 +63,7 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		// SHIFT DOWN
 		if (*ffbOffset & 0x2000)
 		{
-			if (previousDown == false)
+			if (!previousDown)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
 				previousDown = true;
@@ -71,7 +71,7 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		}
 		else
 		{
-			if (previousDown == true)
+			if (previousDown)
 			{
 				previousDown = false;
 			}
@@ -79,7 +79,7 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		// SHIFT UP
 		if (*ffbOffset & 0x1000)
 		{
-			if (previousUp == false)
+			if (!previousUp)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
 				previousUp = true;
@@ -87,7 +87,7 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		}
 		else
 		{
-			if (previousUp == true)
+			if (previousUp)
 			{
 				previousUp = false;
 			}
@@ -113,7 +113,7 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		// MENU LEFT
 		if (*ffbOffset & 0x4000)
 		{
-			if (previousLeft == false)
+			if (!previousLeft)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
 				previousLeft = true;
@@ -121,7 +121,7 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		}
 		else
 		{
-			if (previousLeft == true)
+			if (previousLeft)
 			{
 				previousLeft = false;
 			}
@@ -129,7 +129,7 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		// MENU RIGHT
 		if (*ffbOffset & 0x8000)
 		{
-			if (previousRight == false)
+			if (!previousRight)
 			{
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
 				previousRight = true;
@@ -137,7 +137,7 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		}
 		else
 		{
-			if (previousRight == true)
+			if (previousRight)
 			{
 				previousRight = false;
 			}
@@ -171,7 +171,7 @@ DWORD WINAPI WindowRT(LPVOID lpParam)
 {
 	while (true)
 	{
-			// LEFT-CLICK MOVES WINDOW FROM TOP-LEFT CORNER
+		// LEFT-CLICK MOVES WINDOW FROM TOP-LEFT CORNER
 		if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
 		{
 			HWND hWndTMP = GetForegroundWindow();
@@ -200,23 +200,23 @@ DWORD WINAPI WindowRT(LPVOID lpParam)
 				}
 				original_SetWindowPos(hWndRT, HWND_TOP, xClick, yClick, width, height, SWP_NOSIZE);
 				SetForegroundWindow(hWndRT);
-
 			}
 		}
-			// RIGHT-CLICK MINIMIZES WINDOW
-			if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+
+		// RIGHT-CLICK MINIMIZES WINDOW
+		if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+		{
+			HWND hWndTMP = GetForegroundWindow();
+			if (hWndRT == 0)
 			{
-				HWND hWndTMP = GetForegroundWindow();
-				if (hWndRT == 0)
-				{
-					hWndRT = FindWindowA(NULL, WINDOW_TITLE);
-				}
-				if (hWndTMP == hWndRT)
-				{
-					original_SetWindowPos(hWndRT, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE);
-					ShowWindow(hWndRT, SW_MINIMIZE);
-				}
+				hWndRT = FindWindowA(NULL, WINDOW_TITLE);
 			}
+			if (hWndTMP == hWndRT)
+			{
+				original_SetWindowPos(hWndRT, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE);
+				ShowWindow(hWndRT, SW_MINIMIZE);
+			}
+		}
 	}
 }
 
@@ -273,19 +273,19 @@ static InitFunction FNFDriftFunc([]()
 
 	if (ToBool(config["General"]["Windowed"]))
 	{
-	// CURSOR NOT HIDDEN
-	injector::WriteMemory<BYTE>((0x63F6F + BaseAddress), 0x01, true);
-	// SETWINDOWPOS DISABLE
-	injector::WriteMemory<BYTE>((0xCB596 + BaseAddress), 0x74, true);
+		// CURSOR NOT HIDDEN
+		injector::WriteMemory<BYTE>((0x63F6F + BaseAddress), 0x01, true);
+		// SETWINDOWPOS DISABLE
+		injector::WriteMemory<BYTE>((0xCB596 + BaseAddress), 0x74, true);
 		
-	CreateThread(NULL, 0, WindowRT, NULL, 0, NULL);
+		CreateThread(NULL, 0, WindowRT, NULL, 0, NULL);
 
-	MH_Initialize();
-	MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART, (void**)&original_CreateWindowExA);
-	MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT, NULL);
-	MH_CreateHookApi(L"user32.dll", "SetCursor", &SetCursorRT, NULL);
-	MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT, (void**)&original_SetWindowPos);
-	MH_EnableHook(MH_ALL_HOOKS);
+		MH_Initialize();
+		MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART, (void**)&original_CreateWindowExA);
+		MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT, NULL);
+		MH_CreateHookApi(L"user32.dll", "SetCursor", &SetCursorRT, NULL);
+		MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT, (void**)&original_SetWindowPos);
+		MH_EnableHook(MH_ALL_HOOKS);
 	}
 
 }, GameID::FNFDrift);
