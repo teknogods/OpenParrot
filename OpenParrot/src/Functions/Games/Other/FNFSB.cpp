@@ -8,8 +8,6 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define clamp( x, xmin, xmax ) min( xmax, max( x, xmin ) )
-
 DWORD BaseAddress4 = 0x00400000;
 int horizontal4 = 0;
 int vertical4 = 0;
@@ -56,17 +54,19 @@ DWORD WINAPI DefWindowProcART4(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	{
 		if (movable4 == true)
 		{
-			injector::WriteMemory<BYTE>((0x576CF + BaseAddress4), 0x01, true);
-			return 0;
+				injector::WriteMemory<BYTE>((0x576CF + BaseAddress4), 0x01, true);
+				return 0;
 		}
 		else
 		{
 			if (polling4 == false)
 			{
+				injector::WriteMemory<BYTE>((0x576CF + BaseAddress4), 0x01, true);
 				return 0;
 			}
 			if (polling4 == true)
 			{
+				injector::WriteMemory<BYTE>((0x576CF + BaseAddress4), 0x00, true);
 				break;
 			}
 		}
@@ -172,8 +172,7 @@ DWORD WINAPI InputRT4(LPVOID lpParam)
 			int iWheel0 = (((float)*ffbOffset2) - 128);
 			float wheel = (iWheel0 * 0.0078125f);
 			int iWheel = (int)((width - 20) * 0.5 * wheel);
-			double fx = (float)((0 + wheel) * (65535.0f / horizontal4));
-			double fy = (float)((0) *(65535.0f / vertical4));
+			double fx = (float)((wheel) * (65535.0f / horizontal4));
 
 			if (movable4 == false) // then poll ugly mouse input
 			{
@@ -270,8 +269,16 @@ DWORD WINAPI WindowRT4(LPVOID lpParam)
 				int width = rect.right - rect.left;
 				int height = rect.bottom - rect.top;
 				LPARAM blah = MAKELPARAM(point.x, point.y);
-				int xClick = LOWORD(blah);
-				int yClick = HIWORD(blah);
+				int xClick = LOWORD(blah) +10;
+				int yClick = HIWORD(blah) +10;
+				if ((xClick + width) > horizontal4)
+				{
+					xClick = ((horizontal4 - width) + 10);
+				}
+				if ((yClick + height) > vertical4)
+				{
+					yClick = ((vertical4 - height)+10);
+				}
 				original_SetWindowPos4(hWndRT4, HWND_TOP, xClick, yClick, width, height, SWP_NOSIZE);
 				SetForegroundWindow(hWndRT4);
 			}
@@ -291,7 +298,20 @@ DWORD WINAPI CreateWindowExART4(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWi
 
 DWORD WINAPI SetCursorPosRT4(int X, int Y)
 {
-	return 0;
+	if ((movable4 == false) && (polling4 == false))
+	{
+		RECT rect;
+		GetWindowRect(hWndRT4, &rect);
+		int width = rect.right - rect.left;
+		int height = rect.bottom - rect.top;
+		int windowcenterx = (rect.left + (width * 0.5));
+		int windowcentery = (rect.top + (height * 0.5));
+		return original_SetCursorPosRT4(windowcenterx, windowcentery);
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 DWORD WINAPI SetWindowPosRT4(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
