@@ -365,6 +365,15 @@ DWORD WINAPI SetWindowPosRT3(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int 
 static InitFunction FNFFunc([]()
 {
 	GetDesktopResolution(horizontal3, vertical3);
+	
+	// BUTTON VIEW 1 HACK
+	injector::WriteMemory<BYTE>((0x35B9A + BaseAddress3), DIK_F1, true);
+	
+	// BUTTON VIEW 3 HACK
+	injector::WriteMemory<BYTE>((0x83739 + BaseAddress3), DIK_F4, true);
+	
+	// DISABLE CURSOR RESET
+	injector::WriteMemory<BYTE>((0x4C489 + BaseAddress3), 0xEB, true);
 
 	// BUTTON VIEW 1 HACK
 	injector::WriteMemory<BYTE>((0x35B9A + BaseAddress3), DIK_F1, true);
