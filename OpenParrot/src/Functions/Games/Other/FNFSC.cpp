@@ -311,4 +311,22 @@ static InitFunction FNFSCFunc([]()
 		CreateThread(NULL, 0, FullscreenRT2, NULL, 0, NULL);
 	}
 
+	// MACHINE ID setting
+	if ((strcmp(config["Network"]["MachineID"].c_str(), "2") == 0))
+	{
+		injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x01, true);
+	}
+	else if ((strcmp(config["Network"]["MachineID"].c_str(), "3") == 0))
+	{
+		injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x02, true);
+	}
+	else if ((strcmp(config["Network"]["MachineID"].c_str(), "4") == 0))
+	{
+		injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x03, true);
+	}
+	else // MACHINE ID = 1
+	{
+		injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x00, true);
+	}
+
 }, GameID::FNFSC);
