@@ -16,7 +16,7 @@ int vertical3 = 0;
 HWND hWndRT3 = 0;
 bool movable3 = false;
 bool polling3 = false;
-int oldvalue3 = 0;
+
 static bool previousLeft = false;
 static bool previousRight = false;
 static bool previousUp = false;
@@ -269,13 +269,12 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			int iWheel = (int)((width - 20) * 0.5 * wheel);
 			double fx = (float)((wheel) * (65535.0f / horizontal3));
 
-			if ((movable3 == false) && (oldvalue3 != *ffbOffset2)) // then poll ugly mouse input
-			{
-				polling3 = true;
-				mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
-				polling3 = false;
-				oldvalue3 = *ffbOffset2;
-			}
+			if (movable3 == false)
+				{
+					polling3 = true;
+					mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
+					polling3 = false;
+				}
 
 			// GAS
 			if (*ffbOffset3 >= 5)
