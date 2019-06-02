@@ -386,6 +386,9 @@ void GameDetect::DetectCurrentGame()
 	case 0x6449d9b1: // FNF SuperBikes
 		currentGame = GameID::FNFSB;
 		break;
+	case 0x6214f7ec: // Guitar Hero Arcade
+		currentGame = GameID::GHA;
+		break;
 	//case 0xea1984ff:
 	//	currentGame = GameID::ExBoardGeneric;
 	//	break;

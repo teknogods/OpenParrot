@@ -55,5 +55,6 @@ enum class GameID
 	FNFDrift,
 	FNFSC,
 	FNF,
-	FNFSB
+	FNFSB,
+	GHA,
 };
