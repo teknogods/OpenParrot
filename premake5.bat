@@ -1,2 +1,1 @@
-premake5 vs2017
-pause
+premake5 vs2019
