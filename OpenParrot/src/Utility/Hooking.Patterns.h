@@ -198,4 +198,6 @@ namespace hook
 	}
 }
 
+extern void ScanMyPattern(hook::pattern patternToScan, char cha);
+
 #pragma warning(pop)
