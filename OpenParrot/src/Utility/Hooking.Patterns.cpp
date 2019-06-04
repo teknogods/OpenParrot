@@ -332,6 +332,17 @@ namespace hook
 		}
 	}
 
+
+
+
+
+
+
+
+
+
+
+
 	void pattern::hint(uint64_t hash, uintptr_t address)
 	{
 		auto range = GetHints().equal_range(hash);
@@ -347,24 +358,4 @@ namespace hook
 		GetHints().emplace(hash, address);
 	}
 #endif
-}
-
-void ScanMyPattern(hook::pattern patternToScan, char cha)
-{
-	auto patterns = hook::pattern(patternToScan);
-	if (patterns.size() > 0)
-	{
-		for (int i = 0; i < patterns.size(); i++)
-		{
-			char* text = patterns.get(i).get<char>(0);
-			std::string text_str(text);
-
-			std::string to_replace = va("%c:\\", cha);
-			std::string replace_with = va(".\\%c", cha);
-
-			std::string replaced = text_str.replace(0, to_replace.length(), replace_with);
-
-			injector::WriteMemoryRaw(text, (char*)replaced.c_str(), replaced.length() + 1, true);
-		}
-	}
 }

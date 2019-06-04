@@ -74,9 +74,27 @@ static InitFunction PokkenFunc([]()
 	// 18: imageBase + 0x661820
 	injector::MakeNOP(hook::get_pattern("48 8D 8F F8 00 00 00 88 9F 05 01 00 00", -0x2), 2);
 
-	ScanMyPattern("F:\\", 'F');
-	ScanMyPattern("G:\\", 'G');
-	ScanMyPattern("H:\\", 'H');
+	auto chars = { 'F', 'G', 'J' };
 
+	for (auto cha : chars)
+	{
+		auto patterns = hook::pattern(va("%02X 3A 5C", cha));
+
+		if (patterns.size() > 0)
+		{
+			for (int i = 0; i < patterns.size(); i++)
+			{
+				char* text = patterns.get(i).get<char>(0);
+				std::string text_str(text);
+
+				std::string to_replace = va("%c:\\", cha);
+				std::string replace_with = va(".\\%c", cha);
+
+				std::string replaced = text_str.replace(0, to_replace.length(), replace_with);
+
+				injector::WriteMemoryRaw(text, (char*)replaced.c_str(), replaced.length() + 1, true);
+			}
+		}
+	}
 }, GameID::PokkenTournament);
 #endif

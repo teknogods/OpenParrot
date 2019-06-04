@@ -232,6 +232,7 @@ void InitializeHints()
 	}
 }
 
+
 static InitFunction globalFunc([]()
 {
 	InitializeHints();
