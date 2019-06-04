@@ -1276,28 +1276,8 @@ static InitFunction Wmmt5Func([]()
 		}
 	}
 
-	auto chars = { 'F', 'G' };
-
-	for (auto cha : chars)
-	{
-		auto patterns = hook::pattern(va("%02X 3A 2F", cha));
-
-		if (patterns.size() > 0)
-		{
-			for (int i = 0; i < patterns.size(); i++)
-			{
-				char* text = patterns.get(i).get<char>(0);
-				std::string text_str(text);
-
-				std::string to_replace = va("%c:/", cha);
-				std::string replace_with = va("./%c", cha);
-
-				std::string replaced = text_str.replace(0, to_replace.length(), replace_with);
-
-				injector::WriteMemoryRaw(text, (char*)replaced.c_str(), replaced.length() + 1, true);
-			}
-		}
-	}
+	ScanMyPattern("F:\\", 'F');
+	ScanMyPattern("G:\\", 'G');
 
 	if (ToBool(config["General"]["SkipMovies"]))
 	{

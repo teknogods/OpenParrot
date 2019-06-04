@@ -285,4 +285,22 @@ static InitFunction FNFDriftFunc([]()
 	MH_EnableHook(MH_ALL_HOOKS);
 	}
 
+	// MACHINE ID setting
+	if ((strcmp(config["Network"]["MachineID"].c_str(), "2") == 0))
+	{
+		injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x01, true);
+	}
+	else if ((strcmp(config["Network"]["MachineID"].c_str(), "3") == 0))
+	{
+		injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x02, true);
+	}
+	else if ((strcmp(config["Network"]["MachineID"].c_str(), "4") == 0))
+	{
+		injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x03, true);
+	}
+	else // MACHINE ID = 1
+	{
+		injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x00, true);
+	}
+
 }, GameID::FNFDrift);

@@ -269,12 +269,12 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			int iWheel = (int)((width - 20) * 0.5 * wheel);
 			double fx = (float)((wheel) * (65535.0f / horizontal3));
 
-			if (movable3 == false) // then poll ugly mouse input
-			{
-				polling3 = true;
-				mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
-				polling3 = false;
-			}
+			if (movable3 == false)
+				{
+					polling3 = true;
+					mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
+					polling3 = false;
+				}
 
 			// GAS
 			if (*ffbOffset3 >= 5)
@@ -354,7 +354,7 @@ DWORD WINAPI CreateWindowExART3(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWi
 
 DWORD WINAPI SetCursorPosRT3(int X, int Y)
 {
-		return 0;
+	return 0;
 }
 
 DWORD WINAPI SetWindowPosRT3(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
@@ -365,13 +365,13 @@ DWORD WINAPI SetWindowPosRT3(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int 
 static InitFunction FNFFunc([]()
 {
 	GetDesktopResolution(horizontal3, vertical3);
-	
+
 	// BUTTON VIEW 1 HACK
 	injector::WriteMemory<BYTE>((0x35B9A + BaseAddress3), DIK_F1, true);
-	
+
 	// BUTTON VIEW 3 HACK
 	injector::WriteMemory<BYTE>((0x83739 + BaseAddress3), DIK_F4, true);
-	
+
 	// DISABLE CURSOR RESET
 	injector::WriteMemory<BYTE>((0x4C489 + BaseAddress3), 0xEB, true);
 
@@ -398,17 +398,35 @@ static InitFunction FNFFunc([]()
 
 	if (ToBool(config["General"]["Windowed"]))
 	{
-	CreateThread(NULL, 0, WindowRT3, NULL, 0, NULL);
+		CreateThread(NULL, 0, WindowRT3, NULL, 0, NULL);
 
-	MH_Initialize();
-	MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART3, (void**)&original_CreateWindowExA3);
-	MH_EnableHook(MH_ALL_HOOKS);
+		MH_Initialize();
+		MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART3, (void**)&original_CreateWindowExA3);
+		MH_EnableHook(MH_ALL_HOOKS);
 	}
-//	else
-//	{
-//		// BROKEN RESOLUTION PATCH WHEN FULLSCREEN
-//		injector::WriteMemory<DWORD>((0x135954 + BaseAddress3), horizontal3, true);
-//		injector::WriteMemory<DWORD>((0x135958 + BaseAddress3), vertical3, true);
-//	}
+	else if (ToBool(config["General"]["HDPatch"]))
+	{
+		// BROKEN RESOLUTION PATCH WHEN FULLSCREEN
+		injector::WriteMemory<DWORD>((0x135954 + BaseAddress3), horizontal3, true);
+		injector::WriteMemory<DWORD>((0x135958 + BaseAddress3), vertical3, true);
+	}
+
+	// MACHINE ID setting
+	if ((strcmp(config["Network"]["MachineID"].c_str(), "2") == 0))
+	{
+		injector::WriteMemory<DWORD>((0xCD808 + BaseAddress3), 0x01, true);
+	}
+	else if ((strcmp(config["Network"]["MachineID"].c_str(), "3") == 0))
+	{
+		injector::WriteMemory<DWORD>((0xCD808 + BaseAddress3), 0x02, true);
+	}
+	else if ((strcmp(config["Network"]["MachineID"].c_str(), "4") == 0))
+	{
+		injector::WriteMemory<DWORD>((0xCD808 + BaseAddress3), 0x03, true);
+	}
+	else // MACHINE ID = 1
+	{
+		injector::WriteMemory<DWORD>((0xCD808 + BaseAddress3), 0x00, true);
+	}
 
 }, GameID::FNF);

@@ -268,12 +268,12 @@ DWORD WINAPI InputRT4(LPVOID lpParam)
 			int iWheel = (int)((width - 20) * 0.5 * wheel);
 			double fx = (float)((wheel) * (65535.0f / horizontal4));
 
-			if (movable4 == false) // then poll ugly mouse input
-			{
-				polling4 = true;
-				mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
-				polling4 = false;
-			}
+			if (movable4 == false)
+				{
+					polling4 = true;
+					mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
+					polling4 = false;
+				}
 
 			// GAS
 			if (*ffbOffset3 >= 5)
@@ -405,11 +405,29 @@ static InitFunction FNFSBFunc([]()
 	MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART4, (void**)&original_CreateWindowExA4);
 	MH_EnableHook(MH_ALL_HOOKS);
 	}
-//	else
-//	{
-//		// BROKEN RESOLUTION PATCH WHEN FULLSCREEN
-//		injector::WriteMemory<DWORD>((0x1522F8 + BaseAddress3), horizontal3, true);
-//		injector::WriteMemory<DWORD>((0x1522FC + BaseAddress3), vertical3, true);
-//	}
+	else if (ToBool(config["General"]["HDPatch"]))
+	{
+		// BROKEN RESOLUTION PATCH WHEN FULLSCREEN
+		injector::WriteMemory<DWORD>((0x1522F8 + BaseAddress4), horizontal4, true);
+		injector::WriteMemory<DWORD>((0x1522FC + BaseAddress4), vertical4, true);
+	}
+
+	// MACHINE ID setting
+	if ((strcmp(config["Network"]["MachineID"].c_str(), "2") == 0))
+	{
+		injector::WriteMemory<DWORD>((0x11FA18 + BaseAddress4), 0x01, true);
+	}
+	else if ((strcmp(config["Network"]["MachineID"].c_str(), "3") == 0))
+	{
+		injector::WriteMemory<DWORD>((0x11FA18 + BaseAddress4), 0x02, true);
+	}
+	else if ((strcmp(config["Network"]["MachineID"].c_str(), "4") == 0))
+	{
+		injector::WriteMemory<DWORD>((0x11FA18 + BaseAddress4), 0x03, true);
+	}
+	else // MACHINE ID = 1
+	{
+		injector::WriteMemory<DWORD>((0x11FA18 + BaseAddress4), 0x00, true);
+	}
 
 }, GameID::FNFSB);

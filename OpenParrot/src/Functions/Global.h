@@ -86,7 +86,7 @@ T iatHook(const char* moduleName, T function, TOrdinal ordinal)
 		{
 			if (iat_matches_ordinal(nameTableEntry, ordinal))
 			{
-				T origEntry = (T)*addressTableEntry;
+				T origEntry = (T)* addressTableEntry;
 				injector::WriteMemory(addressTableEntry, (uintptr_t)function, true);
 
 				return origEntry;

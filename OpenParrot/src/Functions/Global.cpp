@@ -2,6 +2,7 @@
 #include <Utility/InitFunction.h>
 #include "Global.h"
 #include "Utility/GameDetect.h"
+#include "Utility/Hooking.Patterns.h"
 
 #pragma optimize("", off)
 void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
@@ -190,9 +191,50 @@ void init_windowHooks(windowHooks* data)
 }
 /* END WINDOW HOOKS */
 
+void InitializeHints()
+{
+	static std::string modPath;
+
+	if (modPath.empty())
+	{
+		char exeName[512];
+		GetModuleFileNameA(GetModuleHandle(NULL), exeName, sizeof(exeName));
+
+		char* exeBaseName = strrchr(exeName, '\\');
+		exeBaseName[0] = L'\0';
+
+		modPath = exeName;
+		modPath += "\\";
+
+		GetFullPathNameA(modPath.c_str(), sizeof(exeName), exeName, nullptr);
+
+		modPath = exeName;
+		modPath += "\\";
+	}
+
+	std::string hintsFile = modPath + "hints.dat";
+	FILE* hints = fopen(hintsFile.c_str(), "rb");
+
+	if (hints)
+	{
+		while (!feof(hints))
+		{
+			uint64_t hash;
+			uintptr_t hint;
+
+			fread(&hash, 1, sizeof(hash), hints);
+			fread(&hint, 1, sizeof(hint), hints);
+
+			hook::pattern::hint(hash, hint);
+		}
+
+		fclose(hints);
+	}
+}
 
 static InitFunction globalFunc([]()
 {
+	InitializeHints();
 	CreateThread(NULL, 0, QuitGameThread, NULL, 0, NULL);
 }, GameID::Global);
 #pragma optimize("", on)
