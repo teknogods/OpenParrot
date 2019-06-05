@@ -92,7 +92,7 @@ namespace hook
 			Initialize(pattern, Len);
 		}
 
-		pattern(std::string &pattern)
+		pattern(const std::string &pattern)
 			: pattern(GetModuleHandle(NULL))
 		{
 			auto len = pattern.length();
@@ -169,6 +169,9 @@ namespace hook
 
 	public:
 #if PATTERNS_USE_HINTS
+		// load hints.dat
+		static void InitializeHints();
+
 		// define a hint
 		static void hint(uint64_t hash, uintptr_t address);
 #endif

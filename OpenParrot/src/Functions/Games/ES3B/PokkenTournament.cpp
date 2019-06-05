@@ -78,8 +78,7 @@ static InitFunction PokkenFunc([]()
 
 	for (auto cha : chars)
 	{
-		std::string pat = va("%02X 3A 5C", cha);
-		auto patterns = hook::pattern(pat);
+		auto patterns = hook::pattern(va("%02X 3A 5C", cha));
 
 		if (patterns.size() > 0)
 		{

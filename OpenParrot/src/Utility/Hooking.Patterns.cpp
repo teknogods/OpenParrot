@@ -290,8 +290,7 @@ namespace hook
 	}
 
 #if PATTERNS_USE_HINTS
-
-	void InitializeHints()
+	void pattern::InitializeHints()
 	{
 		static std::string modPath;
 
@@ -331,17 +330,6 @@ namespace hook
 			fclose(hints);
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
 
 	void pattern::hint(uint64_t hash, uintptr_t address)
 	{
