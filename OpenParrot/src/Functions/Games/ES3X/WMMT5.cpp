@@ -1280,7 +1280,8 @@ static InitFunction Wmmt5Func([]()
 
 	for (auto cha : chars)
 	{
-		auto patterns = hook::pattern(va("%02X 3A 2F", cha));
+		std::string pat = va("%02X 3A 2F", cha);
+		auto patterns = hook::pattern(pat);
 
 		if (patterns.size() > 0)
 		{

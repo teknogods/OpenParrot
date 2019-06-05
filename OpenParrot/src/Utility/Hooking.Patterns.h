@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <vector>
+#include <string>
 
 #pragma warning(push)
 #pragma warning(disable:4201)
@@ -89,6 +90,13 @@ namespace hook
 			: pattern(GetModuleHandle(NULL))
 		{
 			Initialize(pattern, Len);
+		}
+
+		pattern(std::string &pattern)
+			: pattern(GetModuleHandle(NULL))
+		{
+			auto len = pattern.length();
+			Initialize(pattern.c_str(), len);
 		}
 
 		inline pattern& count(uint32_t expected) &
