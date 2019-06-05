@@ -2,7 +2,10 @@ workspace "OpenParrot"
 	configurations { "Debug", "Release"}
 	platforms { "x64", "x86" }
 
-	flags { "StaticRuntime", "No64BitChecks" }
+	flags { "No64BitChecks" }
+
+	staticruntime "On"
+	editandcontinue "Off"
 
 	systemversion "latest"
 
@@ -10,7 +13,7 @@ workspace "OpenParrot"
 
 	characterset "Unicode"
 
-	flags { "NoIncrementalLink", "NoEditAndContinue", "NoMinimalRebuild" }
+	flags { "NoIncrementalLink", "NoMinimalRebuild" }
 
 	includedirs { "deps/inc/", "deps/udis86/" }
 
