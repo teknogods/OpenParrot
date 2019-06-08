@@ -18,6 +18,9 @@ void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 	return 0;
 }
 
+static bool OutputInit = false;
+static HMODULE blaster;
+
 // used in SR3 and Ford Racing
 BOOL WINAPI ReadFileHooked(_In_ HANDLE hFile, _Out_writes_bytes_to_opt_(nNumberOfBytesToRead, *lpNumberOfBytesRead) __out_data_source(FILE) LPVOID lpBuffer, _In_ DWORD nNumberOfBytesToRead, _Out_opt_ LPDWORD lpNumberOfBytesRead, _Inout_opt_ LPOVERLAPPED lpOverlapped)
 {
@@ -54,6 +57,36 @@ DWORD WINAPI QuitGameThread(__in  LPVOID lpParameter)
 		}
 
 		Sleep(300);
+	}
+}
+
+DWORD WINAPI OutputsThread(__in  LPVOID lpParameter)
+{ 
+	while (true)
+	{
+		if (GameDetect::currentGame == GameID::BG4 || GameDetect::currentGame == GameID::ChaseHq2 || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GTIClub3 || GameDetect::currentGame == GameID::MachStorm || GameDetect::currentGame == GameID::WackyRaces || GameDetect::currentGame == GameID::WMMT5)			
+		{
+			if (ToBool(config["General"]["Enable Outputs"]))
+			{
+				if (!OutputInit)
+				{
+					blaster = LoadLibraryA("OutputBlaster.dll");				
+					if (blaster)
+					{
+						printf("OutputBlaster loaded!");
+					}
+					else
+					{
+						printf("Failed to Load OutputBlaster!");
+					}
+					OutputInit = true;
+				}
+				if (GetAsyncKeyState(VK_ESCAPE))
+				{
+					FreeLibrary(blaster);
+				}
+			}
+		}
 	}
 }
 
@@ -195,5 +228,6 @@ static InitFunction globalFunc([]()
 {
 	hook::pattern::InitializeHints();
 	CreateThread(NULL, 0, QuitGameThread, NULL, 0, NULL);
+	CreateThread(NULL, 0, OutputsThread, NULL, 0, NULL);
 }, GameID::Global);
 #pragma optimize("", on)
