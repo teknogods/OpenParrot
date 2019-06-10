@@ -5,7 +5,7 @@ bool GameDetect::isNesica = false;
 bool GameDetect::enableNesysEmu = true;
 NesicaKey GameDetect::NesicaKey;
 X2Type GameDetect::X2Type = X2Type::None;
-
+static char newCrc[0x400];
 void GameDetect::DetectCurrentGame()
 {
 	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
@@ -436,10 +436,31 @@ void GameDetect::DetectCurrentGame()
 			break;
 		}
 #endif
+		// Craft CRC detection without virtual address
+		memcpy(newCrc, GetModuleHandle(nullptr), 0x400);
+		DWORD pePTR = *(DWORD*)(newCrc + 0x3C);
 
-#ifdef _DEBUG
-		info(true, "%08x not implemented", crcResult);
+		// Overwrite ImageBase with 8 bytes of 0
+		*(DWORD*)(newCrc + pePTR + 0x18) = 0x00000000;
+		*(DWORD*)(newCrc + pePTR + 0x18 + 4) = 0x00000000;
+#ifdef _AMD64_
+		* (DWORD*)(newCrc + pePTR + 50) = 0x00000000;
 #endif
+		* (DWORD*)(newCrc + pePTR + 54) = 0x00000000;
+		uint32_t newCrcResult = GetCRC32(newCrc, 0x400);
+		switch (newCrcResult)
+		{
+		case 0xfe7afff4:
+			currentGame = GameID::FNFSB2;
+			break;
+		default:
+#ifdef _DEBUG
+			info(true, "---------------------------------");
+			info(true, "New CRC: %08x not implemented", newCrcResult);
+			info(true, "---------------------------------");
+#endif
+			break;
+		}
 		break;
 	}
 }
