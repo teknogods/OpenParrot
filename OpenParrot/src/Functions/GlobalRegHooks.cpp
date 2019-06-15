@@ -1,15 +1,20 @@
 ﻿#include <StdInc.h>
-#include "Functions/Types.h"
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
+#include "Utility\Hooking.Patterns.h"
+#include <objbase.h>
+#include "Utility/GameDetect.h"
+#include <string>
+#include <atlstr.h>
+#include <windows.h>
 
-LSTATUS (__stdcall *orig_RegOpenKeyExA)(
+LSTATUS(__stdcall *orig_RegOpenKeyExA)(
 	HKEY   hKey,
 	LPCSTR lpSubKey,
 	DWORD  ulOptions,
 	REGSAM samDesired,
 	PHKEY  phkResult
-);
+	);
 
 LSTATUS __stdcall RegOpenKeyExAGlobalWrap(
 	HKEY   hKey,
@@ -22,13 +27,13 @@ LSTATUS __stdcall RegOpenKeyExAGlobalWrap(
 	return orig_RegOpenKeyExA(hKey, lpSubKey, ulOptions, samDesired, phkResult);
 }
 
-LSTATUS (__stdcall *orig_RegOpenKeyExW)(
+LSTATUS(__stdcall *orig_RegOpenKeyExW)(
 	HKEY   hKey,
 	LPCWSTR lpSubKey,
 	DWORD  ulOptions,
 	REGSAM samDesired,
 	PHKEY  phkResult
-);
+	);
 
 LSTATUS __stdcall RegOpenKeyExWGlobalWrap(
 	HKEY   hKey,
@@ -38,10 +43,17 @@ LSTATUS __stdcall RegOpenKeyExWGlobalWrap(
 	PHKEY  phkResult
 )
 {
+	if (GameDetect::currentGame == GameID::GHA)
+	{
+		if (_wcsicmp(lpSubKey, L"SOFTWARE\\Aspyr\\Guitar Hero III") == 0)
+		{
+			return ERROR_SUCCESS;
+		}
+	}
 	return orig_RegOpenKeyExW(hKey, lpSubKey, ulOptions, samDesired, phkResult);
 }
 
-LSTATUS (__stdcall *orig_RegCreateKeyExA)(
+LSTATUS(__stdcall *orig_RegCreateKeyExA)(
 	HKEY                        hKey,
 	LPCSTR                     lpSubKey,
 	DWORD                       Reserved,
@@ -51,7 +63,7 @@ LSTATUS (__stdcall *orig_RegCreateKeyExA)(
 	CONST LPSECURITY_ATTRIBUTES lpSecurityAttributes,
 	PHKEY                       phkResult,
 	LPDWORD                     lpdwDisposition
-);
+	);
 
 LSTATUS __stdcall RegCreateKeyExAGlobalWrap(
 	HKEY                        hKey,
@@ -68,7 +80,7 @@ LSTATUS __stdcall RegCreateKeyExAGlobalWrap(
 	return orig_RegCreateKeyExA(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
 }
 
-LSTATUS (__stdcall *orig_RegCreateKeyExW)(
+LSTATUS(__stdcall *orig_RegCreateKeyExW)(
 	HKEY                        hKey,
 	LPCWSTR                     lpSubKey,
 	DWORD                       Reserved,
@@ -78,7 +90,7 @@ LSTATUS (__stdcall *orig_RegCreateKeyExW)(
 	CONST LPSECURITY_ATTRIBUTES lpSecurityAttributes,
 	PHKEY                       phkResult,
 	LPDWORD                     lpdwDisposition
-);
+	);
 
 LSTATUS __stdcall RegCreateKeyExWGlobalWrap(
 	HKEY                        hKey,
@@ -95,14 +107,14 @@ LSTATUS __stdcall RegCreateKeyExWGlobalWrap(
 	return orig_RegCreateKeyExW(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
 }
 
-LSTATUS (__stdcall *orig_RegSetValueExA)(
+LSTATUS(__stdcall *orig_RegSetValueExA)(
 	HKEY       hKey,
 	LPCSTR     lpValueName,
 	DWORD      Reserved,
 	DWORD      dwType,
 	CONST BYTE* lpData,
 	DWORD      cbData
-);
+	);
 
 LSTATUS __stdcall RegSetValueExAGlobalWrap(
 	HKEY       hKey,
@@ -116,14 +128,14 @@ LSTATUS __stdcall RegSetValueExAGlobalWrap(
 	return orig_RegSetValueExA(hKey, lpValueName, Reserved, dwType, lpData, cbData);
 }
 
-LSTATUS (__stdcall *orig_RegSetValueExW)(
+LSTATUS(__stdcall *orig_RegSetValueExW)(
 	HKEY       hKey,
 	LPCWSTR     lpValueName,
 	DWORD      Reserved,
 	DWORD      dwType,
 	CONST BYTE* lpData,
 	DWORD      cbData
-);
+	);
 
 LSTATUS __stdcall RegSetValueExWGlobalWrap(
 	HKEY       hKey,
@@ -137,14 +149,14 @@ LSTATUS __stdcall RegSetValueExWGlobalWrap(
 	return orig_RegSetValueExW(hKey, lpValueName, Reserved, dwType, lpData, cbData);
 }
 
-LSTATUS (__stdcall *orig_RegQueryValueExA)(
+LSTATUS(__stdcall *orig_RegQueryValueExA)(
 	HKEY                              hKey,
 	LPCSTR                           lpValueName,
 	LPDWORD                           lpReserved,
 	LPDWORD                           lpType,
 	__out_data_source(REGISTRY)LPBYTE lpData,
 	LPDWORD                           lpcbData
-);
+	);
 
 LSTATUS __stdcall RegQueryValueExAGlobalWrap(
 	HKEY                              hKey,
@@ -158,14 +170,14 @@ LSTATUS __stdcall RegQueryValueExAGlobalWrap(
 	return orig_RegQueryValueExA(hKey, lpValueName, lpReserved, lpType, lpData, lpcbData);
 }
 
-LSTATUS (__stdcall *orig_RegQueryValueExW)(
+LSTATUS(__stdcall *orig_RegQueryValueExW)(
 	HKEY                              hKey,
 	LPCWSTR                           lpValueName,
 	LPDWORD                           lpReserved,
 	LPDWORD                           lpType,
 	__out_data_source(REGISTRY)LPBYTE lpData,
 	LPDWORD                           lpcbData
-);
+	);
 
 LSTATUS __stdcall RegQueryValueExWGlobalWrap(
 	HKEY                              hKey,
@@ -176,6 +188,29 @@ LSTATUS __stdcall RegQueryValueExWGlobalWrap(
 	LPDWORD                           lpcbData
 )
 {
+	if (GameDetect::currentGame == GameID::GHA)
+	{
+		if (_wcsicmp(lpValueName, L"Language") == 0)
+		{
+			*lpcbData = 3;
+			memcpy(lpData, (LPCWSTR)("en\0"), 3);
+			return ERROR_SUCCESS;
+		}
+		else if (_wcsicmp(lpValueName, L"Path") == 0)
+		{
+			wchar_t working_directory[MAX_PATH + 1];
+			GetCurrentDirectory(sizeof(working_directory), working_directory);
+			std::wstring path = working_directory;
+			path += _T("\\");
+			path += _T("\0");
+			CStringW PathString = (path.c_str());
+
+			*lpcbData = MAX_PATH + 1;
+			memcpy(lpData, (LPCWSTR)PathString, MAX_PATH + 1);
+			return ERROR_SUCCESS;
+		}
+	}
+
 	return orig_RegQueryValueExW(hKey, lpValueName, lpReserved, lpType, lpData, lpcbData);
 }
 

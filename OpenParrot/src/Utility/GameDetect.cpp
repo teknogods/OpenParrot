@@ -386,9 +386,12 @@ void GameDetect::DetectCurrentGame()
 	case 0x6449d9b1: // FNF SuperBikes
 		currentGame = GameID::FNFSB;
 		break;
-	//case 0xea1984ff:
-	//	currentGame = GameID::ExBoardGeneric;
-	//	break;
+	case 0x6214f7ec: // Guitar Hero Arcade
+		currentGame = GameID::GHA;
+		break;
+		//case 0xea1984ff:
+		//	currentGame = GameID::ExBoardGeneric;
+		//	break;
 #endif
 	default:
 		auto moduleBase = (uintptr_t)GetModuleHandle(nullptr);
@@ -399,13 +402,13 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::MachStorm;
 			break;
 		}
-		if(*(uint32_t*)(moduleBase + 0xABB7) == 0x00E445C7 &&
+		if (*(uint32_t*)(moduleBase + 0xABB7) == 0x00E445C7 &&
 			*(uint32_t*)(moduleBase + 0xABB7 + 4) == 0xC7000100)
 		{
 			currentGame = GameID::Daytona3;
 			break;
 		}
-		if(*(uint32_t*)(moduleBase + 0x2CC751) == 0x6B75C084)
+		if (*(uint32_t*)(moduleBase + 0x2CC751) == 0x6B75C084)
 		{
 			currentGame = GameID::DariusBurst;
 			break;
@@ -473,39 +476,39 @@ bool GameDetect::IsTypeX()
 {
 	switch (GameDetect::currentGame)
 	{
-		case GameID::TypeXGeneric:
-		case GameID::SpicaAdventure:
-		case GameID::BlazBlue:
-		case GameID::BlazBlueCS:
-		case GameID::BlazBlueCS2:
-		case GameID::GigaWingGenerations:
-		case GameID::KOF98UM:
-		case GameID::KOFMIRA:
-		case GameID::KOFSkyStage:
-		case GameID::KOFXII:
-		case GameID::KOFXIII:
-		case GameID::PowerInstinctV:
-		case GameID::RaidenIII:
-		case GameID::SenkoNoRondeDuo:
-		case GameID::Shigami3:
-		case GameID::SF4:
-		case GameID::SSFAE:
-		case GameID::SSFAE_EXP:
-		case GameID::SSFAE2012:
-		case GameID::TroubleWitches:
-		case GameID::TetrisGM3:
-		case GameID::ChaosBreaker:
-		case GameID::TaisenHotGimmick5:
-		case GameID::SamuraiSpiritsSen:
-		case GameID::WackyRaces:
-		case GameID::ChaseHq2:
-		case GameID::BG4:
-		case GameID::RaidenIV:
-		case GameID::VirtuaRLimit:
-		case GameID::MB4:
-			return true;
-		default:
-			return false;
+	case GameID::TypeXGeneric:
+	case GameID::SpicaAdventure:
+	case GameID::BlazBlue:
+	case GameID::BlazBlueCS:
+	case GameID::BlazBlueCS2:
+	case GameID::GigaWingGenerations:
+	case GameID::KOF98UM:
+	case GameID::KOFMIRA:
+	case GameID::KOFSkyStage:
+	case GameID::KOFXII:
+	case GameID::KOFXIII:
+	case GameID::PowerInstinctV:
+	case GameID::RaidenIII:
+	case GameID::SenkoNoRondeDuo:
+	case GameID::Shigami3:
+	case GameID::SF4:
+	case GameID::SSFAE:
+	case GameID::SSFAE_EXP:
+	case GameID::SSFAE2012:
+	case GameID::TroubleWitches:
+	case GameID::TetrisGM3:
+	case GameID::ChaosBreaker:
+	case GameID::TaisenHotGimmick5:
+	case GameID::SamuraiSpiritsSen:
+	case GameID::WackyRaces:
+	case GameID::ChaseHq2:
+	case GameID::BG4:
+	case GameID::RaidenIV:
+	case GameID::VirtuaRLimit:
+	case GameID::MB4:
+		return true;
+	default:
+		return false;
 	}
 }
 GameID GameDetect::currentGame;
