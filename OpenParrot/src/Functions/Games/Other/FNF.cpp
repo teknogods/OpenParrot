@@ -190,13 +190,13 @@ DWORD WINAPI InputRT3(LPVOID lpParam)
 			}
 			// BUTTON 2/ VIEW 2
 			if (*ffbOffset & 0x400)
+			{
 				if (button3pressed == false)
 				{
-					{
-						injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
-						keybd_event(0x71, MapVirtualKey(0x71, MAPVK_VK_TO_VSC), 0, 0);
-						button3pressed = true;
-					}
+					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
+					keybd_event(0x71, MapVirtualKey(0x71, MAPVK_VK_TO_VSC), 0, 0);
+					button3pressed = true;
+				}
 			}
 			else
 			{

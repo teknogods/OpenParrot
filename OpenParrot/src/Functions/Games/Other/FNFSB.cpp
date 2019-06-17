@@ -107,221 +107,221 @@ DWORD WINAPI InputRT4(LPVOID lpParam)
 			exit(0);
 		}
 
-// buttons see bitwise values in TPui//RawThrills.cs
+		// buttons see bitwise values in TPui//RawThrills.cs
 
-			// START 
-			if (*ffbOffset & 0x08)
+					// START 
+		if (*ffbOffset & 0x08)
+		{
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
+		}
+		// TEST
+		if (*ffbOffset & 0x01)
+		{
+			injector::WriteMemory<BYTE>((0x4C424 + BaseAddress4), 0xEB, true);
+		}
+		// NITRO ( = START too)
+		if (*ffbOffset & 0x100)
+		{
+			if (button1pressed == false)
 			{
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
+				button1pressed = true;
 			}
-			// TEST
-			if (*ffbOffset & 0x01)
+		}
+		else
+		{
+			if (button1pressed == true)
 			{
-				injector::WriteMemory<BYTE>((0x4C424 + BaseAddress4), 0xEB, true);
+				button1pressed = false;
 			}
-			// NITRO ( = START too)
-			if (*ffbOffset & 0x100)
+		}
+		// SHIFT DOWN
+		if (*ffbOffset & 0x2000)
+		{
+			if (previousDown == false)
 			{
-				if (button1pressed == false)
-				{
-					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
-					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
-					button1pressed = true;
-				}
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
+				previousDown = true;
 			}
-			else
+		}
+		else
+		{
+			if (previousDown == true)
 			{
-				if (button1pressed == true)
-				{
-					button1pressed = false;
-				}
+				previousDown = false;
 			}
-			// SHIFT DOWN
-			if (*ffbOffset & 0x2000)
+		}
+		// SHIFT UP
+		if (*ffbOffset & 0x1000)
+		{
+			if (previousUp == false)
 			{
-				if (previousDown == false)
-				{
-					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
-					previousDown = true;
-				}
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
+				previousUp = true;
 			}
-			else
+		}
+		else
+		{
+			if (previousUp == true)
 			{
-				if (previousDown == true)
-				{
-					previousDown = false;
-				}
+				previousUp = false;
 			}
-			// SHIFT UP
-			if (*ffbOffset & 0x1000)
+		}
+		// BUTTON 1/ VIEW
+		if (*ffbOffset & 0x200)
+		{
+			if (button2pressed == false)
 			{
-				if (previousUp == false)
-				{
-					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
-					previousUp = true;
-				}
+				injector::MakeNOP((0x35BA5 + BaseAddress4), 2);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_F), 2, true);
+				keybd_event(0x70, MapVirtualKey(0x70, MAPVK_VK_TO_VSC), 0, 0);
+				button2pressed = true;
 			}
-			else
+		}
+		else
+		{
+			if (button2pressed == true)
 			{
-				if (previousUp == true)
-				{
-					previousUp = false;
-				}
+				injector::WriteMemoryRaw((0x35BA5 + BaseAddress4), "\x74\x46", 2, true);
+				keybd_event(0x70, MapVirtualKey(0x70, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				button2pressed = false;
 			}
-			// BUTTON 1/ VIEW 1
-			if (*ffbOffset & 0x200)
+		}
+		// BUTTON 2/ MUSIC
+		if (*ffbOffset & 0x400)
+		{
+			if (button3pressed == false)
 			{
-				if (button2pressed == false)
-				{
-					injector::MakeNOP((0x35BA5 + BaseAddress4), 2);
-					keybd_event(0x70, MapVirtualKey(0x70, MAPVK_VK_TO_VSC), 0, 0);
-					button2pressed = true;
-				}
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
+				keybd_event(0xDC, MapVirtualKey(0xDC, MAPVK_VK_TO_VSC), 0, 0);
+				button3pressed = true;
 			}
-			else
+		}
+		else
+		{
+			if (button3pressed == true)
 			{
-				if (button2pressed == true)
-				{
-					injector::WriteMemoryRaw((0x35BA5 + BaseAddress4), "\x74\x46", 2, true);
-					keybd_event(0x70, MapVirtualKey(0x70, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-					button2pressed = false;
-				}
+				keybd_event(0xDC, MapVirtualKey(0xDC, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				button3pressed = false;
 			}
-			// BUTTON 2/ VIEW 2
-			if (*ffbOffset & 0x400)
-				if (button3pressed == false)
-				{
-					{
-						injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
-						keybd_event(0x71, MapVirtualKey(0x71, MAPVK_VK_TO_VSC), 0, 0);
-						button3pressed = true;
-					}
-				}
-				else
-				{
-					if (button3pressed == true)
-					{
-						keybd_event(0x70, MapVirtualKey(0x71, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-						button3pressed = false;
-					}
-				}
-			// BUTTON 3/ VIEW 3
-			if (*ffbOffset & 0x800)
+		}
+		// BUTTON 3/ OTHER
+		if (*ffbOffset & 0x800)
+		{
+			if (button4pressed == false)
 			{
-				if (button4pressed == false)
-				{
-					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_E), 2, true);
-					keybd_event(0x73, MapVirtualKey(0x73, MAPVK_VK_TO_VSC), 0, 0);
-					button4pressed = true;
-				}
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_E), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_J), 2, true);
+				button4pressed = true;
 			}
-			else
+		}
+		else
+		{
+			if (button4pressed == true)
 			{
-				if (button4pressed == true)
-				{
-					keybd_event(0x73, MapVirtualKey(0x73, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-					button4pressed = false;
-				}
+				button4pressed = false;
 			}
-			// MENU LEFT
-			if (*ffbOffset & 0x4000)
+		}
+		// MENU LEFT
+		if (*ffbOffset & 0x4000)
+		{
+			if (previousLeft == false)
 			{
-				if (previousLeft == false)
-				{
-					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
-					previousLeft = true;
-				}
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
+				previousLeft = true;
 			}
-			else
+		}
+		else
+		{
+			if (previousLeft == true)
 			{
-				if (previousLeft == true)
-				{
-					previousLeft = false;
-				}
+				previousLeft = false;
 			}
-			// MENU RIGHT
-			if (*ffbOffset & 0x8000)
+		}
+		// MENU RIGHT
+		if (*ffbOffset & 0x8000)
+		{
+			if (previousRight == false)
 			{
-				if (previousRight == false)
-				{
-					injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
-					previousRight = true;
-				}
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
+				previousRight = true;
 			}
-			else
+		}
+		else
+		{
+			if (previousRight == true)
 			{
-				if (previousRight == true)
-				{
-					previousRight = false;
-				}
+				previousRight = false;
 			}
+		}
 
-			RECT rect;
-			GetWindowRect(hWndRT4, &rect);
-			int width = rect.right - rect.left;
-			int height = rect.bottom - rect.top;
-			int windowcenterx = (rect.left + (width * 0.5));
-			int windowcentery = (rect.top + (height * 0.5));
-			// WHEEL
-			int iWheel0 = (((float)*ffbOffset2) - 128);
-			float wheel = (iWheel0 * 0.0078125f);
-			int iWheel = (int)((width - 20) * 0.5 * wheel);
-			double fx = (float)((wheel) * (65535.0f / horizontal4));
+		RECT rect;
+		GetWindowRect(hWndRT4, &rect);
+		int width = rect.right - rect.left;
+		int height = rect.bottom - rect.top;
+		int windowcenterx = (rect.left + (width * 0.5));
+		int windowcentery = (rect.top + (height * 0.5));
+		// WHEEL
+		int iWheel0 = (((float)*ffbOffset2) - 128);
+		float wheel = (iWheel0 * 0.0078125f);
+		int iWheel = (int)((width - 20) * 0.5 * wheel);
+		double fx = (float)((wheel) * (65535.0f / horizontal4));
 
-			if (movable4 == false)
-				{
-					polling4 = true;
-					mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
-					polling4 = false;
-				}
+		if (movable4 == false)
+		{
+			polling4 = true;
+			mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
+			polling4 = false;
+		}
 
-			// GAS
-			if (*ffbOffset3 >= 5)
+		// GAS
+		if (*ffbOffset3 >= 5)
+		{
+			if (gaspressed == false)
 			{
-				if (gaspressed == false)
-				{
-					keybd_event(0x51, MapVirtualKey(0x51, MAPVK_VK_TO_VSC), 0, 0); // Q key (qwerty A)
-					keybd_event(0x41, MapVirtualKey(0x41, MAPVK_VK_TO_VSC), 0, 0); // A key
-					gaspressed = true;
-				}
+				keybd_event(0x51, MapVirtualKey(0x51, MAPVK_VK_TO_VSC), 0, 0); // Q key (qwerty A)
+				keybd_event(0x41, MapVirtualKey(0x41, MAPVK_VK_TO_VSC), 0, 0); // A key
+				gaspressed = true;
 			}
-			else
+		}
+		else
+		{
+			if (gaspressed == true)
 			{
-				if (gaspressed == true)
-				{
-					keybd_event(0x51, MapVirtualKey(0x51, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-					keybd_event(0x41, MapVirtualKey(0x41, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-					gaspressed = false;
-				}
+				keybd_event(0x51, MapVirtualKey(0x51, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				keybd_event(0x41, MapVirtualKey(0x41, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				gaspressed = false;
 			}
+		}
 
-			// BRAKE
-			if (*ffbOffset4 >= 5)
+		// BRAKE
+		if (*ffbOffset4 >= 5)
+		{
+			if (brakepressed == false)
 			{
-				if (brakepressed == false)
-				{
-					keybd_event(0x57, MapVirtualKey(0x57, MAPVK_VK_TO_VSC), 0, 0); // W key (qwerty Z)
-					keybd_event(0x5A, MapVirtualKey(0x5A, MAPVK_VK_TO_VSC), 0, 0); // Z key
-					brakepressed = true;
-				}
+				keybd_event(0x57, MapVirtualKey(0x57, MAPVK_VK_TO_VSC), 0, 0); // W key (qwerty Z)
+				keybd_event(0x5A, MapVirtualKey(0x5A, MAPVK_VK_TO_VSC), 0, 0); // Z key
+				brakepressed = true;
 			}
-			else
+		}
+		else
+		{
+			if (brakepressed == true)
 			{
-				if (brakepressed == true)
-				{
-					keybd_event(0x57, MapVirtualKey(0x57, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-					keybd_event(0x5A, MapVirtualKey(0x5A, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-					brakepressed = false;
-				}
+				keybd_event(0x57, MapVirtualKey(0x57, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				keybd_event(0x5A, MapVirtualKey(0x5A, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				brakepressed = false;
 			}
+		}
 
-			//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			//	info(true, "test values *ffbOffset2=0x%02X /  *iWheel=%d / *wheel=%f ", *ffbOffset2, iWheel, fx);
-			//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//	info(true, "test values *ffbOffset2=0x%02X /  *iWheel=%d / *wheel=%f ", *ffbOffset2, iWheel, fx);
+		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			Sleep(deltaTimer);
+		SleepEx(deltaTimer,1);
 	}
-	return 0;
+//	return 0;
 }
 
 
@@ -354,7 +354,7 @@ DWORD WINAPI CreateWindowExART4(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWi
 
 DWORD WINAPI SetCursorPosRT4(int X, int Y)
 {
-		return 0;
+	return 0;
 }
 
 DWORD WINAPI SetWindowPosRT4(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
