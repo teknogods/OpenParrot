@@ -51,7 +51,11 @@ DWORD WINAPI QuitGameThread(__in  LPVOID lpParameter)
 			{
 				system("taskkill /f /im InpWrapper.exe");
 			}
-			TerminateProcess(GetCurrentProcess(), 0);
+			if (blaster)
+			{
+				FreeLibrary(blaster);
+			}
+			TerminateProcess(GetCurrentProcess(), 0);						
 #endif
 			//ExitProcess(0);
 		}
@@ -83,10 +87,11 @@ DWORD WINAPI OutputsThread(__in  LPVOID lpParameter)
 				}
 				if (GetAsyncKeyState(VK_ESCAPE))
 				{
-					FreeLibrary(blaster);
+					
 				}
 			}
 		}
+		Sleep(300);
 	}
 }
 
