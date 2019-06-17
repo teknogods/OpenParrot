@@ -85,10 +85,6 @@ DWORD WINAPI OutputsThread(__in  LPVOID lpParameter)
 					}
 					OutputInit = true;
 				}
-				if (GetAsyncKeyState(VK_ESCAPE))
-				{
-					
-				}
 			}
 		}
 		Sleep(300);
