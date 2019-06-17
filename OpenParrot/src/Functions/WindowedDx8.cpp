@@ -80,7 +80,7 @@ static InitFunction initFunc([]()
 {
 	if (GameDetect::currentGame == GameID::BG4)
 		return;
-	if (GameDetect::currentGame == GameID::FNFSC) // FORCE BORDERLESS WINDOW MODE FOR FULLSCREEN
+	if (GameDetect::currentGame == GameID::FNFSC)
 		InitD3D8WindowHook();
 	if (ToBool(config["General"]["Windowed"]))
 	{
