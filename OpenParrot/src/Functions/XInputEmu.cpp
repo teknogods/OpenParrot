@@ -58,6 +58,8 @@ int iround(double num) {
 
 extern int* ffbOffset;
 extern int* ffbOffset2;
+extern int* ffbOffset3;
+extern int* ffbOffset4;
 
 DWORD WINAPI XInputGetState
 (
@@ -77,6 +79,27 @@ DWORD WINAPI XInputGetState
 			gamepadState.wButtons |= *ffbOffset;
 		else
 			gamepadState.wButtons |= 0;
+
+		if (GameDetect::currentGame == GameID::GHA)
+		{
+			gamepadState.wButtons |= *ffbOffset;
+			gamepadState.bLeftTrigger |= *ffbOffset3;
+			gamepadState.bRightTrigger |= *ffbOffset4;
+			// START KEY MACRO (only on ATTRACT SCREEN)
+			if (*ffbOffset == XINPUT_GAMEPAD_START)
+			{
+				gamepadState.wButtons = 0xF000;
+				gamepadState.bLeftTrigger = 255;
+				gamepadState.bRightTrigger = 255;
+			}
+		}
+		else
+		{
+			gamepadState.wButtons |= 0;
+			gamepadState.bLeftTrigger = 0;
+			gamepadState.bRightTrigger = 0;
+		}
+
 #ifdef _M_IX86
 		if (GameDetect::currentGame == GameID::Daytona3)
 		{
@@ -304,8 +327,8 @@ DWORD WINAPI XInputGetStateEx
 
 DWORD WINAPI XInputSetStateEx
 (
-__in DWORD             dwUserIndex,						// Index of the gamer associated with the device
-__in XINPUT_VIBRATION_EX* pVibration					// The vibration information to send to the controller
+	__in DWORD             dwUserIndex,						// Index of the gamer associated with the device
+	__in XINPUT_VIBRATION_EX* pVibration					// The vibration information to send to the controller
 )
 {
 	if (!controllerInit)
@@ -334,7 +357,7 @@ LPCWSTR ptrToUse;
 
 static InitFunction XInputHook([]()
 {
-	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3)
+	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GHA)
 	{
 		controllerInit = true;
 

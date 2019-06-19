@@ -17,10 +17,15 @@ int horizontal5 = 0;
 int vertical5 = 0;
 HWND hWndRT5 = 0;
 
-bool previousLeft = false;
-bool previousRight = false;
-bool previousUp = false;
-bool previousDown = false;
+static bool previousLeft = false;
+static bool previousRight = false;
+static bool previousUp = false;
+static bool previousDown = false;
+static bool button1pressed = false;
+static bool button2pressed = false;
+static bool button3pressed = false;
+static bool button4pressed = false;
+static bool viewpressed = false;
 
 // controls
 extern int* ffbOffset;
@@ -59,25 +64,86 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 		// NITRO ( = START too)
 		if (*ffbOffset & 0x100)
 		{
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
+			if (button1pressed == false)
+			{
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
+				button1pressed = true;
+			}
 		}
-
+		else
+		{
+			if (button1pressed == true)
+			{
+				button1pressed = false;
+			}
+		}
 		// BUTTON 1/ VIEW 1
 		if (*ffbOffset & 0x200)
 		{
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_A), 2, true);
+			if (button2pressed == false)
+			{
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_A), 2, true);
+				button2pressed = true;
+			}
+		}
+		else
+		{
+			if (button2pressed == true)
+			{
+				button2pressed = false;
+			}
 		}
 		// BUTTON 2/ VIEW ? (+ RIGHT BRAKE)
 		if (*ffbOffset & 0x400)
 		{
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
+			if (button3pressed == false)
+			{
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_4), 2, true);
+				button3pressed = true;
+			}
+		}
+		else
+		{
+			if (button3pressed == true)
+			{
+				button3pressed = false;
+			}
 		}
 		// BUTTON 3/ MUSIC (+ LEFT BRAKE)
 		if (*ffbOffset & 0x800)
 		{
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_E), 2, true);
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_3), 2, true);
+			if (button4pressed == false)
+			{
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_E), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_3), 2, true);
+				button4pressed = true;
+			}
+		}
+		else
+		{
+			if (button4pressed == true)
+			{
+				button4pressed = false;
+			}
+		}
+		// BUTTON VIEW/ buttons 2+3
+		if (*ffbOffset & 0xC00)
+		{
+			if (viewpressed == false)
+			{
+			// TO DO find VIEW button OFFSET
+			//	injector::WriteMemory<BYTE>((keyboardBuffer + DIK_4), 2, true);
+				viewpressed = true;
+			}
+		}
+		else
+		{
+			if (viewpressed == true)
+			{
+				viewpressed = false;
+			}
 		}
 		// MENU LEFT
 		if (*ffbOffset & 0x4000)
@@ -345,5 +411,18 @@ static InitFunction FNFSB2Func([]()
 		{
 			injector::WriteMemory<DWORD>((0x46D7D8 + BaseAddress5), 0x00, true);
 		}
+
+		// FPS Fix
+		if ((strcmp(config["General"]["FPSFix"].c_str(), "0") != 0))
+		{
+			std::string FPSstring = (LPCSTR)(config["General"]["FPSFix"].c_str());
+			int FPSvalue = std::stoi(FPSstring);
+
+			injector::WriteMemoryRaw((0x9F3D0 + BaseAddress5), "\x6A", 1, true);
+			injector::WriteMemory<BYTE>((0x9F3D1 + BaseAddress5), FPSvalue, true);
+			injector::WriteMemoryRaw((0x9F3D2 + BaseAddress5), "\xFF\x15\x7C\x71\x71\x00", 6, true);
+			injector::WriteMemoryRaw((0x9F3D8 + BaseAddress5), "\xC3", 1, true);
+		}
+
 	}, GameID::FNFSB2);
 #endif
