@@ -16,6 +16,17 @@ int horizontal2 = 0;
 int vertical2 = 0;
 HWND hWndRT2 = 0;
 HCURSOR cursorhndle2;
+
+static bool previousLeft = false;
+static bool previousRight = false;
+static bool previousUp = false;
+static bool previousDown = false;
+static bool button1pressed = false;
+static bool button2pressed = false;
+static bool button3pressed = false;
+static bool button4pressed = false;
+static bool musicpressed = false;
+
 // controls
 extern int* ffbOffset;
 extern int* ffbOffset2;
@@ -30,10 +41,6 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 	int deltaTimer = 16;
 	INT_PTR keyboardBuffer = (0x437F6F8 + BaseAddress2);
 	INT_PTR keyboardBuffer2 = (0x437FC08 + BaseAddress2);
-	bool previousLeft = false;
-	bool previousRight = false;
-	bool previousUp = false;
-	bool previousDown = false;
 
 	while (true)
 	{
@@ -58,8 +65,19 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// NITRO ( = START too)
 		if (*ffbOffset & 0x100)
 		{
-			injector::WriteMemory<BYTE>((keyboardBuffer2 + 4 * 0x00), 2, true);
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_NUMPADENTER), 2, true);
+			if (button1pressed == false)
+			{
+				injector::WriteMemory<BYTE>((keyboardBuffer2 + 4 * 0x00), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_NUMPADENTER), 2, true);
+				button1pressed = true;
+			}
+		}
+		else
+		{
+			if (button1pressed == true)
+			{
+				button1pressed = false;
+			}
 		}
 		// SHIFT DOWN
 		if (*ffbOffset & 0x2000)
@@ -96,20 +114,69 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// BUTTON 1/ VIEW 1
 		if (*ffbOffset & 0x200)
 		{
-			injector::WriteMemory<BYTE>(keyboardBuffer + DIK_A, 2, true);
-			injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x01 * sizeof(U32), 2, true);
+			if (button2pressed == false)
+			{
+				injector::WriteMemory<BYTE>(keyboardBuffer + DIK_A, 2, true);
+				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x01 * sizeof(U32), 2, true);
+				button2pressed = true;
+			}
+		}
+		else
+		{
+			if (button2pressed == true)
+			{
+				button2pressed = false;
+			}
 		}
 		// BUTTON 2/ VIEW 2
 		if (*ffbOffset & 0x400)
 		{
-			injector::WriteMemory<BYTE>(keyboardBuffer + DIK_B, 2, true);
-			injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x02 * sizeof(U32), 2, true);
+			if (button3pressed == false)
+			{
+				injector::WriteMemory<BYTE>(keyboardBuffer + DIK_B, 2, true);
+				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x02 * sizeof(U32), 2, true);
+				button3pressed = true;
+			}
+		}
+		else
+		{
+			if (button3pressed == true)
+			{
+				button3pressed = false;
+			}
 		}
 		// BUTTON 3/ VIEW 3
 		if (*ffbOffset & 0x800)
 		{
-			injector::WriteMemory<BYTE>(keyboardBuffer + DIK_E, 2, true);
-			injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x03 * sizeof(U32), 2, true);
+			if (button4pressed == false)
+			{
+				injector::WriteMemory<BYTE>(keyboardBuffer + DIK_E, 2, true);
+				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x03 * sizeof(U32), 2, true);
+				button4pressed = true;
+			}
+		}
+		else
+		{
+			if (button4pressed == true)
+			{
+				button4pressed = false;
+			}
+		}
+		// BUTTON MUSIC/ VIEW 2+3
+		if (*ffbOffset & 0xC00)
+		{
+			if (musicpressed == false)
+			{
+				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x04 * sizeof(U32), 2, true);
+				musicpressed = true;
+			}
+		}
+		else
+		{
+			if (musicpressed == true)
+			{
+				musicpressed = false;
+			}
 		}
 		// MENU LEFT
 		if (*ffbOffset & 0x4000)
