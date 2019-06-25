@@ -162,8 +162,8 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 				button4pressed = false;
 			}
 		}
-		// BUTTON MUSIC/ VIEW 2+3
-		if (*ffbOffset & 0xC00)
+		// BUTTON MUSIC
+		if (*ffbOffset & 0x10)
 		{
 			if (musicpressed == false)
 			{
@@ -401,7 +401,14 @@ static InitFunction FNFSCFunc([]()
 	{
 		std::string FPSstring = (LPCSTR)(config["General"]["FPSFix"].c_str());
 		int FPSvalue = std::stoi(FPSstring);
-
+		if (FPSvalue > 255)
+		{
+			FPSvalue = 0;
+		}
+		if (FPSvalue < 0)
+		{
+			FPSvalue = 0;
+		}
 		injector::WriteMemoryRaw((0xE1770 + BaseAddress2), "\x6A", 1, true);
 		injector::WriteMemory<BYTE>((0xE1771 + BaseAddress2), FPSvalue, true);
 		injector::WriteMemoryRaw((0xE1772 + BaseAddress2), "\xFF\x15\x3C\x52\x62\x00", 6, true);

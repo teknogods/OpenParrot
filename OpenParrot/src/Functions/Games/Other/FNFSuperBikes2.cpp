@@ -26,6 +26,18 @@ static bool button2pressed = false;
 static bool button3pressed = false;
 static bool button4pressed = false;
 static bool viewpressed = false;
+static bool PINpressed = false;
+static bool NUMpressed = false;
+static bool NUMpressed0 = false;
+static bool NUMpressed1 = false;
+static bool NUMpressed2 = false;
+static bool NUMpressed3 = false;
+static bool NUMpressed4 = false;
+static bool NUMpressed5 = false;
+static bool NUMpressed6 = false;
+static bool NUMpressed7 = false;
+static bool NUMpressed8 = false;
+static bool NUMpressed9 = false;
 
 // controls
 extern int* ffbOffset;
@@ -47,14 +59,216 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 		// ESCAPE QUITS GAME 
 		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
 		{
-			exit(0);
+			HWND hWndTMP = GetForegroundWindow();
+			if (hWndRT5 == 0)
+			{
+				hWndRT5 = FindWindowA(NULL, "FNF SuperBikes 2");
+			}
+			if (hWndTMP == hWndRT5)
+			{
+				exit(0);
+			}
 		}
+
+		if (GetAsyncKeyState(VK_NUMPAD1) & 0x0001)
+		{
+			if (NUMpressed1 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x01\x00\x00\x00\x90", 6, true);
+				NUMpressed1 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed1 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed1 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_NUMPAD2) & 0x0001)
+		{
+			if (NUMpressed2 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x02\x00\x00\x00\x90", 6, true);
+				NUMpressed2 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed2 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed2 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_NUMPAD3) & 0x0001)
+		{
+			if (NUMpressed3 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x03\x00\x00\x00\x90", 6, true);
+				NUMpressed3 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed3 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed3 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_NUMPAD4) & 0x0001)
+		{
+			if (NUMpressed4 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x04\x00\x00\x00\x90", 6, true);
+				NUMpressed4 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed4 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed4 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_NUMPAD5) & 0x0001)
+		{
+			if (NUMpressed5 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x05\x00\x00\x00\x90", 6, true);
+				NUMpressed5 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed5 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed5 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_NUMPAD6) & 0x0001)
+		{
+			if (NUMpressed6 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x06\x00\x00\x00\x90", 6, true);
+				NUMpressed6 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed6 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed6 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_NUMPAD7) & 0x0001)
+		{
+			if (NUMpressed7 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x07\x00\x00\x00\x90", 6, true);
+				NUMpressed7 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed7 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed7 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_NUMPAD8) & 0x0001)
+		{
+			if (NUMpressed8 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x08\x00\x00\x00\x90", 6, true);
+				NUMpressed8 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed8 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed8 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_NUMPAD9) & 0x0001)
+		{
+			if (NUMpressed9 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x09\x00\x00\x00\x90", 6, true);
+				NUMpressed9 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed9 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed9 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_NUMPAD0) & 0x0001)
+		{
+			if (NUMpressed0 == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x00\x00\x00\x00\x90", 6, true);
+				NUMpressed0 = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed0 == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed0 = false;
+			}
+		}
+		if (GetAsyncKeyState(VK_RETURN) & 0x0001)
+		{
+			if (NUMpressed == false)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x0A\x00\x00\x00\x90", 6, true);
+				injector::WriteMemoryRaw((0x17B61 + BaseAddress5), "\x90\x90", 2, true);
+				NUMpressed = true;
+			}
+		}
+		else
+		{
+			if (NUMpressed == true)
+			{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				injector::WriteMemoryRaw((0x17B61 + BaseAddress5), "\x7C\x1E", 2, true);
+				NUMpressed = false;
+			}
+		}
+
 		// buttons see bitwise values in TPui//RawThrills.cs
 		// START
 		if (*ffbOffset & 0x08)
 		{
 			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
-
+			if (NUMpressed == false)
+				{
+					injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\xB8\x0A\x00\x00\x00\x90", 6, true);
+					injector::WriteMemoryRaw((0x17B61 + BaseAddress5), "\x90\x90", 2, true);
+					NUMpressed = true;
+				}
+			else
+			{
+			if (NUMpressed == true)
+				{
+				injector::WriteMemoryRaw((0x179A7 + BaseAddress5), "\x8D\x85\x80\xFF\xFE\xFF", 6, true);
+				injector::WriteMemoryRaw((0x17B61 + BaseAddress5), "\x7C\x1E", 2, true);
+				NUMpressed = false;
+				}
+			}
 		}
 		// TEST
 		if (*ffbOffset & 0x01)
@@ -128,13 +342,14 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 				button4pressed = false;
 			}
 		}
-		// BUTTON VIEW/ buttons 2+3
-		if (*ffbOffset & 0xC00)
+		// BUTTON VIEW
+		if (*ffbOffset & 0x10)
 		{
 			if (viewpressed == false)
 			{
-			// TO DO find VIEW button OFFSET
-			//	injector::WriteMemory<BYTE>((keyboardBuffer + DIK_4), 2, true);
+			// TO-DO
+			//	injector::WriteMemory<BYTE>((keyboardBuffer + DIK_ESCAPE), 2, true);
+			//	injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RETURN), 2, true);
 				viewpressed = true;
 			}
 		}
@@ -143,6 +358,37 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 			if (viewpressed == true)
 			{
 				viewpressed = false;
+			}
+		}
+		// BUTTON ENTER-PIN
+		if (*ffbOffset & 0x20)
+		{
+			if (PINpressed == false)
+			{
+				injector::WriteMemoryRaw((0x203A2 + BaseAddress5), "\x90\x90", 2, true);
+				injector::WriteMemoryRaw((0x203AC + BaseAddress5), "\x90\x90", 2, true);
+
+				injector::WriteMemoryRaw((0x21F74 + BaseAddress5), "\x90\x90", 2, true);
+				injector::WriteMemoryRaw((0x21F83 + BaseAddress5), "\x90\x90", 2, true);
+
+				injector::WriteMemoryRaw((0x2309B + BaseAddress5), "\x90\x90", 2, true);
+				injector::WriteMemoryRaw((0x230A5 + BaseAddress5), "\x90\x90", 2, true);
+				PINpressed = true;
+			}
+		}
+		else
+		{
+			if (PINpressed == true)
+			{
+				injector::WriteMemoryRaw((0x203A2 + BaseAddress5), "\x74\x1B", 2, true);
+				injector::WriteMemoryRaw((0x203AC + BaseAddress5), "\x75\x07", 2, true);
+
+				injector::WriteMemoryRaw((0x21F74 + BaseAddress5), "\x74\x20", 2, true);
+				injector::WriteMemoryRaw((0x21F83 + BaseAddress5), "\x75\x07", 2, true);
+
+				injector::WriteMemoryRaw((0x2309B + BaseAddress5), "\x74\x1B", 2, true);
+				injector::WriteMemoryRaw((0x230A5 + BaseAddress5), "\x75\x07", 2, true);
+				PINpressed = false;
 			}
 		}
 		// MENU LEFT
@@ -417,7 +663,14 @@ static InitFunction FNFSB2Func([]()
 		{
 			std::string FPSstring = (LPCSTR)(config["General"]["FPSFix"].c_str());
 			int FPSvalue = std::stoi(FPSstring);
-
+			if (FPSvalue > 255)
+			{
+				FPSvalue = 0;
+			}
+			if (FPSvalue < 0)
+			{
+				FPSvalue = 0;
+			}
 			injector::WriteMemoryRaw((0x9F3D0 + BaseAddress5), "\x6A", 1, true);
 			injector::WriteMemory<BYTE>((0x9F3D1 + BaseAddress5), FPSvalue, true);
 			injector::WriteMemoryRaw((0x9F3D2 + BaseAddress5), "\xFF\x15\x7C\x71\x71\x00", 6, true);
