@@ -82,9 +82,9 @@ DWORD WINAPI XInputGetState
 
 		if (GameDetect::currentGame == GameID::GHA)
 		{
-			gamepadState.wButtons |= *ffbOffset;
-			gamepadState.bLeftTrigger |= *ffbOffset3;
-			gamepadState.bRightTrigger |= *ffbOffset4;
+			gamepadState.wButtons = 0;
+			gamepadState.bLeftTrigger = 0;
+			gamepadState.bRightTrigger = 0;
 			// START KEY MACRO (only on ATTRACT SCREEN)
 			if (*ffbOffset == XINPUT_GAMEPAD_START)
 			{
@@ -92,10 +92,28 @@ DWORD WINAPI XInputGetState
 				gamepadState.bLeftTrigger = 255;
 				gamepadState.bRightTrigger = 255;
 			}
+			// GREEN KEY MACRO
+			if (*ffbOffset == XINPUT_GAMEPAD_X)
+			{
+				gamepadState.bLeftTrigger = 255;
+			}
+			else gamepadState.bLeftTrigger = 0;
+			// BLUE KEY MACRO
+			if (*ffbOffset == XINPUT_GAMEPAD_Y)
+			{
+				gamepadState.bRightTrigger = 255;
+			}
+			else gamepadState.bRightTrigger = 0;
+			// OTHER KEYs PASSTHROUGH
+			if (*ffbOffset == XINPUT_GAMEPAD_DPAD_UP || *ffbOffset == XINPUT_GAMEPAD_DPAD_DOWN || *ffbOffset == XINPUT_GAMEPAD_DPAD_LEFT || *ffbOffset == XINPUT_GAMEPAD_DPAD_RIGHT || *ffbOffset == XINPUT_GAMEPAD_LEFT_SHOULDER || *ffbOffset == XINPUT_GAMEPAD_RIGHT_SHOULDER || *ffbOffset == XINPUT_GAMEPAD_A || *ffbOffset == XINPUT_GAMEPAD_B)
+			{
+				gamepadState.wButtons |= *ffbOffset;
+			}
+			else gamepadState.wButtons = 0;
 		}
 		else
 		{
-			gamepadState.wButtons |= 0;
+			gamepadState.wButtons = 0;
 			gamepadState.bLeftTrigger = 0;
 			gamepadState.bRightTrigger = 0;
 		}
