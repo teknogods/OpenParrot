@@ -25,7 +25,8 @@ static bool button1pressed = false;
 static bool button2pressed = false;
 static bool button3pressed = false;
 static bool button4pressed = false;
-static bool viewpressed = false;
+static bool normalview = false;
+static bool geartoggpressed = false;
 static bool PINpressed = false;
 static bool NUMpressed = false;
 static bool NUMpressed0 = false;
@@ -273,14 +274,15 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 		// TEST
 		if (*ffbOffset & 0x01)
 		{
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RBRACKET), 2, true);
+			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RETURN), 2, true);
+			injector::MakeNOP((0x6ABB9 + BaseAddress5), 23, true);
 		}
-		// NITRO ( = START too)
+		// NITRO / Neon Color
 		if (*ffbOffset & 0x100)
 		{
 			if (button1pressed == false)
 			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_A), 2, true);
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
 				button1pressed = true;
 			}
@@ -292,12 +294,22 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 				button1pressed = false;
 			}
 		}
-		// BUTTON 1/ VIEW 1
+		// BUTTON 1/ VIEW
 		if (*ffbOffset & 0x200)
 		{
 			if (button2pressed == false)
 			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_A), 2, true);
+				injector::WriteMemoryRaw((0x718F5 + BaseAddress5), "\x90\x90", 2, true);
+				if (normalview == false)
+				{
+					injector::WriteMemoryRaw((0x718F8 + BaseAddress5), "\x24\xD9 ", 2, true);
+					normalview = true;
+				}
+				else
+				{
+					injector::WriteMemoryRaw((0x718F8 + BaseAddress5), "\xA8\xD7 ", 2, true);
+					normalview = false;
+				}
 				button2pressed = true;
 			}
 		}
@@ -305,16 +317,18 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 		{
 			if (button2pressed == true)
 			{
+				injector::WriteMemoryRaw((0x718F8 + BaseAddress5), "\x8C\xD7 ", 2, true);
+				injector::WriteMemoryRaw((0x718F5 + BaseAddress5), "\x74\x14", 2, true);
 				button2pressed = false;
 			}
 		}
-		// BUTTON 2/ VIEW ? (+ RIGHT BRAKE)
+		// BUTTON 2/ SHIFT LEVER / Bike Color
 		if (*ffbOffset & 0x400)
 		{
 			if (button3pressed == false)
 			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
 				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_4), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
 				button3pressed = true;
 			}
 		}
@@ -325,7 +339,7 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 				button3pressed = false;
 			}
 		}
-		// BUTTON 3/ MUSIC (+ LEFT BRAKE)
+		// BUTTON 3/ MUSIC / Change Pilot
 		if (*ffbOffset & 0x800)
 		{
 			if (button4pressed == false)
@@ -342,22 +356,23 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 				button4pressed = false;
 			}
 		}
-		// BUTTON VIEW
+		// BUTTON MENU TOGGLE MANUAL-AUTO
 		if (*ffbOffset & 0x10)
 		{
-			if (viewpressed == false)
+			if (geartoggpressed == false)
 			{
-			// TO-DO
-			//	injector::WriteMemory<BYTE>((keyboardBuffer + DIK_ESCAPE), 2, true);
-			//	injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RETURN), 2, true);
-				viewpressed = true;
+				injector::MakeNOP((0x226B6 + BaseAddress5), 6, true);
+				injector::MakeNOP((0x226CB + BaseAddress5), 6, true);
+				geartoggpressed = true;
 			}
 		}
 		else
 		{
-			if (viewpressed == true)
+			if (geartoggpressed == true)
 			{
-				viewpressed = false;
+				injector::WriteMemoryRaw((0x226B6 + BaseAddress5), "\x0F\x84\x9A\x00\x00\x00", 6, true);
+				injector::WriteMemoryRaw((0x226CB + BaseAddress5), "\x0F\x84\x85\x00\x00\x00", 6, true);
+				geartoggpressed = false;
 			}
 		}
 		// BUTTON ENTER-PIN
@@ -612,6 +627,9 @@ static InitFunction FNFSB2Func([]()
 
 		// REMOVE CMD WATSON nonsense
 		injector::MakeNOP((0x529E62), 2, true);
+
+		// REMOVE ESC BOX
+		injector::MakeNOP((0x4714DA), 5, true);
 
 		// Force correct backbuffer format
 		injector::MakeJMP(BaseAddress5 + 0xB7BD2, BaseAddress5 + 0xB7BE3, true);

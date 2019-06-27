@@ -388,6 +388,9 @@ static InitFunction FNFFunc([]()
 	injector::MakeNOP((0x4159B + BaseAddress3), 14);
 	injector::WriteMemory<BYTE>((0x415AA + BaseAddress3), DIK_BACK, true);
 
+	// REMOVE ESC BOX
+	injector::MakeNOP((0x440A0B), 5, true);
+
 	MH_Initialize();
 	MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT3, (void**)&original_SetCursorPosRT3);
 	MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcART3, (void**)&original_DefWindowProcA3);
