@@ -354,6 +354,9 @@ static InitFunction FNFSCFunc([]()
 	// REMOVE CMD WATSON nonsense
 	injector::MakeNOP((0x5F3882), 2, true);
 
+	// REMOVE ESC BOX
+	injector::MakeNOP((0x464A58), 5, true);
+
 	CreateThread(NULL, 0, InputRT2, NULL, 0, NULL);
 
 	MH_Initialize();

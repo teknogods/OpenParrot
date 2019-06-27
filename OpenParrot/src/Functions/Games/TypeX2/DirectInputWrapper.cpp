@@ -376,17 +376,7 @@ HRESULT __stdcall Hook_DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFI
 
 static InitFunction initFunc([]() 
 {
-	if (GameDetect::currentGame == GameID::PokkenTournament)
-		return;
-	if (GameDetect::currentGame == GameID::FNFDrift)
-		return;
-	if (GameDetect::currentGame == GameID::FNFSC)
-		return;
-	if (GameDetect::currentGame == GameID::FNF)
-		return;
-	if (GameDetect::currentGame == GameID::FNFSB)
-		return;
-	if (GameDetect::currentGame == GameID::GHA)
+	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::FNFDrift || GameDetect::currentGame == GameID::FNFSC || GameDetect::currentGame == GameID::FNF || GameDetect::currentGame == GameID::FNFSB || GameDetect::currentGame == GameID::FNFSB2 || GameDetect::currentGame == GameID::GHA)
 		return;
 	MH_Initialize();
 

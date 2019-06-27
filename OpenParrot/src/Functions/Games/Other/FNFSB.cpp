@@ -110,8 +110,7 @@ DWORD WINAPI InputRT4(LPVOID lpParam)
 		}
 
 		// buttons see bitwise values in TPui//RawThrills.cs
-
-					// START 
+		// START 
 		if (*ffbOffset & 0x08)
 		{
 			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
@@ -390,6 +389,9 @@ static InitFunction FNFSBFunc([]()
 	// TEST KEY FIX (uses BACKSPACE now)
 	injector::MakeNOP((0x4C426 + BaseAddress4), 14);
 	injector::WriteMemory<BYTE>((0x4C435 + BaseAddress4), DIK_BACK, true);
+
+	// REMOVE ESC BOX
+	injector::MakeNOP((0x44B4B5), 5, true);
 
 	MH_Initialize();
 	MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT4, (void**)&original_SetCursorPosRT4);

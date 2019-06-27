@@ -316,6 +316,9 @@ static InitFunction FNFDriftFunc([]()
 	injector::MakeNOP((0x57B35 + BaseAddress), 14);
 	injector::WriteMemory<BYTE>((0x57B44 + BaseAddress), DIK_BACK, true);
 
+	// REMOVE ESC BOX
+	injector::MakeNOP((0x455FC8), 5, true);
+
 	CreateThread(NULL, 0, InputRT, NULL, 0, NULL);
 
 	if (ToBool(config["General"]["Windowed"]))
