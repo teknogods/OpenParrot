@@ -310,6 +310,9 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 					injector::WriteMemoryRaw((0x718F8 + BaseAddress5), "\xA8\xD7 ", 2, true);
 					normalview = false;
 				}
+				// Change Bike HACK
+				injector::WriteMemoryRaw((0x21D7E + BaseAddress5), "\x90\x90 ", 2, true);
+				injector::WriteMemoryRaw((0x21D8C + BaseAddress5), "\x90\x90", 2, true);
 				button2pressed = true;
 			}
 		}
@@ -319,6 +322,9 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 			{
 				injector::WriteMemoryRaw((0x718F8 + BaseAddress5), "\x8C\xD7 ", 2, true);
 				injector::WriteMemoryRaw((0x718F5 + BaseAddress5), "\x74\x14", 2, true);
+
+				injector::WriteMemoryRaw((0x21D7E + BaseAddress5), "\x74\x76 ", 2, true);
+				injector::WriteMemoryRaw((0x21D8C + BaseAddress5), "\x74\x19", 2, true);
 				button2pressed = false;
 			}
 		}
