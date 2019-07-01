@@ -118,6 +118,54 @@ DWORD WINAPI XInputGetState
 			gamepadState.bRightTrigger = 0;
 		}
 
+		if (GameDetect::currentGame == GameID::JLeague)
+		{
+			gamepadState.wButtons = 0;
+			gamepadState.bLeftTrigger = 0;
+			gamepadState.bRightTrigger = 0;
+			gamepadState.sThumbRX = 0;
+			gamepadState.sThumbRY = 0;
+			// AXIS X
+			gamepadState.sThumbLX = *ffbOffset2;
+			// AXIS Y
+			gamepadState.sThumbLY = *ffbOffset3;
+			// START 
+			if (*ffbOffset & 0x08)
+			{
+				gamepadState.wButtons = XINPUT_GAMEPAD_START;
+			}
+			// BUTTON1
+			if (*ffbOffset & 0x0100)
+			{
+				gamepadState.wButtons = XINPUT_GAMEPAD_A;
+			}
+			// BUTTON2
+			if (*ffbOffset & 0x0200)
+			{
+				gamepadState.wButtons = XINPUT_GAMEPAD_B;
+			}
+			// BUTTON3
+			if (*ffbOffset & 0x0400)
+			{
+				gamepadState.wButtons = XINPUT_GAMEPAD_X;
+			}
+			// BUTTON4
+			if (*ffbOffset & 0x0800)
+			{
+				gamepadState.wButtons = XINPUT_GAMEPAD_Y;
+			}
+		}
+		else
+		{
+			gamepadState.wButtons = 0;
+			gamepadState.bLeftTrigger = 0;
+			gamepadState.bRightTrigger = 0;
+			gamepadState.sThumbLX = 0;
+			gamepadState.sThumbLY = 0;
+			gamepadState.sThumbRX = 0;
+			gamepadState.sThumbRY = 0;
+		}
+
 #ifdef _M_IX86
 		if (GameDetect::currentGame == GameID::Daytona3)
 		{
@@ -375,7 +423,7 @@ LPCWSTR ptrToUse;
 
 static InitFunction XInputHook([]()
 {
-	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GHA)
+	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GHA || GameDetect::currentGame == GameID::JLeague)
 	{
 		controllerInit = true;
 

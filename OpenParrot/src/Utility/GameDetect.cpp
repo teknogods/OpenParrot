@@ -1,11 +1,13 @@
 #include <StdInc.h>
 #include "GameDetect.h"
+#include <filesystem>
 #pragma optimize("", off)
 bool GameDetect::isNesica = false;
 bool GameDetect::enableNesysEmu = true;
 NesicaKey GameDetect::NesicaKey;
 X2Type GameDetect::X2Type = X2Type::None;
 static char newCrc[0x400];
+
 void GameDetect::DetectCurrentGame()
 {
 	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
@@ -408,10 +410,19 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::Daytona3;
 			break;
 		}
-		if (*(uint32_t*)(moduleBase + 0x2CC751) == 0x6B75C084)
+		// IF GAME = JusticeLeague (if workingdir\JLA.exe exists) , AVOID THIS CHECK (note: darius checked offset is beyond JLA exe limits and TP crashes...)
+		char working_directory[MAX_PATH + 1];
+		GetCurrentDirectoryA(sizeof(working_directory), working_directory);
+		std::string JLAexestr0 = working_directory;
+		std::string JLAexestr = JLAexestr0 + "\\JLA.exe";
+		bool JLAexists(std::filesystem::exists(JLAexestr.c_str()));
+		if (JLAexists == false)
 		{
-			currentGame = GameID::DariusBurst;
-			break;
+			if (*(uint32_t*)(moduleBase + 0x2CC751) == 0x6B75C084)
+			{
+				currentGame = GameID::DariusBurst;
+				break;
+			}
 		}
 #else
 		// X64
@@ -455,6 +466,9 @@ void GameDetect::DetectCurrentGame()
 		{
 		case 0xfe7afff4:
 			currentGame = GameID::FNFSB2;
+			break;
+		case 0x72c27333:
+			currentGame = GameID::JLeague;
 			break;
 		default:
 #ifdef _DEBUG
