@@ -470,6 +470,11 @@ void GameDetect::DetectCurrentGame()
 		case 0x72c27333:
 			currentGame = GameID::JLeague;
 			break;
+#ifdef _AMD64_
+		case 0x80ebd207:
+			currentGame = GameID::Theatrhythm;
+			break;
+#endif
 		default:
 #ifdef _DEBUG
 			info(true, "---------------------------------");

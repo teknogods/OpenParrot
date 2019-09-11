@@ -181,3 +181,37 @@ static InitFunction initFunction_SOR([]()
 		injector::WriteMemory<DWORD>(imageBase + 0xFF703C+0x08, 0xC6FFC6FF, true);
 	}
 }, GameID::SchoolOfRagnarok);
+
+static InitFunction initFunction_Theatrhythm([]()
+	{
+		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+
+		static std::string modPath;
+
+		if (modPath.empty())
+		{
+			char exeName[512];
+			GetModuleFileNameA(GetModuleHandle(L"OpenParrot64.dll"), exeName, sizeof(exeName));
+
+			char* exeBaseName = strrchr(exeName, '\\');
+			exeBaseName[0] = L'\0';
+
+			modPath = exeName;
+			modPath += "\\";
+
+			GetFullPathNameA(modPath.c_str(), sizeof(exeName), exeName, nullptr);
+
+			modPath = exeName;
+			modPath += "\\";
+		}
+
+		std::string idmac = modPath + "idmacdrv64.dll";
+
+		uintptr_t idmacbase = (uintptr_t)LoadLibraryA(idmac.c_str());
+
+		if (idmacbase == NULL)
+			ExitProcess(0);
+
+		init_FastIoEmu();
+	
+	}, GameID::Theatrhythm);
