@@ -114,7 +114,7 @@ DWORD WINAPI XInputGetState
 		else
 		{
 			if (GameDetect::currentGame != GameID::PokkenTournament)
-			{
+			{ 
 				gamepadState.wButtons = 0;
 				gamepadState.bLeftTrigger = 0;
 				gamepadState.bRightTrigger = 0;
