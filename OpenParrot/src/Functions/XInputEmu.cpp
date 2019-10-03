@@ -113,9 +113,12 @@ DWORD WINAPI XInputGetState
 		}
 		else
 		{
-			gamepadState.wButtons = 0;
-			gamepadState.bLeftTrigger = 0;
-			gamepadState.bRightTrigger = 0;
+			if (GameDetect::currentGame != GameID::PokkenTournament)
+			{
+				gamepadState.wButtons = 0;
+				gamepadState.bLeftTrigger = 0;
+				gamepadState.bRightTrigger = 0;
+			}
 		}
 
 		if (GameDetect::currentGame == GameID::JLeague)
@@ -157,13 +160,16 @@ DWORD WINAPI XInputGetState
 		}
 		else
 		{
-			gamepadState.wButtons = 0;
-			gamepadState.bLeftTrigger = 0;
-			gamepadState.bRightTrigger = 0;
-			gamepadState.sThumbLX = 0;
-			gamepadState.sThumbLY = 0;
-			gamepadState.sThumbRX = 0;
-			gamepadState.sThumbRY = 0;
+			if (GameDetect::currentGame != GameID::PokkenTournament)
+			{
+				gamepadState.wButtons = 0;
+				gamepadState.bLeftTrigger = 0;
+				gamepadState.bRightTrigger = 0;
+				gamepadState.sThumbLX = 0;
+				gamepadState.sThumbLY = 0;
+				gamepadState.sThumbRX = 0;
+				gamepadState.sThumbRY = 0;
+			}
 		}
 
 #ifdef _M_IX86
