@@ -111,7 +111,7 @@ DWORD WINAPI XInputGetState
 			}
 			else gamepadState.wButtons = 0;
 		}
-		else
+		else if (GameDetect::currentGame != GameID::PokkenTournament)
 		{
 			gamepadState.wButtons = 0;
 			gamepadState.bLeftTrigger = 0;
@@ -155,7 +155,7 @@ DWORD WINAPI XInputGetState
 				gamepadState.wButtons = XINPUT_GAMEPAD_Y;
 			}
 		}
-		else
+		else if (GameDetect::currentGame != GameID::PokkenTournament
 		{
 			gamepadState.wButtons = 0;
 			gamepadState.bLeftTrigger = 0;
