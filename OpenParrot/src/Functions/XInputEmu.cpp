@@ -76,11 +76,10 @@ DWORD WINAPI XInputGetState
 		XINPUT_GAMEPAD gamepadState = { 0 };
 
 		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament)
+		{
 			gamepadState.wButtons |= *ffbOffset;
-		else
-			gamepadState.wButtons |= 0;
-
-		if (GameDetect::currentGame == GameID::GHA)
+		}
+		else if (GameDetect::currentGame == GameID::GHA)
 		{
 			gamepadState.wButtons = 0;
 			gamepadState.bLeftTrigger = 0;
@@ -111,14 +110,7 @@ DWORD WINAPI XInputGetState
 			}
 			else gamepadState.wButtons = 0;
 		}
-		else
-		{
-			gamepadState.wButtons = 0;
-			gamepadState.bLeftTrigger = 0;
-			gamepadState.bRightTrigger = 0;
-		}
-
-		if (GameDetect::currentGame == GameID::JLeague)
+		else if (GameDetect::currentGame == GameID::JLeague)
 		{
 			gamepadState.wButtons = 0;
 			gamepadState.bLeftTrigger = 0;
