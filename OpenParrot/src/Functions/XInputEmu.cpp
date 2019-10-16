@@ -162,7 +162,14 @@ DWORD WINAPI XInputGetState
 		if (GameDetect::currentGame == GameID::Daytona3)
 		{
 			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
-			gamepadState.sThumbLX |= (-(33024 - *ffbOffset2) * 255);
+			if (*ffbOffset2 < 1)
+			{
+				gamepadState.sThumbLX |= 257 - (-(32767 - *ffbOffset2) * 257);
+			}
+			else
+			{
+				gamepadState.sThumbLX |= (-(32767 - *ffbOffset2) * 257);
+			}			
 		}
 #endif
 		if (pState->dwPacketNumber == UINT_MAX)

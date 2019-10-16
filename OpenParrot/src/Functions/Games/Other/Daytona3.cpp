@@ -15,6 +15,7 @@ bool daytonaPressStart = false;
 uintptr_t imageBase;
 bool shiftup = false;
 bool shiftdown = false;
+static bool viewchange = false;
 
 void ShiftUp(BYTE shift)
 {
@@ -37,6 +38,7 @@ static void InjectKeys()
 	
 	BYTE gamestate = *(BYTE *)(imageBase + 0x15B5744);
 	BYTE gear = *(BYTE *)(imageBase + 0x15B468C);
+	BYTE viewread = *(BYTE*)(imageBase + 0x15B5DB0);
 	
 	*(BYTE *)(imageBase + 0x15B4679) = gas;
 	*(BYTE *)(imageBase + 0x15B467A) = brake;
@@ -200,45 +202,56 @@ static void InjectKeys()
 		*(BYTE *)(imageBase + 0x15B468C) = 0x03;
 	}
 
-	if (buttons2 == 0x10)
+	if (ToBool(config["General"]["View Change 1 Does All Views"]))
 	{
-		//View Change 1
+		if ((buttons2 == 0x10) && (viewread < 4))  //INCLUDES SPECIAL VIEW
 		{
-			*(DWORD *)(imageBase + 0x15B5DB0) = 0x00;
+			//View Change 1
+			if (!viewchange)
+			{
+				viewchange = true;
+				*(BYTE*)(imageBase + 0x15B5DB0) = ++viewread;
+			}
 		}
-	}
+		else if ((buttons2 == 0x10) && (viewread == 4))
+		{
+			if (!viewchange)
+			{
+				viewchange = true;
+				*(BYTE*)(imageBase + 0x15B5DB0) = 0x00;
+			}			
+		}
+		else
+		{
+			viewchange = false;
+		}
+	}	
+	else
+	{
+		if (buttons2 == 0x10)
+		{
+			//View Change 1
+			*(DWORD*)(imageBase + 0x15B5DB0) = 0x00;
+		}
 
-	if (buttons2 == 0x20)
-	{
-		//View Change 2
+		if (buttons2 == 0x20)
 		{
-			*(DWORD *)(imageBase + 0x15B5DB0) = 0x01;
+			//View Change 2
+			*(DWORD*)(imageBase + 0x15B5DB0) = 0x01;
 		}
-	}
 
-	if (buttons2 == 0x40)
-	{
-		//View Change 3
+		if (buttons2 == 0x40)
 		{
-			*(DWORD *)(imageBase + 0x15B5DB0) = 0x02;
+			//View Change 3
+			*(DWORD*)(imageBase + 0x15B5DB0) = 0x02;			
 		}
-	}
 
-	if (buttons2 == 0x80)
-	{
-		//View Change 4
+		if (buttons2 == 0x80)
 		{
-			*(DWORD *)(imageBase + 0x15B5DB0) = 0x03;
+			//View Change 4
+			*(DWORD*)(imageBase + 0x15B5DB0) = 0x03;
 		}
-	}
-
-	if (buttons2 == 0xF0)
-	{
-		//View Change 5
-		{
-			*(DWORD *)(imageBase + 0x15B5DB0) = 0x04;
-		}
-	}
+	}	
 }
 
 int(__stdcall *g_origControlsFunction)();
