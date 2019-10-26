@@ -166,10 +166,14 @@ DWORD WINAPI XInputGetState
 			{
 				gamepadState.sThumbLX |= 257 - (-(32767 - *ffbOffset2) * 257);
 			}
+			else if ((*ffbOffset2 >= 121) && (*ffbOffset2 <= 133)) //Deadzone for FFB
+			{
+				gamepadState.sThumbLX == 32768;
+			}
 			else
 			{
-				gamepadState.sThumbLX |= (-(32767 - *ffbOffset2) * 257);
-			}			
+				gamepadState.sThumbLX |= (-(32768 - *ffbOffset2) * 257);
+			}
 		}
 #endif
 		if (pState->dwPacketNumber == UINT_MAX)
