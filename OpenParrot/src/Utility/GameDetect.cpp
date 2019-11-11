@@ -475,7 +475,7 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::Theatrhythm;
 			break;
 		case 0xdb9c3a90:
-			currentGame = GameID::Tekken7;
+			currentGame = GameID::TER;
 			break;
 #endif
 		default:

@@ -18,7 +18,15 @@ static InitFunction Tekken7Func([]()
 		// Skip all errors
 		injector::MakeNOP(imageBase + 0x25E791, 5);
 
-		// Force Offline mode
-		//safeJMP(imageBase + 0xACB190, ReturnFalse);
-	}, GameID::Tekken7);
+		// First Check Error
+		injector::MakeNOP(imageBase + 0x268E00, 5);
+
+		// Windowed
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			// TODO: DOCUMENT PATCHES
+			injector::WriteMemory<LONGLONG>(imageBase + 0x115E757, 0xF633C1FFC1FFC933, true);
+			injector::WriteMemory<DWORD>(imageBase + 0x115E757 + 0x08, 0xC6FFC6FF, true);
+		}
+	}, GameID::TER);
 #endif

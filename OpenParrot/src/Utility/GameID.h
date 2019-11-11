@@ -60,5 +60,5 @@ enum class GameID
 	GHA,
 	JLeague,
 	Theatrhythm,
-	Tekken7
+	TER
 };
