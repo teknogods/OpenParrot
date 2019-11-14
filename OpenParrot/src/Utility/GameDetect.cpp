@@ -474,6 +474,9 @@ void GameDetect::DetectCurrentGame()
 		case 0x80ebd207:
 			currentGame = GameID::Theatrhythm;
 			break;
+		case 0xdb9c3a90:
+			currentGame = GameID::TER;
+			break;
 #endif
 		default:
 #ifdef _DEBUG

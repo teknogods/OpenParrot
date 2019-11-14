@@ -80,6 +80,8 @@ static InitFunction initFunc([]()
 {
 	if (GameDetect::currentGame == GameID::BG4)
 		return;
+	if (GameDetect::currentGame == GameID::TER)
+		return;
 	if (GameDetect::currentGame == GameID::FNFSC)
 		InitD3D8WindowHook();
 	if (ToBool(config["General"]["Windowed"]))

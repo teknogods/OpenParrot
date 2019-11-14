@@ -59,5 +59,6 @@ enum class GameID
 	FNFSB2,
 	GHA,
 	JLeague,
-	Theatrhythm
+	Theatrhythm,
+	TER
 };
