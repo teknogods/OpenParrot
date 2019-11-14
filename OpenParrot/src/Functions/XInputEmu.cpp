@@ -6,7 +6,7 @@
 
 struct XboxOneControllerHandler
 {
-	struct usb_dev_handle *handle;
+	struct usb_dev_handle* handle;
 	bool isConnected;
 	XBOXONE_STATE controllerState;
 
@@ -16,7 +16,7 @@ struct XboxOneControllerHandler
 	XINPUT_GAMEPAD lastGamepadState;
 };
 
-XboxOneControllerHandler *controllerHandler[4] = { NULL, NULL, NULL, NULL };
+XboxOneControllerHandler* controllerHandler[4] = { NULL, NULL, NULL, NULL };
 HANDLE XboxOneControllerThread[4] = { 0 };
 HANDLE XboxOneControllerMutex[4] = { 0 };
 
@@ -162,7 +162,18 @@ DWORD WINAPI XInputGetState
 		if (GameDetect::currentGame == GameID::Daytona3)
 		{
 			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
-			gamepadState.sThumbLX |= (-(33024 - *ffbOffset2) * 255);
+			if (*ffbOffset2 < 1)
+			{
+				gamepadState.sThumbLX |= 257 - (-(32767 - *ffbOffset2) * 257);
+			}
+			else if ((*ffbOffset2 >= 121) && (*ffbOffset2 <= 133)) //Deadzone for FFB
+			{
+				gamepadState.sThumbLX == 32768;
+			}
+			else
+			{
+				gamepadState.sThumbLX |= (-(32768 - *ffbOffset2) * 257);
+			}
 		}
 #endif
 		if (pState->dwPacketNumber == UINT_MAX)
@@ -414,29 +425,29 @@ LPCWSTR daytonalibName = L"xinput9_1_0.dll";
 LPCWSTR ptrToUse;
 
 static InitFunction XInputHook([]()
-{
-	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GHA || GameDetect::currentGame == GameID::JLeague)
 	{
-		controllerInit = true;
+		if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GHA || GameDetect::currentGame == GameID::JLeague)
+		{
+			controllerInit = true;
 
-		MH_Initialize();
+			MH_Initialize();
 
-		if (GameDetect::currentGame == GameID::Daytona3)
-			ptrToUse = daytonalibName;
-		else
-			ptrToUse = libName;
+			if (GameDetect::currentGame == GameID::Daytona3)
+				ptrToUse = daytonalibName;
+			else
+				ptrToUse = libName;
 
-		MH_CreateHookApi(ptrToUse, "XInputGetState", &XInputGetState, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputSetState", &XInputSetState, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetCapabilities", &XInputGetCapabilities, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputEnable", &XInputEnable, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetDSoundAudioDeviceGuids", &XInputGetDSoundAudioDeviceGuids, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetBatteryInformation", &XInputGetBatteryInformation, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetKeystroke", &XInputGetKeystroke, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputGetStateEx", &XInputGetStateEx, NULL);
-		MH_CreateHookApi(ptrToUse, "XInputSetStateEx", &XInputSetStateEx, NULL);
+			MH_CreateHookApi(ptrToUse, "XInputGetState", &XInputGetState, NULL);
+			MH_CreateHookApi(ptrToUse, "XInputSetState", &XInputSetState, NULL);
+			MH_CreateHookApi(ptrToUse, "XInputGetCapabilities", &XInputGetCapabilities, NULL);
+			MH_CreateHookApi(ptrToUse, "XInputEnable", &XInputEnable, NULL);
+			MH_CreateHookApi(ptrToUse, "XInputGetDSoundAudioDeviceGuids", &XInputGetDSoundAudioDeviceGuids, NULL);
+			MH_CreateHookApi(ptrToUse, "XInputGetBatteryInformation", &XInputGetBatteryInformation, NULL);
+			MH_CreateHookApi(ptrToUse, "XInputGetKeystroke", &XInputGetKeystroke, NULL);
+			MH_CreateHookApi(ptrToUse, "XInputGetStateEx", &XInputGetStateEx, NULL);
+			MH_CreateHookApi(ptrToUse, "XInputSetStateEx", &XInputSetStateEx, NULL);
 
-		MH_EnableHook(MH_ALL_HOOKS);
-	}
-});
+			MH_EnableHook(MH_ALL_HOOKS);
+		}
+	});
 #pragma optimize("", on)´
