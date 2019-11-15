@@ -477,6 +477,16 @@ void GameDetect::DetectCurrentGame()
 		case 0xdb9c3a90:
 			currentGame = GameID::TER;
 			break;
+		case 0xf3d3f699:
+			currentGame = GameID::StarWarsEs3XLauncher;
+			break;
+		case 0x5424a6d8:
+			currentGame = GameID::StarWarsJapEs3XLauncher;
+			break;
+		case 0x8505c794:
+		case 0xe1e9e32c: // JPN
+			currentGame = GameID::StarWarsEs3X;
+			break;
 #endif
 		default:
 #ifdef _DEBUG
