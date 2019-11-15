@@ -2,6 +2,7 @@
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #include "Utility\Hooking.Patterns.h"
+#include "Utility/GameDetect.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 #ifndef _M_AMD64
@@ -112,8 +113,14 @@ DWORD WINAPI XInputGetStateGRID
 		SetButton(myPointer + 0x34, buttons2 & 0x40);
 		SetButton(myPointer + 0x40c, buttons2 & 0x80);
 	}
-
-	return ERROR_DEVICE_NOT_CONNECTED;
+	if (GameDetect::currentGame == GameID::GRID)
+	{
+		return ERROR_SUCCESS;
+	}
+	else
+	{
+		return ERROR_DEVICE_NOT_CONNECTED;
+	}
 }
 
 static InitFunction GRIDFunc([]()
