@@ -60,5 +60,8 @@ enum class GameID
 	GHA,
 	JLeague,
 	Theatrhythm,
-	TER
+	TER,
+	StarWarsJapEs3XLauncher,
+	StarWarsEs3XLauncher,
+	StarWarsEs3X
 };
