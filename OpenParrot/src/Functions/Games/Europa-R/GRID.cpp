@@ -113,7 +113,7 @@ DWORD WINAPI XInputGetStateGRID
 		SetButton(myPointer + 0x40c, buttons2 & 0x80);
 	}
 
-	return ERROR_DEVICE_NOT_CONNECTED;
+	return 0;
 }
 
 static InitFunction GRIDFunc([]()
