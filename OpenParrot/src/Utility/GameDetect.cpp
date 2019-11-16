@@ -484,8 +484,10 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::StarWarsJapEs3XLauncher;
 			break;
 		case 0x8505c794:
-		case 0xe1e9e32c: // JPN
 			currentGame = GameID::StarWarsEs3X;
+			break;
+		case 0xe1e9e32c: // JPN
+			currentGame = GameID::StarWarsJapEs3X;
 			break;
 #endif
 		default:
