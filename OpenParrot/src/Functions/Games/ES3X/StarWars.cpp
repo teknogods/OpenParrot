@@ -139,9 +139,9 @@ static InitFunction StarWarsEs3XFunc([]()
 		
 	if (ToBool(config["General"]["2D DomeFix"]))
 	{
-		injector::MakeNOP(imageBase + 0xBCA13, 3);
+		//Leave for fix incoming
 	}
-	
+
 }, GameID::StarWarsEs3X);
 
 static InitFunction StarWarsEs3XLauncherFunc([]()
