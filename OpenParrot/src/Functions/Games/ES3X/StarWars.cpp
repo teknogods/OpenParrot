@@ -7,8 +7,8 @@
 
 DWORD WINAPI XInputGetStateStarWars
 (
-	__in  DWORD         dwUserIndex,						// Index of the gamer associated with the device
-	__out DWORD* pState								// Receives the current state
+	__in  DWORD  dwUserIndex,	// Index of the gamer associated with the device
+	__out DWORD* pState			// Receives the current state
 )
 {
 	if (GameDetect::currentGame == GameID::StarWarsEs3X)
