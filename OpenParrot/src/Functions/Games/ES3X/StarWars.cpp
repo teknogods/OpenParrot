@@ -142,6 +142,12 @@ static InitFunction StarWarsEs3XFunc([]()
 		//Leave for fix incoming
 	}
 
+	if (ToBool(config["General"]["Remove Camera Error"]))
+	{
+		injector::MakeNOP(imageBase + 0xD82EE, 6, true);
+		injector::MakeNOP(imageBase + 0xD83F2, 6, true);
+	}
+
 }, GameID::StarWarsEs3X);
 
 static InitFunction StarWarsEs3XLauncherFunc([]()
