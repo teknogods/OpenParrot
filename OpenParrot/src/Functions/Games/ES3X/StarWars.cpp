@@ -98,10 +98,32 @@ static unsigned int Hook_hasp_write(int hasp_handle, int hasp_fileid, unsigned i
 }
 
 extern LPCSTR hookPort;
+
+static InitFunction StarWarsJapEs3XFunc([]()
+	{
+		hookPort = "COM3";
+
+		GenerateDongleData();
+
+		MH_Initialize();
+		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_write", Hook_hasp_write, NULL);
+		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_read", Hook_hasp_read, NULL);
+		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_get_size", Hook_hasp_get_size, NULL);
+		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_decrypt", Hook_hasp_decrypt, NULL);
+		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_encrypt", Hook_hasp_encrypt, NULL);
+		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
+		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
+		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateStarWars, NULL);
+		MH_EnableHook(MH_ALL_HOOKS);
+
+	}, GameID::StarWarsEs3X);
+
 static InitFunction StarWarsEs3XFunc([]()
 {
-	hookPort = "COM3";
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
 
+	hookPort = "COM3";
+	
 	GenerateDongleData();
 	
 	MH_Initialize();
@@ -113,8 +135,13 @@ static InitFunction StarWarsEs3XFunc([]()
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
 	MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateStarWars, NULL);
-	MH_EnableHook(MH_ALL_HOOKS);	
-
+	MH_EnableHook(MH_ALL_HOOKS);
+		
+	if (ToBool(config["General"]["2D DomeFix"]))
+	{
+		injector::MakeNOP(imageBase + 0xBCA13, 3);
+	}
+	
 }, GameID::StarWarsEs3X);
 
 static InitFunction StarWarsEs3XLauncherFunc([]()

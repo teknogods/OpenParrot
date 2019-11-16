@@ -63,5 +63,6 @@ enum class GameID
 	TER,
 	StarWarsJapEs3XLauncher,
 	StarWarsEs3XLauncher,
-	StarWarsEs3X
+	StarWarsEs3X,
+	StarWarsJapEs3X
 };
