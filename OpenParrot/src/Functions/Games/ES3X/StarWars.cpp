@@ -3,7 +3,23 @@
 #include "Utility/ES3XLauncherHook.h"
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
+#include "Utility/GameDetect.h"
 
+DWORD WINAPI XInputGetStateStarWars
+(
+	__in  DWORD  dwUserIndex,	// Index of the gamer associated with the device
+	__out DWORD* pState			// Receives the current state
+)
+{
+	if (GameDetect::currentGame == GameID::StarWarsEs3X)
+	{
+		return ERROR_SUCCESS;
+	}
+	else
+	{
+		return ERROR_DEVICE_NOT_CONNECTED;
+	}
+}
 
 static unsigned char hasp_buffer[0xD40];
 
@@ -96,7 +112,8 @@ static InitFunction StarWarsEs3XFunc([]()
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_encrypt", Hook_hasp_encrypt, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
-	MH_EnableHook(MH_ALL_HOOKS);
+	MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateStarWars, NULL);
+	MH_EnableHook(MH_ALL_HOOKS);	
 
 }, GameID::StarWarsEs3X);
 
