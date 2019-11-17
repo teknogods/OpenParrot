@@ -116,7 +116,7 @@ static InitFunction StarWarsJapEs3XFunc([]()
 		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateStarWars, NULL);
 		MH_EnableHook(MH_ALL_HOOKS);
 
-	}, GameID::StarWarsEs3X);
+	}, GameID::StarWarsJapEs3X);
 
 static InitFunction StarWarsEs3XFunc([]()
 {
