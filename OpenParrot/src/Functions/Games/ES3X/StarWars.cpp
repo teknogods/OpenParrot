@@ -101,6 +101,8 @@ extern LPCSTR hookPort;
 
 static InitFunction StarWarsJapEs3XFunc([]()
 	{
+		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+
 		hookPort = "COM3";
 
 		GenerateDongleData();
@@ -115,6 +117,11 @@ static InitFunction StarWarsJapEs3XFunc([]()
 		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
 		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateStarWars, NULL);
 		MH_EnableHook(MH_ALL_HOOKS);
+
+		if (ToBool(config["General"]["Remove Camera Error"]))
+		{
+			injector::MakeNOP(imageBase + 0xD2BAE, 6, true);
+		}
 
 	}, GameID::StarWarsJapEs3X);
 
