@@ -136,9 +136,6 @@ static InitFunction StarWarsEs3XFunc([]()
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
 	MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateStarWars, NULL);
 	MH_EnableHook(MH_ALL_HOOKS);
-
-	// Window not topmost!
-	injector::WriteMemory<BYTE>(imageBase + 0x14F6238, 0x00, true);
 		
 	if (ToBool(config["General"]["2D DomeFix"]))
 	{
