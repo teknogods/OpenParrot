@@ -11,7 +11,7 @@ DWORD WINAPI XInputGetStateStarWars
 	__out DWORD* pState			// Receives the current state
 )
 {
-	if (GameDetect::currentGame == GameID::StarWarsEs3X)
+	if ((GameDetect::currentGame == GameID::StarWarsEs3X) || (GameDetect::currentGame == GameID::StarWarsJapEs3X))
 	{
 		return ERROR_SUCCESS;
 	}
