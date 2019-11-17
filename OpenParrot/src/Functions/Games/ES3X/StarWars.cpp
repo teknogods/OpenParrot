@@ -11,7 +11,7 @@ DWORD WINAPI XInputGetStateStarWars
 	__out DWORD* pState			// Receives the current state
 )
 {
-	if (GameDetect::currentGame == GameID::StarWarsEs3X)
+	if ((GameDetect::currentGame == GameID::StarWarsEs3X) || (GameDetect::currentGame == GameID::StarWarsJapEs3X))
 	{
 		return ERROR_SUCCESS;
 	}
@@ -101,6 +101,8 @@ extern LPCSTR hookPort;
 
 static InitFunction StarWarsJapEs3XFunc([]()
 	{
+		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+
 		hookPort = "COM3";
 
 		GenerateDongleData();
@@ -116,7 +118,12 @@ static InitFunction StarWarsJapEs3XFunc([]()
 		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateStarWars, NULL);
 		MH_EnableHook(MH_ALL_HOOKS);
 
-	}, GameID::StarWarsEs3X);
+		if (ToBool(config["General"]["Remove Camera Error"]))
+		{
+			injector::MakeNOP(imageBase + 0xD2BAE, 6, true);
+		}
+
+	}, GameID::StarWarsJapEs3X);
 
 static InitFunction StarWarsEs3XFunc([]()
 {
@@ -140,6 +147,11 @@ static InitFunction StarWarsEs3XFunc([]()
 	if (ToBool(config["General"]["2D DomeFix"]))
 	{
 		//Leave for fix incoming
+	}
+
+	if (ToBool(config["General"]["Remove Camera Error"]))
+	{
+		injector::MakeNOP(imageBase + 0xD82EE, 6, true);
 	}
 
 }, GameID::StarWarsEs3X);
