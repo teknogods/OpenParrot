@@ -97,6 +97,33 @@ static unsigned int Hook_hasp_write(int hasp_handle, int hasp_fileid, unsigned i
 	return HASP_STATUS_OK;
 }
 
+BOOL (*WINAPI g_origSetWindowPos)(
+	HWND hWnd,
+	HWND hWndInsertAfter,
+	int  X,
+	int  Y,
+	int  cx,
+	int  cy,
+	UINT uFlags
+);
+
+BOOL SetWindowPosHook(
+	HWND hWnd,
+	HWND hWndInsertAfter,
+	int  X,
+	int  Y,
+	int  cx,
+	int  cy,
+	UINT uFlags
+)
+{
+	if((DWORD_PTR)hWndInsertAfter && (DWORD_PTR)HWND_TOPMOST)
+	{
+		return g_origSetWindowPos(hWnd, HWND_TOP, X, Y, cx, cy, uFlags);
+	}
+	return g_origSetWindowPos(hWnd, hWndInsertAfter, X, Y, cx, cy, uFlags);
+}
+
 extern LPCSTR hookPort;
 
 static InitFunction StarWarsJapEs3XFunc([]()
@@ -171,6 +198,7 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_encrypt", Hook_hasp_encrypt, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
+	MH_CreateHookApi(L"user32.dll", "SetWindowPos", SetWindowPosHook, (void**)&g_origSetWindowPos);
 	MH_EnableHook(MH_ALL_HOOKS);
 
 	// Ignore Projector Error
@@ -191,7 +219,6 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 	{
 		injector::MakeNOP(imageBase + 0x342B3, 6);
 	}
-	
 	
 	hookPort = "COM3";
 }, GameID::StarWarsEs3XLauncher);
