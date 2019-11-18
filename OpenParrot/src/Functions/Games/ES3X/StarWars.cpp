@@ -181,6 +181,10 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 		injector::MakeNOP(imageBase + 0x4DD2F, 6, true);
 		injector::MakeNOP(imageBase + 0x4DBEA, 7, true);
 	}
+
+	// Don't minimize all windows
+	injector::MakeNOP(imageBase + 0x33AE2, 6);
+	injector::WriteMemory<WORD>(imageBase + 0x33A45, 0xE990, true);
 	
 	hookPort = "COM3";
 }, GameID::StarWarsEs3XLauncher);
