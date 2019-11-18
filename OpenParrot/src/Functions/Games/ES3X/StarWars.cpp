@@ -124,6 +124,68 @@ BOOL SetWindowPosHook(
 	return g_origSetWindowPos(hWnd, hWndInsertAfter, X, Y, cx, cy, uFlags);
 }
 
+char newFileName[MAX_PATH];
+
+
+errno_t (WINAPI *g_orig_sopen_s)(
+	int* pfh,
+	const char* filename,
+	int oflag,
+	int shflag,
+	int pmode
+);
+
+errno_t _sopen_sHook(
+	int* pfh,
+	const char* filename,
+	int oflag,
+	int shflag,
+	int pmode
+)
+{
+	if((filename[0] == 'f' || filename[0] == 'F' || filename[0] == 'g' || filename[0] == 'G') && filename[1] == ':')
+	{
+		memset(newFileName, 0, MAX_PATH);
+		if(GetCurrentDirectoryA(MAX_PATH, newFileName) == 0)
+		{
+			// for some reason current dir fails, so we will just save as usual
+			g_orig_sopen_s(pfh, filename, oflag, shflag, pmode);
+		}
+		
+		memcpy(newFileName + strlen(newFileName), "\\OpenParrot\\", 12);
+		newFileName[strlen(newFileName)] = tolower(filename[0]);
+		newFileName[strlen(newFileName)] = '\\';
+		memcpy(newFileName + strlen(newFileName), filename + 3, strlen(filename) - 3);
+		
+		return g_orig_sopen_s(pfh, newFileName, oflag, shflag, pmode);
+	}
+	return g_orig_sopen_s(pfh, filename, oflag, shflag, pmode);
+}
+
+int (WINAPI *g_orig_mkdir)(
+	const char* dirname
+);
+
+int _mkdirHook(
+	const char* dirname
+)
+{
+	if ((dirname[0] == 'f' || dirname[0] == 'F' || dirname[0] == 'g' || dirname[0] == 'G') && dirname[1] == ':')
+	{
+		memset(newFileName, 0, MAX_PATH);
+		if (GetCurrentDirectoryA(MAX_PATH, newFileName) == 0)
+		{
+			return g_orig_mkdir(dirname);
+		}
+		memcpy(newFileName + strlen(newFileName), "\\OpenParrot\\", 12);
+		newFileName[strlen(newFileName)] = tolower(dirname[0]);
+		newFileName[strlen(newFileName)] = '\\';
+		memcpy(newFileName + strlen(newFileName), dirname + 3, strlen(dirname) - 3);
+		return g_orig_mkdir(newFileName);
+	}
+	return g_orig_mkdir(dirname);
+}
+
 extern LPCSTR hookPort;
 
 static InitFunction StarWarsJapEs3XFunc([]()
@@ -199,6 +261,8 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
 	MH_CreateHookApi(L"user32.dll", "SetWindowPos", SetWindowPosHook, (void**)&g_origSetWindowPos);
+	MH_CreateHookApi(L"msvcr100.dll", "_sopen_s", _sopen_sHook, (void**)&g_orig_sopen_s);
+	MH_CreateHookApi(L"msvcr100.dll", "_mkdir", _mkdirHook, (void**)&g_orig_mkdir);
 	MH_EnableHook(MH_ALL_HOOKS);
 
 	// Ignore Projector Error
@@ -219,6 +283,15 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 	{
 		injector::MakeNOP(imageBase + 0x342B3, 6);
 	}
+
+	memset(newFileName, 0, MAX_PATH);
+	GetCurrentDirectoryA(MAX_PATH, newFileName);
+	memcpy(newFileName + strlen(newFileName), "\\OpenParrot\\", 12);
+	CreateDirectoryA(newFileName, nullptr);
+	newFileName[strlen(newFileName)] = 'f';
+	CreateDirectoryA(newFileName, nullptr);
+	newFileName[strlen(newFileName) - 1] = 'g';
+	CreateDirectoryA(newFileName, nullptr);
 	
 	hookPort = "COM3";
 }, GameID::StarWarsEs3XLauncher);
@@ -238,6 +311,9 @@ static InitFunction StarWarsJapEs3XLauncherFunc([]()
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_encrypt", Hook_hasp_encrypt, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
+	MH_CreateHookApi(L"user32.dll", "SetWindowPos", SetWindowPosHook, (void**)&g_origSetWindowPos);
+	MH_CreateHookApi(L"msvcr100.dll", "_sopen_s", _sopen_sHook, (void**)&g_orig_sopen_s);
+	MH_CreateHookApi(L"msvcr100.dll", "_mkdir", _mkdirHook, (void**)&g_orig_mkdir);
 	MH_EnableHook(MH_ALL_HOOKS);
 
 	// Ignore Projector Error
@@ -246,6 +322,15 @@ static InitFunction StarWarsJapEs3XLauncherFunc([]()
 	// Ignore powershell
 	injector::MakeRET(imageBase + 0x5E440);
 	injector::MakeRET(imageBase + 0x5E540);
+
+	memset(newFileName, 0, MAX_PATH);
+	GetCurrentDirectoryA(MAX_PATH, newFileName);
+	memcpy(newFileName + strlen(newFileName), "\\OpenParrot\\", 12);
+	CreateDirectoryA(newFileName, nullptr);
+	newFileName[strlen(newFileName)] = 'f';
+	CreateDirectoryA(newFileName, nullptr);
+	newFileName[strlen(newFileName) - 1] = 'g';
+	CreateDirectoryA(newFileName, nullptr);
 
 	hookPort = "COM3";
 }, GameID::StarWarsJapEs3XLauncher);
