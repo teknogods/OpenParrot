@@ -450,4 +450,4 @@ static InitFunction XInputHook([]()
 			MH_EnableHook(MH_ALL_HOOKS);
 		}
 	});
-#pragma optimize("", on)´
+#pragma optimize("", on)
