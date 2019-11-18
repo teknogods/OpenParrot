@@ -176,6 +176,12 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 	// Ignore Projector Error
 	injector::WriteMemory<BYTE>(imageBase + 0x35580, 0xC3, true);
 
+	if (ToBool(config["General"]["FreePlay"]))
+	{
+		injector::MakeNOP(imageBase + 0x4DD2F, 6, true);
+		injector::MakeNOP(imageBase + 0x4DBEA, 7, true);
+	}
+	
 	hookPort = "COM3";
 }, GameID::StarWarsEs3XLauncher);
 
