@@ -126,6 +126,29 @@ BOOL SetWindowPosHook(
 
 char newFileName[MAX_PATH];
 
+static bool IsSaveDrive(LPCSTR filename)
+{
+	if ((filename[0] == 'f' || filename[0] == 'F' || filename[0] == 'g' || filename[0] == 'G') && filename[1] == ':')
+	{
+		return true;
+	}
+	return false;
+}
+
+UINT (WINAPI *g_origGetDriveTypeA)(
+	LPCSTR lpRootPathName
+);
+
+UINT GetDriveTypeAHook(
+	LPCSTR lpRootPathName
+)
+{
+	if (IsSaveDrive(lpRootPathName))
+	{
+		return 3;
+	}
+	return g_origGetDriveTypeA(lpRootPathName);
+}
 
 errno_t (WINAPI *g_orig_sopen_s)(
 	int* pfh,
@@ -143,7 +166,7 @@ errno_t _sopen_sHook(
 	int pmode
 )
 {
-	if((filename[0] == 'f' || filename[0] == 'F' || filename[0] == 'g' || filename[0] == 'G') && filename[1] == ':')
+	if (IsSaveDrive(filename))
 	{
 		memset(newFileName, 0, MAX_PATH);
 		if(GetCurrentDirectoryA(MAX_PATH, newFileName) == 0)
@@ -170,7 +193,7 @@ int _mkdirHook(
 	const char* dirname
 )
 {
-	if ((dirname[0] == 'f' || dirname[0] == 'F' || dirname[0] == 'g' || dirname[0] == 'G') && dirname[1] == ':')
+	if (IsSaveDrive(dirname))
 	{
 		memset(newFileName, 0, MAX_PATH);
 		if (GetCurrentDirectoryA(MAX_PATH, newFileName) == 0)
@@ -253,6 +276,7 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 
 	MH_Initialize();
 	MH_CreateHookApi(L"kernel32.dll", "CreateProcessW", CreateProcessWHook, (void**)&g_origCreateProcessW);
+	MH_CreateHookApi(L"kernel32.dll", "GetDriveTypeA", GetDriveTypeAHook, (void**)&g_origGetDriveTypeA);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_write", Hook_hasp_write, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_read", Hook_hasp_read, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_get_size", Hook_hasp_get_size, NULL);
@@ -304,6 +328,7 @@ static InitFunction StarWarsJapEs3XLauncherFunc([]()
 
 	MH_Initialize();
 	MH_CreateHookApi(L"kernel32.dll", "CreateProcessW", CreateProcessWHook, (void**)& g_origCreateProcessW);
+	MH_CreateHookApi(L"kernel32.dll", "GetDriveTypeA", GetDriveTypeAHook, (void**)&g_origGetDriveTypeA);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_write", Hook_hasp_write, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_read", Hook_hasp_read, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_get_size", Hook_hasp_get_size, NULL);
