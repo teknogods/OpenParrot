@@ -185,6 +185,13 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 	// Don't minimize all windows
 	injector::MakeNOP(imageBase + 0x33AE2, 6);
 	injector::WriteMemory<WORD>(imageBase + 0x33A45, 0xE990, true);
+
+	// Don't hide cursor pls
+	if (!ToBool(config["General"]["HideCursor"]))
+	{
+		injector::MakeNOP(imageBase + 0x342B3, 6);
+	}
+	
 	
 	hookPort = "COM3";
 }, GameID::StarWarsEs3XLauncher);
