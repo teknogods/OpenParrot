@@ -51,6 +51,11 @@ DWORD WINAPI QuitGameThread(__in  LPVOID lpParameter)
 			{
 				system("taskkill /f /im InpWrapper.exe");
 			}
+			if ((GameDetect::currentGame == GameID::StarWarsEs3X) || (GameDetect::currentGame == GameID::StarWarsJapEs3X) || (GameDetect::currentGame == GameID::StarWarsEs3XLauncher) || (GameDetect::currentGame == GameID::StarWarsJapEs3XLauncher))
+			{
+				system("taskkill /f /im RSLauncher.exe");
+				system("taskkill /f /im SWArcGame-Win64-Shipping.exe");
+			}
 			if (blaster)
 			{
 				FreeLibrary(blaster);
