@@ -10,11 +10,31 @@
 
 extern LPCSTR hookPort;
 
+
+// Lan fix funcs, fixes not yet committed.
+static int ReturnFalse()
+{
+	return 0;
+}
+
+static int ReturnTrue()
+{
+	return 1;
+}
+
+static int ReturnsTwo()
+{
+	return 2;
+}
+
 static InitFunction Tekken7Func([]()
 	{
 		hookPort = ("COM3");
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
 
+		// Force Offline mode
+		safeJMP(imageBase + 0x204AF0, ReturnTrue);
+	
 		// Skip all errors
 		injector::MakeNOP(imageBase + 0x25E791, 5);
 
