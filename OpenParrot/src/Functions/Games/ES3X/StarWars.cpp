@@ -5,7 +5,7 @@
 #include "Functions/Global.h"
 #include "Utility/GameDetect.h"
 
-DWORD WINAPI XInputGetStateStarWars
+DWORD WINAPI XInputStateStarWars
 (
 	__in  DWORD  dwUserIndex,	// Index of the gamer associated with the device
 	__out DWORD* pState			// Receives the current state
@@ -227,7 +227,11 @@ static InitFunction StarWarsJapEs3XFunc([]()
 		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_encrypt", Hook_hasp_encrypt, NULL);
 		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
 		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
-		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateStarWars, NULL);
+		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputStateStarWars, NULL);
+		if (ToBool(config["General"]["Disable Rumble"]))
+		{
+			MH_CreateHookApi(L"xinput1_3.dll", "XInputSetState", &XInputStateStarWars, NULL);
+		}
 		MH_EnableHook(MH_ALL_HOOKS);
 
 		if (ToBool(config["General"]["Remove Camera Error"]))
@@ -253,7 +257,11 @@ static InitFunction StarWarsEs3XFunc([]()
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_encrypt", Hook_hasp_encrypt, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
-	MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateStarWars, NULL);
+	MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputStateStarWars, NULL);
+	if (ToBool(config["General"]["Disable Rumble"]))
+	{
+		MH_CreateHookApi(L"xinput1_3.dll", "XInputSetState", &XInputStateStarWars, NULL);
+	}	
 	MH_EnableHook(MH_ALL_HOOKS);
 		
 	if (ToBool(config["General"]["2D DomeFix"]))
@@ -296,6 +304,7 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 	{
 		injector::MakeNOP(imageBase + 0x4DD2F, 6, true);
 		injector::MakeNOP(imageBase + 0x4DBEA, 7, true);
+		injector::MakeNOP(imageBase + 0x4DD53, 7, true);
 	}
 
 	// Don't minimize all windows
