@@ -263,11 +263,6 @@ static InitFunction StarWarsEs3XFunc([]()
 		MH_CreateHookApi(L"xinput1_3.dll", "XInputSetState", &XInputStateStarWars, NULL);
 	}	
 	MH_EnableHook(MH_ALL_HOOKS);
-		
-	if (ToBool(config["General"]["2D DomeFix"]))
-	{
-		//Leave for fix incoming
-	}
 
 	if (ToBool(config["General"]["Remove Camera Error"]))
 	{
