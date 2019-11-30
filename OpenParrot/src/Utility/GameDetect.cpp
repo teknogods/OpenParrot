@@ -7,6 +7,7 @@ bool GameDetect::enableNesysEmu = true;
 NesicaKey GameDetect::NesicaKey;
 X2Type GameDetect::X2Type = X2Type::None;
 static char newCrc[0x400];
+static char errorBuffer[256];
 
 void GameDetect::DetectCurrentGame()
 {
@@ -495,6 +496,11 @@ void GameDetect::DetectCurrentGame()
 			info(true, "---------------------------------");
 			info(true, "New CRC: %08x not implemented", newCrcResult);
 			info(true, "---------------------------------");
+#else
+			memset(errorBuffer, 0, 256);
+			sprintf_s(errorBuffer, 256, "Unsupported Executable, NEW CRC: %08X!", newCrcResult);
+			MessageBoxA(0, errorBuffer, "Error", MB_ICONERROR);
+			ExitProcess(0);
 #endif
 			break;
 		}
