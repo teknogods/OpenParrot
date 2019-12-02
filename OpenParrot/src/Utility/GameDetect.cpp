@@ -49,7 +49,6 @@ void GameDetect::DetectCurrentGame()
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
-
 	case 0x6e67076f:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::BlazBlueCentralFriction;
@@ -470,6 +469,31 @@ void GameDetect::DetectCurrentGame()
 			break;
 		case 0x72c27333:
 			currentGame = GameID::JLeague;
+			break;
+		case 0x43de771f: // 3D Cosplay Mahjong (runs in windowed mode permanently for some reason)
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0x04ce5f18: // Akai Katana Shin for NESiCAxLive (was working but now isnt?)
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xaf3d84cc: //Battle Fantasia Network Edition for NESiCAxLive (I/O not working)
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xac86efec: //Chaos Code v1.03
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xa742a607: //Chaos Code v2.11
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
 			break;
 #ifdef _AMD64_
 		case 0x80ebd207:
