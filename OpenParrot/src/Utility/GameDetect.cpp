@@ -428,11 +428,11 @@ void GameDetect::DetectCurrentGame()
 #else
 		// X64
 		// School of Ragnarok
-		if (*(uint32_t *)(moduleBase + 0x396E) == 0x2180B841)
-		{
-			currentGame = GameID::SchoolOfRagnarok;
-			isNesica = true;
-		}
+		//if (*(uint32_t *)(moduleBase + 0x396E) == 0x2180B841)
+		//{
+		//	currentGame = GameID::SchoolOfRagnarok;
+		//	isNesica = true;
+		//}
 		if (*(uint32_t*)(moduleBase + 0x1C04) == 0x7401C3F6)
 		{
 			currentGame = GameID::PokkenTournament;
@@ -489,6 +489,10 @@ void GameDetect::DetectCurrentGame()
 			break;
 		case 0xe1e9e32c: // JPN
 			currentGame = GameID::StarWarsJapEs3X;
+			break;
+		case 0x30F676AD:
+			currentGame = GameID::SchoolOfRagnarok;
+			isNesica = true;
 			break;
 #endif
 		default:
