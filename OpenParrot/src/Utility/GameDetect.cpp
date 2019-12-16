@@ -475,7 +475,7 @@ void GameDetect::DetectCurrentGame()
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
-		case 0x04ce5f18: // Akai Katana Shin for NESiCAxLive (was working but now isnt?)
+		case 0x04ce5f18: // Akai Katana Shin for NESiCAxLive
 			currentGame = GameID::Nesica;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
@@ -491,6 +491,45 @@ void GameDetect::DetectCurrentGame()
 			isNesica = true;
 			break;
 		case 0xa742a607: //Chaos Code v2.11
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xb208e63a: //Dragon Dance game_liong.exe (game.exe just crashes but starts this program anyway)
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xbe9c0407: //Skullgirls 2nd Encore
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::NoNet;
+			isNesica = true;
+			break;
+		case 0x1046a695: //Spica Adventure for NXL (honestly no difference i can find from OG version, X2 emu works fine for it)
+			currentGame = GameID::SpicaAdventure;
+			X2Type = X2Type::Generic;
+			break;
+		case 0xbd516d7b: //KoFXIII
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0x3806e8f4: //KoF98 (has files that need to be deleted to run)
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xa202d660: //Yatagarasu - Attack on Cataclysm
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xbd4c12a5: //some fishing shit idk
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xc5715d2e: //Ikaruga NXL
 			currentGame = GameID::Nesica;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
