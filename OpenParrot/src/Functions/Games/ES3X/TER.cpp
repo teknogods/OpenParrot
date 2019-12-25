@@ -49,4 +49,51 @@ static InitFunction Tekken7Func([]()
 			injector::WriteMemory<DWORD>(imageBase + 0x115E757 + 0x08, 0xC6FFC6FF, true);
 		}
 	}, GameID::TER);
+
+static InitFunction Tekken7Update00Func([]()
+	{
+		hookPort = "COM3";
+		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+
+		// Skip all errors
+		injector::MakeNOP(imageBase + 0x16D3D1, 5);
+
+		// Force Offline mode
+		safeJMP(imageBase + 0xACB190, ReturnTrue);
+
+		// First Check Error
+		injector::MakeNOP(imageBase + 0x17B400, 5);
+
+		// Windowed
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			// doesn't seem to work?
+			injector::WriteMemory<LONGLONG>(imageBase + 0xBCB2D3, 0xF633C1FFC1FFC933, true);
+			injector::WriteMemory<DWORD>(imageBase + 0xBCB2D3 + 0x08, 0xC6FFC6FF, true);
+		}
+
+	}, GameID::Tekken7Update00);
+
+static InitFunction Tekken7Upd12Func([]()
+	{
+		hookPort = "COM3";
+		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+
+		// Skip all errors
+		injector::MakeNOP(imageBase + 0x16BC41, 5);
+
+		// Force Offline mode
+		safeJMP(imageBase + 0x147380, ReturnTrue);
+
+		// First Check Error
+		injector::MakeNOP(imageBase + 0x179050, 5);
+
+		// Windowed
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			injector::WriteMemory<LONGLONG>(imageBase + 0xBF0F33, 0xF633C1FFC1FFC933, true);
+			injector::WriteMemory<DWORD>(imageBase + 0xBF0F33 + 0x08, 0xC6FFC6FF, true);
+		}
+
+	}, GameID::Tekken7Update12);
 #endif

@@ -534,6 +534,15 @@ void GameDetect::DetectCurrentGame()
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
+		case 0xed9b5740:
+			currentGame = GameID::H2Overdrive;
+			break;
+		case 0x8456EEC1:
+			currentGame = GameID::DirtyDrivin;
+			break;
+		case 0x4D91A27A:
+			currentGame = GameID::SnoCross;
+			break;
 #ifdef _AMD64_
 		case 0x80ebd207:
 			currentGame = GameID::Theatrhythm;
@@ -556,6 +565,12 @@ void GameDetect::DetectCurrentGame()
 		case 0x30F676AD:
 			currentGame = GameID::SchoolOfRagnarok;
 			isNesica = true;
+			break;
+		case 0x00ed2300:
+			currentGame = GameID::Tekken7Update12;
+			break;
+		case 0xce9718fd:
+			currentGame = GameID::Tekken7Update00;
 			break;
 #endif
 		default:

@@ -5,6 +5,9 @@
 #include "dx8/d3d8.h"
 #include "Utility/GameDetect.h"
 
+static bool swShaderHack = false;
+static bool windowed = false;
+
 IDirect3D8*(WINAPI* g_origDirect3DCreate8)(UINT SDKVersion);
 
 template<typename T>
@@ -25,12 +28,15 @@ static HRESULT(WINAPI* g_oldReset)(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS
 
 HRESULT WINAPI ResetWrap(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	pPresentationParameters->Windowed = TRUE;
-	pPresentationParameters->FullScreen_RefreshRateInHz = 0;
-	pPresentationParameters->BackBufferWidth = 0;
-	pPresentationParameters->BackBufferHeight = 0;
-	pPresentationParameters->Flags = 0;
-	pPresentationParameters->FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+	if (windowed)
+	{
+		pPresentationParameters->Windowed = TRUE;
+		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+		pPresentationParameters->BackBufferWidth = 0;
+		pPresentationParameters->BackBufferHeight = 0;
+		pPresentationParameters->Flags = 0;
+		pPresentationParameters->FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+	}
 
 	return g_oldReset(self, pPresentationParameters);
 }
@@ -39,13 +45,17 @@ static HRESULT(WINAPI* g_oldCreateDevice)(IDirect3D8* self, UINT Adapter, D3DDEV
 
 HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface)
 {
-	pPresentationParameters->Windowed = TRUE;
-	pPresentationParameters->FullScreen_RefreshRateInHz = 0;
-	pPresentationParameters->BackBufferWidth = 0;
-	pPresentationParameters->BackBufferHeight = 0;
-	pPresentationParameters->Flags = 0;
-	pPresentationParameters->FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
-
+	if (windowed)
+	{
+		pPresentationParameters->Windowed = TRUE;
+		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+		pPresentationParameters->BackBufferWidth = 0;
+		pPresentationParameters->BackBufferHeight = 0;
+		pPresentationParameters->Flags = 0;
+		pPresentationParameters->FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+	}
+	if (swShaderHack)
+		BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 	HRESULT hr = g_oldCreateDevice(self, Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
 
 	if (*ppReturnedDeviceInterface)
@@ -84,6 +94,12 @@ static InitFunction initFunc([]()
 		return;
 	if (GameDetect::currentGame == GameID::FNFSC)
 		InitD3D8WindowHook();
+	if (GameDetect::currentGame == GameID::SnoCross)
+	{
+		swShaderHack = ToBool(config["General"]["SoftwareVertexShaders"]);
+		if (swShaderHack)
+			InitD3D8WindowHook();
+	}
 	if (ToBool(config["General"]["Windowed"]))
 	{
 		InitD3D8WindowHook();

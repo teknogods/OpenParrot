@@ -64,5 +64,10 @@ enum class GameID
 	StarWarsJapEs3XLauncher,
 	StarWarsEs3XLauncher,
 	StarWarsEs3X,
-	StarWarsJapEs3X
+	StarWarsJapEs3X,
+	SnoCross,
+	DirtyDrivin,
+	H2Overdrive,
+	Tekken7Update00,
+	Tekken7Update12
 };
