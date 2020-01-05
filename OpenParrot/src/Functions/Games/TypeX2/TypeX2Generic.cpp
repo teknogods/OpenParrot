@@ -6,6 +6,44 @@
 #if _M_IX86
 using namespace std::string_literals;
 
+static int ThreadLoop()
+{	
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	static bool SkipBool = false;
+
+	injector::MakeNOP(imageBase + 0x1EF28, 6);
+	injector::MakeNOP(imageBase + 0x1F078, 6);
+	injector::WriteMemory<DWORD>(imageBase + 0x130B4FC, 0x0000, true);
+	injector::WriteMemory<DWORD>(imageBase + 0x130B500, 0xFF00, true);
+
+	BYTE StartCal = *(BYTE*)(imageBase + 0x130B504);
+	if (StartCal == 1)
+	{
+		if (!SkipBool)
+		{
+			*(BYTE*)(imageBase + 0x130B504) = 0x04;
+			*(BYTE*)(imageBase + 0x130B4F9) = 0x01;
+			SkipBool = true;
+		}
+	}
+
+	if (ToBool(config["General"]["Disable Cel Shaded"]))
+	{
+		injector::MakeNOP(imageBase + 0x31FFA, 6);
+		injector::WriteMemory<BYTE>(imageBase + 0x130CB30, 0x00, true);
+	}
+	return 0;
+}
+
+static DWORD WINAPI ThreadforChaseHQ2(LPVOID lpParam)
+{
+	while (true)
+	{
+		ThreadLoop();
+		Sleep(16);
+	}
+}
+
 void AddCommOverride(HANDLE hFile);
 
 static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
@@ -266,6 +304,11 @@ static InitFunction initFunction([]()
 		injector::WriteMemory<BYTE>(0x004B73ED, 0xEB, true);
 		injector::WriteMemory<BYTE>(0x004C640C, 0xEB, true);
 		injector::WriteMemory<DWORD>(0x004CE1C0, 0xC340C033, true);
+	}
+
+	if (GameDetect::currentGame == GameID::ChaseHq2)
+	{
+		CreateThread(NULL, 0, ThreadforChaseHQ2, NULL, 0, NULL);
 	}
 });
 #endif
