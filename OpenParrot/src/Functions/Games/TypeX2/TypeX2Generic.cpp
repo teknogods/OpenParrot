@@ -6,26 +6,13 @@
 #if _M_IX86
 using namespace std::string_literals;
 
-static int ThreadLoop()
-{	
+static DWORD WINAPI ThreadforChaseHQ2(LPVOID lpParam)
+{
+	Sleep(5000);
+
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-	static bool SkipBool = false;
-
-	injector::MakeNOP(imageBase + 0x1EF28, 6);
-	injector::MakeNOP(imageBase + 0x1F078, 6);
-	injector::WriteMemory<DWORD>(imageBase + 0x130B4FC, 0x0000, true);
-	injector::WriteMemory<DWORD>(imageBase + 0x130B500, 0xFF00, true);
-
-	BYTE StartCal = *(BYTE*)(imageBase + 0x130B504);
-	if (StartCal == 1)
-	{
-		if (!SkipBool)
-		{
-			*(BYTE*)(imageBase + 0x130B504) = 0x04;
-			*(BYTE*)(imageBase + 0x130B4F9) = 0x01;
-			SkipBool = true;
-		}
-	}
+	injector::WriteMemory<BYTE>(imageBase + 0x130B504, 0x04, true);
+	injector::WriteMemory<FLOAT>(imageBase + 0x130B4F8, 5.0, true);
 
 	if (ToBool(config["General"]["Disable Cel Shaded"]))
 	{
@@ -33,15 +20,6 @@ static int ThreadLoop()
 		injector::WriteMemory<BYTE>(imageBase + 0x130CB30, 0x00, true);
 	}
 	return 0;
-}
-
-static DWORD WINAPI ThreadforChaseHQ2(LPVOID lpParam)
-{
-	while (true)
-	{
-		ThreadLoop();
-		Sleep(16);
-	}
 }
 
 void AddCommOverride(HANDLE hFile);
