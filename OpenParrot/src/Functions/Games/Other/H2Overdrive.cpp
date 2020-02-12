@@ -2,12 +2,10 @@
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #include "Utility\Hooking.Patterns.h"
-#include <Xinput.h>
 #include <math.h>
-#include <dinput.h>
 
 #pragma comment(lib, "Ws2_32.lib")
-#if _M_IX86
+
 typedef unsigned int U32;
 typedef unsigned char U8;
 
@@ -148,13 +146,13 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		int iWheel = (((float)* ffbOffset2) - 128);
 		float wheel = (iWheel * 0.0078125f);
 		injector::WriteMemory<float>((0x398CC8 + BaseAddress10), wheel * 0.5f + 0.5f, true); // MENU WHEEL
-		injector::WriteMemory<float>((0x29D4D8 + BaseAddress10), wheel, true); // GAME WHEEL
+		injector::WriteMemory<float>((0x3D2CD4 + BaseAddress10), wheel, true); // GAME WHEEL
 		//// GAS
 		float gas = (float)* ffbOffset3 / 255.0f;
 		injector::WriteMemory<float>((0x398CD0 + BaseAddress10), gas, true);
 
 		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//	info(true, "test value %08X", ptr);
+		//	info(true, "test value %f", wheel);
 		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		Sleep(deltaTimer);
@@ -175,6 +173,10 @@ static InitFunction H2OverdriveFunc([]()
 		injector::WriteMemoryRaw((0x19C240 + BaseAddress10), "\xC2\x04\x00\x90\x90\x90", 6, true);
 		injector::WriteMemoryRaw((0x251744 + BaseAddress10), "\x2E\x5C\x00", 3, true);
 
+		// UNUSED PATCHES
+	//	injector::WriteMemoryRaw((0x24F6B8 + BaseAddress10), "\x2E\x5C", 2, true);
+	//	injector::WriteMemoryRaw((0x250B68 + BaseAddress10), "\x2E\x5C", 2, true);
+
 	//CONTROLS PATCH
 		// BOOST BUTTON
 		injector::MakeNOP((0x151594 + BaseAddress10), 5, true); // PATCH BUTTON IN MENU
@@ -183,7 +185,7 @@ static InitFunction H2OverdriveFunc([]()
 		LPVOID* ptr3 = (LPVOID*)& patchBoostButton[1];
 		*ptr3 = GetTranslatedOffset(0x398CB0 + BaseAddress10);
 		injector::WriteMemoryRaw((0x109BA3 + BaseAddress10), patchBoostButton, sizeof(patchBoostButton), true); // PATCH BOOST BUTTON IN GAME
-		injector::WriteMemory<INT32>((0x257B94 + 0x2C + BaseAddress10), (int)GetTranslatedOffset(0x109BA3 + BaseAddress10), true); // PATCH JUMP TABLE FOR BOOST BUTTON
+		injector::WriteMemory<U32>((0x257B94 + 0x2C + BaseAddress10), (int)GetTranslatedOffset(0x109BA3 + BaseAddress10), true); // PATCH JUMP TABLE FOR BOOST BUTTON
 		// VIEW BUTTON
 		injector::MakeNOP((0x151599 + BaseAddress10), 6, true); // PATCH VIEW BUTTON IN MENU
 		injector::MakeNOP((0x1515DC + BaseAddress10), 5, true);
@@ -191,19 +193,26 @@ static InitFunction H2OverdriveFunc([]()
 		LPVOID* ptr4 = (LPVOID*)& patchViewButton[1];
 		*ptr4 = GetTranslatedOffset(0x398CB8 + BaseAddress10);
 		injector::WriteMemoryRaw((0x109BA9 + BaseAddress10), patchViewButton, sizeof(patchViewButton), true); // PATCH VIEW BUTTON IN GAME
-		injector::WriteMemory<INT32>((0x257B94 + 0x44 + BaseAddress10), (int)GetTranslatedOffset(0x109BA9 + BaseAddress10), true); // PATCH JUMP TABLE FOR VIEW BUTTON
+		injector::WriteMemory<U32>((0x257B94 + 0x44 + BaseAddress10), (int)GetTranslatedOffset(0x109BA9 + BaseAddress10), true); // PATCH JUMP TABLE FOR VIEW BUTTON
 		// WHEEL AND PEDAL
 		injector::MakeNOP((0x151698 + BaseAddress10), 10, true); // PATCH WHEEL WRITE IN MENU
 		U8 patchPedal[] = { 0xD9, 0x05, 0xD0, 0x8C, 0x79, 0x00, 0xC2, 0x04, 0x00 };
-		LPVOID* ptrPedal = (LPVOID*)& patchPedal[2];
+		LPVOID* ptrPedal = (LPVOID*)&patchPedal[2];
 		*ptrPedal = GetTranslatedOffset(0x00398CD0 + BaseAddress10);
 		injector::WriteMemoryRaw((0x000859B7 + BaseAddress10), patchPedal, sizeof(patchPedal), true); // PATCH PEDAL
-		injector::WriteMemory<INT32>((0x257B94 + 0x20 + BaseAddress10), (int)GetTranslatedOffset(0x000859B7 + BaseAddress10), true); // PATCH JUMP TABLE FOR GAS
+		injector::WriteMemory<U32>((0x257B94 + 0x20 + BaseAddress10), (int)GetTranslatedOffset(0x000859B7 + BaseAddress10), true); // PATCH JUMP TABLE FOR GAS
 		U8 patchWheel[] = { 0xD9, 0x05, 0xD8, 0xD4, 0x69, 0x00, 0xC2, 0x04, 0x00 };
-		LPVOID* ptrWheel = (LPVOID*)& patchWheel[2];
-		*ptrWheel = GetTranslatedOffset(0x0029D4D8 + BaseAddress10);
+		LPVOID* ptrWheel = (LPVOID*)&patchWheel[2];
+		*ptrWheel = GetTranslatedOffset(0x3D2CD4 + BaseAddress10);
 		injector::WriteMemoryRaw((0x000859C7 + BaseAddress10), patchWheel, sizeof(patchWheel), true); // PATCH WHEEL
-		injector::WriteMemory<INT32>((0x257B94 + 0x1C + BaseAddress10), (int)GetTranslatedOffset(0x000859C7 + BaseAddress10), true); // PATCH JUMP TABLE FOR WHEEL
+		injector::WriteMemory<U32>((0x257B94 + 0x1C + BaseAddress10), (int)GetTranslatedOffset(0x000859C7 + BaseAddress10), true); // PATCH JUMP TABLE FOR WHEEL
+		// OLD WHEEL+PEDAL PATCH
+//		U8 patchWheelAndPedal[] = { 0xD9, 0x05, 0xD0, 0x8C, 0x79, 0x00, 0xC2, 0x04, 0x00,  0x83, 0x7C, 0x24, 0x04, 0x00, 0x75, 0xF0, 0xD9, 0x05, 0xD8, 0xD4, 0x69, 0x00, 0xC2, 0x04, 0x00 };
+//		LPVOID* ptr1 = (LPVOID*)&patchWheelAndPedal[2];
+//		*ptr1 = GetTranslatedOffset(0x00398CD0 + BaseAddress10);
+//		LPVOID* ptr2 = (LPVOID*)&patchWheelAndPedal[18];
+//		*ptr2 = GetTranslatedOffset(0x0029D4D8 + BaseAddress10);
+//		injector::WriteMemoryRaw(0x000859B7 + BaseAddress10, patchWheelAndPedal, sizeof(patchWheelAndPedal),true); // PATCH COMMON CODE USED BY PEDAL AND WHEEL
 
 		//TEST REMAP to DELETE
 		injector::WriteMemoryRaw((0x146E68 + BaseAddress10), "\x6A\x2E", 2, true);
@@ -222,4 +231,3 @@ static InitFunction H2OverdriveFunc([]()
 		CreateThread(NULL, 0, InputRT10, NULL, 0, NULL);
 
 	}, GameID::H2Overdrive);
-#endif
