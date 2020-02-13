@@ -31,6 +31,8 @@ LPVOID GetTranslatedOffset(int offset)
 	return reinterpret_cast<LPVOID>((int)gProcDbgInfo.lpBaseOfImage + offset);
 }
 
+BOOL(__stdcall* original_CreateWindowExA10)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+
 DWORD WINAPI InputRT10(LPVOID lpParam)
 {
 	int deltaTimer = 16;
@@ -116,15 +118,15 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 			}
 		}
 		
-		// BUTTON 3/ VIEW
+		// BUTTON 2/ VIEW
 		int ptr = *(DWORD*)(0x38C2D0 + BaseAddress10);
-		if (*ffbOffset & 0x400)
+		if (*ffbOffset & 0x200)
 		{
-			if (button3pressed == false)
+			if (button2pressed == false)
 			{
 				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true);
 				injector::WriteMemory<INT32>((0x398CBC + BaseAddress10), 0, true);
-				button3pressed = true;
+				button2pressed = true;
 
 				if (0 != ptr)
 				{
@@ -134,11 +136,51 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		}
 		else
 		{
-			if (button3pressed == true)
+			if (button2pressed == true)
 			{
 				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true);
 				injector::WriteMemory<INT32>((0x398CBC + BaseAddress10), 1, true);
+				button2pressed = false;
+
+				if (0 != ptr)
+				{
+					injector::WriteMemory<INT32>((ptr + 0x840), 0, true);
+				}
+			}
+		}
+
+		// BUTTON 3/ TEST
+		if (*ffbOffset & 0x400)
+		{
+			if (button3pressed == false)
+			{
+				keybd_event(0x2E, MapVirtualKey(0x2E, MAPVK_VK_TO_VSC), 0, 0);
+				button3pressed = true;
+			}
+		}
+		else
+		{
+			if (button3pressed == true)
+			{
+				keybd_event(0x2E, MapVirtualKey(0x2E, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 				button3pressed = false;
+			}
+		}
+		// BUTTON 4/ SERVICE
+		if (*ffbOffset & 0x800)
+		{
+			if (button4pressed == false)
+			{
+				keybd_event(0x2D, MapVirtualKey(0x2D, MAPVK_VK_TO_VSC), 0, 0);
+				button4pressed = true;
+			}
+		}
+		else
+		{
+			if (button4pressed == true)
+			{
+				keybd_event(0x2D, MapVirtualKey(0x2D, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				button4pressed = false;
 			}
 		}
 
@@ -149,7 +191,9 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		injector::WriteMemory<float>((0x3D2CD4 + BaseAddress10), wheel, true); // GAME WHEEL
 		//// GAS
 		float gas = (float)* ffbOffset3 / 255.0f;
-		injector::WriteMemory<float>((0x398CD0 + BaseAddress10), gas, true);
+		float brake = (float)*ffbOffset4 / 255.0f;
+	//	injector::WriteMemory<float>((0x398CD0 + BaseAddress10), gas, true);
+		injector::WriteMemory<float>((0x398CD0 + BaseAddress10), gas - brake, true);
 
 		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//	info(true, "test value %f", wheel);
@@ -161,22 +205,26 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 	return 0;
 }
 
+DWORD WINAPI CreateWindowExART10(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+{
+	return original_CreateWindowExA10(dwExStyle, lpClassName, lpWindowName, 0x14CF0000, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+}
 
 static InitFunction H2OverdriveFunc([]()
 	{
 		// PATCHING EXE AT RUNTIME (reboots, network, filepath, config, CRC...
+	//	injector::MakeNOP((0x0DBE3A + BaseAddress10), 2, true); // force DEV SETTINGS BOOT DISPLAY
 		injector::WriteMemoryRaw((0x24713C + BaseAddress10), "\x48\x32\x4F\x76\x65\x72\x64\x72\x69\x76\x65", 11, true);
 		injector::WriteMemoryRaw((0x004DB1 + BaseAddress10), "\xEB", 1, true);
-		injector::WriteMemoryRaw((0x0B423B + BaseAddress10), "\xEB", 1, true);
-		injector::WriteMemoryRaw((0x101B70 + BaseAddress10), "\xEB", 1, true);
-		injector::WriteMemoryRaw((0x12AB6F + BaseAddress10), "\xEB", 1, true);
+		injector::WriteMemoryRaw((0x0B423B + BaseAddress10), "\xEB", 1, true); // IO-Board check
+		injector::WriteMemoryRaw((0x101B70 + BaseAddress10), "\xEB", 1, true); // ATTRACT check
+		injector::WriteMemoryRaw((0x12AB6F + BaseAddress10), "\xEB", 1, true); 
 		injector::WriteMemoryRaw((0x19C240 + BaseAddress10), "\xC2\x04\x00\x90\x90\x90", 6, true);
-		injector::WriteMemoryRaw((0x251744 + BaseAddress10), "\x2E\x5C\x00", 3, true);
-
+		injector::WriteMemoryRaw((0x251744 + BaseAddress10), "\x2E\x5C\x00", 3, true); // PATH PATCH
 		// UNUSED PATCHES
 	//	injector::WriteMemoryRaw((0x24F6B8 + BaseAddress10), "\x2E\x5C", 2, true);
 	//	injector::WriteMemoryRaw((0x250B68 + BaseAddress10), "\x2E\x5C", 2, true);
-
+				
 	//CONTROLS PATCH
 		// BOOST BUTTON
 		injector::MakeNOP((0x151594 + BaseAddress10), 5, true); // PATCH BUTTON IN MENU
@@ -201,7 +249,7 @@ static InitFunction H2OverdriveFunc([]()
 		*ptrPedal = GetTranslatedOffset(0x00398CD0 + BaseAddress10);
 		injector::WriteMemoryRaw((0x000859B7 + BaseAddress10), patchPedal, sizeof(patchPedal), true); // PATCH PEDAL
 		injector::WriteMemory<U32>((0x257B94 + 0x20 + BaseAddress10), (int)GetTranslatedOffset(0x000859B7 + BaseAddress10), true); // PATCH JUMP TABLE FOR GAS
-		U8 patchWheel[] = { 0xD9, 0x05, 0xD8, 0xD4, 0x69, 0x00, 0xC2, 0x04, 0x00 };
+		U8 patchWheel[] = { 0xD9, 0x05, 0xD4, 0x2C, 0x7D, 0x00, 0xC2, 0x04, 0x00 };
 		LPVOID* ptrWheel = (LPVOID*)&patchWheel[2];
 		*ptrWheel = GetTranslatedOffset(0x3D2CD4 + BaseAddress10);
 		injector::WriteMemoryRaw((0x000859C7 + BaseAddress10), patchWheel, sizeof(patchWheel), true); // PATCH WHEEL
@@ -227,6 +275,13 @@ static InitFunction H2OverdriveFunc([]()
 		U8 patchKeypadButton[] = { 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x04, 0x85, 0x04, 0xAA, 0x6B, 0x00 ,0xC2, 0x04, 0x00 };
 		injector::WriteMemoryRaw((0x0023CE37 + BaseAddress10), patchKeypadButton, sizeof(patchKeypadButton), true);
 		injector::WriteMemory<INT32>((0x257B94 + 0x78 + BaseAddress10), (int)GetTranslatedOffset(0x23CE37 + BaseAddress10), true); // PATCH JUMP TABLE FOR KEYPAD BUTTON
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			MH_Initialize();
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART10, (void**)&original_CreateWindowExA10);
+			MH_EnableHook(MH_ALL_HOOKS);
+		}
 
 		CreateThread(NULL, 0, InputRT10, NULL, 0, NULL);
 
