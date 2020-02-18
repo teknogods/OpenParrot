@@ -124,8 +124,8 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button2pressed == false)
 			{
-				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true);
-				injector::WriteMemory<INT32>((0x398CBC + BaseAddress10), 0, true);
+			//	injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true);
+				injector::WriteMemory<INT32>((0x398CBC + BaseAddress10), 1, true);
 				button2pressed = true;
 
 				if (0 != ptr)
@@ -138,8 +138,8 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button2pressed == true)
 			{
-				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true);
-				injector::WriteMemory<INT32>((0x398CBC + BaseAddress10), 1, true);
+			//	injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true);
+				injector::WriteMemory<INT32>((0x398CBC + BaseAddress10), 0, true);
 				button2pressed = false;
 
 				if (0 != ptr)
