@@ -133,6 +133,10 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 					injector::WriteMemory<INT32>((ptr + 0x840), 1, true);
 				}
 			}
+			else if (button2pressed == true)
+			{
+				injector::WriteMemory<INT32>((0x398CBC + BaseAddress10), 0, true);
+			}
 		}
 		else
 		{
@@ -171,6 +175,7 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button4pressed == false)
 			{
+				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true); // MENU COUNTDOWN HACK
 				keybd_event(0x2D, MapVirtualKey(0x2D, MAPVK_VK_TO_VSC), 0, 0);
 				button4pressed = true;
 			}
@@ -179,6 +184,7 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button4pressed == true)
 			{
+				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true); // MENU COUNTDOWN HACK
 				keybd_event(0x2D, MapVirtualKey(0x2D, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 				button4pressed = false;
 			}
