@@ -88,9 +88,7 @@ extern linb::ini config;
 
 static InitFunction initFunc([]()
 {
-	if (GameDetect::currentGame == GameID::BG4)
-		return;
-	if (GameDetect::currentGame == GameID::TER)
+	if (GameDetect::currentGame == GameID::BG4 || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::Konami)
 		return;
 	if (GameDetect::currentGame == GameID::FNFSC)
 		InitD3D8WindowHook();

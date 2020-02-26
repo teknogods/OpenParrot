@@ -13,3 +13,7 @@ enum class X2Type {
 	MB4,
 	Wontertainment,
 };
+enum class KonamiGame {
+	None,
+	HelloPopnMusic,
+};

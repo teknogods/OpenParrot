@@ -6,13 +6,29 @@ bool GameDetect::isNesica = false;
 bool GameDetect::enableNesysEmu = true;
 NesicaKey GameDetect::NesicaKey;
 X2Type GameDetect::X2Type = X2Type::None;
+KonamiGame GameDetect::KonamiGame = KonamiGame::None;
 static char newCrc[0x400];
 static char errorBuffer[256];
 
-void GameDetect::DetectCurrentGame()
+bool GameDetect::file_exists(const std::string& name)
 {
-	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
+}
+
+void GameDetect::DetectCurrentGame(bool konami)
+{
 	NesicaKey = NesicaKey::None;
+	if (konami)
+	{
+		currentGame = GameID::Konami;
+
+		if (file_exists("popn.dll"))
+			KonamiGame = KonamiGame::HelloPopnMusic;
+
+		return;
+	}
+	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
 	switch (crcResult)
 	{
 #if _M_IX86

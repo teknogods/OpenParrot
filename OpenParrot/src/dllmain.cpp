@@ -95,6 +95,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 {
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
+		// SpiceTools 
+		if (GameDetect::file_exists("spice.exe") || GameDetect::file_exists("spice64.exe"))
+		{
+			GameDetect::DetectCurrentGame(true);
+			InitFunction::RunFunctions(GameID::Global);
+			InitFunction::RunFunctions(GameDetect::currentGame);
+			return TRUE;
+		}
 #ifdef DEVMODE
 		RunMain();
 #else
