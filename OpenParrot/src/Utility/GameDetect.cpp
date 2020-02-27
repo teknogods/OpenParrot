@@ -26,6 +26,14 @@ void GameDetect::DetectCurrentGame(bool konami)
 		if (file_exists("popn.dll"))
 			KonamiGame = KonamiGame::HelloPopnMusic;
 
+		if (KonamiGame == KonamiGame::None)
+		{
+			MessageBoxA(0, "Unsupported Konami Game!", "Error", MB_ICONERROR);
+			Sleep(100);
+			ExitProcess(0);
+			return;
+		}
+
 		return;
 	}
 	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
