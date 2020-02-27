@@ -53,6 +53,33 @@ static char __cdecl ac_io_hbhi_update_control_status_buffer()
             STATUS_BUFFER[4] |= 1;
         }
 
+        // player 1 red
+        if (buttons & BUTTON2)
+        {
+            STATUS_BUFFER[12] |= 1 << 0;
+        }
+
+        // player 1 blue
+        if (buttons & BUTTON3)
+        {
+            STATUS_BUFFER[12] |= 1 << 1;
+        }
+
+        // player 1 yellow
+        if (buttons & BUTTON4)
+        {
+            STATUS_BUFFER[12] |= 1 << 2;
+        }
+
+        // player 1 green
+        if (buttons & BUTTON5)
+        {
+            STATUS_BUFFER[12] |= 1 << 3;
+        }
+
+        // TODO: player 2
+        STATUS_BUFFER[6] |= 1;
+
         break;
     }
 
