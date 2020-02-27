@@ -8,10 +8,21 @@
 extern int* ffbOffset;
 static uint8_t STATUS_BUFFER[64]{};
 
+constexpr auto SERVICE  = (1 << 0);
+constexpr auto TEST     = (1 << 1);
+constexpr auto BUTTON1  = (1 << 2);
+constexpr auto BUTTON2  = (1 << 3);
+constexpr auto BUTTON3  = (1 << 4);
+constexpr auto BUTTON4  = (1 << 5);
+constexpr auto BUTTON5  = (1 << 6);
+constexpr auto BUTTON6  = (1 << 7);
+constexpr auto BUTTON7  = (1 << 8);
+constexpr auto BUTTON8  = (1 << 9);
+constexpr auto BUTTON9  = (1 << 10);
+constexpr auto BUTTON10 = (1 << 11);
+
 static void* __cdecl ac_io_hbhi_get_control_status_buffer(uint8_t* buffer)
 {
-    //Beep(100, 100);
-
 	memcpy(buffer, STATUS_BUFFER, 64);
 	return buffer;
 }
@@ -21,59 +32,57 @@ static char __cdecl ac_io_hbhi_update_control_status_buffer()
     switch (GameDetect::KonamiGame)
     {
     case KonamiGame::HelloPopnMusic:
-        memset(STATUS_BUFFER, 0x00, 64);
+        memset(STATUS_BUFFER, 0, 64);
 
-        // TODO: make the buttons actually work, and add the rest of them
+        int buttons = *ffbOffset;
+        // TODO: add the rest of the buttons
         
-        // service
-        if (*ffbOffset & 0x01)
+        if (buttons & SERVICE)
         {
-            Beep(100, 100);
             STATUS_BUFFER[5] |= 1 << 4;
         }
 
-        // test
-        if (*ffbOffset & 0x02)
+        if (buttons & TEST)
         {
-            Beep(100, 100);
             STATUS_BUFFER[5] |= 1 << 5;
         }
 
-        // player 1 start  
-        //if (*ffbOffset & 0x04) 
+        // player 1 start
+        if (!(buttons & BUTTON1))
         {
-            //Beep(100, 100);
             STATUS_BUFFER[4] |= 1;
         }
 
         break;
     }
 
-    return true;
+    return 1;
 }
 
 DWORD WINAPI KonamiInput(LPVOID lpParam)
 {
 	// wait for SpiceTools to hook IO stuff.
-	Sleep(1000);
+	Sleep(500);
+    OutputDebugStringA("openparrot: attaching");
 
     // and replace it's IO hooks with ours >:)
-    LoadLibraryA("libacio.dll");
+    if (!LoadLibraryA("libacio.dll"))
+    {
+        OutputDebugStringA("openparrot: failed to load libacio.dll?????");
+        return 0;
+    }
 
     MH_Initialize();
     MH_CreateHookApi(L"libacio.dll", "ac_io_hbhi_get_control_status_buffer", ac_io_hbhi_get_control_status_buffer, NULL);
     MH_CreateHookApi(L"libacio.dll", "ac_io_hbhi_update_control_status_buffer", ac_io_hbhi_update_control_status_buffer, NULL);
     MH_EnableHook(MH_ALL_HOOKS);
-    Beep(500, 500);
-    //while (true)
-    //{
-    //    Sleep(100);
-    //}
+
+    OutputDebugStringA("openparrot: attached");
 
     return 0;
 }
 
 static InitFunction KonamiFunc([]()
 {
-	CreateThread(NULL, 0, KonamiInput, NULL, 0, NULL);
+	CreateThread(NULL, 0, KonamiInput, NULL, 0, NULL); 
 }, GameID::Konami);
