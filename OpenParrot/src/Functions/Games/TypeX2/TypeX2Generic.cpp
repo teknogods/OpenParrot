@@ -250,6 +250,12 @@ static InitFunction initFunction([]()
 		injector::WriteMemory<WORD>(0x0040447C+4, 0x9000, true);
 	}
 
+	if(GameDetect::currentGame == GameID::ChaseHq2)
+	{
+		// Skip calibration
+		injector::WriteMemory<BYTE>(imageBase + 0x107E3, 0xEB, true);
+	}
+	
 	if(GameDetect::currentGame == GameID::TetrisGM3)
 	{
 		// TODO: DOCUMENT PATCHES
