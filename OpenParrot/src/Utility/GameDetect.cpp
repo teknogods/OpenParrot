@@ -26,13 +26,8 @@ void GameDetect::DetectCurrentGame(bool konami)
 		if (file_exists("popn.dll"))
 			KonamiGame = KonamiGame::HelloPopnMusic;
 
-		if (KonamiGame == KonamiGame::None)
-		{
-			MessageBoxA(0, "Unsupported Konami Game!", "Error", MB_ICONERROR);
-			Sleep(100);
-			ExitProcess(0);
-			return;
-		}
+		if (file_exists("jgt.dll"))
+			KonamiGame = KonamiGame::RoadFighters3D;
 
 		return;
 	}

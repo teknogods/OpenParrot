@@ -98,6 +98,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		// SpiceTools detection
 		if (GameDetect::file_exists("spice.exe") || GameDetect::file_exists("spice64.exe"))
 		{
+			config.load_file("teknoparrot.ini");
 			GameDetect::DetectCurrentGame(true);
 			InitFunction::RunFunctions(GameID::Global);
 			InitFunction::RunFunctions(GameDetect::currentGame);

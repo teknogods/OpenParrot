@@ -32,14 +32,14 @@ static void* __cdecl ac_io_hbhi_get_control_status_buffer(uint8_t* buffer)
 
 static char __cdecl ac_io_hbhi_update_control_status_buffer() 
 {
+    memset(STATUS_BUFFER, 0, 64);
+
+    int buttons = *ffbOffset;
+
     switch (GameDetect::KonamiGame)
     {
     case KonamiGame::HelloPopnMusic:
-        memset(STATUS_BUFFER, 0, 64);
 
-        int buttons = *ffbOffset;
-        // TODO: add the rest of the buttons
-        
         if (buttons & SERVICE)
         {
             STATUS_BUFFER[5] |= 1 << 4;
@@ -111,6 +111,55 @@ static char __cdecl ac_io_hbhi_update_control_status_buffer()
         }
 
         break;
+    case KonamiGame::RoadFighters3D:
+
+        if (buttons & SERVICE)
+        {
+            STATUS_BUFFER[5] |= 1 << 4;
+        }
+
+        if (buttons & TEST)
+        {
+            STATUS_BUFFER[5] |= 1 << 5;
+        }
+
+        // view
+        if (buttons & BUTTON1)
+        {
+            STATUS_BUFFER[12] |= 1 << 2;
+        }
+
+        // dimension toggle
+        if (buttons & BUTTON2)
+        {
+            STATUS_BUFFER[12] |= 1 << 3;
+        }
+
+        // lever up
+        if (buttons & BUTTON5)
+        {
+            STATUS_BUFFER[12] |= 1 << 4;
+        }
+
+        // lever down
+        if (buttons & BUTTON4)
+        {
+            STATUS_BUFFER[12] |= 1 << 5;
+        }
+
+        // lever left
+        if (buttons & BUTTON3)
+        {
+            STATUS_BUFFER[12] |= 1 << 6;
+        }
+
+        // lever right
+        if (buttons & BUTTON6)
+        {
+            STATUS_BUFFER[12] |= 1 << 7;
+        }
+       
+        break;
     }
 
     return 1;
@@ -118,6 +167,20 @@ static char __cdecl ac_io_hbhi_update_control_status_buffer()
 
 DWORD WINAPI KonamiInput(LPVOID lpParam)
 {
+    // stop early and spam log a bit if it's a unsupported game 
+    if (GameDetect::KonamiGame == KonamiGame::None)
+    {
+        for (int i = 0; i < 10; i++) 
+        {
+            OutputDebugStringA("openparrot: unsupported game!");
+        }
+        Sleep(100);
+        MessageBoxA(0, "Unsupported Konami Game!", "Error", MB_ICONERROR);
+        Sleep(100);
+        ExitProcess(0);
+        return 0;
+    }
+
     // wait for SpiceTools to hook IO stuff.
     Sleep(500);
     OutputDebugStringA("openparrot: attaching");
@@ -133,6 +196,12 @@ DWORD WINAPI KonamiInput(LPVOID lpParam)
     MH_CreateHookApi(L"libacio.dll", "ac_io_hbhi_get_control_status_buffer", ac_io_hbhi_get_control_status_buffer, NULL);
     MH_CreateHookApi(L"libacio.dll", "ac_io_hbhi_update_control_status_buffer", ac_io_hbhi_update_control_status_buffer, NULL);
     MH_EnableHook(MH_ALL_HOOKS);
+
+    // TODO: Boomslangnz's patches
+    if (ToBool(config["General"]["Always2D"]))
+    {
+        OutputDebugStringA("openparrot: applying Always2D patch");
+    }
 
     OutputDebugStringA("openparrot: attached");
 
