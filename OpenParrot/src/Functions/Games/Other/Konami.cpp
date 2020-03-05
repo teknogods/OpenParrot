@@ -6,7 +6,12 @@
 
 // controls
 extern int* ffbOffset;
+extern int* ffbOffset2;
+extern int* ffbOffset3;
+extern int* ffbOffset4;
 static uint8_t HBHI_BUFFER[64]{};
+static uint8_t HGTH_BUFFER[32]{};
+
 static HMODULE game;
 
 enum Buttons
@@ -166,6 +171,32 @@ static char __cdecl ac_io_hbhi_update_control_status_buffer()
     return 1;
 }
 
+
+static char __cdecl ac_io_hgth_update_recvdata() {
+
+    switch (GameDetect::KonamiGame)
+    {
+    case KonamiGame::RoadFighters3D:
+
+        // wheel
+        *((uint16_t*)HGTH_BUFFER + 1) = ((uint16_t)*ffbOffset2) * 255;
+
+        // gas
+        *((uint16_t*)HGTH_BUFFER + 2) = ((uint16_t)*ffbOffset3) * 65535;
+
+        // brake
+        *((uint16_t*)HGTH_BUFFER + 3) = ((uint16_t)*ffbOffset4) * 65535;
+        break;
+    }
+
+    return true;
+}
+
+static void __cdecl ac_io_hgth_get_recvdata(void* buffer)
+{
+    memcpy(buffer, HGTH_BUFFER, 32);
+}
+
 void log(const char* msg)
 {
     char buffer[512];
@@ -203,6 +234,8 @@ DWORD WINAPI KonamiInput(LPVOID lpParam)
     MH_Initialize();
     MH_CreateHookApi(L"libacio.dll", "ac_io_hbhi_get_control_status_buffer", ac_io_hbhi_get_control_status_buffer, NULL);
     MH_CreateHookApi(L"libacio.dll", "ac_io_hbhi_update_control_status_buffer", ac_io_hbhi_update_control_status_buffer, NULL);
+    MH_CreateHookApi(L"libacio.dll", "ac_io_hgth_get_recvdata", ac_io_hgth_get_recvdata, NULL);
+    MH_CreateHookApi(L"libacio.dll", "ac_io_hgth_update_recvdata", ac_io_hgth_update_recvdata, NULL);
     MH_EnableHook(MH_ALL_HOOKS);
 
     log("attached");
