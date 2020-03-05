@@ -206,20 +206,6 @@ void log(const char* msg)
 
 DWORD WINAPI KonamiInput(LPVOID lpParam)
 {
-    // stop early and spam log a bit if it's a unsupported game 
-    if (GameDetect::KonamiGame == KonamiGame::None)
-    {
-        for (int i = 0; i < 10; i++) 
-        {
-            log("unsupported game!");
-        }
-        Sleep(100);
-        MessageBoxA(0, "Unsupported Konami Game!", "Error", MB_ICONERROR);
-        Sleep(100);
-        ExitProcess(0);
-        return 0;
-    }
-
     // wait for SpiceTools to hook IO stuff.
     Sleep(500);
     log("attaching");
@@ -244,6 +230,7 @@ DWORD WINAPI KonamiInput(LPVOID lpParam)
     // wait some more before patching
     Sleep(250);
 
+    // TODO: Patches
     if (ToBool(config["General"]["Always2D"]))
     {
         log("applying Always2D patch");

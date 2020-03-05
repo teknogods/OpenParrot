@@ -29,6 +29,21 @@ void GameDetect::DetectCurrentGame(bool konami)
 		if (file_exists("jgt.dll"))
 			KonamiGame = KonamiGame::RoadFighters3D;
 
+		if (GameDetect::KonamiGame == KonamiGame::None)
+		{
+			for (int i = 0; i < 40; i++)
+			{
+				OutputDebugStringA("unsupported game!");
+			}
+
+			MessageBoxA(0, "Unsupported Konami Game!", "Error", MB_ICONERROR);
+			Sleep(100);
+			system("taskkill /f /im spice.exe");
+			system("taskkill /f /im spice64.exe");
+			ExitProcess(0);
+			return;
+		}
+
 		return;
 	}
 	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
