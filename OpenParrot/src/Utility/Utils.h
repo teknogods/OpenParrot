@@ -139,6 +139,7 @@ static DWORD crc_32_tab[] = {
 	0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d };
 
 bool ToBool(const std::string& s);
+int ToInt(const std::string& s);
 
 bool IpToByte(const char* ip, char bytes[4]);
 

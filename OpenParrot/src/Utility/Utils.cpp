@@ -56,6 +56,11 @@ bool ToBool(const std::string& s)
 	return !!Compare(s, "false", false);
 }
 
+int ToInt(const std::string& s)
+{
+	return stoi(s);
+}
+
 bool IpToByte(const char* ip, char bytes[4])
 {
 	return (sscanf(ip, "%hhu.%hhu.%hhu.%hhu", &bytes[0], &bytes[1], &bytes[2], &bytes[3]) == 4);

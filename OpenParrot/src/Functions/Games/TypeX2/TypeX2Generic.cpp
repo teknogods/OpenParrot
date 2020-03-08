@@ -258,8 +258,70 @@ static InitFunction initFunction([]()
 	
 	if(GameDetect::currentGame == GameID::TetrisGM3)
 	{
-		// TODO: DOCUMENT PATCHES
-		injector::WriteMemory<DWORD>(0x0046A0AC, 0x00005C2E, true);
+		injector::WriteMemory<DWORD>(0x0046A0AC, 0x00005C2E, true); // not sure what this is supposed to do, but won't start under TP without it.
+        // working windowed mode patch.
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			injector::WriteMemory<BYTE>(0x44DCC9, 0x00, true);
+		}
+
+		// working resolution patch. Thanks, Altimoor. :)
+		// the root background doesn't play too nicely with 16:9 resolutions, but they are playable
+		// all 4:3 resolutions greater thean normal work as expected.
+		// get resolution from config file
+		// yeah i wrote ToInt. For ease of readability.
+		auto resx = ToInt(config["General"]["ResolutionWidth"]);	// original arcade ran at 640
+		auto resy = ToInt(config["General"]["ResolutionHeight"]); 	// original ran at 480. 	
+
+		// and calculate aspect ratio 
+		auto aspect_ratio = (float)resx / (float)resy; // hope the resolution used isn't too insane.
+		// lets patch every routine that needs this. :)
+		injector::WriteMemoryRaw(0x40D160, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x40D165, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x40D19A, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x40D19F, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x41F154, &resx, sizeof(resx), true);
+		injector::WriteMemoryRaw(0x41F163, &resx, sizeof(resx), true);
+		injector::WriteMemoryRaw(0x41F176, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x41F181, &resy, sizeof(resy), true);
+
+		injector::WriteMemoryRaw(0x44DCA6, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44DCAB, &resx, sizeof(resx), true);
+		injector::WriteMemoryRaw(0x44DCB0, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44DCB5, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44DD2D, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44DD32, &resx, sizeof(resx), true);
+		injector::WriteMemoryRaw(0x44DD4D, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44DD52, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44DD6B, &aspect_ratio, sizeof(aspect_ratio), true); // aspect ratio goes here. yes, it's a raw float.
+
+		injector::WriteMemoryRaw(0x44E126, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44E12B, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44E198, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44E19D, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44E349, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44E34E, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44E429, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44E42E, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x450E5B, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x450E60, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x450E90, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x450E95, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x450ED7, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x450EDC, &resx, sizeof(resx), true);
+		// and finally patch bookeeping to go off of game root  FIXME: work out a cleaner solution.
+		injector::WriteMemoryRaw(0x46A0B0, ".\\TP_BK\\\0\0", 10, true);
+
 	}
 
 	if(GameDetect::currentGame == GameID::SamuraiSpiritsSen)
