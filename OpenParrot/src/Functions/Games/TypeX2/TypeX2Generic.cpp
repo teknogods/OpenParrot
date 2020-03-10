@@ -18,25 +18,25 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 {
 	if (GameDetect::X2Type == X2Type::BG4 && lpFileName[1] == ':' && lpFileName[2] == '\\')
 	{
-		lpFileName += 3;
+		lpFileName += 3; // apparently this game has absolute paths for game files, so correct them to relative paths from game exe directory.
 	}
-
-	if (strnicmp(lpFileName, "D:\\", 3) == 0)
+	// catch absolute paths outside of game directory wherever they are, and redirect them
+	if (lpFileName[1] == ':') // it's an absolute path if its second character is a :. :)
 	{
-		if (GetFileAttributesA(lpFileName) == INVALID_FILE_ATTRIBUTES)
+		if (GetFileAttributesA(lpFileName) == INVALID_FILE_ATTRIBUTES) // don't need to redirect if the file is present. 
 		{
 			wchar_t pathRoot[MAX_PATH];
-			GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot));
+			GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
 
-			wcsrchr(pathRoot, L'\\')[0] = L'\0';
+			wcsrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
 
 			// assume just ASCII
 			std::string fn = lpFileName;
 			std::wstring wfn(fn.begin(), fn.end());
 
-			CreateDirectoryW((pathRoot + L"\\TeknoParrot\\"s).c_str(), nullptr);
+			CreateDirectoryW((pathRoot + L"\\TeknoParrot\\"s).c_str(), nullptr); // create TeknoParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
 
-			return CreateFileW((pathRoot + L"\\TeknoParrot\\"s + wfn.substr(3)).c_str(),
+			return CreateFileW((pathRoot + L"\\TeknoParrot\\"s + wfn.substr(3)).c_str(), // make or open the file there instead. :)
 				dwDesiredAccess,
 				dwShareMode,
 				lpSecurityAttributes,
@@ -259,7 +259,80 @@ static InitFunction initFunction([]()
 	if(GameDetect::currentGame == GameID::TetrisGM3)
 	{
 		// TODO: DOCUMENT PATCHES
-		injector::WriteMemory<DWORD>(0x0046A0AC, 0x00005C2E, true);
+		injector::WriteMemory<DWORD>(0x0046A0AC, 0x00005C2E, true); //required to boot
+		// windowed mode patch (if set to windowed in config) Makes it a proper windowed app. Not the first person to have done this patch
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			injector::WriteMemory<BYTE>(0x44DCC9, 0x00, true);
+		}
+		// user configurable resolution patch.
+		// credit to Altimoor
+		// get resolution from config file 
+		auto resx = ToInt(config["General"]["ResolutionWidth"]);        // original arcade ran at 640
+		auto resy = ToInt(config["General"]["ResolutionHeight"]);       // original ran at 480.
+		// can't have game window TOO small.
+		if (resx < 640)
+			resx = 640;
+		if (resy < 480)
+			resy = 480;
+		// and calculate aspect ratio
+		auto aspect_ratio = (float)resx / (float)resy; // hope the resolution used isn't too insane.
+		// lets patch every routine that needs this. :)
+		injector::WriteMemoryRaw(0x40D160, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x40D165, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x40D19A, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x40D19F, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x41F154, &resx, sizeof(resx), true);
+		injector::WriteMemoryRaw(0x41F163, &resx, sizeof(resx), true);
+		injector::WriteMemoryRaw(0x41F176, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x41F181, &resy, sizeof(resy), true);
+
+		injector::WriteMemoryRaw(0x44DCA6, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44DCAB, &resx, sizeof(resx), true);
+		injector::WriteMemoryRaw(0x44DCB0, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44DCB5, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44DD2D, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44DD32, &resx, sizeof(resx), true);
+		injector::WriteMemoryRaw(0x44DD4D, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44DD52, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44DD6B, &aspect_ratio, sizeof(aspect_ratio), true); // aspect ratio goes here. yes, it's a raw float.
+
+		injector::WriteMemoryRaw(0x44E126, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44E12B, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44E198, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44E19D, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44E349, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44E34E, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x44E429, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x44E42E, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x450E5B, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x450E60, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x450E90, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x450E95, &resx, sizeof(resx), true);
+
+		injector::WriteMemoryRaw(0x450ED7, &resy, sizeof(resy), true);
+		injector::WriteMemoryRaw(0x450EDC, &resx, sizeof(resx), true);
+
+		// and finally, to protect integrity of dump, change bookeeping directory to TeknoParrot, because the global redirect misses this one.
+		injector::WriteMemoryRaw(0x46A0B0, "TeknoParrot\\\0\0", 12, true);
+		// create it if it doesn't exist
+
+		wchar_t pathRoot[MAX_PATH];
+		GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+		wcsrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
+
+		CreateDirectoryW((pathRoot + L"\\TeknoParrot\\"s).c_str(), nullptr); // create TeknoParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
+
 	}
 
 	if(GameDetect::currentGame == GameID::SamuraiSpiritsSen)
