@@ -11,6 +11,7 @@ static char errorBuffer[256];
 
 void GameDetect::DetectCurrentGame()
 {
+	// TODO: move all game detection bound to crcResult immediately below to use the newCrcResult switch at end with its new CRC instead.
 	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
 	NesicaKey = NesicaKey::None;
 	switch (crcResult)
@@ -302,7 +303,7 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::SSFAE_EXP;
 		X2Type = X2Type::Generic;
 		break;
-	case 0xef843fd1: // Super Street Fighter IV Arcade Edition Ver. 2012
+	case 0xef843fd1: // Super Street Fighter IV Arcade Edition Ver. 2012 (NESYS 1.1)
 		currentGame = GameID::SSFAE2012;
 		X2Type = X2Type::Generic;
 		break;
@@ -518,6 +519,10 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::Nesica;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
+			break;
+		case 0x545b0d0c: // Super Street Fighter IV Arcade Edition Ver. 2012 (NESYS 1.3)
+			currentGame = GameID::SSFAE2012;
+			X2Type = X2Type::Generic;
 			break;
 		case 0xa202d660: //Yatagarasu - Attack on Cataclysm
 			currentGame = GameID::Nesica;
