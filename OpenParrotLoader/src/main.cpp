@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 	char szDir[512];
 	char szDir2[512];
 	printf("OpenParrot Loader\n");
-	printf("http://www.teknogods.com - Modding Gurus!\n");
+	printf("https://www.teknogods.com - Modding Gurus!\n");
 	printf("Supported OS: Windows 7 x86 / x64, Windows 8 / 8.1 x86 / x64, Windows 10 x86 / x64\n");
 	printf("Code: Reaver, NTAuthority, avail and the community\n");
 	GetCurrentDirectoryA(400, szDir);
