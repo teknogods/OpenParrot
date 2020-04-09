@@ -169,6 +169,8 @@ int* ffbOffset = &secData[2];
 int* ffbOffset2 = &secData[3];
 int* ffbOffset3 = &secData[4];
 int* ffbOffset4 = &secData[5];
+int* ffbOffset5 = &secData[6]; //Vibration Left Motor
+int* ffbOffset6 = &secData[7]; //Vibration Right Motor
 
 static bool IsCommHooked(HANDLE hFile);
 
