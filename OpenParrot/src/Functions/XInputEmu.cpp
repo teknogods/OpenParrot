@@ -60,6 +60,8 @@ extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
+extern int* ffbOffset5;
+extern int* ffbOffset6;
 
 DWORD WINAPI XInputGetState
 (
@@ -206,6 +208,10 @@ DWORD WINAPI XInputSetState
 		// We're receiving as XInput [0 ~ 65535], need to be [0 ~ 255] !!
 		int leftVal = iround(((float)pVibration->wLeftMotorSpeed / 65535) * 255);
 		int rightVal = iround(((float)pVibration->wRightMotorSpeed / 65535) * 255);
+
+		*ffbOffset5 = leftVal;
+		*ffbOffset6 = rightVal;
+
 		return ERROR_SUCCESS;
 	}
 	else
