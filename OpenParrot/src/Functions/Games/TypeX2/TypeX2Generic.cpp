@@ -254,6 +254,12 @@ static InitFunction initFunction([]()
 	{
 		// Skip calibration
 		injector::WriteMemory<BYTE>(imageBase + 0x107E3, 0xEB, true);
+
+		if (ToBool(config["General"]["Disable Cel Shaded"]))
+		{
+			injector::MakeNOP(imageBase + 0x31FFA, 6);
+			injector::MakeRET(0x42DD30);
+		}
 	}
 	
 	if(GameDetect::currentGame == GameID::TetrisGM3)
