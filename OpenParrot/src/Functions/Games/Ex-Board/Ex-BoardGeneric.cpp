@@ -376,12 +376,12 @@ HWND __stdcall CreateWindowExWWrap(DWORD dwExStyle,
 	dwStyle = WS_EX_TOPMOST | WS_POPUP;
 	x = 0;
 	y = 0;
-	// TODO: causes a stretched view and does not maintain aspect ratio of 4:3
-	nWidth = 1920; // TODO: needs to read in current screen width
-	nHeight = 1080; // TODO: needs to read in current screen height
+
+	// TODO: causes a stretched view and does not maintain aspect ratio of 4:3, patch exe instead?
+	GetDesktopResolution(nWidth, nHeight);
+
 	return CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent,
 		hMenu, hInstance, lpParam);
-
 }
 
 HWND __stdcall CreateWindowExAWrap(DWORD dwExStyle,
@@ -419,9 +419,10 @@ HWND __stdcall CreateWindowExAWrap(DWORD dwExStyle,
 	dwStyle = WS_EX_TOPMOST | WS_POPUP;
 	x = 0;
 	y = 0;
-	// TODO: causes a stretched view and does not maintain aspect ratio of 4:3
-	nWidth = 1920; // TODO: needs to read in current screen width
-	nHeight = 1080; // TODO: needs to read in current screen height
+	
+	// TODO: causes a stretched view and does not maintain aspect ratio of 4:3, patch exe instead?
+	GetDesktopResolution(nWidth, nHeight);
+
 	return CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent,
 		hMenu, hInstance, lpParam);
 }
