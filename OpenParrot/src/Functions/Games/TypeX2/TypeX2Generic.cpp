@@ -716,6 +716,18 @@ static InitFunction initFunction([]()
 			injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
 			injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);
 
+			// redirect E:\data to .\data
+			injector::WriteMemoryRaw(0x0076D96C, "./data/", 8, true);
+			injector::WriteMemoryRaw(0x007ACA60, ".\\data", 7, true);
+
+			if (ToBool(config["General"]["IntroFix"]))
+			{
+				// thanks for Ducon2016 for the patch!
+				injector::WriteMemoryRaw(imageBase + 0x57ACE, "\x89\x68\x14\xC7\x40\x08\x00\x00\x80\x3F\x83\xC1\x08\xEB\x0A", 15, true);
+				injector::WriteMemoryRaw(imageBase + 0x57AE7, "\xE9\x1B\x04\x00\x00", 5, true);
+				injector::WriteMemoryRaw(imageBase + 0x57F01, "\xE9\xC8\xFB\xFF\xFF\x90", 6, true);
+			}
+
 			if (!ToBool(config["General"]["Windowed"]))
 			{
 				injector::MakeRET(0x5F21B0, 4);
