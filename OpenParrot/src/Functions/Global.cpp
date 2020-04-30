@@ -59,6 +59,10 @@ DWORD WINAPI QuitGameThread(__in  LPVOID lpParameter)
 			{
 				FreeLibrary(blaster);
 			}
+			if (GameDetect::currentGame == GameID::ExBoardGeneric || !ToBool(config["General"]["Windowed"]))
+			{
+				ChangeDisplaySettingsA(NULL, 0);
+			}
 			TerminateProcess(GetCurrentProcess(), 0);						
 #endif
 			//ExitProcess(0);
