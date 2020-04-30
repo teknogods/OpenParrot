@@ -33,6 +33,7 @@ static bool Gear6Pressed = false;
 static bool KeyPressed = false;
 static bool init = false;
 static bool MenuHack = false;
+static bool TestMode = false;
 
 void AddCommOverride(HANDLE hFile);
 
@@ -281,6 +282,7 @@ static int BG4ThreadLoop()
 		if (!TestPressed)
 		{
 			TestPressed = true;
+			TestMode = true;
 			*(BYTE*)(imageBase + 0x42E297) += 0x80;
 		}
 	}
@@ -484,25 +486,12 @@ static int BG4ThreadLoop()
 	{
 		if (!CoinPressed)
 		{
-			CoinPressed = true;
-			INT_PTR CoinBase = *(INT_PTR*)(imageBase + 0x4E2970);
-			if (CoinBase != NULL)
-			{
-				INT_PTR CoinBaseA = *(INT_PTR*)(CoinBase + 0x08);
-				if (CoinBaseA != NULL)
-				{
-					INT_PTR CoinBaseB = *(INT_PTR*)(CoinBaseA + 0x04);
-					if (CoinBaseB != NULL)
-					{
-						INT_PTR CoinBaseC = *(INT_PTR*)(CoinBaseB + 0x254);
-						if (CoinBaseC != NULL);
-						{
-							++* (BYTE*)(CoinBaseC + 0x34);
-						}
-					}
-				}
-			}
+			CoinPressed = true; 
 			*(BYTE*)(imageBase + 0x42E294) += 0x40;
+			if (!TestMode) //Let's get that sweet sweet sexy coin sound
+			{
+				*(BYTE*)(imageBase + 0x42E296) += 0x40;
+			}
 		}
 	}
 	else
@@ -511,6 +500,10 @@ static int BG4ThreadLoop()
 		{
 			CoinPressed = false;
 			*(BYTE*)(imageBase + 0x42E294) -= 0x40;
+			if (!TestMode)
+			{
+				*(BYTE*)(imageBase + 0x42E296) -= 0x40;
+			}
 		}
 	}
 
