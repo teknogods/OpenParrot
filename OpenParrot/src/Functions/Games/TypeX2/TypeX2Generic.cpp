@@ -209,71 +209,40 @@ static int BG4ThreadLoop()
 	}
 
 	//Hack to allow us to select Manual and Manual with Clutch		
-	INT_PTR MenuTimerBase = *(INT_PTR*)(imageBase + 0x4E2970);
+	INT_PTR MenuTimerBase = *(INT_PTR*)(imageBase + 0x4C2924);
 	if (MenuTimerBase != NULL)
 	{
-		INT_PTR MenuTimerBaseA = *(INT_PTR*)(MenuTimerBase + 0x200);
+		INT_PTR MenuTimerBaseA = *(INT_PTR*)(MenuTimerBase + 0x8);
 		if (MenuTimerBaseA != NULL)
 		{
-			INT_PTR MenuTimerBaseB = *(INT_PTR*)(MenuTimerBaseA + 0x14C);
-			if (MenuTimerBaseB != NULL)
+			INT_PTR MenuTime = *(INT_PTR*)(MenuTimerBaseA + 0x45C);
+			if (MenuTime != NULL)
 			{
-				INT_PTR MenuTimerBaseC = *(INT_PTR*)(MenuTimerBaseB + 0x7A4);
-				if (MenuTimerBaseC != NULL);
+				if (MenuTime == 0x1194)
 				{
-					INT_PTR MenuTime = *(INT_PTR*)(MenuTimerBaseC + 0x45C);
-					if (MenuTime != NULL);
-					{
-						if (MenuTime == 0x1194)
-						{
-							MenuHack = true;
-						}
+					MenuHack = true;
+				}
 
-						if (MenuTime == 0x00)
-						{
-							MenuHack = false;
-						}
+				if (MenuTime == 0x00)
+				{
+					MenuHack = false;
+				}
+
+				if (MenuHack)
+				{
+					*(BYTE*)(MenuTimerBaseA + 0x454) = 0x04;
+					BYTE This = *(BYTE*)(MenuTimerBaseA + 0x44C);
+
+					if (This == 0x02)
+					{
+						*(BYTE*)(imageBase + 0x42E341) = 0xD0;  //Set Shift SEN 2 to ON or error
+					}
+					else if (This == 0x03)
+					{
+						*(BYTE*)(imageBase + 0x42E341) = 0xE0;  //Set Shift SEN 1 to ON or error
 					}
 				}
-			}
-		}
-	}
-
-	if (MenuHack)
-	{
-		INT_PTR MenuBase = *(INT_PTR*)(imageBase + 0x4DA06C);
-		if (MenuBase != NULL)
-		{
-			INT_PTR MenuBaseA = *(INT_PTR*)(MenuBase + 0x614);
-			if (MenuBaseA != NULL)
-			{
-				INT_PTR MenuBaseB = *(INT_PTR*)(MenuBaseA + 0x54);
-				if (MenuBaseB != NULL)
-				{
-					INT_PTR MenuBaseC = *(INT_PTR*)(MenuBaseB + 0x90);
-					if (MenuBaseC != NULL);
-					{
-						INT_PTR MenuBaseD = *(INT_PTR*)(MenuBaseC + 0x6E4);
-						if (MenuBaseD != NULL);
-						{
-							*(BYTE*)(MenuBaseD + 0x454) = 0x04;
-
-							BYTE MenuBaseE = *(INT_PTR*)(MenuBaseD + 0x44C);
-							if (MenuBaseE != NULL)
-							{
-								if (MenuBaseE == 0x02)
-								{
-									*(BYTE*)(imageBase + 0x42E341) = 0xD0;  //Set Shift SEN 2 to ON or error
-								}
-								else if (MenuBaseE == 0x03)
-								{
-									*(BYTE*)(imageBase + 0x42E341) = 0xE0;  //Set Shift SEN 1 to ON or error
-								}
-							}
-						}
-					}
-				}
-			}
+			}		
 		}
 	}
 
