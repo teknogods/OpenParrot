@@ -328,7 +328,7 @@ LONG __stdcall ChangeDisplaySettingsAWrap(DEVMODEA *lpDevMode, DWORD dwflags)
 	lpDevMode->dmBitsPerPel = 32;
 	lpDevMode->dmDisplayFrequency = 60;
 
-	return ChangeDisplaySettingsA(lpDevMode, dwflags);
+	return ChangeDisplaySettingsA(lpDevMode, CDS_FULLSCREEN);
 }
 
 BOOL __stdcall ExitWindowsExWrap(UINT uFlags, DWORD dwReason)
