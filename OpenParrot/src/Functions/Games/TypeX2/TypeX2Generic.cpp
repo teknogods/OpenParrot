@@ -3,6 +3,7 @@
 #include "Utility/GameDetect.h"
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
+#include "Utility/Helper.h"
 #if _M_IX86
 using namespace std::string_literals;
 extern int* wheelSection;
@@ -10,6 +11,7 @@ extern int* ffbOffset;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
+static Helpers* myHelpers;
 
 static bool CoinPressed = false;
 static bool TestPressed = false;
@@ -191,60 +193,58 @@ static DWORD WINAPI ChangeValues(LPVOID lpParam)
 	Sleep(10000);
 
 	DWORD imageBase = (DWORD)GetModuleHandleA(0);
-
-	*(BYTE*)(imageBase + 0x42E296) = 0x01;
-	*(BYTE*)(imageBase + 0x42E295) = 0x80;
+	myHelpers->WriteByte(0x42E296, 0x01, true);
+	myHelpers->WriteByte(0x42E295, 0x80, true);
 	injector::MakeNOP(imageBase + 0x27400, 6);
 	return 0;
 }
 
-static int BG4ThreadLoop()
+static int BG4ThreadLoop(Helpers* helpers)
 {
-	DWORD imageBase = (DWORD)GetModuleHandleA(0);
-
 	if (!init)
 	{
 		init = true;
+		myHelpers = helpers;
 		CreateThread(NULL, 0, ChangeValues, NULL, 0, NULL);
 	}
 
 	//Hack to allow us to select Manual and Manual with Clutch		
-	INT_PTR MenuTimerBase = *(INT_PTR*)(imageBase + 0x4C2924);
-	if (MenuTimerBase != NULL)
+	INT_PTR MenuTimerBase = helpers->ReadIntPtr(0x4C2924, true);
+	INT_PTR MenuTimerBaseA = helpers->ReadIntPtr(MenuTimerBase + 0x08, false);
+	INT_PTR MenuTime = helpers->ReadIntPtr(MenuTimerBaseA + 0x45C, false);
+
+	if (MenuTime == 0x1194)
 	{
-		INT_PTR MenuTimerBaseA = *(INT_PTR*)(MenuTimerBase + 0x8);
-		if (MenuTimerBaseA != NULL)
+		if (!MenuHack)
 		{
-			INT_PTR MenuTime = *(INT_PTR*)(MenuTimerBaseA + 0x45C);
-			if (MenuTime != NULL)
-			{
-				if (MenuTime == 0x1194)
-				{
-					MenuHack = true;
-				}
-
-				if (MenuTime == 0x00)
-				{
-					MenuHack = false;
-				}
-
-				if (MenuHack)
-				{
-					*(BYTE*)(MenuTimerBaseA + 0x454) = 0x04;
-					BYTE This = *(BYTE*)(MenuTimerBaseA + 0x44C);
-
-					if (This == 0x02)
-					{
-						*(BYTE*)(imageBase + 0x42E341) = 0xD0;  //Set Shift SEN 2 to ON or error
-					}
-					else if (This == 0x03)
-					{
-						*(BYTE*)(imageBase + 0x42E341) = 0xE0;  //Set Shift SEN 1 to ON or error
-					}
-				}
-			}		
+			MenuHack = true;
 		}
 	}
+
+	if (MenuTime == 0x00)
+	{
+		if (MenuHack)
+		{
+			MenuHack = false;
+		}
+	}
+
+	if (MenuHack)
+	{
+		helpers->WriteByte(MenuTimerBaseA + 0x454, 0x04, false);
+		BYTE This = helpers->ReadByte(MenuTimerBaseA + 0x44C,false);
+
+		if (This == 0x02)
+		{
+			helpers->WriteByte(0x42E341, 0xD0, true);  //Set Shift SEN 2 to ON or error
+		}
+		else if (This == 0x03)
+		{
+			helpers->WriteByte(0x42E341, 0xE0, true);  //Set Shift SEN 1 to ON or error
+		}
+	}
+
+	DWORD imageBase = (DWORD)GetModuleHandleA(0);
 
 	if (*ffbOffset & 0x100) //Test
 	{
@@ -615,7 +615,7 @@ static DWORD WINAPI BG4RunningLoop(LPVOID lpParam)
 {
 	while (true)
 	{
-		BG4ThreadLoop();
+		BG4ThreadLoop(0);
 		Sleep(16);
 	}
 }
