@@ -35,6 +35,7 @@ static bool Gear6Pressed = false;
 static bool KeyPressed = false;
 static bool init = false;
 static bool MenuHack = false;
+static bool MenuHackDelay = false;
 static bool TestMode = false;
 
 void AddCommOverride(HANDLE hFile);
@@ -201,6 +202,42 @@ static DWORD WINAPI ChangeValues(LPVOID lpParam)
 
 static int BG4ThreadLoop(Helpers* helpers)
 {
+	//Hack to allow us to select Manual		
+	INT_PTR MenuTimerBase = helpers->ReadIntPtr(0x4C2924, true);
+	INT_PTR MenuTimerBaseA = helpers->ReadIntPtr(MenuTimerBase + 0x08, false);
+	INT_PTR MenuTime = helpers->ReadIntPtr(MenuTimerBaseA + 0x45C, false);
+
+	if (MenuTime == 0x1194)
+	{
+		if (!MenuHack)
+		{
+			MenuHack = true;
+		}
+	}
+
+	if (MenuTime == 0x00)
+	{
+		if (MenuHack)
+		{
+			MenuHack = false;
+			MenuHackDelay = false;
+		}
+	}
+
+	if (MenuHack)
+	{
+		if (!MenuHackDelay)
+		{
+			MenuHackDelay = true;
+			Sleep(2500);
+		}	
+		helpers->WriteByte(MenuTimerBaseA + 0x454, 0x03, false);
+	}
+	return 0;
+}
+
+static int BG4ProThreadLoop(Helpers* helpers)
+{
 	if (!init)
 	{
 		init = true;
@@ -226,11 +263,17 @@ static int BG4ThreadLoop(Helpers* helpers)
 		if (MenuHack)
 		{
 			MenuHack = false;
+			MenuHackDelay = false;
 		}
 	}
 
 	if (MenuHack)
 	{
+		if (!MenuHackDelay)
+		{
+			MenuHackDelay = true;
+			Sleep(2500);
+		}
 		helpers->WriteByte(MenuTimerBaseA + 0x454, 0x04, false);
 		BYTE This = helpers->ReadByte(MenuTimerBaseA + 0x44C,false);
 
@@ -611,6 +654,15 @@ static int BG4ThreadLoop(Helpers* helpers)
 	return 0;
 }
 
+static DWORD WINAPI BG4ProRunningLoop(LPVOID lpParam)
+{
+	while (true)
+	{
+		BG4ProThreadLoop(0);
+		Sleep(16);
+	}
+}
+
 static DWORD WINAPI BG4RunningLoop(LPVOID lpParam)
 {
 	while (true)
@@ -712,6 +764,10 @@ static InitFunction initFunction([]()
 					injector::MakeNOP(imageBase + 0x8ADFF, 10);
 				}
 
+				CreateThread(NULL, 0, BG4ProRunningLoop, NULL, 0, NULL);
+			}
+			else
+			{
 				CreateThread(NULL, 0, BG4RunningLoop, NULL, 0, NULL);
 			}
 
