@@ -70,7 +70,7 @@ extern linb::ini config;
 
 static InitFunction initFunc([]()
 {
-	if (GameDetect::currentGame == GameID::BG4 || GameDetect::currentGame == GameID::JLeague || GameDetect::currentGame == GameID::TER)
+	if (GameDetect::currentGame == GameID::BG4 || GameDetect::currentGame == GameID::BG4_Eng || GameDetect::currentGame == GameID::JLeague || GameDetect::currentGame == GameID::TER)
 		return;
 	if (ToBool(config["General"]["Windowed"]))
 	{

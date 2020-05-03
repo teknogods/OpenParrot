@@ -69,5 +69,6 @@ enum class GameID
 	DirtyDrivin,
 	H2Overdrive,
 	Tekken7Update00,
-	Tekken7Update12
+	Tekken7Update12,
+	BG4_Eng
 };

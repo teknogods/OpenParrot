@@ -343,7 +343,7 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::RaidenIV;
 		X2Type = X2Type::Raiden4;
 		break;
-	case 0x14eb3c8a: // Battle Gear 4 Tuned Professional
+	case 0x14eb3c8a: // Battle Gear 4 Tuned Professional (2.08)
 		currentGame = GameID::BG4;
 		X2Type = X2Type::BG4;
 		break;
@@ -548,6 +548,10 @@ void GameDetect::DetectCurrentGame()
 		case 0x4D91A27A:
 			currentGame = GameID::SnoCross;
 			break;
+		case 0xbd8c984d: // Battle Gear 4 English Ver (2.03) 
+			currentGame = GameID::BG4_Eng;
+			X2Type = X2Type::BG4_Eng;
+			break;
 #ifdef _AMD64_
 		case 0x80ebd207:
 			currentGame = GameID::Theatrhythm;
@@ -633,6 +637,7 @@ bool GameDetect::IsTypeX()
 	case GameID::RaidenIV:
 	case GameID::VirtuaRLimit:
 	case GameID::MB4:
+	case GameID::BG4_Eng:
 		return true;
 	default:
 		return false;

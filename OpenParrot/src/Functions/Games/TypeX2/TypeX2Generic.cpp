@@ -48,7 +48,7 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 	DWORD dwFlagsAndAttributes,
 	HANDLE hTemplateFile)
 {
-	if (GameDetect::X2Type == X2Type::BG4 && lpFileName[1] == ':' && lpFileName[2] == '\\')
+	if ((GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng) && lpFileName[1] == ':' && lpFileName[2] == '\\')
 	{
 		lpFileName += 3; // apparently this game has absolute paths for game files, so correct them to relative paths from game exe directory.
 	}
@@ -78,7 +78,7 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 		}
 	}
 
-	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::VRL)
+	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL)
 	{
 		if (strncmp(lpFileName, "COM1", 4) == 0)
 		{
@@ -126,7 +126,7 @@ static BOOL __stdcall ReadFileWrapTx2(HANDLE hFile,
 
 static DWORD __stdcall GetFileAttributesAWrapTx2(LPCSTR lpFileName)
 {
-	if (GameDetect::X2Type == X2Type::BG4 && lpFileName[1] == ':' && lpFileName[2] == '\\')
+	if ((GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng) && lpFileName[1] == ':' && lpFileName[2] == '\\')
 	{
 		lpFileName += 3;
 	}
@@ -769,6 +769,41 @@ static InitFunction initFunction([]()
 			else
 			{
 				CreateThread(NULL, 0, BG4RunningLoop, NULL, 0, NULL);
+			}
+
+			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
+			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
+			iatHook("kernel32.dll", GetFileAttributesAWrapTx2, "GetFileAttributesA");
+
+			break;
+		}
+		case X2Type::BG4_Eng:
+		{
+			// TODO: DOCUMENT PATCHES
+			//injector::MakeNOP(0x4CBCB8, 10);
+			//injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
+			//injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);
+
+			// redirect E:\data to .\data
+			injector::WriteMemoryRaw(0x0073139C, "./data/", 8, true);
+			injector::WriteMemoryRaw(0x00758978, ".\\data", 7, true);
+
+			if (ToBool(config["General"]["IntroFix"]))
+			{
+				// thanks for Ducon2016 for the patch!
+				injector::WriteMemoryRaw(imageBase + 0x46E3E, "\x89\x68\x14\xC7\x40\x08\x00\x00\x80\x3F\x83\xC1\x08\xEB\x0A", 15, true);
+				injector::WriteMemoryRaw(imageBase + 0x46E57, "\xE9\x5F\x03\x00\x00", 5, true);
+				injector::WriteMemoryRaw(imageBase + 0x471B5, "\xE9\x89\xFC\xFF\xFF\x90", 6, true);
+				injector::WriteMemoryRaw(imageBase + 0xEB964, "\x89\x4C", 6, true);
+				injector::WriteMemoryRaw(imageBase + 0x471B5, "\x40\x8B\x70\x18\xD9\x5C\x24\x4C\x89\x4C", 10, true);
+				injector::WriteMemoryRaw(imageBase + 0xEB972, "\x5C", 1, true);
+				injector::WriteMemoryRaw(imageBase + 0xEB982, "\x8B\x70\x18\x89\x4C\x24\x78\x89\x74\x24\x54\x8B\xB4\x24\x9C\x00", 16, true);
+				injector::WriteMemoryRaw(imageBase + 0xEB994, "\x89\x74\x24\x68\x8B\xB4\x24\xA0\x00\x00\x00\x89\x74\x24\x6C\x31\xF6\x89\x74\x24\x60\x89\x74\x24\x64\x89\xB4\x24\x80\x00\x00\x00\x8B\x70\x18\x89\x74\x24\x70\xBE\x00\x00\x80\x3F\x89\x74\x24\x2C\x89\x74\x24\x44\x89\x74\x24\x48\x89\x74\x24\x7C\x89\x74\x24\x20\x89\x74\x24\x3C\x89\x74\x24\x58\x89\x74\x24\x74\x90\x90\x90\x90\x90", 83, true);
+			}
+
+			if (!ToBool(config["General"]["Windowed"]))
+			{
+				injector::MakeRET(0x5B8030, 4);
 			}
 
 			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");

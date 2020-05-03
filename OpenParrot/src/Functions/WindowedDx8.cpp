@@ -90,6 +90,8 @@ static InitFunction initFunc([]()
 {
 	if (GameDetect::currentGame == GameID::BG4)
 		return;
+	if (GameDetect::currentGame == GameID::BG4_Eng)
+		return;
 	if (GameDetect::currentGame == GameID::TER)
 		return;
 	if (GameDetect::currentGame == GameID::FNFSC)

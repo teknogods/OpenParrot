@@ -277,7 +277,7 @@ HRESULT HookIDirectSoundBuffer8::GetObjectInPath(LPVOID _this, REFGUID rguidObje
 
 static InitFunction initFunc([]()
 	{
-		if (GameDetect::currentGame == GameID::BG4)
+		if ((GameDetect::currentGame == GameID::BG4) || (GameDetect::currentGame == GameID::BG4_Eng))
 		{
 			MH_Initialize();
 
