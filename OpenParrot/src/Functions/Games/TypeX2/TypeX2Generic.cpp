@@ -793,7 +793,7 @@ static InitFunction initFunction([]()
 				// thanks for Ducon2016 for the patch!
 				injector::WriteMemoryRaw(imageBase + 0x46E3E, "\x89\x68\x14\xC7\x40\x08\x00\x00\x80\x3F\x83\xC1\x08\xEB\x0A", 15, true);
 				injector::WriteMemoryRaw(imageBase + 0x46E57, "\xE9\x5F\x03\x00\x00", 5, true);
-				injector::WriteMemoryRaw(imageBase + 0x471B5, "\xE9\x89\xFC\xFF\xFF\x90", 6, true);
+				injector::WriteMemoryRaw(imageBase + 0x471B5, "\xE9\x84\xFC\xFF\xFF\x90", 6, true);
 				injector::WriteMemoryRaw(imageBase + 0xEB964, "\x89\x4C", 2, true);
 				injector::WriteMemoryRaw(imageBase + 0xEB967, "\x40\x8B\x70\x18\xD9\x5C\x24\x4C\x89\x4C", 10, true);
 				injector::WriteMemoryRaw(imageBase + 0xEB972, "\x5C", 1, true);
