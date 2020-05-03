@@ -881,7 +881,7 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 		return hConnection;
 	}
 
-	if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	if (GameDetect::currentGame == GameID::GrooveCoaster2 || GameDetect::currentGame == GameID::KOFXIIIClimax)
 	{
 		return g_origCreateFileW(lpFileName,
 			dwDesiredAccess,

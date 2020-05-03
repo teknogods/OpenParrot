@@ -70,5 +70,6 @@ enum class GameID
 	H2Overdrive,
 	Tekken7Update00,
 	Tekken7Update12,
-	BG4_Eng
+	BG4_Eng,
+	KOFXIIIClimax
 };

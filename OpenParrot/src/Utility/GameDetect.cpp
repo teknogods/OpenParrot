@@ -511,9 +511,9 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::SpicaAdventure;
 			X2Type = X2Type::Generic;
 			break;
-		case 0xbd516d7b: //KoFXIII
-			currentGame = GameID::Nesica;
-			NesicaKey = NesicaKey::None;
+		case 0xbd516d7b: // KOFXIII Climax
+			currentGame = GameID::KOFXIIIClimax;
+			NesicaKey = NesicaKey::KOFXIIIClimax;
 			isNesica = true;
 			break;
 		case 0x3806e8f4: //KoF98 (has files that need to be deleted to run)

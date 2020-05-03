@@ -215,3 +215,16 @@ static InitFunction initFunction_Theatrhythm([]()
 		init_FastIoEmu();
 	
 	}, GameID::Theatrhythm);
+
+static InitFunction initFunction_KOFXIIIClimax([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::KOFXIIIClimax);
