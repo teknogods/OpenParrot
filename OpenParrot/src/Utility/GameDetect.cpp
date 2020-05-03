@@ -85,6 +85,7 @@ void GameDetect::DetectCurrentGame()
 	case 0x949efa20:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::Persona4Arena;
+		GameDetect::enableNesysEmu = false;
 		isNesica = true;
 		break;
 	case 0x6b233485:
