@@ -712,6 +712,17 @@ static InitFunction initFunction([]()
 			injector::WriteMemory<DWORD>(0x0041C800, 0x08C2C033, true);
 			injector::WriteMemory<BYTE>(0x0041C804, 0x00, true);
 
+			if (ToBool(config["General"]["Remove Women On Screen Popup"])) // Also removes writing crap over screen during racing etc
+			{
+				injector::MakeNOP(imageBase + 0x593C1, 7, true);
+				injector::MakeNOP(imageBase + 0x52771, 7, true);
+				injector::MakeNOP(imageBase + 0x52379, 6, true);
+				injector::MakeNOP(imageBase + 0x33C1A, 2, true);
+				injector::MakeNOP(imageBase + 0x524A9, 7, true);
+				injector::MakeNOP(imageBase + 0x5272D, 7, true);
+				injector::WriteMemory<BYTE>(imageBase + 0x1D7B55, 0x01, true);
+			}
+			
 			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
 			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
 			break;
