@@ -553,6 +553,10 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::BG4_Eng;
 			X2Type = X2Type::BG4_Eng;
 			break;
+		case 0x74f898ae: // KOF SkyStage
+			currentGame = GameID::KOFSkyStage100J;
+			X2Type = X2Type::Generic;
+			break;
 #ifdef _AMD64_
 		case 0x80ebd207:
 			currentGame = GameID::Theatrhythm;
@@ -619,6 +623,7 @@ bool GameDetect::IsTypeX()
 	case GameID::KOFSkyStage:
 	case GameID::KOFXII:
 	case GameID::KOFXIII:
+	case GameID::KOFSkyStage100J:
 	case GameID::PowerInstinctV:
 	case GameID::RaidenIII:
 	case GameID::SenkoNoRondeDuo:

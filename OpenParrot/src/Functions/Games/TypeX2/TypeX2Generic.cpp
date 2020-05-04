@@ -947,6 +947,17 @@ static InitFunction initFunction([]()
 		injector::WriteMemory<BYTE>(0x004C640C, 0xEB, true);
 		injector::WriteMemory<DWORD>(0x004CE1C0, 0xC340C033, true);
 	}
+
+	if (GameDetect::currentGame == GameID::KOFSkyStage100J)
+	{
+		// TODO: fix weird "turbo fire" for the buttons, rotate screen
+
+		// don't hide windows and don't break desktop
+		injector::WriteMemory<BYTE>(imageBase + 0x12F6E2, 0xEB, true);
+
+		// skip dinput devices (TODO: maybe make original Dinput.dll wrapper?)
+		injector::WriteMemory<BYTE>(imageBase + 0xBD1D7, 0xEB, true);
+	}
 });
 #endif
 #pragma optimize("", on)

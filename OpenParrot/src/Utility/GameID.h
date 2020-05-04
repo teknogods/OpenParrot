@@ -17,6 +17,7 @@ enum class GameID
 	KOF98UM,
 	KOFMIRA,
 	KOFSkyStage,
+	KOFSkyStage100J,
 	KOFXII,
 	KOFXIII,
 	PowerInstinctV,
