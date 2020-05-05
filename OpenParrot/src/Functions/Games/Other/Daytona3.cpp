@@ -305,7 +305,7 @@ static InitFunction Daytona3Func([]()
 		}
 		if (ToBool(config["General"]["Hide Cursor"]))
 		{
-			SetCursorPos(2000, 2000);
+			SetCursorPos(20000, 20000);
 		}
 		MH_Initialize();
 		MH_CreateHook((void*)(imageBase + 0x1E9280), ControlsFunction, (void**)&g_origControlsFunction);
