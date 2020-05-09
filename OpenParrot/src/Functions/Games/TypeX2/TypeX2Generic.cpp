@@ -52,23 +52,30 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 	{
 		lpFileName += 3; // apparently this game has absolute paths for game files, so correct them to relative paths from game exe directory.
 	}
+
 	// catch absolute paths outside of game directory wherever they are, and redirect them
-	if (lpFileName[1] == ':') // it's an absolute path if its second character is a :. :)
+	if (lpFileName[1] == ':' || GameDetect::currentGame == GameID::TetrisGM3 && lpFileName[0] == '.') // it's an absolute path if its second character is a :. :)
 	{
 		if (GetFileAttributesA(lpFileName) == INVALID_FILE_ATTRIBUTES) // don't need to redirect if the file is present. 
 		{
-			wchar_t pathRoot[MAX_PATH];
-			GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+			char pathRoot[MAX_PATH];
+			GetModuleFileNameA(GetModuleHandleA(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
 
-			wcsrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
+			strrchr(pathRoot, '\\')[0] = '\0'; // chop off everything from the last backslash.
 
 			// assume just ASCII
 			std::string fn = lpFileName;
-			std::wstring wfn(fn.begin(), fn.end());
+			//std::wstring wfn(fn.begin(), fn.end());
+			std::string wfnA(fn.begin(), fn.end());
 
-			CreateDirectoryW((pathRoot + L"\\TeknoParrot\\"s).c_str(), nullptr); // create TeknoParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
+			if (GameDetect::currentGame == GameID::TetrisGM3)
+			{
+				return CreateFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(2)).c_str(), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);;
+			}
 
-			return CreateFileW((pathRoot + L"\\TeknoParrot\\"s + wfn.substr(3)).c_str(), // make or open the file there instead. :)
+			CreateDirectoryA((pathRoot + "\\OpenParrot\\"s).c_str(), nullptr); // create OpenParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
+
+			return CreateFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str(), // make or open the file there instead. :)
 				dwDesiredAccess,
 				dwShareMode,
 				lpSecurityAttributes,
@@ -96,6 +103,178 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 		dwCreationDisposition,
 		dwFlagsAndAttributes,
 		hTemplateFile);
+}
+
+static HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
+	DWORD dwDesiredAccess,
+	DWORD dwShareMode,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+	DWORD dwCreationDisposition,
+	DWORD dwFlagsAndAttributes,
+	HANDLE hTemplateFile)
+{
+	if ((GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng) && lpFileName[1] == ':' && lpFileName[2] == '\\')
+	{
+		lpFileName += 3; // apparently this game has absolute paths for game files, so correct them to relative paths from game exe directory.
+	}
+	// catch absolute paths outside of game directory wherever they are, and redirect them
+	if (lpFileName[1] == ':') // it's an absolute path if its second character is a :. :)
+	{
+		if (GetFileAttributesW(lpFileName) == INVALID_FILE_ATTRIBUTES) // don't need to redirect if the file is present. 
+		{
+			wchar_t pathRoot[MAX_PATH];
+			GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+			wcsrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
+
+			// assume just ASCII
+			std::wstring fn = lpFileName;
+			std::wstring wfn(fn.begin(), fn.end());
+
+			CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s).c_str(), nullptr); // create TeknoParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
+
+			return CreateFileW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str(), // make or open the file there instead. :)
+				dwDesiredAccess,
+				dwShareMode,
+				lpSecurityAttributes,
+				dwCreationDisposition,
+				dwFlagsAndAttributes,
+				hTemplateFile);
+		}
+	}
+
+	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL)
+	{
+		if (wcsncmp(lpFileName, L"COM1", 4) == 0)
+		{
+			HANDLE hFile = (HANDLE)0x8001;
+
+			AddCommOverride(hFile);
+
+			return hFile;
+		}
+	}
+	return CreateFileW(lpFileName,
+		dwDesiredAccess,
+		dwShareMode,
+		lpSecurityAttributes,
+		dwCreationDisposition,
+		dwFlagsAndAttributes,
+		hTemplateFile);
+}
+
+static BOOL __stdcall CreateDirectoryAWrap(LPCSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+	char pathRoot[MAX_PATH];
+	GetModuleFileNameA(GetModuleHandleA(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+	strrchr(pathRoot, '\\')[0] = '\0'; // chop off everything from the last backslash.
+
+	// assume just ASCII
+	std::string fn = lpPathName;
+	//std::wstring wfn(fn.begin(), fn.end());
+	std::string wfnA(fn.begin(), fn.end());
+
+	CreateDirectoryA((pathRoot + "\\OpenParrot\\"s).c_str(), nullptr);
+
+	if (GameDetect::currentGame == GameID::TetrisGM3)
+	{
+		// lets fix dir
+		CreateDirectoryA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(2)).c_str(), nullptr);
+		return 0;
+	}
+
+	return CreateDirectoryA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str(), nullptr);
+}
+
+static BOOL __stdcall CreateDirectoryWWrap(LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+	wchar_t pathRoot[MAX_PATH];
+	GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+	wcsrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
+
+	// assume just ASCII
+	std::wstring fn = lpPathName;
+	std::wstring wfn(fn.begin(), fn.end());
+	CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s).c_str(), nullptr);
+
+	if (GameDetect::currentGame == GameID::PowerInstinctV)
+	{
+		// windows api is trash so we need to create folders 1 by 1 oof
+		CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s + L"save\\"s).c_str(), nullptr);
+		CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s + L"save\\"s + L"090623\\"s).c_str(), nullptr);
+		return 0;
+	}
+
+	return CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str(), nullptr);
+}
+
+static HANDLE __stdcall FindFirstFileAWrap(LPCSTR lpFileName, LPWIN32_FIND_DATAA lpFindFileData)
+{
+	char pathRoot[MAX_PATH];
+	GetModuleFileNameA(GetModuleHandleA(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+	strrchr(pathRoot, '\\')[0] = '\0'; // chop off everything from the last backslash.
+
+	// assume just ASCII
+	std::string fn = lpFileName;
+	//std::wstring wfn(fn.begin(), fn.end());
+	std::string wfnA(fn.begin(), fn.end());
+
+	return FindFirstFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str(), lpFindFileData);
+}
+
+static HANDLE __stdcall FindFirstFileWWrap(LPCWSTR lpFileName, LPWIN32_FIND_DATAW lpFindFileData)
+{
+	wchar_t pathRoot[MAX_PATH];
+	GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+	wcsrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
+
+	// assume just ASCII
+	std::wstring fn = lpFileName;
+	std::wstring wfn(fn.begin(), fn.end());
+
+	return FindFirstFileW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str(), lpFindFileData);
+}
+
+static HANDLE __stdcall FindFirstFileExWWrap(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPWIN32_FIND_DATAW lpFindFileData, FINDEX_SEARCH_OPS  fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
+{
+	if (GetFileAttributesW(lpFileName) == INVALID_FILE_ATTRIBUTES) 
+	{
+		wchar_t pathRoot[MAX_PATH];
+		GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+		wcsrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
+
+		// assume just ASCII
+		std::wstring fn = lpFileName;
+		std::wstring wfn(fn.begin(), fn.end());
+
+		return FindFirstFileExW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+	}
+
+	return FindFirstFileExW(lpFileName, fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+}
+
+static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
+{
+	if (GetFileAttributesW(lpFileName) == INVALID_FILE_ATTRIBUTES) 
+	{
+		wchar_t pathRoot[MAX_PATH];
+		GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+		wcsrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
+
+		// assume just ASCII
+		std::wstring fn = lpFileName;
+		std::wstring wfn(fn.begin(), fn.end());
+
+		return GetFileAttributesW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str());
+	}
+
+	return GetFileAttributesW(lpFileName);
 }
 
 #include <deque>
@@ -844,6 +1023,13 @@ static InitFunction initFunction([]()
 	}
 
 	iatHook("kernel32.dll", CreateFileAWrap, "CreateFileA");
+	iatHook("kernel32.dll", CreateFileWWrap, "CreateFileW");
+	iatHook("kernel32.dll", CreateDirectoryAWrap, "CreateDirectoryA");
+	iatHook("kernel32.dll", CreateDirectoryWWrap, "CreateDirectoryW");
+	iatHook("kernel32.dll", FindFirstFileAWrap, "FindFirstFileA");
+	iatHook("kernel32.dll", FindFirstFileWWrap, "FindFirstFileW");
+	iatHook("kernel32.dll", FindFirstFileExWWrap, "FindFirstFileExW");
+	iatHook("kernel32.dll", GetFileAttributesWWrap, "GetFileAttributesW");
 	
 	switch (GameDetect::X2Type)
 	{
@@ -997,6 +1183,10 @@ static InitFunction initFunction([]()
 		{
 			// TODO: DISABLE DUAL INPUT PLS
 			OutputDebugStringA("Please fix the dual input issue sir");
+
+			// restore retarded patched exes to D: instead of SV
+			injector::WriteMemoryRaw(imageBase + 0x1214E0, "D:", 2, true); // 0x5214E0
+			injector::WriteMemoryRaw(imageBase + 0x1588C4, "D:", 2, true);
 			break;
 		}
 	}
@@ -1006,6 +1196,11 @@ static InitFunction initFunction([]()
 		// TODO: DOCUMENT PATCHES
 		injector::WriteMemory<DWORD>(0x0040447C, 0x000800B8, true);
 		injector::WriteMemory<WORD>(0x0040447C+4, 0x9000, true);
+	}
+
+	if (GameDetect::currentGame == GameID::KOFXIIIClimax) 
+	{
+
 	}
 
 	if(GameDetect::currentGame == GameID::ChaseHq2)
@@ -1085,18 +1280,6 @@ static InitFunction initFunction([]()
 
 		injector::WriteMemoryRaw(0x450ED7, &resy, sizeof(resy), true);
 		injector::WriteMemoryRaw(0x450EDC, &resx, sizeof(resx), true);
-
-		// and finally, to protect integrity of dump, change bookeeping directory to TeknoParrot, because the global redirect misses this one.
-		injector::WriteMemoryRaw(0x46A0B0, "TeknoParrot\\\0\0", 12, true);
-		// create it if it doesn't exist
-
-		wchar_t pathRoot[MAX_PATH];
-		GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
-
-		wcsrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
-
-		CreateDirectoryW((pathRoot + L"\\TeknoParrot\\"s).c_str(), nullptr); // create TeknoParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
-
 	}
 
 	if(GameDetect::currentGame == GameID::SamuraiSpiritsSen)

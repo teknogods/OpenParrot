@@ -514,7 +514,7 @@ void GameDetect::DetectCurrentGame()
 		case 0xbd516d7b: // KOFXIII Climax
 			currentGame = GameID::KOFXIIIClimax;
 			NesicaKey = NesicaKey::KOFXIIIClimax;
-			isNesica = true;
+			X2Type = X2Type::Generic;
 			break;
 		case 0x3806e8f4: //KoF98 (has files that need to be deleted to run)
 			currentGame = GameID::Nesica;
@@ -555,6 +555,10 @@ void GameDetect::DetectCurrentGame()
 			break;
 		case 0x74f898ae: // KOF SkyStage
 			currentGame = GameID::KOFSkyStage100J;
+			X2Type = X2Type::Generic;
+			break;
+		case 0xd9221042: // Power Instinct V
+			currentGame = GameID::PowerInstinctV;
 			X2Type = X2Type::Generic;
 			break;
 #ifdef _AMD64_
@@ -619,6 +623,7 @@ bool GameDetect::IsTypeX()
 	case GameID::BlazBlueCS2:
 	case GameID::GigaWingGenerations:
 	case GameID::KOF98UM:
+	case GameID::KOFXIIIClimax:
 	case GameID::KOFMIRA:
 	case GameID::KOFSkyStage:
 	case GameID::KOFXII:
