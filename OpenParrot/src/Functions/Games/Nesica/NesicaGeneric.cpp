@@ -222,3 +222,10 @@ static InitFunction initFunction_KOFXIIIClimax([]()
 	init_CryptoPipe(GameDetect::NesicaKey);
 #endif
 }, GameID::KOFXIIIClimax);
+
+static InitFunction initFunction_KOFXIII([]()
+{
+#if _M_IX86
+		init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::KOFXIII);

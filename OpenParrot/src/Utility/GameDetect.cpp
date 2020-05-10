@@ -274,6 +274,7 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0x3de0a15a: // KOF XIII
 		currentGame = GameID::KOFXIII;
+		NesicaKey = NesicaKey::KOFXIIIClimax;
 		X2Type = X2Type::Generic;
 		break;
 	case 0x777df862: // Power Instinct V
