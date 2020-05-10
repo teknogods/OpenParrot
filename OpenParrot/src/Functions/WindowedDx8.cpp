@@ -69,12 +69,12 @@ HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE Devic
 
 IDirect3D8* WINAPI Direct3DCreate8Wrap(UINT SDKVersion)
 {
-	auto d3d9 = g_origDirect3DCreate8(SDKVersion);
+	auto d3d8 = g_origDirect3DCreate8(SDKVersion);
 	
-	auto old = HookVtableFunction(&d3d9->lpVtbl->CreateDevice, CreateDeviceWrap);
+	auto old = HookVtableFunction(&d3d8->lpVtbl->CreateDevice, CreateDeviceWrap);
 	g_oldCreateDevice = (old) ? old : g_oldCreateDevice;
 
-	return d3d9;
+	return d3d8;
 }
 
 void InitD3D8WindowHook()

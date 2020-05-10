@@ -70,7 +70,7 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 
 			if (GameDetect::currentGame == GameID::TetrisGM3)
 			{
-				return CreateFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(2)).c_str(), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);;
+				return CreateFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(2)).c_str(), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 			}
 
 			CreateDirectoryA((pathRoot + "\\OpenParrot\\"s).c_str(), nullptr); // create OpenParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
@@ -222,6 +222,11 @@ static HANDLE __stdcall FindFirstFileAWrap(LPCSTR lpFileName, LPWIN32_FIND_DATAA
 	//std::wstring wfn(fn.begin(), fn.end());
 	std::string wfnA(fn.begin(), fn.end());
 
+	if (GameDetect::currentGame == GameID::KOF98UM)
+	{
+		return FindFirstFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(0)).c_str(), lpFindFileData);
+	}
+
 	return FindFirstFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str(), lpFindFileData);
 }
 
@@ -252,6 +257,11 @@ static HANDLE __stdcall FindFirstFileExWWrap(LPCWSTR lpFileName, FINDEX_INFO_LEV
 		std::wstring fn = lpFileName;
 		std::wstring wfn(fn.begin(), fn.end());
 
+		if (GameDetect::currentGame == GameID::KOF98UM)
+		{
+			return FindFirstFileExW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(0)).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+		}
+
 		return FindFirstFileExW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
 	}
 
@@ -269,7 +279,7 @@ static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 		char pathRoot[MAX_PATH];
 		GetModuleFileNameA(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
 
-		strrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
+		strrchr(pathRoot, '\\')[0] = '\0'; // chop off everything from the last backslash.
 
 		// assume just ASCII
 		std::string fn = lpFileName;
