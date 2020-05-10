@@ -241,7 +241,7 @@ static HANDLE __stdcall FindFirstFileWWrap(LPCWSTR lpFileName, LPWIN32_FIND_DATA
 
 static HANDLE __stdcall FindFirstFileExWWrap(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPWIN32_FIND_DATAW lpFindFileData, FINDEX_SEARCH_OPS  fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
 {
-	if (GetFileAttributesW(lpFileName) == INVALID_FILE_ATTRIBUTES) 
+	if (GetFileAttributesW(lpFileName) == INVALID_FILE_ATTRIBUTES)
 	{
 		wchar_t pathRoot[MAX_PATH];
 		GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
@@ -258,9 +258,33 @@ static HANDLE __stdcall FindFirstFileExWWrap(LPCWSTR lpFileName, FINDEX_INFO_LEV
 	return FindFirstFileExW(lpFileName, fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
 }
 
+static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
+{
+	if ((GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng) && lpFileName[1] == ':' && lpFileName[2] == '\\')
+	{
+		lpFileName += 3;
+	}
+	if (GetFileAttributesA(lpFileName) == INVALID_FILE_ATTRIBUTES)
+	{
+		char pathRoot[MAX_PATH];
+		GetModuleFileNameA(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+		strrchr(pathRoot, L'\\')[0] = L'\0'; // chop off everything from the last backslash.
+
+		// assume just ASCII
+		std::string fn = lpFileName;
+		//std::wstring wfn(fn.begin(), fn.end());
+		std::string wfnA(fn.begin(), fn.end());
+
+		return GetFileAttributesA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str());
+	}
+
+	return GetFileAttributesA(lpFileName);
+}
+
 static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
 {
-	if (GetFileAttributesW(lpFileName) == INVALID_FILE_ATTRIBUTES) 
+	if (GetFileAttributesW(lpFileName) == INVALID_FILE_ATTRIBUTES)
 	{
 		wchar_t pathRoot[MAX_PATH];
 		GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
@@ -301,15 +325,6 @@ static BOOL __stdcall ReadFileWrapTx2(HANDLE hFile,
 		return TRUE;
 	}
 	return ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
-}
-
-static DWORD __stdcall GetFileAttributesAWrapTx2(LPCSTR lpFileName)
-{
-	if ((GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng) && lpFileName[1] == ':' && lpFileName[2] == '\\')
-	{
-		lpFileName += 3;
-	}
-	return GetFileAttributesA(lpFileName);
 }
 
 BOOL __stdcall WriteFileWrapTx2(HANDLE hFile,
@@ -1029,6 +1044,7 @@ static InitFunction initFunction([]()
 	iatHook("kernel32.dll", FindFirstFileAWrap, "FindFirstFileA");
 	iatHook("kernel32.dll", FindFirstFileWWrap, "FindFirstFileW");
 	iatHook("kernel32.dll", FindFirstFileExWWrap, "FindFirstFileExW");
+	iatHook("kernel32.dll", GetFileAttributesAWrap, "GetFileAttributesA");
 	iatHook("kernel32.dll", GetFileAttributesWWrap, "GetFileAttributesW");
 	
 	switch (GameDetect::X2Type)
@@ -1133,7 +1149,6 @@ static InitFunction initFunction([]()
 
 			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
 			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
-			iatHook("kernel32.dll", GetFileAttributesAWrapTx2, "GetFileAttributesA");
 
 			break;
 		}
@@ -1168,7 +1183,6 @@ static InitFunction initFunction([]()
 
 			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
 			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
-			iatHook("kernel32.dll", GetFileAttributesAWrapTx2, "GetFileAttributesA");
 
 			break;
 		}
