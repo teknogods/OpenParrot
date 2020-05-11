@@ -99,7 +99,7 @@ static InitFunction initFunction_DariusBurst([]()
 
 	// Ignore cryptopipe check.
 	// NOTE: This could be cause for the non-working TEST MODE. No time to analyze since dump was released and we want to give instant support.
-	injector::WriteMemory<BYTE>(imageBase + 0x2CC753, 0xEB, true);
+	//injector::WriteMemory<BYTE>(imageBase + 0x2CC753, 0xEB, true);
 
 	// D:
 	injector::WriteMemoryRaw(imageBase + 0x482F38, "\x2E\x5C\x44", 3, true); // D:\%s%04d%02d%02d_%02d%02d%02d_
@@ -119,8 +119,58 @@ static InitFunction initFunction_DariusBurst([]()
 	// NOTE: Nezarn is pro
 	injector::WriteMemoryRaw(imageBase + 0x4D4E34, "\x30\x2E\x30\x66\x20\x20\x20\x20", 8, true); // 0.0f
 	injector::WriteMemoryRaw(imageBase + 0x4D4E4C, "\x2A\x20\x30\x2E\x30\x66\x20\x20\x20\x20\x20\x2D", 12, true); // * 0.0f -
-
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
 }, GameID::DariusBurst);
+
+static InitFunction initFunction_DariusBurst116([]()
+{
+	init_FastIoEmu();
+	init_RegHooks();
+	init_NesysEmu(true);
+
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+
+	// Ignore cryptopipe check.
+	// NOTE: This could be cause for the non-working TEST MODE. No time to analyze since dump was released and we want to give instant support.
+	//injector::WriteMemory<BYTE>(imageBase + 0x302743, 0xEB, true);
+
+	// D:
+	injector::WriteMemoryRaw(imageBase + 0x4EEF68, "\x2E\x5C\x44", 3, true); // D:\%s%04d%02d%02d_%02d%02d%02d_
+	injector::WriteMemoryRaw(imageBase + 0x4EF0D0, "\x2E\x5C\x44", 3, true); // D:\%s/%s/*
+	injector::WriteMemoryRaw(imageBase + 0x4EF0DC, "\x2E\x5C\x44", 3, true); // D:\%s/%s
+	injector::WriteMemoryRaw(imageBase + 0x4EF0E8, "\x2E\x5C\x44", 3, true); // D:\%s/*
+	injector::WriteMemoryRaw(imageBase + 0x4EF0F0, "\x2E\x5C\x44", 3, true); // D:\%s
+	injector::WriteMemoryRaw(imageBase + 0x50E980, "\x2E\x5C\x44", 3, true); // D:\EDData
+	injector::WriteMemoryRaw(imageBase + 0x50EB58, "\x2E\x5C\x44", 3, true); // D:\EDData
+	injector::WriteMemoryRaw(imageBase + 0x5145E0, "\x2E\x5C\x44", 3, true); // D:\EDData
+	injector::WriteMemoryRaw(imageBase + 0x539190, "\x2E\x5C\x44", 3, true); // D:\EDData
+	injector::WriteMemoryRaw(imageBase + 0x539240, "\x2E\x5C\x44", 3, true); // Proclog
+	injector::WriteMemoryRaw(imageBase + 0x50DD84, "\x2E\x5C\x44", 3, true); // D:\EDData\event000.pxk
+	injector::WriteMemoryRaw(imageBase + 0x50DD9C, "\x2E\x5C\x44", 3, true); // D:\EDData\ev
+	injector::WriteMemoryRaw(imageBase + 0x50E8EC, "\x2E\x5C\x44", 3, true); // D:\EDData\ev
+	injector::WriteMemoryRaw(imageBase + 0x50E8FC, "\x2E\x5C\x44", 3, true); // D:\EDData\ev\event000.sxr
+	injector::WriteMemoryRaw(imageBase + 0x50EB64, "\x2E\x5C\x44", 3, true); // D:\EDData\ev\event000.sxr
+	injector::WriteMemoryRaw(imageBase + 0x50EBE8, "\x2E\x5C\x44", 3, true); // D:\EDData\ev
+	injector::WriteMemoryRaw(imageBase + 0x50EBF8, "\x2E\x5C\x44", 3, true); // D:\EDData\ev\event000.sxr
+	injector::WriteMemoryRaw(imageBase + 0x517464, "\x2E\x5C\x44", 3, true); // D:\EDData\news000.tx2
+	injector::WriteMemoryRaw(imageBase + 0x51747C, "\x2E\x5C\x44", 3, true); // D:\EDData\news000.tx2
+	injector::WriteMemoryRaw(imageBase + 0x517494, "\x2E\x5C\x44", 3, true); // D:\EDData\news000.tx2
+	injector::WriteMemoryRaw(imageBase + 0x518524, "\x2E\x5C\x44", 3, true); // D:\EDData\ev
+	injector::WriteMemoryRaw(imageBase + 0x5660FC, "\x2E\x5C\x44", 3, true); // D:\EDData\ev
+	injector::WriteMemoryRaw(imageBase + 0x56610C, "\x2E\x5C\x44", 3, true); // D:\EDData\ev\event000.sxr
+
+	// D:/
+	injector::WriteMemoryRaw(imageBase + 0x539020, "\x2E\x5C\x44", 3, true);
+
+	// Disable invertion of 2nd screen area
+	injector::WriteMemoryRaw(imageBase + 0x5399CC, "\x30\x2E\x30\x66\x20\x20\x20\x20", 8, true); // 0.0f
+	injector::WriteMemoryRaw(imageBase + 0x5399E4, "\x2A\x20\x30\x2E\x30\x66\x20\x20\x20\x20\x20\x2D", 12, true); // * 0.0f -
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::DariusBurst116);
 
 static InitFunction initFunction_PB([]()
 {
@@ -216,16 +266,14 @@ static InitFunction initFunction_Theatrhythm([]()
 	
 	}, GameID::Theatrhythm);
 
+#if _M_IX86
 static InitFunction initFunction_KOFXIIIClimax([]()
 {
-#if _M_IX86
 	init_CryptoPipe(GameDetect::NesicaKey);
-#endif
 }, GameID::KOFXIIIClimax);
 
 static InitFunction initFunction_KOFXIII([]()
 {
-#if _M_IX86
 		init_CryptoPipe(GameDetect::NesicaKey);
-#endif
 }, GameID::KOFXIII);
+#endif

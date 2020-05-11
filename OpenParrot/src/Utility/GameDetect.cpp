@@ -424,6 +424,13 @@ void GameDetect::DetectCurrentGame()
 			if (*(uint32_t*)(moduleBase + 0x2CC751) == 0x6B75C084)
 			{
 				currentGame = GameID::DariusBurst;
+				NesicaKey = NesicaKey::DariusBurst;
+				break;
+			}
+			if (*(uint32_t*)(moduleBase + 0x302741) == 0x7075C084)
+			{
+				currentGame = GameID::DariusBurst116;
+				NesicaKey = NesicaKey::DariusBurst;
 				break;
 			}
 		}

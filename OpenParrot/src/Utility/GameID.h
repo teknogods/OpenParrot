@@ -49,6 +49,7 @@ enum class GameID
 	Daytona3,
 	MB4,
 	DariusBurst,
+	DariusBurst116,
 	GTIClub3,
 	GRID,
 	UltraStreetFighterIV,
