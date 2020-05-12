@@ -18,6 +18,8 @@ bool GameDetect::file_exists(const std::string& name)
 
 void GameDetect::DetectCurrentGame(bool konami)
 {
+	// TODO: move all game detection bound to crcResult immediately below to use the newCrcResult switch at end with its new CRC instead.
+	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
 	NesicaKey = NesicaKey::None;
 	if (konami)
 	{
@@ -46,7 +48,6 @@ void GameDetect::DetectCurrentGame(bool konami)
 
 		return;
 	}
-	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
 	switch (crcResult)
 	{
 #if _M_IX86
@@ -118,6 +119,7 @@ void GameDetect::DetectCurrentGame(bool konami)
 	case 0x949efa20:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::Persona4Arena;
+		GameDetect::enableNesysEmu = false;
 		isNesica = true;
 		break;
 	case 0x6b233485:
@@ -306,6 +308,7 @@ void GameDetect::DetectCurrentGame(bool konami)
 		break;
 	case 0x3de0a15a: // KOF XIII
 		currentGame = GameID::KOFXIII;
+		NesicaKey = NesicaKey::KOFXIIIClimax;
 		X2Type = X2Type::Generic;
 		break;
 	case 0x777df862: // Power Instinct V
@@ -336,7 +339,7 @@ void GameDetect::DetectCurrentGame(bool konami)
 		currentGame = GameID::SSFAE_EXP;
 		X2Type = X2Type::Generic;
 		break;
-	case 0xef843fd1: // Super Street Fighter IV Arcade Edition Ver. 2012
+	case 0xef843fd1: // Super Street Fighter IV Arcade Edition Ver. 2012 (NESYS 1.1)
 		currentGame = GameID::SSFAE2012;
 		X2Type = X2Type::Generic;
 		break;
@@ -376,7 +379,7 @@ void GameDetect::DetectCurrentGame(bool konami)
 		currentGame = GameID::RaidenIV;
 		X2Type = X2Type::Raiden4;
 		break;
-	case 0x14eb3c8a: // Battle Gear 4 Tuned Professional
+	case 0x14eb3c8a: // Battle Gear 4 Tuned Professional (2.08)
 		currentGame = GameID::BG4;
 		X2Type = X2Type::BG4;
 		break;
@@ -455,6 +458,13 @@ void GameDetect::DetectCurrentGame(bool konami)
 			if (*(uint32_t*)(moduleBase + 0x2CC751) == 0x6B75C084)
 			{
 				currentGame = GameID::DariusBurst;
+				NesicaKey = NesicaKey::DariusBurst;
+				break;
+			}
+			if (*(uint32_t*)(moduleBase + 0x302741) == 0x7075C084)
+			{
+				currentGame = GameID::DariusBurst116;
+				NesicaKey = NesicaKey::DariusBurst;
 				break;
 			}
 		}
@@ -543,15 +553,19 @@ void GameDetect::DetectCurrentGame(bool konami)
 			currentGame = GameID::SpicaAdventure;
 			X2Type = X2Type::Generic;
 			break;
-		case 0xbd516d7b: //KoFXIII
-			currentGame = GameID::Nesica;
-			NesicaKey = NesicaKey::None;
-			isNesica = true;
+		case 0xbd516d7b: // KOFXIII Climax
+			currentGame = GameID::KOFXIIIClimax;
+			NesicaKey = NesicaKey::KOFXIIIClimax;
+			X2Type = X2Type::Generic;
 			break;
 		case 0x3806e8f4: //KoF98 (has files that need to be deleted to run)
 			currentGame = GameID::Nesica;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
+			break;
+		case 0x545b0d0c: // Super Street Fighter IV Arcade Edition Ver. 2012 (NESYS 1.3)
+			currentGame = GameID::SSFAE2012;
+			X2Type = X2Type::Generic;
 			break;
 		case 0xa202d660: //Yatagarasu - Attack on Cataclysm
 			currentGame = GameID::Nesica;
@@ -576,6 +590,18 @@ void GameDetect::DetectCurrentGame(bool konami)
 			break;
 		case 0x4D91A27A:
 			currentGame = GameID::SnoCross;
+			break;
+		case 0xbd8c984d: // Battle Gear 4 English Ver (2.03) 
+			currentGame = GameID::BG4_Eng;
+			X2Type = X2Type::BG4_Eng;
+			break;
+		case 0x74f898ae: // KOF SkyStage
+			currentGame = GameID::KOFSkyStage100J;
+			X2Type = X2Type::Generic;
+			break;
+		case 0xd9221042: // Power Instinct V
+			currentGame = GameID::PowerInstinctV;
+			X2Type = X2Type::Generic;
 			break;
 #ifdef _AMD64_
 		case 0x80ebd207:
@@ -639,10 +665,12 @@ bool GameDetect::IsTypeX()
 	case GameID::BlazBlueCS2:
 	case GameID::GigaWingGenerations:
 	case GameID::KOF98UM:
+	case GameID::KOFXIIIClimax:
 	case GameID::KOFMIRA:
 	case GameID::KOFSkyStage:
 	case GameID::KOFXII:
 	case GameID::KOFXIII:
+	case GameID::KOFSkyStage100J:
 	case GameID::PowerInstinctV:
 	case GameID::RaidenIII:
 	case GameID::SenkoNoRondeDuo:
@@ -662,6 +690,7 @@ bool GameDetect::IsTypeX()
 	case GameID::RaidenIV:
 	case GameID::VirtuaRLimit:
 	case GameID::MB4:
+	case GameID::BG4_Eng:
 		return true;
 	default:
 		return false;

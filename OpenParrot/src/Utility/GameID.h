@@ -17,6 +17,7 @@ enum class GameID
 	KOF98UM,
 	KOFMIRA,
 	KOFSkyStage,
+	KOFSkyStage100J,
 	KOFXII,
 	KOFXIII,
 	PowerInstinctV,
@@ -48,6 +49,7 @@ enum class GameID
 	Daytona3,
 	MB4,
 	DariusBurst,
+	DariusBurst116,
 	GTIClub3,
 	GRID,
 	UltraStreetFighterIV,
@@ -70,5 +72,7 @@ enum class GameID
 	H2Overdrive,
 	Tekken7Update00,
 	Tekken7Update12,
+	BG4_Eng,
+	KOFXIIIClimax,
 	Konami
 };

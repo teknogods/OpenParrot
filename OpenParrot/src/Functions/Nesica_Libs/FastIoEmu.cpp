@@ -53,7 +53,7 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		result = 0x00FF00FF;
 		break;
 	case 0x4004:
-		if (GameDetect::currentGame == GameID::DariusBurst)
+		if (GameDetect::currentGame == GameID::DariusBurst || GameDetect::currentGame == GameID::DariusBurst116)
 		{
 			// I/O error without this switch
 			result = 0x00FF00FF;
@@ -67,7 +67,7 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		result = g_fastIOValues[0] + ((DWORD)g_fastIOValues[1] * 0x100) + ((DWORD)g_fastIOValues[2] * 0x10000) + ((DWORD)g_fastIOValues[3] * 0x1000000);
 		break;
 	case 0x4124: // Analogs 1
-		if (GameDetect::currentGame == GameID::DariusBurst)
+		if (GameDetect::currentGame == GameID::DariusBurst || GameDetect::currentGame == GameID::DariusBurst116)
 		{
 			// Sound volume to maximum
 			result = 0xFF;
