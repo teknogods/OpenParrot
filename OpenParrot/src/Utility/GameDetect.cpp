@@ -40,8 +40,8 @@ void GameDetect::DetectCurrentGame(bool konami)
 
 			MessageBoxA(0, "Unsupported Konami Game!", "Error", MB_ICONERROR);
 			Sleep(100);
-			system("taskkill /f /im spice.exe");
-			system("taskkill /f /im spice64.exe");
+			system("taskkill /f /im spice_tp.exe");
+			system("taskkill /f /im spice64_tp.exe");
 			ExitProcess(0);
 			return;
 		}
