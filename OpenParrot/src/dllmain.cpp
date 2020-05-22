@@ -96,7 +96,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
 		// SpiceTools detection
-		if (GameDetect::file_exists("spice.exe") || GameDetect::file_exists("spice64.exe"))
+		if (GameDetect::file_exists("spice_tp.exe") || GameDetect::file_exists("spice64_tp.exe"))
 		{
 			config.load_file("teknoparrot.ini");
 			GameDetect::DetectCurrentGame(true);
