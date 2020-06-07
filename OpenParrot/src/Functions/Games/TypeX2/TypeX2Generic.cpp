@@ -1332,6 +1332,13 @@ static InitFunction initFunction([]()
 		// skip dinput devices (TODO: maybe make original Dinput.dll wrapper?)
 		injector::WriteMemory<BYTE>(imageBase + 0xBD1D7, 0xEB, true);
 	}
+
+	if (GameDetect::currentGame == GameID::TroubleWitches)
+	{
+		injector::WriteMemoryRaw(imageBase + 0xB2E6C, ".\\Save", 7, true);
+		injector::WriteMemoryRaw(imageBase + 0xC28B0, ".\\Save\\Config%d.bin", 20, true);
+		injector::WriteMemoryRaw(imageBase + 0xC28C8, ".\\Save\\Config%04d.bin", 22, true);
+	}
 });
 #endif
 #pragma optimize("", on)
