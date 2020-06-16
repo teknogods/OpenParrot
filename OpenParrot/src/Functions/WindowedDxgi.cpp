@@ -241,7 +241,7 @@ extern linb::ini config;
 
 static InitFunction initFunc([]()
 {
-	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::TER)
+	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::Tekken7Update00)
 		return;
 	if (ToBool(config["General"]["Windowed"]))
 	{
