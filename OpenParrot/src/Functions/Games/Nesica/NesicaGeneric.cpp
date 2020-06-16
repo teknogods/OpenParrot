@@ -232,6 +232,39 @@ static InitFunction initFunction_SOR([]()
 	}
 }, GameID::SchoolOfRagnarok);
 
+static InitFunction initFunction_HyperSF4([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	//init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::HyperStreetFighterII);
+
+static InitFunction initFunction_StreetFighterZero3([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	//init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::StreetFigherZero3);
+
+static InitFunction initFunction_StreetFighter3rdStrike([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	//init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::StreetFighter3rdStrike);
+
 static InitFunction initFunction_Theatrhythm([]()
 	{
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);

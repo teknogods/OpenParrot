@@ -773,6 +773,60 @@ BOOL __stdcall CloseHandleWrap(HANDLE hObject)
 static char moveBuf[256];
 LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 {
+	if (GameDetect::currentGame == GameID::HyperStreetFighterII)
+	{
+		//info(true, "ParseFileNamesA: %s", lpFileName);
+
+		if (!strncmp(lpFileName, "D:\\3", 4))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[3] == '3')
+			{
+				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::StreetFigherZero3)
+	{
+		//info(true, "ParseFileNamesA: %s", lpFileName);
+
+		if (!strncmp(lpFileName, "D:\\c", 4))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[3] == 'c')
+			{
+				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::StreetFighter3rdStrike)
+	{
+		//info(true, "ParseFileNamesA: %s", lpFileName);
+
+		if (!strncmp(lpFileName, "D:\\9", 4))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[3] == '9')
+			{
+				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
 		memset(moveBuf, 0, 256);
@@ -794,9 +848,63 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 static wchar_t moveBufW[256];
 LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 {
+	if (GameDetect::currentGame == GameID::HyperStreetFighterII)
+	{
+		//info(true, "ParseFileNamesA: %s", lpFileName);
+
+		if (!wcsncmp(lpFileName, L"D:\\3", 4))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[3] == '3')
+			{
+				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::StreetFigherZero3)
+	{
+		//info(true, "ParseFileNamesA: %s", lpFileName);
+
+		if (!wcsncmp(lpFileName, L"D:\\c", 4))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[3] == 'c')
+			{
+				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::StreetFighter3rdStrike)
+	{
+		//info(true, "ParseFileNamesA: %s", lpFileName);
+
+		if (!wcsncmp(lpFileName, L"D:\\9", 4))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[3] == '9')
+			{
+				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
 	if (!wcsncmp(lpFileName, L"D:", 2) || !wcsncmp(lpFileName, L"d:", 2))
 	{
-		memset(moveBuf, 0, 256);
+		memset(moveBufW, 0, 256);
 		if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 		{
 			swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);

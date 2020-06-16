@@ -20,11 +20,6 @@ void GameDetect::DetectCurrentGame()
 	case 0xb8f2836d:
 		currentGame = GameID::Daytona3;
 		break;
-	case 0xd3f62267:
-		currentGame = GameID::Nesica;
-		NesicaKey = NesicaKey::None;
-		isNesica = true;
-		break;
 	case 0x4bcfbc4f:
 		currentGame = GameID::GrooveCoaster2;
 		isNesica = true;
@@ -101,9 +96,9 @@ void GameDetect::DetectCurrentGame()
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
-		// SF 3rd Strike
-	case 0x9369715e:
-		currentGame = GameID::Nesica;
+	case 0x9369715e: // SF 3rd Strike
+	case 0xd3f62267: // test.exe
+		currentGame = GameID::StreetFighter3rdStrike;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		GameDetect::enableNesysEmu = false;
@@ -178,14 +173,14 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0x6496a142: // Hyper Street Fighter II
 	case 0xb686d3ac: // Test.exe
-		currentGame = GameID::Nesica;
+		currentGame = GameID::HyperStreetFighterII;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		GameDetect::enableNesysEmu = false;
 		break;
 	case 0x6e5c8b5b: // Street Fighter Zero 3
 	case 0x609d8b35: // Test.exe
-		currentGame = GameID::Nesica;
+		currentGame = GameID::StreetFigherZero3;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		GameDetect::enableNesysEmu = false;
