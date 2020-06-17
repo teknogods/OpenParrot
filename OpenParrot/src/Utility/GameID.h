@@ -76,5 +76,6 @@ enum class GameID
 	KOFXIIIClimax,
 	HyperStreetFighterII,
 	StreetFigherZero3,
-	StreetFighter3rdStrike
+	StreetFighter3rdStrike,
+	RumbleFish2
 };

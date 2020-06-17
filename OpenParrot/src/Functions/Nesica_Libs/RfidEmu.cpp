@@ -827,6 +827,24 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		return lpFileName;
 	}
 
+	if (GameDetect::currentGame == GameID::RumbleFish2)
+	{
+		//info(true, "ParseFileNamesA: %s", lpFileName);
+
+		if (!strncmp(lpFileName, "D:\\eb342", 8))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[3] == 'e')
+			{
+				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
 		memset(moveBuf, 0, 256);
@@ -894,6 +912,24 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 			if (lpFileName[3] == '9')
 			{
 				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::RumbleFish2)
+	{
+		//info(true, "ParseFileNamesW: %s", lpFileName);
+
+		if (!wcsncmp(lpFileName, L"D:\\eb342", 4))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[3] == 'e')
+			{
+				//info(true, "ParseFileNamesW: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}
 			return moveBufW;

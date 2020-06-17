@@ -533,8 +533,8 @@ void GameDetect::DetectCurrentGame()
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
-		case 0xbd4c12a5: //some fishing shit idk
-			currentGame = GameID::Nesica;
+		case 0xbd4c12a5: // Rumble Fish 2
+			currentGame = GameID::RumbleFish2;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
