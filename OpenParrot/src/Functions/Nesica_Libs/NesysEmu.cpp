@@ -3,6 +3,7 @@
 //#if _M_IX86
 #include "Utility/Utils.h"
 #include "NesysNewsFile.h"
+#include <Utility\GameDetect.h>
 #pragma optimize("", off)
 NesysEmu::NesysEmu()
 	: m_initialized(false)
@@ -147,7 +148,7 @@ NesysEmu::NesysEmu()
 		s->days = 100;
 		s->size = dataSize;
 		memcpy(s->data, data, s->size);
-
+		if(GameDetect::currentGame != GameID::CrimzonClover) // if someone fixes card code, remove this
 		SendResponse(SCOMMAND_CARD_SELECT_REPLY, s, sizeof(cardstatus) + dataSize);
 	};
 
