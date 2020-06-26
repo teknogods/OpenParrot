@@ -1122,6 +1122,30 @@ static HANDLE __stdcall FindFirstFileWWrap(
 	return g_origFindFirstFileW(ParseFileNamesW(lpFileName), lpFindFileData);
 }
 
+static BOOL(__stdcall* g_origGetDiskFreeSpaceExA)(LPCSTR lpDirectoryName, PULARGE_INTEGER lpFreeBytesAvailableToCaller, PULARGE_INTEGER lpTotalNumberOfBytes, PULARGE_INTEGER lpTotalNumberOfFreeBytes);
+static BOOL __stdcall GetDiskFreeSpaceExAWrap(LPCSTR lpDirectoryName, PULARGE_INTEGER lpFreeBytesAvailableToCaller, PULARGE_INTEGER lpTotalNumberOfBytes, PULARGE_INTEGER lpTotalNumberOfFreeBytes)
+{
+	return g_origGetDiskFreeSpaceExA(NULL, lpFreeBytesAvailableToCaller, lpTotalNumberOfBytes, lpTotalNumberOfFreeBytes);
+}
+
+static BOOL(__stdcall* g_origGetDiskFreeSpaceExW)(LPCWSTR lpDirectoryName, PULARGE_INTEGER lpFreeBytesAvailableToCaller, PULARGE_INTEGER lpTotalNumberOfBytes, PULARGE_INTEGER lpTotalNumberOfFreeBytes);
+static BOOL __stdcall GetDiskFreeSpaceExWWrap(LPCWSTR lpDirectoryName, PULARGE_INTEGER lpFreeBytesAvailableToCaller, PULARGE_INTEGER lpTotalNumberOfBytes, PULARGE_INTEGER lpTotalNumberOfFreeBytes)
+{
+	return g_origGetDiskFreeSpaceExW(NULL, lpFreeBytesAvailableToCaller, lpTotalNumberOfBytes, lpTotalNumberOfFreeBytes);
+}
+
+static BOOL(__stdcall* g_origDeleteFileA)(LPCSTR lpFileName);
+static BOOL __stdcall DeleteFileAWrap(LPCSTR lpFileName) // seems to be used by Akai Katana Shin?
+{
+	return g_origDeleteFileA(ParseFileNamesA(lpFileName));
+}
+
+static BOOL(__stdcall* g_origDeleteFileW)(LPCWSTR lpFileName);
+static BOOL __stdcall DeleteFileWWrap(LPCWSTR lpFileName) // seems to be used by Akai Katana Shin?
+{
+	return g_origDeleteFileW(ParseFileNamesW(lpFileName));
+}
+
 static DWORD WINAPI InsertCardThread(LPVOID)
 {
 	static bool keyDown;
@@ -1168,6 +1192,10 @@ void init_RfidEmu()
 	MH_CreateHookApi(L"kernel32.dll", "SetCommState", SetCommStateWrap, (void**)&g_origSetCommState);
 	MH_CreateHookApi(L"kernel32.dll", "SetCommTimeouts", SetCommTimeoutsWrap, (void**)&g_origSetCommTimeouts);
 	MH_CreateHookApi(L"kernel32.dll", "GetCommTimeouts", GetCommTimeoutsWrap, (void**)&g_origGetCommTimeouts);
+	MH_CreateHookApi(L"kernel32.dll", "GetDiskFreeSpaceExA", GetDiskFreeSpaceExAWrap, (void**)&g_origGetDiskFreeSpaceExA);
+	MH_CreateHookApi(L"kernel32.dll", "GetDiskFreeSpaceExW", GetDiskFreeSpaceExWWrap, (void**)&g_origGetDiskFreeSpaceExW);
+	MH_CreateHookApi(L"kernel32.dll", "DeleteFileA", DeleteFileAWrap, (void**)&g_origDeleteFileA);
+	MH_CreateHookApi(L"kernel32.dll", "DeleteFileW", DeleteFileWWrap, (void**)&g_origDeleteFileW);
 	MH_EnableHook(MH_ALL_HOOKS);
 
 	CreateThread(0, 0, InsertCardThread, 0, 0, 0);
