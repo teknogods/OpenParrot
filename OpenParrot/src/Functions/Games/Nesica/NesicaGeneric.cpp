@@ -276,6 +276,17 @@ static InitFunction initFunction_RumbleFish2([]()
 #endif
 }, GameID::RumbleFish2);
 
+static InitFunction initFunction_KOF98Nesica([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::KOF98Nesica);
+
 static InitFunction initFunction_Theatrhythm([]()
 	{
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);

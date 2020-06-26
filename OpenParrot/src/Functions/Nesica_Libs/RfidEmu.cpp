@@ -6,6 +6,8 @@
 #include <queue>
 #include "Utility/GameDetect.h"
 
+using namespace std::string_literals;
+
 #define JVS_TRUE				0x01
 #define JVS_FALSE				0x00
 #define JVS_SYNC_CODE			0xE0
@@ -845,6 +847,36 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		return lpFileName;
 	}
 
+	if (GameDetect::currentGame == GameID::KOF98Nesica)
+	{
+		if (!strncmp(lpFileName, "d:/SettingKOF98UM", 17) || !strncmp(lpFileName, "d:/RankingKOF98UM", 17) || !strncmp(lpFileName, "d:/CoinFileKOF98UM", 18))
+		{
+			//info(true, "ParseFileNamesA !!!!!SettingKOF98UM!!!: %s", lpFileName, lpFileName); // OK
+
+			memset(moveBuf, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+				info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+			}
+
+			return moveBuf;
+		}
+
+		if (!strncmp(lpFileName, "SettingKOF98UM*.txt", 19) || !strncmp(lpFileName, "RankingKOF98UM*.txt", 19) || !strncmp(lpFileName, "CoinFileKOF98UM*.txt", 20))
+		{
+			//info(true, "ParseFileNamesA ASTERISK: %s", lpFileName, lpFileName); // OK
+
+			memset(moveBuf, 0, 256);
+			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName);
+			info(true, "ParseFileNamesA ASTERISK: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName);
+			
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
 		memset(moveBuf, 0, 256);
@@ -924,7 +956,7 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 	{
 		//info(true, "ParseFileNamesW: %s", lpFileName);
 
-		if (!wcsncmp(lpFileName, L"D:\\eb342", 4))
+		if (!wcsncmp(lpFileName, L"D:\\eb342", 8))
 		{
 			memset(moveBufW, 0, 256);
 			if (lpFileName[3] == 'e')
@@ -932,6 +964,36 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 				//info(true, "ParseFileNamesW: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::KOF98Nesica)
+	{
+		if (!wcsncmp(lpFileName, L"d:/SettingKOF98UM", 17) || !wcsncmp(lpFileName, L"d:/RankingKOF98UM", 17) || !wcsncmp(lpFileName, L"d:/CoinFileKOF98UM", 18))
+		{
+			//info(true, "ParseFileNamesA !!!!!SettingKOF98UM!!!: %s", lpFileName, lpFileName); // OK
+
+			memset(moveBufW, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+				info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+			}
+
+			return moveBufW;
+		}
+
+		if (!wcsncmp(lpFileName, L"SettingKOF98UM*.txt", 19) || !wcsncmp(lpFileName, L"RankingKOF98UM*.txt", 19) || !wcsncmp(lpFileName, L"CoinFileKOF98UM*.txt", 20))
+		{
+			//info(true, "ParseFileNamesA ASTERISK: %s", lpFileName, lpFileName); // OK
+
+			memset(moveBufW, 0, 256);
+			swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName);
+			info(true, "ParseFileNamesA ASTERISK: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName);
+
 			return moveBufW;
 		}
 
@@ -1105,6 +1167,7 @@ static HANDLE __stdcall FindFirstFileAWrap(
 	{
 		return g_origFindFirstFileA(lpFileName, lpFindFileData);
 	}
+
 	return g_origFindFirstFileA(ParseFileNamesA(lpFileName), lpFindFileData);
 }
 
@@ -1144,6 +1207,29 @@ static BOOL(__stdcall* g_origDeleteFileW)(LPCWSTR lpFileName);
 static BOOL __stdcall DeleteFileWWrap(LPCWSTR lpFileName) // seems to be used by Akai Katana Shin?
 {
 	return g_origDeleteFileW(ParseFileNamesW(lpFileName));
+}
+
+static HANDLE(__stdcall* g_origFindFirstFileExA)(LPCSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS  fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
+static HANDLE __stdcall FindFirstFileExAWrap(LPCSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS  fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
+{
+	return g_origFindFirstFileExA(ParseFileNamesA(lpFileName), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+}
+
+static HANDLE(__stdcall* g_origFindFirstFileExW)(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS  fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
+static HANDLE __stdcall FindFirstFileExWWrap(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS  fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
+{
+	return g_origFindFirstFileExW(ParseFileNamesW(lpFileName), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+}
+
+static BOOL(__stdcall* g_origSetCurrentDirectoryA)(LPCSTR lpPathName);
+static BOOL __stdcall SetCurrentDirectoryAWrap(LPCSTR lpPathName)
+{
+	char pathRoot[MAX_PATH];
+	GetModuleFileNameA(GetModuleHandleA(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+	strrchr(pathRoot, '\\')[0] = '\0'; // chop off everything from the last backslash.
+
+	return g_origSetCurrentDirectoryA((pathRoot + ""s).c_str());
 }
 
 static DWORD WINAPI InsertCardThread(LPVOID)
@@ -1196,6 +1282,9 @@ void init_RfidEmu()
 	MH_CreateHookApi(L"kernel32.dll", "GetDiskFreeSpaceExW", GetDiskFreeSpaceExWWrap, (void**)&g_origGetDiskFreeSpaceExW);
 	MH_CreateHookApi(L"kernel32.dll", "DeleteFileA", DeleteFileAWrap, (void**)&g_origDeleteFileA);
 	MH_CreateHookApi(L"kernel32.dll", "DeleteFileW", DeleteFileWWrap, (void**)&g_origDeleteFileW);
+	MH_CreateHookApi(L"kernel32.dll", "FindFirstFileExA", FindFirstFileExAWrap, (void**)&g_origFindFirstFileExA);
+	MH_CreateHookApi(L"kernel32.dll", "FindFirstFileExW", FindFirstFileExWWrap, (void**)&g_origFindFirstFileExW);
+	MH_CreateHookApi(L"kernel32.dll", "SetCurrentDirectoryA", SetCurrentDirectoryAWrap, (void**)&g_origSetCurrentDirectoryA);
 	MH_EnableHook(MH_ALL_HOOKS);
 
 	CreateThread(0, 0, InsertCardThread, 0, 0, 0);

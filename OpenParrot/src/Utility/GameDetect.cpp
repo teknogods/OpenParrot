@@ -520,7 +520,7 @@ void GameDetect::DetectCurrentGame()
 			X2Type = X2Type::Generic;
 			break;
 		case 0x3806e8f4: //KoF98 (has files that need to be deleted to run)
-			currentGame = GameID::Nesica;
+			currentGame = GameID::KOF98Nesica;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;

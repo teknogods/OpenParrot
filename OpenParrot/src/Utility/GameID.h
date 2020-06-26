@@ -77,5 +77,6 @@ enum class GameID
 	HyperStreetFighterII,
 	StreetFigherZero3,
 	StreetFighter3rdStrike,
-	RumbleFish2
+	RumbleFish2,
+	KOF98Nesica
 };
