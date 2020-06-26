@@ -857,7 +857,7 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 			{
 				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-				info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 			}
 
 			return moveBuf;
@@ -869,7 +869,7 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 
 			memset(moveBuf, 0, 256);
 			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName);
-			info(true, "ParseFileNamesA ASTERISK: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName);
+			//info(true, "ParseFileNamesA ASTERISK: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName);
 			
 			return moveBuf;
 		}
@@ -980,7 +980,7 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 			{
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-				info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
+				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 			}
 
 			return moveBufW;
@@ -992,7 +992,7 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 
 			memset(moveBufW, 0, 256);
 			swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName);
-			info(true, "ParseFileNamesA ASTERISK: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName);
+			//info(true, "ParseFileNamesA ASTERISK: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName);
 
 			return moveBufW;
 		}
