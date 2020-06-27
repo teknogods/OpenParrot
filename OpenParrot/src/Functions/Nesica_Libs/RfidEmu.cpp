@@ -877,6 +877,22 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		return lpFileName;
 	}
 
+	if (GameDetect::currentGame == GameID::CrimzonClover)
+	{
+		if (!strncmp(lpFileName, "D:\\save\\*.dat", 13) || !strncmp(lpFileName, "D:\\save", 7) || !strncmp(lpFileName, "D:\\save\\config", 14) || !strncmp(lpFileName, "D:\\save\\bkeep", 13) || !strncmp(lpFileName, "D:\\save\\score", 13))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
 		memset(moveBuf, 0, 256);
@@ -900,14 +916,11 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 {
 	if (GameDetect::currentGame == GameID::HyperStreetFighterII)
 	{
-		//info(true, "ParseFileNamesA: %s", lpFileName);
-
 		if (!wcsncmp(lpFileName, L"D:\\3", 4))
 		{
 			memset(moveBufW, 0, 256);
 			if (lpFileName[3] == '3')
 			{
-				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}
 			return moveBufW;
@@ -918,14 +931,11 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 
 	if (GameDetect::currentGame == GameID::StreetFigherZero3)
 	{
-		//info(true, "ParseFileNamesA: %s", lpFileName);
-
 		if (!wcsncmp(lpFileName, L"D:\\c", 4))
 		{
 			memset(moveBufW, 0, 256);
 			if (lpFileName[3] == 'c')
 			{
-				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}
 			return moveBufW;
@@ -936,14 +946,11 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 
 	if (GameDetect::currentGame == GameID::StreetFighter3rdStrike)
 	{
-		//info(true, "ParseFileNamesA: %s", lpFileName);
-
 		if (!wcsncmp(lpFileName, L"D:\\9", 4))
 		{
 			memset(moveBufW, 0, 256);
 			if (lpFileName[3] == '9')
 			{
-				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}
 			return moveBufW;
@@ -954,14 +961,11 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 
 	if (GameDetect::currentGame == GameID::RumbleFish2)
 	{
-		//info(true, "ParseFileNamesW: %s", lpFileName);
-
 		if (!wcsncmp(lpFileName, L"D:\\eb342", 8))
 		{
 			memset(moveBufW, 0, 256);
 			if (lpFileName[3] == 'e')
 			{
-				//info(true, "ParseFileNamesW: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}
 			return moveBufW;
@@ -974,13 +978,10 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 	{
 		if (!wcsncmp(lpFileName, L"d:/SettingKOF98UM", 17) || !wcsncmp(lpFileName, L"d:/RankingKOF98UM", 17) || !wcsncmp(lpFileName, L"d:/CoinFileKOF98UM", 18))
 		{
-			//info(true, "ParseFileNamesA !!!!!SettingKOF98UM!!!: %s", lpFileName, lpFileName); // OK
-
 			memset(moveBufW, 0, 256);
 			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 			{
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 			}
 
 			return moveBufW;
@@ -988,11 +989,24 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 
 		if (!wcsncmp(lpFileName, L"SettingKOF98UM*.txt", 19) || !wcsncmp(lpFileName, L"RankingKOF98UM*.txt", 19) || !wcsncmp(lpFileName, L"CoinFileKOF98UM*.txt", 20))
 		{
-			//info(true, "ParseFileNamesA ASTERISK: %s", lpFileName, lpFileName); // OK
-
 			memset(moveBufW, 0, 256);
 			swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName);
-			//info(true, "ParseFileNamesA ASTERISK: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName);
+
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::CrimzonClover)
+	{
+		if (!wcsncmp(lpFileName, L"D:\\save\\*.dat", 13) || !wcsncmp(lpFileName, L"D:\\save", 7) || !wcsncmp(lpFileName, L"D:\\save\\config", 14) || !wcsncmp(lpFileName, L"D:\\save\\bkeep", 13) || !wcsncmp(lpFileName, L"D:\\save\\score", 13))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
 
 			return moveBufW;
 		}
