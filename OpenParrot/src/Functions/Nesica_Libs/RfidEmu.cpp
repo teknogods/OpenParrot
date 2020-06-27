@@ -777,14 +777,11 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 {
 	if (GameDetect::currentGame == GameID::HyperStreetFighterII)
 	{
-		//info(true, "ParseFileNamesA: %s", lpFileName);
-
 		if (!strncmp(lpFileName, "D:\\3", 4))
 		{
 			memset(moveBuf, 0, 256);
 			if (lpFileName[3] == '3')
 			{
-				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
 			}
 			return moveBuf;
@@ -795,14 +792,11 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 
 	if (GameDetect::currentGame == GameID::StreetFigherZero3)
 	{
-		//info(true, "ParseFileNamesA: %s", lpFileName);
-
 		if (!strncmp(lpFileName, "D:\\c", 4))
 		{
 			memset(moveBuf, 0, 256);
 			if (lpFileName[3] == 'c')
 			{
-				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
 			}
 			return moveBuf;
@@ -813,14 +807,11 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 
 	if (GameDetect::currentGame == GameID::StreetFighter3rdStrike)
 	{
-		//info(true, "ParseFileNamesA: %s", lpFileName);
-
 		if (!strncmp(lpFileName, "D:\\9", 4))
 		{
 			memset(moveBuf, 0, 256);
 			if (lpFileName[3] == '9')
 			{
-				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
 			}
 			return moveBuf;
@@ -831,14 +822,11 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 
 	if (GameDetect::currentGame == GameID::RumbleFish2)
 	{
-		//info(true, "ParseFileNamesA: %s", lpFileName);
-
 		if (!strncmp(lpFileName, "D:\\eb342", 8))
 		{
 			memset(moveBuf, 0, 256);
 			if (lpFileName[3] == 'e')
 			{
-				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
 			}
 			return moveBuf;
@@ -851,13 +839,10 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 	{
 		if (!strncmp(lpFileName, "d:/SettingKOF98UM", 17) || !strncmp(lpFileName, "d:/RankingKOF98UM", 17) || !strncmp(lpFileName, "d:/CoinFileKOF98UM", 18))
 		{
-			//info(true, "ParseFileNamesA !!!!!SettingKOF98UM!!!: %s", lpFileName, lpFileName); // OK
-
 			memset(moveBuf, 0, 256);
 			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 			{
 				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-				//info(true, "ParseFileNamesA: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName + 3);
 			}
 
 			return moveBuf;
@@ -865,11 +850,8 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 
 		if (!strncmp(lpFileName, "SettingKOF98UM*.txt", 19) || !strncmp(lpFileName, "RankingKOF98UM*.txt", 19) || !strncmp(lpFileName, "CoinFileKOF98UM*.txt", 20))
 		{
-			//info(true, "ParseFileNamesA ASTERISK: %s", lpFileName, lpFileName); // OK
-
 			memset(moveBuf, 0, 256);
 			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName);
-			//info(true, "ParseFileNamesA ASTERISK: %s -> .\\OpenParrot\\%s", lpFileName, lpFileName);
 			
 			return moveBuf;
 		}
@@ -883,6 +865,22 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		{
 			memset(moveBuf, 0, 256);
 			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::VampireSavior)
+	{
+		if (!strncmp(lpFileName, "D:\\0343d7a98baf803c268e7ed73239464b", 35))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[3] == '0')
 			{
 				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
 			}
@@ -1004,6 +1002,22 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 		{
 			memset(moveBufW, 0, 256);
 			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::VampireSavior)
+	{
+		if (!wcsncmp(lpFileName, L"D:\\0343d7a98baf803c268e7ed73239464b", 35))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[3] == '0')
 			{
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}

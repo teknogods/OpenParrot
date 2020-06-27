@@ -161,10 +161,9 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0x19ba6a0c: // Vampire Savior - The Lord of Vampire
 	case 0x7cc54950: // Test.exe
-		currentGame = GameID::Nesica;
+		currentGame = GameID::VampireSavior;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
-		GameDetect::enableNesysEmu = false;
 		break;
 	case 0xf6e33d2b: // Exception
 		currentGame = GameID::Nesica;
