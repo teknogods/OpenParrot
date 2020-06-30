@@ -79,5 +79,6 @@ enum class GameID
 	StreetFighter3rdStrike,
 	RumbleFish2,
 	KOF98Nesica,
-	VampireSavior
+	VampireSavior,
+	ChaosCode
 };

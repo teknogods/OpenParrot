@@ -891,6 +891,22 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		return lpFileName;
 	}
 
+	if (GameDetect::currentGame == GameID::ChaosCode)
+	{
+		if (!strncmp(lpFileName, "D:/ChaosCode/save/TYPEX2_RECORD.rcd", 35) || !strncmp(lpFileName, "D:/ChaosCode/save/TYPEX2_SETTING.rcd", 36) || !strncmp(lpFileName, "D:/ChaosCode/save/", 18) || !strncmp(lpFileName, "D:/ChaosCode/", 14))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
 		memset(moveBuf, 0, 256);
@@ -1022,6 +1038,21 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}
 
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::ChaosCode)
+	{
+		if (!wcsncmp(lpFileName, L"D:/ChaosCode/save/TYPEX2_RECORD.rcd", 35) || !wcsncmp(lpFileName, L"D:/ChaosCode/save/TYPEX2_SETTING.rcd", 36) || !wcsncmp(lpFileName, L"D:/ChaosCode/save/TYPEX2_SETTING.rcd", 36) || !wcsncmp(lpFileName, L"D:/ChaosCode/save/", 18) || !wcsncmp(lpFileName, L"D:/ChaosCode/", 14))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
 			return moveBufW;
 		}
 

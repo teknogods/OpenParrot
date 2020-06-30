@@ -297,6 +297,18 @@ static InitFunction initFunction_VampireSavior([]()
 #endif
 }, GameID::VampireSavior);
 
+static InitFunction initFunction_ChaosCode([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::ChaosCode);
+
 static InitFunction initFunction_Theatrhythm([]()
 	{
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);

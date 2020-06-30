@@ -490,12 +490,12 @@ void GameDetect::DetectCurrentGame()
 			isNesica = true;
 			break;
 		case 0xac86efec: //Chaos Code v1.03
-			currentGame = GameID::Nesica;
+			currentGame = GameID::ChaosCode;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
 		case 0xa742a607: //Chaos Code v2.11
-			currentGame = GameID::Nesica;
+			currentGame = GameID::ChaosCode;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
