@@ -907,6 +907,22 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		return lpFileName;
 	}
 
+	if (GameDetect::currentGame == GameID::RaidenIVNesica)
+	{
+		if (!strncmp(lpFileName, "d:\\income.log", 13) || !strncmp(lpFileName, "D:\\setting.dat", 14) || !strncmp(lpFileName, "D:\\hiscore.dat", 14))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+		
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
 		memset(moveBuf, 0, 256);
@@ -1053,6 +1069,22 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 			{
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::RaidenIVNesica)
+	{
+		if (!wcsncmp(lpFileName, L"d:\\income.log", 13) || !wcsncmp(lpFileName, L"D:\\setting.dat", 14) || !wcsncmp(lpFileName, L"D:\\hiscore.dat", 14))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
 			return moveBufW;
 		}
 

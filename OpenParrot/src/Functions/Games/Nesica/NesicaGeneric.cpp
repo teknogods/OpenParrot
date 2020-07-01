@@ -346,6 +346,18 @@ static InitFunction initFunction_HomuraNesica([]()
 
 }, GameID::HomuraNesica);
 
+static InitFunction initFunction_RaidenIVNesica([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::RaidenIVNesica);
+
 static InitFunction initFunction_Theatrhythm([]()
 	{
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);

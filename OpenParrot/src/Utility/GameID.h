@@ -82,5 +82,6 @@ enum class GameID
 	VampireSavior,
 	ChaosCode,
 	DoNotFall,
-	HomuraNesica
+	HomuraNesica,
+	RaidenIVNesica
 };

@@ -205,7 +205,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0xd0fea58c: // Raiden IV
-		currentGame = GameID::Nesica;
+		currentGame = GameID::RaidenIVNesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
