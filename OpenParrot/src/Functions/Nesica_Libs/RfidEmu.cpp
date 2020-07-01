@@ -923,6 +923,22 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		return lpFileName;
 	}
 
+	if (GameDetect::currentGame == GameID::SenkoNoRondeDuoNesica)
+	{
+		if (!strncmp(lpFileName, "D:\\0bd4d39aff8d7219f92f72451f642c2f", 35))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[4] == 'b')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
 		memset(moveBuf, 0, 256);
@@ -1081,6 +1097,22 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 		{
 			memset(moveBufW, 0, 256);
 			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::SenkoNoRondeDuoNesica)
+	{
+		if (!wcsncmp(lpFileName, L"D:\\0bd4d39aff8d7219f92f72451f642c2f", 35))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[4] == 'b')
 			{
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}

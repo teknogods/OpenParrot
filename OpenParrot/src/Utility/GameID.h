@@ -83,5 +83,6 @@ enum class GameID
 	ChaosCode,
 	DoNotFall,
 	HomuraNesica,
-	RaidenIVNesica
+	RaidenIVNesica,
+	SenkoNoRondeDuoNesica
 };

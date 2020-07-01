@@ -358,6 +358,18 @@ static InitFunction initFunction_RaidenIVNesica([]()
 #endif
 }, GameID::RaidenIVNesica);
 
+static InitFunction initFunction_SenkoNoRondeDuoNesica([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::SenkoNoRondeDuoNesica);
+
 static InitFunction initFunction_Theatrhythm([]()
 	{
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);

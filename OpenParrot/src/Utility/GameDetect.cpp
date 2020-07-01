@@ -210,7 +210,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0xe378e178: // Senko no Ronde DUO
-		currentGame = GameID::Nesica;
+		currentGame = GameID::SenkoNoRondeDuoNesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
