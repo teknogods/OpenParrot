@@ -130,7 +130,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0xc0cbafd3: // Do Not Fall - Run for Your Drink
-		currentGame = GameID::Nesica;
+		currentGame = GameID::DoNotFall;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;

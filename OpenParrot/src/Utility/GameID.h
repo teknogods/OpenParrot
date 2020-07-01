@@ -80,5 +80,6 @@ enum class GameID
 	RumbleFish2,
 	KOF98Nesica,
 	VampireSavior,
-	ChaosCode
+	ChaosCode,
+	DoNotFall
 };

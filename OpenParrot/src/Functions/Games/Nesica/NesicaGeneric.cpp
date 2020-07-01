@@ -309,6 +309,19 @@ static InitFunction initFunction_ChaosCode([]()
 #endif
 }, GameID::ChaosCode);
 
+static InitFunction initFunction_DoNotFall([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+	CreateDirectoryA(".\\OpenParrot\\system", nullptr); // needed for test menu saving lol
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::DoNotFall);
+
 static InitFunction initFunction_Theatrhythm([]()
 	{
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
