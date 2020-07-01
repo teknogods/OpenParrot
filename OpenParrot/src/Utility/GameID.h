@@ -81,5 +81,6 @@ enum class GameID
 	KOF98Nesica,
 	VampireSavior,
 	ChaosCode,
-	DoNotFall
+	DoNotFall,
+	HomuraNesica
 };

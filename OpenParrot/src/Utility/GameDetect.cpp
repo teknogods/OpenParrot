@@ -155,7 +155,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0xabc41e0a: // Homura
-		currentGame = GameID::Nesica;
+		currentGame = GameID::HomuraNesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;

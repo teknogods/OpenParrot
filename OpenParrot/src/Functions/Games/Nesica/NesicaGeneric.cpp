@@ -322,6 +322,30 @@ static InitFunction initFunction_DoNotFall([]()
 #endif
 }, GameID::DoNotFall);
 
+static InitFunction initFunction_HomuraNesica([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		// don't set cursor POS to X=240 Y=320
+		injector::MakeNOP(imageBase + 0x123394, 16, true);
+		injector::MakeNOP(imageBase + 0x1235AE, 16, true);
+
+		// show cursor
+		injector::WriteMemory<BYTE>(imageBase + 0x1233A5, 0x01, true);
+		injector::WriteMemory<BYTE>(imageBase + 0x1235BF, 0x01, true);
+	}
+
+}, GameID::HomuraNesica);
+
 static InitFunction initFunction_Theatrhythm([]()
 	{
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
