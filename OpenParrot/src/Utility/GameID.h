@@ -84,5 +84,10 @@ enum class GameID
 	DoNotFall,
 	HomuraNesica,
 	RaidenIVNesica,
-	SenkoNoRondeDuoNesica
+	SenkoNoRondeDuoNesica,
+	SkullGirls,
+	TroubleWitchesNesica,
+	Yatagarasu,
+	Exception,
+	KOF2002
 };

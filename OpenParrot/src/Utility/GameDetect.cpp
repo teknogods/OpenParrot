@@ -166,7 +166,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0xf6e33d2b: // Exception
-		currentGame = GameID::Nesica;
+		currentGame = GameID::Exception;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
@@ -215,7 +215,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0x5503983f: // Trouble Witches AC - Amalgam no Joutachi
-		currentGame = GameID::Nesica;
+		currentGame = GameID::TroubleWitchesNesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
@@ -505,7 +505,7 @@ void GameDetect::DetectCurrentGame()
 			isNesica = true;
 			break;
 		case 0xbe9c0407: //Skullgirls 2nd Encore
-			currentGame = GameID::Nesica;
+			currentGame = GameID::SkullGirls;
 			NesicaKey = NesicaKey::NoNet;
 			isNesica = true;
 			break;
@@ -528,7 +528,7 @@ void GameDetect::DetectCurrentGame()
 			X2Type = X2Type::Generic;
 			break;
 		case 0xa202d660: //Yatagarasu - Attack on Cataclysm
-			currentGame = GameID::Nesica;
+			currentGame = GameID::Yatagarasu;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
@@ -539,6 +539,11 @@ void GameDetect::DetectCurrentGame()
 			break;
 		case 0xc5715d2e: //Ikaruga NXL
 			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xafe8fc50: // KOF2002
+			currentGame = GameID::KOF2002;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;

@@ -939,6 +939,100 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		return lpFileName;
 	}
 
+	if (GameDetect::currentGame == GameID::SkullGirls)
+	{
+		if (!strncmp(lpFileName, "D:\\sg_conf_", 11))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+		
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::TroubleWitchesNesica)
+	{
+		if (!strncmp(lpFileName, "D:\\Save", 7))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::Yatagarasu)
+	{
+		if (!strncmp(lpFileName, "D:\\b2cfd825e375395ce05629616d881045", 35))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+		
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::Exception)
+	{
+		if (!strncmp(lpFileName, "d:\\game0000.ini", 15) || !strncmp(lpFileName, "d:/ranking", 10) || !strncmp(lpFileName, "d:/log", 6))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBuf;
+		}
+		if (!strncmp(lpFileName, "stdout.txt", 10) || !strncmp(lpFileName, "stderr.txt", 10))
+		{
+			memset(moveBuf, 0, 256);
+			if (!strncmp(lpFileName, "stdout.txt", 10))
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", "stdout.txt");
+			}
+			if (!strncmp(lpFileName, "stderr.txt", 10))
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", "stderr.txt");
+			}
+
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::KOF2002)
+	{
+		if (!strncmp(lpFileName, "d:/Setting", 10) || !strncmp(lpFileName, "d:/CoinFile", 11))
+		{
+			memset(moveBuf, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBuf;
+		}
+
+		return lpFileName;
+	}
+
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
 		memset(moveBuf, 0, 256);
@@ -1113,6 +1207,100 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 		{
 			memset(moveBufW, 0, 256);
 			if (lpFileName[4] == 'b')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::SkullGirls)
+	{
+		if (!wcsncmp(lpFileName, L"D:\\sg_conf_", 11))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+		
+			return moveBufW;
+		}
+	
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::TroubleWitchesNesica)
+	{
+		if (!wcsncmp(lpFileName, L"D:\\Save", 7))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::Yatagarasu)
+	{
+		if (!wcsncmp(lpFileName, L"D:\\b2cfd825e375395ce05629616d881045", 35))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+		
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::Exception)
+	{
+		if (!wcsncmp(lpFileName, L"d:\\game0000.ini", 15) || !wcsncmp(lpFileName, L"d:/ranking", 10) || !wcsncmp(lpFileName, L"d:/log", 6))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
+			}
+
+			return moveBufW;
+		}
+		if (!wcsncmp(lpFileName, L"stdout.txt", 10) || !wcsncmp(lpFileName, L"stderr.txt", 10))
+		{
+			memset(moveBufW, 0, 256);
+			if (!wcsncmp(lpFileName, L"stdout.txt", 10))
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", L"stdout.txt");
+			}
+			if (!wcsncmp(lpFileName, L"stderr.txt", 10))
+			{
+				swprintf(moveBufW, L".\\OpenParrot\\%s", L"stderr.txt");
+			}
+
+			return moveBufW;
+		}
+
+		return lpFileName;
+	}
+
+	if (GameDetect::currentGame == GameID::KOF2002)
+	{
+		if (!wcsncmp(lpFileName, L"d:/Setting", 10) || !wcsncmp(lpFileName, L"d:/CoinFile", 11))
+		{
+			memset(moveBufW, 0, 256);
+			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 			{
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}

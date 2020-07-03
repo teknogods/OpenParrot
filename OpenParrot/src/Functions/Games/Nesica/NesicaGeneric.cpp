@@ -370,6 +370,66 @@ static InitFunction initFunction_SenkoNoRondeDuoNesica([]()
 #endif
 }, GameID::SenkoNoRondeDuoNesica);
 
+static InitFunction initFunction_SkullGirls([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::SkullGirls);
+
+static InitFunction initFunction_TroubleWitchesNesica([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::TroubleWitchesNesica);
+
+static InitFunction initFunction_Yatagarasu([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::Yatagarasu);
+
+static InitFunction initFunction_Exception([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::Exception);
+
+static InitFunction initFunction_KOF2002([]()
+{
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+}, GameID::KOF2002);
+
 static InitFunction initFunction_Theatrhythm([]()
 	{
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
