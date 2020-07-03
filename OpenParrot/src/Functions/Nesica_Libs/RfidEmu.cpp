@@ -1019,13 +1019,21 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 
 	if (GameDetect::currentGame == GameID::KOF2002)
 	{
-		if (!strncmp(lpFileName, "d:/Setting", 10) || !strncmp(lpFileName, "d:/CoinFile", 11))
+		if (!strncmp(lpFileName, "d:/Setting", 10) || !strncmp(lpFileName, "d:/CoinFile", 11) || !strncmp(lpFileName, "d:/Ranking", 11))
 		{
 			memset(moveBuf, 0, 256);
 			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 			{
 				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
 			}
+
+			return moveBuf;
+		}
+
+		if (!strncmp(lpFileName, "Setting*.txt", 12) || !strncmp(lpFileName, "Ranking*.txt", 12) || !strncmp(lpFileName, "CoinFile*.txt", 13))
+		{
+			memset(moveBuf, 0, 256);
+			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName);
 
 			return moveBuf;
 		}
@@ -1297,13 +1305,21 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 
 	if (GameDetect::currentGame == GameID::KOF2002)
 	{
-		if (!wcsncmp(lpFileName, L"d:/Setting", 10) || !wcsncmp(lpFileName, L"d:/CoinFile", 11))
+		if (!wcsncmp(lpFileName, L"d:/Setting", 10) || !wcsncmp(lpFileName, L"d:/CoinFile", 11) || !wcsncmp(lpFileName, L"d:/Ranking", 10))
 		{
 			memset(moveBufW, 0, 256);
 			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 			{
 				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
 			}
+
+			return moveBufW;
+		}
+
+		if (!wcsncmp(lpFileName, L"Setting*.txt", 12) || !wcsncmp(lpFileName, L"Ranking*.txt", 12) || !wcsncmp(lpFileName, L"CoinFile*.txt", 13))
+		{
+			memset(moveBufW, 0, 256);
+			swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName);
 
 			return moveBufW;
 		}
