@@ -70,12 +70,12 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 
 			if (GameDetect::currentGame == GameID::TetrisGM3)
 			{
-				return CreateFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(2)).c_str(), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+				return CreateFileA((pathRoot + "\\"s + wfnA.substr(2)).c_str(), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 			}
 
-			CreateDirectoryA((pathRoot + "\\OpenParrot\\"s).c_str(), nullptr); // create OpenParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
+			CreateDirectoryA((pathRoot + "\\"s).c_str(), nullptr); // create OpenParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
 
-			return CreateFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str(), // make or open the file there instead. :)
+			return CreateFileA((pathRoot + "\\"s + wfnA.substr(3)).c_str(), // make or open the file there instead. :)
 				dwDesiredAccess,
 				dwShareMode,
 				lpSecurityAttributes,
@@ -131,9 +131,9 @@ static HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 			std::wstring fn = lpFileName;
 			std::wstring wfn(fn.begin(), fn.end());
 
-			CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s).c_str(), nullptr); // create TeknoParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
+			CreateDirectoryW((pathRoot + L"\\"s).c_str(), nullptr); // create TeknoParrot subdirectory off of launcher's root directory to cleanly store data seperate from rest of files.
 
-			return CreateFileW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str(), // make or open the file there instead. :)
+			return CreateFileW((pathRoot + L"\\"s + wfn.substr(3)).c_str(), // make or open the file there instead. :)
 				dwDesiredAccess,
 				dwShareMode,
 				lpSecurityAttributes,
@@ -175,16 +175,16 @@ static BOOL __stdcall CreateDirectoryAWrap(LPCSTR lpPathName, LPSECURITY_ATTRIBU
 	//std::wstring wfn(fn.begin(), fn.end());
 	std::string wfnA(fn.begin(), fn.end());
 
-	CreateDirectoryA((pathRoot + "\\OpenParrot\\"s).c_str(), nullptr);
+	CreateDirectoryA((pathRoot + "\\"s).c_str(), nullptr);
 
 	if (GameDetect::currentGame == GameID::TetrisGM3)
 	{
 		// lets fix dir
-		CreateDirectoryA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(2)).c_str(), nullptr);
+		CreateDirectoryA((pathRoot + "\\"s + wfnA.substr(2)).c_str(), nullptr);
 		return 0;
 	}
 
-	return CreateDirectoryA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str(), nullptr);
+	return CreateDirectoryA((pathRoot + "\\"s + wfnA.substr(3)).c_str(), nullptr);
 }
 
 static BOOL __stdcall CreateDirectoryWWrap(LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
@@ -197,17 +197,17 @@ static BOOL __stdcall CreateDirectoryWWrap(LPCWSTR lpPathName, LPSECURITY_ATTRIB
 	// assume just ASCII
 	std::wstring fn = lpPathName;
 	std::wstring wfn(fn.begin(), fn.end());
-	CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s).c_str(), nullptr);
+	CreateDirectoryW((pathRoot + L"\\"s).c_str(), nullptr);
 
 	if (GameDetect::currentGame == GameID::PowerInstinctV)
 	{
 		// windows api is trash so we need to create folders 1 by 1 oof
-		CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s + L"save\\"s).c_str(), nullptr);
-		CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s + L"save\\"s + L"090623\\"s).c_str(), nullptr);
+		CreateDirectoryW((pathRoot + L"\\"s + L"save\\"s).c_str(), nullptr);
+		CreateDirectoryW((pathRoot + L"\\"s + L"save\\"s + L"090623\\"s).c_str(), nullptr);
 		return 0;
 	}
 
-	return CreateDirectoryW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str(), nullptr);
+	return CreateDirectoryW((pathRoot + L"\\"s + wfn.substr(3)).c_str(), nullptr);
 }
 
 static HANDLE __stdcall FindFirstFileAWrap(LPCSTR lpFileName, LPWIN32_FIND_DATAA lpFindFileData)
@@ -224,10 +224,10 @@ static HANDLE __stdcall FindFirstFileAWrap(LPCSTR lpFileName, LPWIN32_FIND_DATAA
 
 	if (GameDetect::currentGame == GameID::KOF98UM)
 	{
-		return FindFirstFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(0)).c_str(), lpFindFileData);
+		return FindFirstFileA((pathRoot + "\\"s + wfnA.substr(0)).c_str(), lpFindFileData);
 	}
 
-	return FindFirstFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str(), lpFindFileData);
+	return FindFirstFileA((pathRoot + "\\"s + wfnA.substr(3)).c_str(), lpFindFileData);
 }
 
 static HANDLE __stdcall FindFirstFileWWrap(LPCWSTR lpFileName, LPWIN32_FIND_DATAW lpFindFileData)
@@ -241,7 +241,7 @@ static HANDLE __stdcall FindFirstFileWWrap(LPCWSTR lpFileName, LPWIN32_FIND_DATA
 	std::wstring fn = lpFileName;
 	std::wstring wfn(fn.begin(), fn.end());
 
-	return FindFirstFileW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str(), lpFindFileData);
+	return FindFirstFileW((pathRoot + L"\\"s + wfn.substr(3)).c_str(), lpFindFileData);
 }
 
 static HANDLE __stdcall FindFirstFileExWWrap(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPWIN32_FIND_DATAW lpFindFileData, FINDEX_SEARCH_OPS  fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
@@ -259,10 +259,10 @@ static HANDLE __stdcall FindFirstFileExWWrap(LPCWSTR lpFileName, FINDEX_INFO_LEV
 
 		if (GameDetect::currentGame == GameID::KOF98UM)
 		{
-			return FindFirstFileExW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(0)).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+			return FindFirstFileExW((pathRoot + L"\\"s + wfn.substr(0)).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
 		}
 
-		return FindFirstFileExW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+		return FindFirstFileExW((pathRoot + L"\\"s + wfn.substr(3)).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
 	}
 
 	return FindFirstFileExW(lpFileName, fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
@@ -286,7 +286,7 @@ static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 		//std::wstring wfn(fn.begin(), fn.end());
 		std::string wfnA(fn.begin(), fn.end());
 
-		return GetFileAttributesA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str());
+		return GetFileAttributesA((pathRoot + "\\"s + wfnA.substr(3)).c_str());
 	}
 
 	return GetFileAttributesA(lpFileName);
@@ -305,7 +305,7 @@ static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
 		std::wstring fn = lpFileName;
 		std::wstring wfn(fn.begin(), fn.end());
 
-		return GetFileAttributesW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(3)).c_str());
+		return GetFileAttributesW((pathRoot + L"\\"s + wfn.substr(3)).c_str());
 	}
 
 	return GetFileAttributesW(lpFileName);
