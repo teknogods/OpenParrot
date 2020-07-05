@@ -50,6 +50,28 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 {
 	if ((GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng) && lpFileName[1] == ':' && lpFileName[2] == '\\')
 	{
+		if (!strncmp(lpFileName, "D:\\event_", 9) || !strncmp(lpFileName, "D:\\news", 7))
+		{
+			char pathRoot[MAX_PATH];
+			GetModuleFileNameA(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+			strrchr(pathRoot, '\\')[0] = '\0'; // chop off everything from the last backslash.
+
+			// assume just ASCII
+			std::string fn = lpFileName;
+			//std::wstring wfn(fn.begin(), fn.end());
+			std::string wfnA(fn.begin(), fn.end());
+
+			CreateDirectoryA((pathRoot + "\\OpenParrot\\"s).c_str(), nullptr);
+
+			return CreateFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str(), // make or open the file there instead. :)
+				dwDesiredAccess,
+				dwShareMode,
+				lpSecurityAttributes,
+				dwCreationDisposition,
+				dwFlagsAndAttributes,
+				hTemplateFile);
+		}
 		lpFileName += 3; // apparently this game has absolute paths for game files, so correct them to relative paths from game exe directory.
 	}
 
@@ -272,6 +294,20 @@ static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 {
 	if ((GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng) && lpFileName[1] == ':' && lpFileName[2] == '\\')
 	{
+		if (!strncmp(lpFileName, "D:\\event_", 9) || !strncmp(lpFileName, "D:\\news", 7))
+		{
+			char pathRoot[MAX_PATH];
+			GetModuleFileNameA(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot)); // get full pathname to game executable
+
+			strrchr(pathRoot, '\\')[0] = '\0'; // chop off everything from the last backslash.
+
+			// assume just ASCII
+			std::string fn = lpFileName;
+			//std::wstring wfn(fn.begin(), fn.end());
+			std::string wfnA(fn.begin(), fn.end());
+
+			return GetFileAttributesA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(3)).c_str());
+		}
 		lpFileName += 3;
 	}
 	if (GetFileAttributesA(lpFileName) == INVALID_FILE_ATTRIBUTES)
