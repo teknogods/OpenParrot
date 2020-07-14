@@ -1155,6 +1155,9 @@ static InitFunction initFunction([]()
 			// redirect E:\data to .\data
 			injector::WriteMemoryRaw(0x0076D96C, "./data/", 8, true);
 			injector::WriteMemoryRaw(0x007ACA60, ".\\data", 7, true);
+			
+			// Fix sound only being in left ear
+			injector::WriteMemoryRaw(imageBase + 0x36C3DC, "\x00\x60\xA9\x45", 4, true);
 
 			if (ToBool(config["General"]["IntroFix"]))
 			{
