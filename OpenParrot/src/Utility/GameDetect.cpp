@@ -407,6 +407,7 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::Daytona3;
 			break;
 		}
+#if !_DEBUG
 		// IF GAME = JusticeLeague (if workingdir\JLA.exe exists) , AVOID THIS CHECK (note: darius checked offset is beyond JLA exe limits and TP crashes...)
 		char working_directory[MAX_PATH + 1];
 		GetCurrentDirectoryA(sizeof(working_directory), working_directory);
@@ -428,6 +429,7 @@ void GameDetect::DetectCurrentGame()
 				break;
 			}
 		}
+#endif
 #else
 		// X64
 		// School of Ragnarok
@@ -567,6 +569,16 @@ void GameDetect::DetectCurrentGame()
 		case 0xd9221042: // Power Instinct V
 			currentGame = GameID::PowerInstinctV;
 			X2Type = X2Type::Generic;
+			break;
+		case 0x6f913049: // Chaos Code for NesicaxLive
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0x486e885c: // Dark Awake - The King Has No Name
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
 			break;
 #ifdef _AMD64_
 		case 0x80ebd207:
