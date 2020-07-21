@@ -570,7 +570,7 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::PowerInstinctV;
 			X2Type = X2Type::Generic;
 			break;
-		case 0x6f913049: // Chaos Code for NesicaxLive
+		case 0x6f913049: // Chaos Breaker for NesicaxLive
 			currentGame = GameID::Nesica;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
