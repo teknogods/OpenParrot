@@ -244,7 +244,7 @@ static HANDLE __stdcall FindFirstFileAWrap(LPCSTR lpFileName, LPWIN32_FIND_DATAA
 	//std::wstring wfn(fn.begin(), fn.end());
 	std::string wfnA(fn.begin(), fn.end());
 
-	if (GameDetect::currentGame == GameID::KOF98UM)
+	if (GameDetect::currentGame == GameID::KOF98UM || GameDetect::currentGame == GameID::KOFMIRA)
 	{
 		return FindFirstFileA((pathRoot + "\\OpenParrot\\"s + wfnA.substr(0)).c_str(), lpFindFileData);
 	}
@@ -279,7 +279,7 @@ static HANDLE __stdcall FindFirstFileExWWrap(LPCWSTR lpFileName, FINDEX_INFO_LEV
 		std::wstring fn = lpFileName;
 		std::wstring wfn(fn.begin(), fn.end());
 
-		if (GameDetect::currentGame == GameID::KOF98UM)
+		if (GameDetect::currentGame == GameID::KOF98UM || GameDetect::currentGame == GameID::KOFMIRA)
 		{
 			return FindFirstFileExW((pathRoot + L"\\OpenParrot\\"s + wfn.substr(0)).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
 		}
