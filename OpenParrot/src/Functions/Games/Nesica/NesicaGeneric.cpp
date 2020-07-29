@@ -430,6 +430,29 @@ static InitFunction initFunction_KOF2002([]()
 #endif
 }, GameID::KOF2002);
 
+static InitFunction initFunction_BlazBlueCF201([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+
+	// skip nesys error
+	injector::MakeNOP(imageBase + 0x7D932, 6, true);
+	injector::MakeJMP(imageBase + 0x7D932, imageBase + 0x7DA03, true);
+
+	// unlock colors
+	injector::WriteMemory<BYTE>(imageBase + 0x1B0408, 0x18, true);
+	injector::WriteMemory<BYTE>(imageBase + 0x1B04D2, 0x18, true);
+	injector::WriteMemory<BYTE>(imageBase + 0x1B04FD, 0x75, true);
+
+}, GameID::BlazBlueCF201);
+
 static InitFunction initFunction_Theatrhythm([]()
 	{
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);

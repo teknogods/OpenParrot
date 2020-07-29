@@ -47,7 +47,7 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0x6e67076f:
 		currentGame = GameID::Nesica;
-		NesicaKey = NesicaKey::BlazBlueCentralFriction;
+		NesicaKey = NesicaKey::BlazBlueCentralFiction;
 		isNesica = true;
 		break;
 	case 0xd98bed41: // Crimzon Clover
@@ -578,6 +578,11 @@ void GameDetect::DetectCurrentGame()
 		case 0x486e885c: // Dark Awake - The King Has No Name
 			currentGame = GameID::Nesica;
 			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0x31e72d72: // BlazBlue Central Fiction 2.01
+			currentGame = GameID::BlazBlueCF201;
+			NesicaKey = NesicaKey::BlazBlueCentralFiction;
 			isNesica = true;
 			break;
 #ifdef _AMD64_

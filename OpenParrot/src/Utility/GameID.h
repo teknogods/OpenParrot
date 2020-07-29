@@ -89,5 +89,6 @@ enum class GameID
 	TroubleWitchesNesica,
 	Yatagarasu,
 	Exception,
-	KOF2002
+	KOF2002,
+	BlazBlueCF201
 };
