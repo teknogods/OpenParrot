@@ -7,6 +7,7 @@ class GameDetect
 public:
 	static GameID currentGame;
 	static void DetectCurrentGame();
+	static void DetectCurrentLinuxGame();
 	static X2Type X2Type;
 	static bool IsTypeX();
 	static bool IsNesicaGame();

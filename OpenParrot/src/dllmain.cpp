@@ -91,6 +91,25 @@ static void RunMain()
 	InitFunction::RunFunctions(GameDetect::currentGame);
 }
 
+void* (*g_makeCall)(void* call);
+#if _M_IX86
+extern "C" __declspec(dllexport) void InitLinux(void* (*makeCall)(void*))
+{
+	g_makeCall = makeCall;
+
+	if (!config.load_file("teknoparrot.ini"))
+	{
+		//MessageBoxA(NULL, V("Failed to open config.ini"), V("TeknoParrot",) MB_OK);
+		//std::_Exit(0);
+	}
+
+	GameDetect::DetectCurrentLinuxGame();
+	InitFunction::RunFunctions(GameID::Global);
+	InitFunction::RunFunctions(GameID::LinuxEmulation);
+	InitFunction::RunFunctions(GameDetect::currentGame);
+}
+#endif
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)

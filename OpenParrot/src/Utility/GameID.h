@@ -90,5 +90,6 @@ enum class GameID
 	Yatagarasu,
 	Exception,
 	KOF2002,
-	BlazBlueCF201
+	BlazBlueCF201,
+	LinuxEmulation
 };

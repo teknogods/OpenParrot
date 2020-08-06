@@ -9,6 +9,12 @@ X2Type GameDetect::X2Type = X2Type::None;
 static char newCrc[0x400];
 static char errorBuffer[256];
 
+#if _M_IX86
+void GameDetect::DetectCurrentLinuxGame()
+{
+}
+#endif
+
 void GameDetect::DetectCurrentGame()
 {
 	// TODO: move all game detection bound to crcResult immediately below to use the newCrcResult switch at end with its new CRC instead.
