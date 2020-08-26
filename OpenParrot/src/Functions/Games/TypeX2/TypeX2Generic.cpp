@@ -434,7 +434,7 @@ static DWORD WINAPI ChangeValues(LPVOID lpParam)
 	Sleep(10000);
 
 	DWORD imageBase = (DWORD)GetModuleHandleA(0);
-	myHelpers->WriteByte(0x42E296, 0x01, true);
+	myHelpers->WriteByte(0x42E296, 0x05, true);
 	myHelpers->WriteByte(0x42E295, 0x80, true);
 	injector::MakeNOP(imageBase + 0x27400, 6);
 	return 0;
@@ -528,6 +528,7 @@ static int BG4ProThreadLoop(Helpers* helpers)
 	}
 
 	DWORD imageBase = (DWORD)GetModuleHandleA(0);
+	UINT8 KeyInput = helpers->ReadByte(imageBase + 0x42E296, false);
 
 	if (*ffbOffset & 0x100) //Test
 	{
@@ -764,7 +765,14 @@ static int BG4ProThreadLoop(Helpers* helpers)
 		if (!KeyPressed)
 		{
 			KeyPressed = true;
-			*(BYTE*)(imageBase + 0x42E296) += 0x04;
+			if (!(KeyInput & 0x04))
+			{
+				*(BYTE*)(imageBase + 0x42E296) += 0x04;
+			}
+			else
+			{
+				*(BYTE*)(imageBase + 0x42E296) -= 0x04;
+			}
 		}
 	}
 	else
@@ -772,7 +780,6 @@ static int BG4ProThreadLoop(Helpers* helpers)
 		if (KeyPressed)
 		{
 			KeyPressed = false;
-			*(BYTE*)(imageBase + 0x42E296) -= 0x04;
 		}
 	}
 
