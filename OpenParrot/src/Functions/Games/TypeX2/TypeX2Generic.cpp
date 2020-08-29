@@ -434,7 +434,7 @@ static DWORD WINAPI ChangeValues(LPVOID lpParam)
 	Sleep(10000);
 
 	DWORD imageBase = (DWORD)GetModuleHandleA(0);
-	myHelpers->WriteByte(0x42E296, 0x05, true);
+	myHelpers->WriteByte(0x42E296, 0x01, true);
 	myHelpers->WriteByte(0x42E295, 0x80, true);
 	injector::MakeNOP(imageBase + 0x27400, 6);
 	return 0;
