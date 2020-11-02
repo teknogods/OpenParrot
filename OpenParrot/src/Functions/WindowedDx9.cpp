@@ -25,8 +25,15 @@ static HRESULT(WINAPI* g_oldReset)(IDirect3DDevice9* self, D3DPRESENT_PARAMETERS
 
 HRESULT WINAPI ResetWrap(IDirect3DDevice9* self, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	pPresentationParameters->Windowed = TRUE;
-	pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		pPresentationParameters->Windowed = TRUE;
+		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+	}
+	if (GameDetect::currentGame == GameID::TroubleWitches)
+	{
+		pPresentationParameters->BackBufferFormat = D3DFMT_A8R8G8B8; // TODO: query current desktop format and use it
+	}
 
 	return g_oldReset(self, pPresentationParameters);
 }
@@ -35,8 +42,15 @@ static HRESULT(WINAPI* g_oldCreateDevice)(IDirect3D9* self, UINT Adapter, D3DDEV
 
 HRESULT WINAPI CreateDeviceWrap(IDirect3D9* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice9** ppReturnedDeviceInterface)
 {
-	pPresentationParameters->Windowed = TRUE;
-	pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+	if (ToBool(config["General"]["Windowed"])) 
+	{
+		pPresentationParameters->Windowed = TRUE;
+		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+	}
+	if (GameDetect::currentGame == GameID::TroubleWitches) 
+	{
+		pPresentationParameters->BackBufferFormat = D3DFMT_A8R8G8B8; // TODO: query current desktop format and use it
+	}
 
 	HRESULT hr = g_oldCreateDevice(self, Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
 
@@ -70,8 +84,12 @@ extern linb::ini config;
 
 static InitFunction initFunc([]()
 {
-	if (GameDetect::currentGame == GameID::BG4 || GameDetect::currentGame == GameID::JLeague || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::DirtyDrivin)
+	if (GameDetect::currentGame == GameID::BG4 || GameDetect::currentGame == GameID::BG4_Eng || GameDetect::currentGame == GameID::JLeague || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::RumbleFish2 || GameDetect::currentGame == GameID::DirtyDrivin))
 		return;
+	if (GameDetect::currentGame == GameID::TroubleWitches && !ToBool(config["General"]["Windowed"]))
+	{
+		InitD3D9WindowHook();
+	}
 	if (ToBool(config["General"]["Windowed"]))
 	{
 		InitD3D9WindowHook();

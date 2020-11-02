@@ -18,7 +18,6 @@ void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 	return 0;
 }
 
-static bool OutputInit = false;
 static HMODULE blaster;
 
 // used in SR3 and Ford Racing
@@ -70,32 +69,19 @@ DWORD WINAPI QuitGameThread(__in  LPVOID lpParameter)
 }
 
 DWORD WINAPI OutputsThread(__in  LPVOID lpParameter)
-{ 
-	while (true)
+{
+	blaster = LoadLibraryA("OutputBlaster.dll");
+	if (blaster)
 	{
-		if (GameDetect::currentGame == GameID::BG4 || GameDetect::currentGame == GameID::ChaseHq2 || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GTIClub3 || GameDetect::currentGame == GameID::MachStorm || GameDetect::currentGame == GameID::WackyRaces || GameDetect::currentGame == GameID::WMMT5)			
-		{
-			if (ToBool(config["General"]["Enable Outputs"]))
-			{
-				if (!OutputInit)
-				{
-					blaster = LoadLibraryA("OutputBlaster.dll");				
-					if (blaster)
-					{
-						printf("OutputBlaster loaded!");
-					}
-					else
-					{
-						printf("Failed to Load OutputBlaster!");
-					}
-					OutputInit = true;
-				}
-			}
-		}
-		Sleep(300);
+		printf("OutputBlaster loaded!");
 	}
+	else
+	{
+		printf("Failed to Load OutputBlaster!");
+	}
+	return 0;
 }
-
+	
 /* WINDOW HOOKS */
 
 DWORD g_windowStyle;
@@ -234,6 +220,9 @@ static InitFunction globalFunc([]()
 {
 	hook::pattern::InitializeHints();
 	CreateThread(NULL, 0, QuitGameThread, NULL, 0, NULL);
-	CreateThread(NULL, 0, OutputsThread, NULL, 0, NULL);
+	if (ToBool(config["General"]["Enable Outputs"]))
+	{
+		CreateThread(NULL, 0, OutputsThread, NULL, 0, NULL);
+	}
 }, GameID::Global);
 #pragma optimize("", on)

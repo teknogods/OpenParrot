@@ -6,7 +6,7 @@
 #include "Utility/GameDetect.h"
 
 static bool swShaderHack = false;
-static bool windowed = false;
+//static bool windowed = false;
 
 IDirect3D8*(WINAPI* g_origDirect3DCreate8)(UINT SDKVersion);
 
@@ -28,12 +28,13 @@ static HRESULT(WINAPI* g_oldReset)(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS
 
 HRESULT WINAPI ResetWrap(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	if (windowed)
+	if (ToBool(config["General"]["Windowed"]))
 	{
 		pPresentationParameters->Windowed = TRUE;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 		pPresentationParameters->BackBufferWidth = 0;
 		pPresentationParameters->BackBufferHeight = 0;
+		pPresentationParameters->BackBufferFormat = D3DFMT_A8R8G8B8; // TODO: query current desktop format and use it
 		pPresentationParameters->Flags = 0;
 		pPresentationParameters->FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 	}
@@ -45,12 +46,13 @@ static HRESULT(WINAPI* g_oldCreateDevice)(IDirect3D8* self, UINT Adapter, D3DDEV
 
 HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface)
 {
-	if (windowed)
+	if (ToBool(config["General"]["Windowed"]))
 	{
 		pPresentationParameters->Windowed = TRUE;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 		pPresentationParameters->BackBufferWidth = 0;
 		pPresentationParameters->BackBufferHeight = 0;
+		pPresentationParameters->BackBufferFormat = D3DFMT_A8R8G8B8; // TODO: query current desktop format and use it
 		pPresentationParameters->Flags = 0;
 		pPresentationParameters->FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 	}
@@ -69,12 +71,12 @@ HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE Devic
 
 IDirect3D8* WINAPI Direct3DCreate8Wrap(UINT SDKVersion)
 {
-	auto d3d9 = g_origDirect3DCreate8(SDKVersion);
+	auto d3d8 = g_origDirect3DCreate8(SDKVersion);
 	
-	auto old = HookVtableFunction(&d3d9->lpVtbl->CreateDevice, CreateDeviceWrap);
+	auto old = HookVtableFunction(&d3d8->lpVtbl->CreateDevice, CreateDeviceWrap);
 	g_oldCreateDevice = (old) ? old : g_oldCreateDevice;
 
-	return d3d9;
+	return d3d8;
 }
 
 void InitD3D8WindowHook()
@@ -89,6 +91,8 @@ extern linb::ini config;
 static InitFunction initFunc([]()
 {
 	if (GameDetect::currentGame == GameID::BG4)
+		return;
+	if (GameDetect::currentGame == GameID::BG4_Eng)
 		return;
 	if (GameDetect::currentGame == GameID::TER)
 		return;

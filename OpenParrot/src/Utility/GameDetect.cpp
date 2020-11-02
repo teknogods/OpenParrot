@@ -9,8 +9,15 @@ X2Type GameDetect::X2Type = X2Type::None;
 static char newCrc[0x400];
 static char errorBuffer[256];
 
+#if _M_IX86
+void GameDetect::DetectCurrentLinuxGame()
+{
+}
+#endif
+
 void GameDetect::DetectCurrentGame()
 {
+	// TODO: move all game detection bound to crcResult immediately below to use the newCrcResult switch at end with its new CRC instead.
 	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
 	NesicaKey = NesicaKey::None;
 	switch (crcResult)
@@ -18,11 +25,6 @@ void GameDetect::DetectCurrentGame()
 #if _M_IX86
 	case 0xb8f2836d:
 		currentGame = GameID::Daytona3;
-		break;
-	case 0xd3f62267:
-		currentGame = GameID::Nesica;
-		NesicaKey = NesicaKey::None;
-		isNesica = true;
 		break;
 	case 0x4bcfbc4f:
 		currentGame = GameID::GrooveCoaster2;
@@ -51,7 +53,7 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0x6e67076f:
 		currentGame = GameID::Nesica;
-		NesicaKey = NesicaKey::BlazBlueCentralFriction;
+		NesicaKey = NesicaKey::BlazBlueCentralFiction;
 		isNesica = true;
 		break;
 	case 0xd98bed41: // Crimzon Clover
@@ -84,6 +86,7 @@ void GameDetect::DetectCurrentGame()
 	case 0x949efa20:
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::Persona4Arena;
+		GameDetect::enableNesysEmu = false;
 		isNesica = true;
 		break;
 	case 0x6b233485:
@@ -99,9 +102,9 @@ void GameDetect::DetectCurrentGame()
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
-		// SF 3rd Strike
-	case 0x9369715e:
-		currentGame = GameID::Nesica;
+	case 0x9369715e: // SF 3rd Strike
+	case 0xd3f62267: // test.exe
+		currentGame = GameID::StreetFighter3rdStrike;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		GameDetect::enableNesysEmu = false;
@@ -133,7 +136,7 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0xc0cbafd3: // Do Not Fall - Run for Your Drink
-		currentGame = GameID::Nesica;
+		currentGame = GameID::DoNotFall;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
@@ -158,32 +161,31 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0xabc41e0a: // Homura
-		currentGame = GameID::Nesica;
+		currentGame = GameID::HomuraNesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
 	case 0x19ba6a0c: // Vampire Savior - The Lord of Vampire
 	case 0x7cc54950: // Test.exe
-		currentGame = GameID::Nesica;
+		currentGame = GameID::VampireSavior;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
-		GameDetect::enableNesysEmu = false;
 		break;
 	case 0xf6e33d2b: // Exception
-		currentGame = GameID::Nesica;
+		currentGame = GameID::Exception;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
 	case 0x6496a142: // Hyper Street Fighter II
 	case 0xb686d3ac: // Test.exe
-		currentGame = GameID::Nesica;
+		currentGame = GameID::HyperStreetFighterII;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		GameDetect::enableNesysEmu = false;
 		break;
 	case 0x6e5c8b5b: // Street Fighter Zero 3
 	case 0x609d8b35: // Test.exe
-		currentGame = GameID::Nesica;
+		currentGame = GameID::StreetFigherZero3;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		GameDetect::enableNesysEmu = false;
@@ -209,17 +211,17 @@ void GameDetect::DetectCurrentGame()
 		isNesica = true;
 		break;
 	case 0xd0fea58c: // Raiden IV
-		currentGame = GameID::Nesica;
+		currentGame = GameID::RaidenIVNesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
 	case 0xe378e178: // Senko no Ronde DUO
-		currentGame = GameID::Nesica;
+		currentGame = GameID::SenkoNoRondeDuoNesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
 	case 0x5503983f: // Trouble Witches AC - Amalgam no Joutachi
-		currentGame = GameID::Nesica;
+		currentGame = GameID::TroubleWitchesNesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
 		break;
@@ -272,6 +274,7 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0x3de0a15a: // KOF XIII
 		currentGame = GameID::KOFXIII;
+		NesicaKey = NesicaKey::KOFXIIIClimax;
 		X2Type = X2Type::Generic;
 		break;
 	case 0x777df862: // Power Instinct V
@@ -302,7 +305,7 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::SSFAE_EXP;
 		X2Type = X2Type::Generic;
 		break;
-	case 0xef843fd1: // Super Street Fighter IV Arcade Edition Ver. 2012
+	case 0xef843fd1: // Super Street Fighter IV Arcade Edition Ver. 2012 (NESYS 1.1)
 		currentGame = GameID::SSFAE2012;
 		X2Type = X2Type::Generic;
 		break;
@@ -342,7 +345,7 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::RaidenIV;
 		X2Type = X2Type::Raiden4;
 		break;
-	case 0x14eb3c8a: // Battle Gear 4 Tuned Professional
+	case 0x14eb3c8a: // Battle Gear 4 Tuned Professional (2.08)
 		currentGame = GameID::BG4;
 		X2Type = X2Type::BG4;
 		break;
@@ -410,6 +413,7 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::Daytona3;
 			break;
 		}
+#if !_DEBUG
 		// IF GAME = JusticeLeague (if workingdir\JLA.exe exists) , AVOID THIS CHECK (note: darius checked offset is beyond JLA exe limits and TP crashes...)
 		char working_directory[MAX_PATH + 1];
 		GetCurrentDirectoryA(sizeof(working_directory), working_directory);
@@ -421,9 +425,17 @@ void GameDetect::DetectCurrentGame()
 			if (*(uint32_t*)(moduleBase + 0x2CC751) == 0x6B75C084)
 			{
 				currentGame = GameID::DariusBurst;
+				NesicaKey = NesicaKey::DariusBurst;
+				break;
+			}
+			if (*(uint32_t*)(moduleBase + 0x302741) == 0x7075C084)
+			{
+				currentGame = GameID::DariusBurst116;
+				NesicaKey = NesicaKey::DariusBurst;
 				break;
 			}
 		}
+#endif
 #else
 		// X64
 		// School of Ragnarok
@@ -486,12 +498,12 @@ void GameDetect::DetectCurrentGame()
 			isNesica = true;
 			break;
 		case 0xac86efec: //Chaos Code v1.03
-			currentGame = GameID::Nesica;
+			currentGame = GameID::ChaosCode;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
 		case 0xa742a607: //Chaos Code v2.11
-			currentGame = GameID::Nesica;
+			currentGame = GameID::ChaosCode;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
@@ -501,7 +513,7 @@ void GameDetect::DetectCurrentGame()
 			isNesica = true;
 			break;
 		case 0xbe9c0407: //Skullgirls 2nd Encore
-			currentGame = GameID::Nesica;
+			currentGame = GameID::SkullGirls;
 			NesicaKey = NesicaKey::NoNet;
 			isNesica = true;
 			break;
@@ -509,28 +521,37 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::SpicaAdventure;
 			X2Type = X2Type::Generic;
 			break;
-		case 0xbd516d7b: //KoFXIII
-			currentGame = GameID::Nesica;
-			NesicaKey = NesicaKey::None;
-			isNesica = true;
+		case 0xbd516d7b: // KOFXIII Climax
+			currentGame = GameID::KOFXIIIClimax;
+			NesicaKey = NesicaKey::KOFXIIIClimax;
+			X2Type = X2Type::Generic;
 			break;
 		case 0x3806e8f4: //KoF98 (has files that need to be deleted to run)
-			currentGame = GameID::Nesica;
+			currentGame = GameID::KOF98Nesica;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
+			break;
+		case 0x545b0d0c: // Super Street Fighter IV Arcade Edition Ver. 2012 (NESYS 1.3)
+			currentGame = GameID::SSFAE2012;
+			X2Type = X2Type::Generic;
 			break;
 		case 0xa202d660: //Yatagarasu - Attack on Cataclysm
-			currentGame = GameID::Nesica;
+			currentGame = GameID::Yatagarasu;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
-		case 0xbd4c12a5: //some fishing shit idk
-			currentGame = GameID::Nesica;
+		case 0xbd4c12a5: // Rumble Fish 2
+			currentGame = GameID::RumbleFish2;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
 		case 0xc5715d2e: //Ikaruga NXL
 			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xafe8fc50: // KOF2002
+			currentGame = GameID::KOF2002;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
@@ -542,6 +563,33 @@ void GameDetect::DetectCurrentGame()
 			break;
 		case 0x4D91A27A:
 			currentGame = GameID::SnoCross;
+			break;
+		case 0xbd8c984d: // Battle Gear 4 English Ver (2.03) 
+			currentGame = GameID::BG4_Eng;
+			X2Type = X2Type::BG4_Eng;
+			break;
+		case 0x74f898ae: // KOF SkyStage
+			currentGame = GameID::KOFSkyStage100J;
+			X2Type = X2Type::Generic;
+			break;
+		case 0xd9221042: // Power Instinct V
+			currentGame = GameID::PowerInstinctV;
+			X2Type = X2Type::Generic;
+			break;
+		case 0x6f913049: // Chaos Breaker for NesicaxLive
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0x486e885c: // Dark Awake - The King Has No Name
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0x31e72d72: // BlazBlue Central Fiction 2.01
+			currentGame = GameID::BlazBlueCF201;
+			NesicaKey = NesicaKey::BlazBlueCentralFiction;
+			isNesica = true;
 			break;
 #ifdef _AMD64_
 		case 0x80ebd207:
@@ -605,10 +653,12 @@ bool GameDetect::IsTypeX()
 	case GameID::BlazBlueCS2:
 	case GameID::GigaWingGenerations:
 	case GameID::KOF98UM:
+	case GameID::KOFXIIIClimax:
 	case GameID::KOFMIRA:
 	case GameID::KOFSkyStage:
 	case GameID::KOFXII:
 	case GameID::KOFXIII:
+	case GameID::KOFSkyStage100J:
 	case GameID::PowerInstinctV:
 	case GameID::RaidenIII:
 	case GameID::SenkoNoRondeDuo:
@@ -628,6 +678,7 @@ bool GameDetect::IsTypeX()
 	case GameID::RaidenIV:
 	case GameID::VirtuaRLimit:
 	case GameID::MB4:
+	case GameID::BG4_Eng:
 		return true;
 	default:
 		return false;

@@ -71,6 +71,7 @@ DWORD process_streamExBoard(UINT8 *stream, DWORD srcsize, BYTE *dst, DWORD dstsi
 
 		//logmsg("SRAM WRITE %d : %x\n", size, addr);
 		memcpy(&SRAM[addr], &stream[6], size);
+		SRAM_save();
 		break;
 	}
 
@@ -318,9 +319,16 @@ int __stdcall GetKeyLicenseWrap(void)
 	return 1;
 }
 
-LONG __stdcall ChangeDisplaySettingsWrap(DEVMODE *lpDevMode, DWORD dwflags)
+LONG __stdcall ChangeDisplaySettingsAWrap(DEVMODEA *lpDevMode, DWORD dwflags)
 {
-	return DISP_CHANGE_SUCCESSFUL;
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		return DISP_CHANGE_SUCCESSFUL;
+	}
+	lpDevMode->dmBitsPerPel = 32;
+	lpDevMode->dmDisplayFrequency = 60;
+
+	return ChangeDisplaySettingsA(lpDevMode, CDS_FULLSCREEN);
 }
 
 BOOL __stdcall ExitWindowsExWrap(UINT uFlags, DWORD dwReason)
@@ -429,7 +437,7 @@ static InitFunction ExBoardGenericFunc([]()
 	iatHook("kernel32.dll", GetCommModemStatusWrapExBoard, "GetCommModemStatus");
 	iatHook("kernel32.dll", CloseHandleWrapExBoard, "CloseHandle");
 	iatHook("IpgExKey.dll", GetKeyLicenseWrap, "_GetKeyLicense@0");
-	iatHook("user32.dll", ChangeDisplaySettingsWrap, "ChangeDisplaySettingsA");
+	iatHook("user32.dll", ChangeDisplaySettingsAWrap, "ChangeDisplaySettingsA");
 	iatHook("user32.dll", ExitWindowsExWrap, "ExitWindowsEx");
 	iatHook("user32.dll", GetAsyncKeyStateWrap, "GetAsyncKeyState");
 	iatHook("user32.dll", SetWindowPosWrap, "SetWindowPos");

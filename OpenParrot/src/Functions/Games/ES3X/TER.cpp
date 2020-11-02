@@ -64,6 +64,10 @@ static InitFunction Tekken7Update00Func([]()
 		// First Check Error
 		injector::MakeNOP(imageBase + 0x17B400, 5);
 
+		// workaround string out of range crash
+		// still wrong, but at least no crash
+		injector::WriteMemory<BYTE>(imageBase + 0x102C34, 0xEB, true);
+
 		// Windowed
 		if (ToBool(config["General"]["Windowed"]))
 		{

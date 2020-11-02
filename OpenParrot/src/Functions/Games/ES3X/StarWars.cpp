@@ -299,7 +299,8 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 	{
 		injector::MakeNOP(imageBase + 0x4DD2F, 6, true);
 		injector::MakeNOP(imageBase + 0x4DBEA, 7, true);
-		injector::MakeNOP(imageBase + 0x4DD53, 7, true);
+		//injector::MakeNOP(imageBase + 0x4DD53, 7, true);
+		injector::MakeNOP(imageBase + 0x4DDA2, 6, true);
 	}
 
 	// Don't minimize all windows

@@ -12,4 +12,5 @@ enum class X2Type {
 	BattleFantasia,
 	MB4,
 	Wontertainment,
+	BG4_Eng,
 };
