@@ -775,278 +775,29 @@ BOOL __stdcall CloseHandleWrap(HANDLE hObject)
 static char moveBuf[256];
 LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 {
-	if (GameDetect::currentGame == GameID::HyperStreetFighterII)
-	{
-		if (!strncmp(lpFileName, "D:\\3", 4))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[3] == '3')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::StreetFigherZero3)
-	{
-		if (!strncmp(lpFileName, "D:\\c", 4))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[3] == 'c')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::StreetFighter3rdStrike)
-	{
-		if (!strncmp(lpFileName, "D:\\9", 4))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[3] == '9')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::RumbleFish2)
-	{
-		if (!strncmp(lpFileName, "D:\\eb342", 8))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[3] == 'e')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::KOF98Nesica)
-	{
-		if (!strncmp(lpFileName, "d:/SettingKOF98UM", 17) || !strncmp(lpFileName, "d:/RankingKOF98UM", 17) || !strncmp(lpFileName, "d:/CoinFileKOF98UM", 18))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBuf;
-		}
-
-		if (!strncmp(lpFileName, "SettingKOF98UM*.txt", 19) || !strncmp(lpFileName, "RankingKOF98UM*.txt", 19) || !strncmp(lpFileName, "CoinFileKOF98UM*.txt", 20))
-		{
-			memset(moveBuf, 0, 256);
-			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName);
-			
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::CrimzonClover)
-	{
-		if (!strncmp(lpFileName, "D:\\save\\*.dat", 13) || !strncmp(lpFileName, "D:\\save", 7) || !strncmp(lpFileName, "D:\\save\\config", 14) || !strncmp(lpFileName, "D:\\save\\bkeep", 13) || !strncmp(lpFileName, "D:\\save\\score", 13))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::VampireSavior)
-	{
-		if (!strncmp(lpFileName, "D:\\0343d7a98baf803c268e7ed73239464b", 35))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[3] == '0')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::ChaosCode)
-	{
-		if (!strncmp(lpFileName, "D:/ChaosCode/save/TYPEX2_RECORD.rcd", 35) || !strncmp(lpFileName, "D:/ChaosCode/save/TYPEX2_SETTING.rcd", 36) || !strncmp(lpFileName, "D:/ChaosCode/save/", 18) || !strncmp(lpFileName, "D:/ChaosCode/", 14))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::RaidenIVNesica)
-	{
-		if (!strncmp(lpFileName, "d:\\income.log", 13) || !strncmp(lpFileName, "D:\\setting.dat", 14) || !strncmp(lpFileName, "D:\\hiscore.dat", 14))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-		
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::SenkoNoRondeDuoNesica)
-	{
-		if (!strncmp(lpFileName, "D:\\0bd4d39aff8d7219f92f72451f642c2f", 35))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[4] == 'b')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::SkullGirls)
-	{
-		if (!strncmp(lpFileName, "D:\\sg_conf_", 11))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-		
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::TroubleWitchesNesica)
-	{
-		if (!strncmp(lpFileName, "D:\\Save", 7))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::Yatagarasu)
-	{
-		if (!strncmp(lpFileName, "D:\\b2cfd825e375395ce05629616d881045", 35))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-		
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::Exception)
-	{
-		if (!strncmp(lpFileName, "d:\\game0000.ini", 15) || !strncmp(lpFileName, "d:/ranking", 10) || !strncmp(lpFileName, "d:/log", 6))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBuf;
-		}
-		if (!strncmp(lpFileName, "stdout.txt", 10) || !strncmp(lpFileName, "stderr.txt", 10))
-		{
-			memset(moveBuf, 0, 256);
-			if (!strncmp(lpFileName, "stdout.txt", 10))
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", "stdout.txt");
-			}
-			if (!strncmp(lpFileName, "stderr.txt", 10))
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", "stderr.txt");
-			}
-
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::KOF2002)
-	{
-		if (!strncmp(lpFileName, "d:/Setting", 10) || !strncmp(lpFileName, "d:/CoinFile", 11) || !strncmp(lpFileName, "d:/Ranking", 11))
-		{
-			memset(moveBuf, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBuf;
-		}
-
-		if (!strncmp(lpFileName, "Setting*.txt", 12) || !strncmp(lpFileName, "Ranking*.txt", 12) || !strncmp(lpFileName, "CoinFile*.txt", 13))
-		{
-			memset(moveBuf, 0, 256);
-			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName);
-
-			return moveBuf;
-		}
-
-		return lpFileName;
-	}
-
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
 		memset(moveBuf, 0, 256);
 		if(lpFileName[2] == '\\' || lpFileName[2] == '/')
 		{
+			char pathRoot[MAX_PATH];
+			GetModuleFileNameA(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot));
+			strrchr(pathRoot, '\\')[0] = '\0';
+
 			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+#ifdef _DEBUG
+			info(true, "PathRoot: %s", pathRoot);
+			info(true, "ParseFileNamesA: %s", lpFileName + 3);
+			info(true, "ParseFileNamesA movBuf: %s", moveBuf);
+#endif
+
+			if(!strncmp(moveBuf + 13, pathRoot + 3, strlen(pathRoot + 3)))
+			{
+#ifdef _DEBUG
+				info(true, "!!!!!!!!!!!NO REDIRECT!!!!!!!!!!!!");
+#endif
+				return lpFileName;
+			}
 		}
 		else
 		{
@@ -1062,277 +813,26 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 static wchar_t moveBufW[256];
 LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 {
-	if (GameDetect::currentGame == GameID::HyperStreetFighterII)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\3", 4))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[3] == '3')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::StreetFigherZero3)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\c", 4))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[3] == 'c')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::StreetFighter3rdStrike)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\9", 4))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[3] == '9')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::RumbleFish2)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\eb342", 8))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[3] == 'e')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::KOF98Nesica)
-	{
-		if (!wcsncmp(lpFileName, L"d:/SettingKOF98UM", 17) || !wcsncmp(lpFileName, L"d:/RankingKOF98UM", 17) || !wcsncmp(lpFileName, L"d:/CoinFileKOF98UM", 18))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBufW;
-		}
-
-		if (!wcsncmp(lpFileName, L"SettingKOF98UM*.txt", 19) || !wcsncmp(lpFileName, L"RankingKOF98UM*.txt", 19) || !wcsncmp(lpFileName, L"CoinFileKOF98UM*.txt", 20))
-		{
-			memset(moveBufW, 0, 256);
-			swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName);
-
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::CrimzonClover)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\save\\*.dat", 13) || !wcsncmp(lpFileName, L"D:\\save", 7) || !wcsncmp(lpFileName, L"D:\\save\\config", 14) || !wcsncmp(lpFileName, L"D:\\save\\bkeep", 13) || !wcsncmp(lpFileName, L"D:\\save\\score", 13))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::VampireSavior)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\0343d7a98baf803c268e7ed73239464b", 35))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[3] == '0')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::ChaosCode)
-	{
-		if (!wcsncmp(lpFileName, L"D:/ChaosCode/save/TYPEX2_RECORD.rcd", 35) || !wcsncmp(lpFileName, L"D:/ChaosCode/save/TYPEX2_SETTING.rcd", 36) || !wcsncmp(lpFileName, L"D:/ChaosCode/save/TYPEX2_SETTING.rcd", 36) || !wcsncmp(lpFileName, L"D:/ChaosCode/save/", 18) || !wcsncmp(lpFileName, L"D:/ChaosCode/", 14))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::RaidenIVNesica)
-	{
-		if (!wcsncmp(lpFileName, L"d:\\income.log", 13) || !wcsncmp(lpFileName, L"D:\\setting.dat", 14) || !wcsncmp(lpFileName, L"D:\\hiscore.dat", 14))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::SenkoNoRondeDuoNesica)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\0bd4d39aff8d7219f92f72451f642c2f", 35))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[4] == 'b')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::SkullGirls)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\sg_conf_", 11))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-		
-			return moveBufW;
-		}
-	
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::TroubleWitchesNesica)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\Save", 7))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::Yatagarasu)
-	{
-		if (!wcsncmp(lpFileName, L"D:\\b2cfd825e375395ce05629616d881045", 35))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-		
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::Exception)
-	{
-		if (!wcsncmp(lpFileName, L"d:\\game0000.ini", 15) || !wcsncmp(lpFileName, L"d:/ranking", 10) || !wcsncmp(lpFileName, L"d:/log", 6))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBufW;
-		}
-		if (!wcsncmp(lpFileName, L"stdout.txt", 10) || !wcsncmp(lpFileName, L"stderr.txt", 10))
-		{
-			memset(moveBufW, 0, 256);
-			if (!wcsncmp(lpFileName, L"stdout.txt", 10))
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", L"stdout.txt");
-			}
-			if (!wcsncmp(lpFileName, L"stderr.txt", 10))
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", L"stderr.txt");
-			}
-
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
-	if (GameDetect::currentGame == GameID::KOF2002)
-	{
-		if (!wcsncmp(lpFileName, L"d:/Setting", 10) || !wcsncmp(lpFileName, L"d:/CoinFile", 11) || !wcsncmp(lpFileName, L"d:/Ranking", 10))
-		{
-			memset(moveBufW, 0, 256);
-			if (lpFileName[2] == '\\' || lpFileName[2] == '/')
-			{
-				swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName + 3);
-			}
-
-			return moveBufW;
-		}
-
-		if (!wcsncmp(lpFileName, L"Setting*.txt", 12) || !wcsncmp(lpFileName, L"Ranking*.txt", 12) || !wcsncmp(lpFileName, L"CoinFile*.txt", 13))
-		{
-			memset(moveBufW, 0, 256);
-			swprintf(moveBufW, L".\\OpenParrot\\%s", lpFileName);
-
-			return moveBufW;
-		}
-
-		return lpFileName;
-	}
-
 	if (!wcsncmp(lpFileName, L"D:", 2) || !wcsncmp(lpFileName, L"d:", 2))
 	{
 		memset(moveBufW, 0, 256);
 		if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 		{
+			wchar_t pathRoot[MAX_PATH];
+			GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot));
+
+			wcsrchr(pathRoot, L'\\')[0] = L'\0';
+
 			swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);
+
+
+			if (!wcsncmp(moveBufW + 13, pathRoot + 3, wcslen(pathRoot + 3)))
+			{
+#ifdef _DEBUG
+				info(true, "!!!!!!!!!!!NO REDIRECT_W!!!!!!!!!!!!");
+#endif
+				return lpFileName;
+			}
 		}
 		else
 		{
@@ -1370,16 +870,16 @@ HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 		return hConnection;
 	}
 
-	if(GameDetect::currentGame == GameID::GrooveCoaster2)
-	{
-		return g_origCreateFileA(lpFileName,
-			dwDesiredAccess,
-			dwShareMode,
-			lpSecurityAttributes,
-			dwCreationDisposition,
-			dwFlagsAndAttributes,
-			hTemplateFile);
-	}
+	//if(GameDetect::currentGame == GameID::GrooveCoaster2)
+	//{
+	//	return g_origCreateFileA(lpFileName,
+	//		dwDesiredAccess,
+	//		dwShareMode,
+	//		lpSecurityAttributes,
+	//		dwCreationDisposition,
+	//		dwFlagsAndAttributes,
+	//		hTemplateFile);
+	//}
 	
 	return g_origCreateFileA(ParseFileNamesA(lpFileName),
 		dwDesiredAccess,
@@ -1414,16 +914,16 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 		return hConnection;
 	}
 
-	if (GameDetect::currentGame == GameID::GrooveCoaster2 || GameDetect::currentGame == GameID::KOFXIIIClimax)
-	{
-		return g_origCreateFileW(lpFileName,
-			dwDesiredAccess,
-			dwShareMode,
-			lpSecurityAttributes,
-			dwCreationDisposition,
-			dwFlagsAndAttributes,
-			hTemplateFile);
-	}
+	//if (GameDetect::currentGame == GameID::GrooveCoaster2 || GameDetect::currentGame == GameID::KOFXIIIClimax)
+	//{
+	//	return g_origCreateFileW(lpFileName,
+	//		dwDesiredAccess,
+	//		dwShareMode,
+	//		lpSecurityAttributes,
+	//		dwCreationDisposition,
+	//		dwFlagsAndAttributes,
+	//		hTemplateFile);
+	//}
 
 	return g_origCreateFileW(ParseFileNamesW(lpFileName),
 		dwDesiredAccess,
@@ -1437,10 +937,10 @@ HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 static DWORD(__stdcall *g_origGetFileAttributesA)(LPCSTR lpFileName);
 static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 {
-	if (GameDetect::currentGame == GameID::GrooveCoaster2)
-	{
-		return g_origGetFileAttributesA(lpFileName);
-	}
+	//if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	//{
+	//	return g_origGetFileAttributesA(lpFileName);
+	//}
 
 	return g_origGetFileAttributesA(ParseFileNamesA(lpFileName));
 }
@@ -1448,10 +948,10 @@ static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 static DWORD(__stdcall *g_origGetFileAttributesW)(LPCWSTR lpFileName);
 static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
 {
-	if (GameDetect::currentGame == GameID::GrooveCoaster2)
-	{
-		return g_origGetFileAttributesW(lpFileName);
-	}
+	//if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	//{
+	//	return g_origGetFileAttributesW(lpFileName);
+	//}
 
 	return g_origGetFileAttributesW(ParseFileNamesW(lpFileName));
 }
@@ -1462,10 +962,10 @@ static BOOL __stdcall CreateDirectoryAWrap(
 	LPSECURITY_ATTRIBUTES lpSecurityAttributes
 )
 {
-	if (GameDetect::currentGame == GameID::GrooveCoaster2)
-	{
-		return g_origCreateDirectoryA(lpPathName, lpSecurityAttributes);
-	}
+	//if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	//{
+	//	return g_origCreateDirectoryA(lpPathName, lpSecurityAttributes);
+	//}
 
 	return g_origCreateDirectoryA(ParseFileNamesA(lpPathName), lpSecurityAttributes);
 }
@@ -1476,10 +976,10 @@ static BOOL __stdcall CreateDirectoryWWrap(
 	LPSECURITY_ATTRIBUTES lpSecurityAttributes
 )
 {
-	if (GameDetect::currentGame == GameID::GrooveCoaster2)
-	{
-		return g_origCreateDirectoryW(lpPathName, lpSecurityAttributes);
-	}
+	//if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	//{
+	//	return g_origCreateDirectoryW(lpPathName, lpSecurityAttributes);
+	//}
 
 	return g_origCreateDirectoryW(ParseFileNamesW(lpPathName), lpSecurityAttributes);
 }
@@ -1490,10 +990,10 @@ static HANDLE __stdcall FindFirstFileAWrap(
 	LPWIN32_FIND_DATAA lpFindFileData
 )
 {
-	if (GameDetect::currentGame == GameID::GrooveCoaster2)
-	{
-		return g_origFindFirstFileA(lpFileName, lpFindFileData);
-	}
+	//if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	//{
+	//	return g_origFindFirstFileA(lpFileName, lpFindFileData);
+	//}
 
 	return g_origFindFirstFileA(ParseFileNamesA(lpFileName), lpFindFileData);
 }
@@ -1504,10 +1004,10 @@ static HANDLE __stdcall FindFirstFileWWrap(
 	LPWIN32_FIND_DATAA lpFindFileData
 )
 {
-	if (GameDetect::currentGame == GameID::GrooveCoaster2)
-	{
-		return g_origFindFirstFileW(lpFileName, lpFindFileData);
-	}
+	//if (GameDetect::currentGame == GameID::GrooveCoaster2)
+	//{
+	//	return g_origFindFirstFileW(lpFileName, lpFindFileData);
+	//}
 
 	return g_origFindFirstFileW(ParseFileNamesW(lpFileName), lpFindFileData);
 }
