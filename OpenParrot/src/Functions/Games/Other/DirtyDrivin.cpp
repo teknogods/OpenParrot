@@ -233,6 +233,7 @@ D3DPRESENT_PARAMETERS* pPresentationParameters_RT9;
 uintptr_t d3dcall;
 void __stdcall D3D9CreateParamPatch() 
 {
+	#if _M_IX86
 	__asm mov d3dcall , edx
 	__asm mov edx, [ebp + 0x1c]
 	__asm mov pPresentationParameters_RT9 , edx
@@ -243,6 +244,7 @@ void __stdcall D3D9CreateParamPatch()
 	__asm mov edx , pPresentationParameters_RT9
 	__asm mov [ebp + 0x1c], edx
 	__asm mov edx , d3dcall
+	#endif
 	return;
 }
 
