@@ -31,6 +31,9 @@ static bool button3pressed = false;
 static bool button4pressed = false;
 static bool STARTpressed = false;
 static bool TESTpressed = false;
+static bool SERVICEpressed = false;
+static bool previousVolMin = false;
+static bool previousVolMax = false; 
 
 // controls 
 extern int* ffbOffset;
@@ -40,6 +43,80 @@ extern int* ffbOffset4;
 
 BOOL(__stdcall* original_CreateWindowExW9)(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 BOOL(__stdcall* original_CreateWindowExA9)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+
+void __stdcall ServiceControlsPatch()
+{
+	// TEST 
+	if ((GetAsyncKeyState(VK_INSERT) & 0x8000) || (*ffbOffset & 0x400))
+	{
+		if (TESTpressed == false)
+		{
+			injector::WriteMemory<BYTE>((0x98C380), 0x01, true);
+			TESTpressed = true;
+		}
+	}
+	else
+	{
+		if (TESTpressed == true)
+		{
+			injector::WriteMemory<BYTE>((0x98C380), 0x00, true);
+			TESTpressed = false;
+		}
+	}
+	// SERVICE
+	if ((GetAsyncKeyState(VK_DELETE) & 0x8000) || (*ffbOffset & 0x800))
+	{
+		if (SERVICEpressed == false)
+		{
+			injector::WriteMemory<BYTE>((0x98C384), 0x01, true);
+			SERVICEpressed = true;
+		}
+	}
+	else
+	{
+		if (SERVICEpressed == true)
+		{
+			injector::WriteMemory<BYTE>((0x98C384), 0x00, true);
+			SERVICEpressed = false;
+		}
+	}
+	// VOL+
+	if ((GetAsyncKeyState(VK_UP) & 0x8000) || (*ffbOffset & 0x1000))
+	{
+		if (previousVolMax == false)
+		{
+			injector::WriteMemory<BYTE>((0x98C388), 0x01, true);
+			previousVolMax = true;
+		}
+	}
+	else
+	{
+		if (previousVolMax == true)
+		{
+			injector::WriteMemory<BYTE>((0x98C388), 0x00, true);
+			previousVolMax = false;
+		}
+	}
+	// VOL-
+	if ((GetAsyncKeyState(VK_DOWN) & 0x8000) || (*ffbOffset & 0x2000))
+	{
+		if (previousVolMin == false)
+		{
+			injector::WriteMemory<BYTE>((0x98C38C), 0x01, true);
+			previousVolMin = true;
+		}
+	}
+	else
+	{
+		if (previousVolMin == true)
+		{
+			injector::WriteMemory<BYTE>((0x98C38C), 0x00, true);
+			previousVolMin = false;
+		}
+	}
+
+	return;
+}
 
 DWORD WINAPI InputRT9(LPVOID lpParam)
 {
@@ -52,11 +129,6 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			if (hWndRT9 == 0)
 			{
 				hWndRT9 = FindWindowW(NULL, TEXT("Dirty Drivin'"));
-		//		hWndRT9 = FindWindowEx(NULL, NULL, L"Ghost", L"Dirty Drivin");
-		//	}
-		//	else if	(hWndRT9 != FindWindowEx(NULL, NULL, L"Ghost", L"Dirty Drivin"))
-		//	{
-		//		hWndRT9 = FindWindowEx(NULL, NULL, L"Direct3DWindowClass", L"Dirty Drivin");
 			}
 			else if ((GetWindowLongPtrA(hWndRT9, GWL_STYLE) != 0x14CA0000))
 			{
@@ -69,22 +141,14 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			// ESCAPE QUITS GAME  
 		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
 		{
-			exit(0);
-		}
-
-		// TEST MENU 
-		if (GetAsyncKeyState(VK_BACK) & 0x8000)
-		{
-			if (TESTpressed == false)
+			HWND hWndTMP = GetForegroundWindow();
+			if (hWndRT9 == 0)
 			{
-				TESTpressed = true;
+				hWndRT9 = FindWindowW(NULL, TEXT("Dirty Drivin'"));
 			}
-		}
-		else
-		{
-			if (TESTpressed == true)
+			if (hWndTMP == hWndRT9)
 			{
-				TESTpressed = false;
+				exit(0);
 			}
 		}
 
@@ -107,7 +171,8 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
-		// BUTTON 1/ CRANK UP 
+		// BUTTON 1/ CRANK BACKWARD 
+		// !!! NOTE: CRANK FORWARD ONLY USED FOR GAS WHEN CONVERTING FROM H2Overdrive CABINET !!! //
 		if (*ffbOffset & 0x100)
 		{
 			if (button1pressed == false)
@@ -125,21 +190,21 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
-		// BUTTON 3/ VIEW 
-		if (*ffbOffset & 0x400)
+		// BUTTON 2/ VIEW 
+		if (*ffbOffset & 0x200)
 		{
-			if (button3pressed == false)
+			if (button2pressed == false)
 			{
 				keybd_event(0x56, 0, 0, 0);
-				button3pressed = true;
+				button2pressed = true;
 			}
 		}
 		else
 		{
-			if (button3pressed == true)
+			if (button2pressed == true)
 			{
 				keybd_event(0x56, 0, KEYEVENTF_KEYUP, 0);
-				button3pressed = false;
+				button2pressed = false;
 			}
 		}
 
@@ -149,8 +214,11 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 		injector::WriteMemory<float>((0x4AD0FC + BaseAddress9), wheel, true);
 		//// GAS 
 		float gas = (float)*ffbOffset3 / 255.0f;
-		injector::WriteMemory<float>((0x4AD0F8 + BaseAddress9), gas, true);
-
+		float brake = (float)*ffbOffset4 / 255.0f;
+	//	injector::WriteMemory<float>((0x4AD0F8 + BaseAddress9), gas, true);
+		// BRAKE BUTTON HACK = if brake pressed gas is reduced
+		injector::WriteMemory<float>((0x4AD0F8 + BaseAddress9), gas - brake, true);
+		
 		//DEBUG////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 		//	info(true, "test value %f  %f ", *ffbOffset2, x); 
 		//DEBUG////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
@@ -198,12 +266,40 @@ static InitFunction DirtyDrivinFunc([]()
 		injector::MakeNOP((0x514BB + BaseAddress9), 4, true);
 		injector::MakeNOP((0x514C0 + BaseAddress9), 3, true);
 
+		//TVVS CONTROLS PATCH
+		injector::MakeNOP((0x506C57), 6, true);
+		injector::MakeNOP((0x506C5D), 6, true);
+		injector::MakeNOP((0x506C63), 6, true);
+		injector::MakeNOP((0x506C69), 6, true);
+		injector::MakeNOP((0x506C6F), 6, true);
+		injector::MakeNOP((0x506C75), 6, true);
+		injector::MakeNOP((0x506C7B), 6, true);
+
+		injector::MakeNOP((0x506883), 2, true);
+		injector::MakeNOP((0x54DDE0), 2, true);
+		injector::MakeNOP((0x54DD3B), 2, true);
+
+		//tvvs controls patch #1
+		injector::MakeJMP(0x506EEF, 0x729F00);
+		injector::MakeCALL(0x729F00, ServiceControlsPatch);
+		injector::WriteMemoryRaw(0x729F05, "\xBF\x00\x00\x00\x00", 5, true);
+		injector::WriteMemoryRaw(0x729F0A, "\x39\x3D\x30\xC3\x98\x00", 6, true);
+		injector::MakeJMP(0x729F10, 0x506EF5);
+		//tvvs controls patch #2
+		injector::MakeJMP(0x500A70, 0x729F20);
+		injector::MakeCALL(0x729F20, ServiceControlsPatch);
+		injector::WriteMemoryRaw(0x729F25, "\x83\x3D\x80\xC3\x98\x00\x00", 7, true);
+		injector::WriteMemoryRaw(0x729F2C, "\x0F\x84\xB9\x6B\xDD\xFF", 6, true);
+		injector::MakeJMP(0x729F32, 0x500A79);
+
 		CreateThread(NULL, 0, InputRT9, NULL, 0, NULL);
 
 		// auto accl off 
 		if (ToBool(config["General"]["AutoAcclOff"]))
 		{
 			injector::MakeNOP((0xAA6E6 + BaseAddress9), 6, true);
+			// alternative patch
+		//	injector::WriteMemoryRaw((0x96fd70), "\x00", 1, true);
 		}
 
 		if (ToBool(config["General"]["Windowed"]))
