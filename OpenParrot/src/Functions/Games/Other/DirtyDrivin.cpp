@@ -15,6 +15,8 @@
 #include <fstream> 
 #include "d3d9.h"
 
+#if _M_IX86
+#pragma optimize("", off)
 #pragma comment(lib, "Ws2_32.lib") 
 
 typedef unsigned int U32;
@@ -312,3 +314,5 @@ static InitFunction DirtyDrivinFunc([]()
 		}
 
 	}, GameID::DirtyDrivin);
+#endif
+#pragma optimize("", on)
