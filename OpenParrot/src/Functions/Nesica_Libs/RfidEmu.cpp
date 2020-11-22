@@ -791,7 +791,7 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 			info(true, "ParseFileNamesA movBuf: %s", moveBuf);
 #endif
 
-			if(!strncmp(moveBuf + 13, pathRoot + 3, strlen(pathRoot + 3)))
+			if(!strncmp(moveBuf + 13, pathRoot + 3, 5))
 			{
 #ifdef _DEBUG
 				info(true, "!!!!!!!!!!!NO REDIRECT!!!!!!!!!!!!");
@@ -818,15 +818,20 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 		memset(moveBufW, 0, 256);
 		if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 		{
-			wchar_t pathRoot[MAX_PATH];
-			GetModuleFileNameW(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot));
+			wchar_t pathRootW[MAX_PATH];
+			GetModuleFileNameW(GetModuleHandle(nullptr), pathRootW, _countof(pathRootW));
 
-			wcsrchr(pathRoot, L'\\')[0] = L'\0';
+			wcsrchr(pathRootW, L'\\')[0] = L'\0';
 
 			swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);
 
+#ifdef _DEBUG
+			info(true, "PathRootW: %ls", pathRootW);
+			info(true, "ParseFileNamesW: %ls", lpFileName + 3);
+			info(true, "ParseFileNamesW movBufW: %ls", moveBufW);
+#endif
 
-			if (!wcsncmp(moveBufW + 13, pathRoot + 3, wcslen(pathRoot + 3)))
+			if (!wcsncmp(moveBufW + 13, pathRootW + 3, 5))
 			{
 #ifdef _DEBUG
 				info(true, "!!!!!!!!!!!NO REDIRECT_W!!!!!!!!!!!!");
