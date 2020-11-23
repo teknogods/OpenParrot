@@ -30,6 +30,7 @@ HRESULT WINAPI PresentWrap(IDirect3DDevice8* self, CONST RECT* pSourceRect, CONS
 {
 	if (ToBool(config["General"]["Framelimiter"]))
 	{
+		// https://github.com/ThirteenAG/d3d9-wrapper/blob/master/source/d3d9.cpp
 		float fFPSLimit = 60.0;
 		static LARGE_INTEGER PerformanceCount1;
 		static LARGE_INTEGER PerformanceCount2;
