@@ -21,6 +21,71 @@ T HookVtableFunction(T* functionPtr, T target)
 	return old;
 }
 
+static HRESULT(WINAPI* g_oldPresent)(IDirect3DDevice9* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
+
+HRESULT WINAPI PresentWrap(IDirect3DDevice9* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
+{
+	if (ToBool(config["General"]["Framelimiter"]))
+	{
+		float fFPSLimit = 60.0;
+		static LARGE_INTEGER PerformanceCount1;
+		static LARGE_INTEGER PerformanceCount2;
+		static bool bOnce1 = false;
+		static double targetFrameTime = 1000.0 / fFPSLimit;
+		static double t = 0.0;
+		static DWORD i = 0;
+
+		if (!bOnce1)
+		{
+			bOnce1 = true;
+			QueryPerformanceCounter(&PerformanceCount1);
+			PerformanceCount1.QuadPart = PerformanceCount1.QuadPart >> i;
+		}
+
+		while (true)
+		{
+			QueryPerformanceCounter(&PerformanceCount2);
+			if (t == 0.0)
+			{
+				LARGE_INTEGER PerformanceCount3;
+				static bool bOnce2 = false;
+
+				if (!bOnce2)
+				{
+					bOnce2 = true;
+					QueryPerformanceFrequency(&PerformanceCount3);
+					i = 0;
+					t = 1000.0 / (double)PerformanceCount3.QuadPart;
+					auto v = t * 2147483648.0;
+					if (60000.0 > v)
+					{
+						while (true)
+						{
+							++i;
+							v *= 2.0;
+							t *= 2.0;
+							if (60000.0 <= v)
+								break;
+						}
+					}
+				}
+				SleepEx(0, 1);
+				break;
+			}
+
+			if (((double)((PerformanceCount2.QuadPart >> i) - PerformanceCount1.QuadPart) * t) >= targetFrameTime)
+				break;
+
+			SleepEx(0, 1);
+		}
+		QueryPerformanceCounter(&PerformanceCount2);
+		PerformanceCount1.QuadPart = PerformanceCount2.QuadPart >> i;
+		return g_oldPresent(self, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+	}
+	else
+		return g_oldPresent(self, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+}
+
 static HRESULT(WINAPI* g_oldReset)(IDirect3DDevice9* self, D3DPRESENT_PARAMETERS* pPresentationParameters);
 
 HRESULT WINAPI ResetWrap(IDirect3DDevice9* self, D3DPRESENT_PARAMETERS* pPresentationParameters)
@@ -58,6 +123,9 @@ HRESULT WINAPI CreateDeviceWrap(IDirect3D9* self, UINT Adapter, D3DDEVTYPE Devic
 	{
 		auto old = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->Reset, ResetWrap);
 		g_oldReset = (old) ? old : g_oldReset;
+
+		auto old2 = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->Present, PresentWrap);
+		g_oldPresent = (old2) ? old2 : g_oldPresent;
 	}
 
 	return hr;
@@ -90,7 +158,7 @@ static InitFunction initFunc([]()
 	{
 		InitD3D9WindowHook();
 	}
-	if (ToBool(config["General"]["Windowed"]))
+	if (ToBool(config["General"]["Windowed"]) || ToBool(config["General"]["Framelimiter"]))
 	{
 		InitD3D9WindowHook();
 	}
