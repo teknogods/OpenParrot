@@ -35,7 +35,8 @@ static bool STARTpressed = false;
 static bool TESTpressed = false;
 static bool SERVICEpressed = false;
 static bool previousVolMin = false;
-static bool previousVolMax = false; 
+static bool previousVolMax = false;
+static bool MenuHack = false;
 
 // controls 
 extern int* ffbOffset;
@@ -45,6 +46,42 @@ extern int* ffbOffset4;
 
 BOOL(__stdcall* original_CreateWindowExW9)(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 BOOL(__stdcall* original_CreateWindowExA9)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+
+static int menuhack(int hackymenu) {
+	switch (hackymenu) {
+	case 14:
+		return 10;
+	case 13:
+		return 12;
+	case 12:
+		return 8;
+	case 11:
+		return 13;
+	case 10:
+		return 14;
+	case 9:
+		return 9;
+	case 8: // Right of center
+		return 11;
+	case 7: // center
+		return 2;
+	case 0: // Left of center
+		return 16;
+	case 1:
+		return 1;
+	case 2:
+		return 3;
+	case 3:
+		return 5;
+	case 4:
+		return 6;
+	case 5:
+		return 4;
+	case 6:
+		return 0;
+
+	}
+}
 
 void __stdcall ServiceControlsPatch()
 {
@@ -126,6 +163,94 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 
 	while (true)
 	{
+		if (ToBool(config["General"]["Track Select Menu Hack"]))
+		{
+			BYTE GameState = *(BYTE*)(0x570190 + BaseAddress9);
+
+			if (GameState == 0x05)
+			{
+				if (!MenuHack)
+				{
+					MenuHack = true;
+					injector::MakeNOP((0x78A27 + BaseAddress9), 6, true);
+				}
+			}
+			else if (GameState == 0x06)
+			{
+				if (MenuHack)
+				{
+					MenuHack = false;
+
+					injector::WriteMemory((0x78A27 + BaseAddress9), 0x03448689, true);
+					injector::WriteMemory((0x78A2B + BaseAddress9), 0x8E890000, true);
+				}
+			}
+
+			if (MenuHack)
+			{
+				if (*ffbOffset2 >= 0xEE)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0A;
+				}
+				else if (*ffbOffset2 >= 0xDD)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0C;
+				}
+				else if (*ffbOffset2 >= 0xCC)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x08;
+				}
+				else if (*ffbOffset2 >= 0xBB)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0D;
+				}
+				else if (*ffbOffset2 >= 0xAA)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0E;
+				}
+				else if (*ffbOffset2 >= 0x99)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x09;
+				}
+				else if (*ffbOffset2 >= 0x88)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0B;
+				}
+				else if (*ffbOffset2 >= 0x77)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x02;
+				}
+				else if (*ffbOffset2 >= 0x66)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x00;
+				}
+				else if (*ffbOffset2 >= 0x55)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x04;
+				}
+				else if (*ffbOffset2 >= 0x44)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x06;
+				}
+				else if (*ffbOffset2 >= 0x33)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x05;
+				}
+				else if (*ffbOffset2 >= 0x22)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x03;
+				}
+				else if (*ffbOffset2 >= 0x11)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x01;
+				}
+				else
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x10;
+				}
+			}
+		}
+
 		if (ToBool(config["General"]["Windowed"]))
 		{
 			if (hWndRT9 == 0)
