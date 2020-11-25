@@ -47,42 +47,6 @@ extern int* ffbOffset4;
 BOOL(__stdcall* original_CreateWindowExW9)(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 BOOL(__stdcall* original_CreateWindowExA9)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 
-static int menuhack(int hackymenu) {
-	switch (hackymenu) {
-	case 14:
-		return 10;
-	case 13:
-		return 12;
-	case 12:
-		return 8;
-	case 11:
-		return 13;
-	case 10:
-		return 14;
-	case 9:
-		return 9;
-	case 8: // Right of center
-		return 11;
-	case 7: // center
-		return 2;
-	case 0: // Left of center
-		return 16;
-	case 1:
-		return 1;
-	case 2:
-		return 3;
-	case 3:
-		return 5;
-	case 4:
-		return 6;
-	case 5:
-		return 4;
-	case 6:
-		return 0;
-
-	}
-}
-
 void __stdcall ServiceControlsPatch()
 {
 	// TEST 
