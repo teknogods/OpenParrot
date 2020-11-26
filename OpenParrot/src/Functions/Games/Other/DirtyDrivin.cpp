@@ -155,7 +155,7 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 
 			if (MenuHack)
 			{
-				if ((button1pressed) || (MenuTimer == 0))
+				if ((button1pressed) || (STARTpressed) || (MenuTimer == 0))
 				{
 					MenuHackStopWriting = true;
 				}
