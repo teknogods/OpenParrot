@@ -37,6 +37,7 @@ static bool SERVICEpressed = false;
 static bool previousVolMin = false;
 static bool previousVolMax = false;
 static bool MenuHack = false;
+static bool MenuHackStopWriting = false;
 
 // controls 
 extern int* ffbOffset;
@@ -130,6 +131,7 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 		if (ToBool(config["General"]["Track Select Menu Hack"]))
 		{
 			BYTE GameState = *(BYTE*)(0x570190 + BaseAddress9);
+			float MenuTimer = *(float*)(0x3CA0D4 + BaseAddress9);
 
 			if (GameState == 0x05)
 			{
@@ -144,6 +146,7 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 				if (MenuHack)
 				{
 					MenuHack = false;
+					MenuHackStopWriting = false;
 
 					injector::WriteMemory((0x78A27 + BaseAddress9), 0x03448689, true);
 					injector::WriteMemory((0x78A2B + BaseAddress9), 0x8E890000, true);
@@ -152,65 +155,73 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 
 			if (MenuHack)
 			{
-				if (*ffbOffset2 >= 0xEE)
+				if ((button1pressed) || (MenuTimer == 0))
 				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x0A;
+					MenuHackStopWriting = true;
 				}
-				else if (*ffbOffset2 >= 0xDD)
+
+				if (!MenuHackStopWriting)
 				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x0C;
-				}
-				else if (*ffbOffset2 >= 0xCC)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x08;
-				}
-				else if (*ffbOffset2 >= 0xBB)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x0D;
-				}
-				else if (*ffbOffset2 >= 0xAA)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x0E;
-				}
-				else if (*ffbOffset2 >= 0x99)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x09;
-				}
-				else if (*ffbOffset2 >= 0x88)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x0B;
-				}
-				else if (*ffbOffset2 >= 0x77)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x02;
-				}
-				else if (*ffbOffset2 >= 0x66)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x00;
-				}
-				else if (*ffbOffset2 >= 0x55)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x04;
-				}
-				else if (*ffbOffset2 >= 0x44)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x06;
-				}
-				else if (*ffbOffset2 >= 0x33)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x05;
-				}
-				else if (*ffbOffset2 >= 0x22)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x03;
-				}
-				else if (*ffbOffset2 >= 0x11)
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x01;
-				}
-				else
-				{
-					*(BYTE*)(0x570234 + BaseAddress9) = 0x10;
+					if (*ffbOffset2 >= 0xEE)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x0A;
+					}
+					else if (*ffbOffset2 >= 0xDD)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x0C;
+					}
+					else if (*ffbOffset2 >= 0xCC)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x08;
+					}
+					else if (*ffbOffset2 >= 0xBB)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x0D;
+					}
+					else if (*ffbOffset2 >= 0xAA)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x0E;
+					}
+					else if (*ffbOffset2 >= 0x99)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x09;
+					}
+					else if (*ffbOffset2 >= 0x88)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x0B;
+					}
+					else if (*ffbOffset2 >= 0x77)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x02;
+					}
+					else if (*ffbOffset2 >= 0x66)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x00;
+					}
+					else if (*ffbOffset2 >= 0x55)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x04;
+					}
+					else if (*ffbOffset2 >= 0x44)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x06;
+					}
+					else if (*ffbOffset2 >= 0x33)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x05;
+					}
+					else if (*ffbOffset2 >= 0x22)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x03;
+					}
+					else if (*ffbOffset2 >= 0x11)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x01;
+					}
+					else if (*ffbOffset2 >= 0x00)
+					{
+						*(BYTE*)(0x570234 + BaseAddress9) = 0x10;
+					}
 				}
 			}
 		}
