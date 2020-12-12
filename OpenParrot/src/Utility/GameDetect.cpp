@@ -518,7 +518,7 @@ void GameDetect::DetectCurrentGame()
 			isNesica = true;
 			break;
 		case 0x1046a695: //Spica Adventure for NXL (honestly no difference i can find from OG version, X2 emu works fine for it)
-			currentGame = GameID::SpicaAdventure;
+			currentGame = GameID::SpicaAdventureNXL;
 			X2Type = X2Type::Generic;
 			break;
 		case 0xbd516d7b: // KOFXIII Climax

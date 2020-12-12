@@ -91,5 +91,6 @@ enum class GameID
 	Exception,
 	KOF2002,
 	BlazBlueCF201,
+	SpicaAdventureNXL,
 	LinuxEmulation
 };
