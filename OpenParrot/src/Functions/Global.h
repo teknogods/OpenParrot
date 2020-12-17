@@ -8,9 +8,12 @@ struct windowHooks
 	int createWindowExA;
 	int createWindowExW;
 	int adjustWindowRect;
+	int adjustWindowRectEx;
 	int setWindowPos;
 	int changeDisplaySettings;
+	int changeDisplaySettingsExW;
 	int updateWindow;
+	int clipCursor;
 };
 
 void init_windowHooks(windowHooks* data);

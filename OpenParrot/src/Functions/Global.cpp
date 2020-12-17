@@ -104,8 +104,16 @@ HWND WINAPI CreateWindowExAHk(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWind
 	{
 		dwStyle = g_windowStyle;
 	}
+	if (lpWindowName == NULL)
+	{
+		lpWindowName = lpClassName;
+		dwStyle = g_windowStyle;
+	}
+	// Make window pos centered
+	g_x = (GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2;
+	g_y = (GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2;
 
-	HWND thisWindow = CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, g_x, g_y, g_width, g_height, hWndParent, hMenu, hInstance, lpParam);
+	HWND thisWindow = CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, g_x, g_y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 
 	if (lpWindowName)
 	{
@@ -120,12 +128,32 @@ HWND WINAPI CreateWindowExWHk(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWi
 #ifdef _DEBUG
 	info(true, "CreateWindowExWHk called");
 #endif
+	// Calculate window pos centered
+	g_x = (GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2;
+	g_y = (GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2;
+
+
+	if (GameDetect::currentGame == GameID::SF4 && x != 0 && y != 0)
+	{
+		dwStyle = g_windowStyle;
+		return CreateWindowExW(dwExStyle, lpClassName, L"OpenParrot - Street Fighter IV", dwStyle, x, y, 1280, 720, hWndParent, hMenu, hInstance, lpParam);
+	}
+	else if (GameDetect::currentGame == GameID::SF4 && x == 0 && y == 0)
+	{
+		return CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+	}
+
 	if (lpWindowName)
 	{
 		dwStyle = g_windowStyle;
 	}
+	if (lpWindowName == NULL)
+	{
+		lpWindowName = lpClassName;
+		dwStyle = g_windowStyle;
+	}
 
-	HWND thisWindow = CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, g_x, g_y, g_width, g_height, hWndParent, hMenu, hInstance, lpParam);
+	HWND thisWindow = CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, g_x, g_y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 
 	if (lpWindowName)
 	{
@@ -145,15 +173,34 @@ BOOL WINAPI AdjustWindowRectHk(LPRECT lpRect, DWORD dwStyle, BOOL bMenu)
 	return AdjustWindowRect(lpRect, dwStyle, bMenu);
 }
 
+BOOL WINAPI AdjustWindowRectExHk(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle)
+{
+#ifdef _DEBUG
+	info(true, "AdjustWindowRectExHk called");
+#endif
+	dwStyle = g_windowStyle;
+	dwExStyle = 0;
+
+	return AdjustWindowRectEx(lpRect, dwStyle, bMenu, dwExStyle);
+}
+
 BOOL WINAPI SetWindowPosHk(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
 {
 #ifdef _DEBUG
 	info(true, "SetWindowPosHk called");
 #endif
+	// Make window pos centered
+	int xPos = (GetSystemMetrics(SM_CXSCREEN) - cx) / 2;
+	int yPos = (GetSystemMetrics(SM_CYSCREEN) - cy) / 2;
+
 	if (hwndWindowA == hWnd || hwndWindowW == hWnd)
 	{
-		X = g_x;
-		Y = g_y;
+		X = xPos;
+		Y = yPos;
+	}
+	if (hWndInsertAfter == HWND_TOPMOST)
+	{
+		hWndInsertAfter = HWND_TOP;
 	}
 
 	return SetWindowPos(hWnd, hWndInsertAfter, X, Y, cx, cy, uFlags);
@@ -169,9 +216,24 @@ LONG __stdcall ChangeDisplaySettingsHk(DEVMODEA *lpDevMode, DWORD dwFlags)
 	return ChangeDisplaySettingsA(lpDevMode, dwFlags);
 }
 
+LONG __stdcall ChangeDisplaySettingsExWHk(LPCWSTR lpszDeviceName, DEVMODEW* lpDevMode, HWND hwnd, DWORD dwflags, LPVOID lParam)
+{
+#ifdef _DEBUG
+	info(true, "ChangeDisplaySettingsExWHk called");
+#endif
+	lpDevMode = NULL; // retain original changes instead of applying modified values
+
+	return ChangeDisplaySettingsExW(lpszDeviceName, lpDevMode, hwnd, dwflags, lParam);
+}
+
 BOOL WINAPI UpdateWindowHk(HWND hWnd)
 {
 	return true;
+}
+
+BOOL WINAPI ClipCursorHk(const RECT* lpRect)
+{
+	return false;
 }
 
 void init_windowHooks(windowHooks* data)
@@ -199,6 +261,11 @@ void init_windowHooks(windowHooks* data)
 		*(BOOL*)data->adjustWindowRect = (BOOL)AdjustWindowRectHk;
 	}
 
+	if (data->adjustWindowRectEx != NULL)
+	{
+		*(BOOL*)data->adjustWindowRectEx = (BOOL)AdjustWindowRectExHk;
+	}
+
 	if (data->setWindowPos != NULL)
 	{
 		*(BOOL*)data->setWindowPos = (BOOL)SetWindowPosHk;
@@ -209,9 +276,19 @@ void init_windowHooks(windowHooks* data)
 		*(LONG*)data->changeDisplaySettings = (LONG)ChangeDisplaySettingsHk;
 	}
 
+	if (data->changeDisplaySettingsExW != NULL)
+	{
+		*(LONG*)data->changeDisplaySettingsExW = (LONG)ChangeDisplaySettingsExWHk;
+	}
+
 	if (data->updateWindow != NULL)
 	{
 		*(BOOL*)data->updateWindow = (BOOL)UpdateWindowHk;
+	}
+
+	if (data->clipCursor != NULL)
+	{
+		*(BOOL*)data->clipCursor = (BOOL)ClipCursorHk;
 	}
 }
 /* END WINDOW HOOKS */
