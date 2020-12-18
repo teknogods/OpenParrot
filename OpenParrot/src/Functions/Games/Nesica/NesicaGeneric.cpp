@@ -7,6 +7,7 @@
 #include "Functions/Nesica_Libs/NesysEmu.h"
 #include "Functions/Nesica_Libs/RegHooks.h"
 #include "Utility/Hooking.Patterns.h"
+#include <Functions/Global.h>
 
 static InitFunction initFunction([]()
 {
@@ -452,6 +453,86 @@ static InitFunction initFunction_BlazBlueCF201([]()
 	injector::WriteMemory<BYTE>(imageBase + 0x1B04FD, 0x75, true);
 
 }, GameID::BlazBlueCF201);
+
+static InitFunction initFunction_DarkAwake([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	DWORD oldPageProtection = 0;
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+
+	if (ToBool(config["General"]["Windowed"])) 
+	{
+		// force windowed mode
+		injector::MakeNOP(imageBase + 0x169BF, 2, true);
+
+		VirtualProtect((LPVOID)(imageBase + 0x601CC), 64, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+		windowHooks hooks = { 0 };
+		hooks.createWindowExA = imageBase + 0x601E8;
+		hooks.setWindowPos = imageBase + 0x601F0;
+		init_windowHooks(&hooks);
+		VirtualProtect((LPVOID)(imageBase + 0x601CC), 64, oldPageProtection, &oldPageProtection);
+
+		// change window name
+		static const char* title = "OpenParrot - Dark Awake";
+		VirtualProtect((LPVOID)(imageBase + 0x16736), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+		*(DWORD*)(imageBase + 0x16736) = (DWORD)title;
+		VirtualProtect((LPVOID)(imageBase + 0x16736), 4, oldPageProtection, &oldPageProtection);
+
+		// don't resize to current work area
+		injector::MakeNOP(imageBase + 0x377F2, 15, true);
+
+		// show cursor
+		injector::WriteMemory<BYTE>(imageBase + 0x165D9, 0x01, true);
+	}
+
+}, GameID::DarkAwake);
+
+static InitFunction initFunction_ChaosBreakerNXL([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	DWORD oldPageProtection = 0;
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		// force windowed mode
+		injector::MakeNOP(imageBase + 0x169AF, 2, true);
+
+		VirtualProtect((LPVOID)(imageBase + 0x601CC), 64, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+		windowHooks hooks = { 0 };
+		hooks.createWindowExA = imageBase + 0x601E8;
+		hooks.setWindowPos = imageBase + 0x601F0;
+		init_windowHooks(&hooks);
+		VirtualProtect((LPVOID)(imageBase + 0x601CC), 64, oldPageProtection, &oldPageProtection);
+
+		// change window name
+		static const char* title = "OpenParrot - Chaos Breaker";
+		VirtualProtect((LPVOID)(imageBase + 0x16726), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+		*(DWORD*)(imageBase + 0x16726) = (DWORD)title;
+		VirtualProtect((LPVOID)(imageBase + 0x16726), 4, oldPageProtection, &oldPageProtection);
+
+		// don't resize to current work area
+		injector::MakeNOP(imageBase + 0x37452, 15, true);
+
+		// show cursor
+		injector::WriteMemory<BYTE>(imageBase + 0x165C9, 0x01, true);
+	}
+
+}, GameID::ChaosBreakerNXL);
 
 static InitFunction initFunction_Theatrhythm([]()
 	{

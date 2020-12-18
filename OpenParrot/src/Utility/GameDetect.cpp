@@ -576,13 +576,13 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::PowerInstinctV;
 			X2Type = X2Type::Generic;
 			break;
-		case 0x6f913049: // Chaos Breaker for NesicaxLive
-			currentGame = GameID::Nesica;
+		case 0xee586431: // Chaos Breaker for NesicaxLive
+			currentGame = GameID::ChaosBreakerNXL;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
 		case 0x486e885c: // Dark Awake - The King Has No Name
-			currentGame = GameID::Nesica;
+			currentGame = GameID::DarkAwake;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
