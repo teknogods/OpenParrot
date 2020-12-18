@@ -92,5 +92,7 @@ enum class GameID
 	KOF2002,
 	BlazBlueCF201,
 	SpicaAdventureNXL,
+	DarkAwake,
+	ChaosBreakerNXL,
 	LinuxEmulation
 };
