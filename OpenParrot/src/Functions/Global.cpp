@@ -3,6 +3,9 @@
 #include "Global.h"
 #include "Utility/GameDetect.h"
 #include "Utility/Hooking.Patterns.h"
+#include <shlwapi.h>
+
+#pragma comment(lib,"shlwapi.lib")
 
 #pragma optimize("", off)
 void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
@@ -66,20 +69,6 @@ DWORD WINAPI QuitGameThread(__in  LPVOID lpParameter)
 
 		Sleep(300);
 	}
-}
-
-DWORD WINAPI OutputsThread(__in  LPVOID lpParameter)
-{
-	blaster = LoadLibraryA("OutputBlaster.dll");
-	if (blaster)
-	{
-		printf("OutputBlaster loaded!");
-	}
-	else
-	{
-		printf("Failed to Load OutputBlaster!");
-	}
-	return 0;
 }
 	
 /* WINDOW HOOKS */
@@ -299,7 +288,41 @@ static InitFunction globalFunc([]()
 	CreateThread(NULL, 0, QuitGameThread, NULL, 0, NULL);
 	if (ToBool(config["General"]["Enable Outputs"]))
 	{
-		CreateThread(NULL, 0, OutputsThread, NULL, 0, NULL);
+		blaster = LoadLibraryA("OutputBlaster.dll");
+		if (blaster)
+		{
+			printf("OutputBlaster loaded!");
+		}
+		else
+		{
+			printf("Failed to Load OutputBlaster!");
+		}
+	}
+
+	if (ToBool(config["Score"]["Enable Submission (Patreon Only)"]))
+	{
+		static char buf[MAX_PATH];
+		HMODULE hMod;
+#if defined(_M_IX86)
+		hMod = LoadLibrary(L"OpenParrot.dll");
+#else
+		hMod = LoadLibrary(L"OpenParrot64.dll");
+#endif
+		GetModuleFileNameA(hMod, buf, MAX_PATH);
+		PathRemoveFileSpecA(buf);
+		PathAppendA(buf, (".."));
+#if defined(_M_IX86)
+		strcat(buf, "\\TeknoParrot\\ScoreSubmission.dll");
+#else
+		strcat(buf, "\\TeknoParrot\\ScoreSubmission64.dll");
+#endif
+		HMODULE hModA = LoadLibraryA(buf);
+
+		if (hModA)
+		{
+			void(*fn)() = (void(*)())GetProcAddress(hModA, "Score_Submit_Init");
+			fn();
+		}
 	}
 }, GameID::Global);
 #pragma optimize("", on)
