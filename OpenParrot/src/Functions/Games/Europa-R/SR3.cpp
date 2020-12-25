@@ -26,6 +26,33 @@ DWORD WINAPI GetPrivateProfileIntAHook(LPCSTR lpAppName, LPCSTR lpKeyName, INT n
 		return GetPrivateProfileIntAOri(lpAppName, lpKeyName, nDefault, lpFileName);
 }
 
+HWND(__stdcall* CreateWindowExAOrg)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+
+static HWND WINAPI CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+{
+	if (nWidth == 0 || nHeight == 0)
+	{
+		nWidth = FetchDwordInformation("General", "ResolutionWidth", 1280);
+		nHeight = FetchDwordInformation("General", "ResolutionHeight", 720);
+	}
+
+	return CreateWindowExAOrg(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+}
+
+static BOOL(__stdcall* ClipCursorOrg)(const RECT* lpRect);
+
+static BOOL WINAPI ClipCursorHook(const RECT* lpRect)
+{
+	return false;
+}
+
+static BOOL(__stdcall* GetClipCursorOrg)(LPRECT lpRect);
+
+static BOOL WINAPI GetClipCursorHook(LPRECT lpRect)
+{
+	return false;
+}
+
 static InitFunction sr3Func([]()
 {
 	DWORD oldprot = 0;
@@ -53,7 +80,26 @@ static InitFunction sr3Func([]()
 	*(DWORD *)0x57B696 = (DWORD)(LPVOID)&source;
 	VirtualProtect((LPVOID)0x401000, 0x273000, oldprot, &oldprot2);
 
+	// skip minimum resolution check
+	injector::WriteMemory<BYTE>(0x588755, 0xEB, true); // width
+	injector::WriteMemory<BYTE>(0x588762, 0xEB, true); // height
+
 	MH_Initialize();
+
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		// don't hide cursor
+		injector::MakeNOP(0x591106, 8, true);
+
+		// don't clip cursor
+		MH_CreateHookApi(L"User32.dll", "ClipCursor", &ClipCursorHook, (void**)&ClipCursorOrg);
+		MH_CreateHookApi(L"User32.dll", "GetClipCursor", &GetClipCursorHook, (void**)&GetClipCursorOrg);
+		injector::MakeNOP(0x591189, 8, true);
+		injector::MakeNOP(0x5910FE, 8, true);
+
+		MH_CreateHookApi(L"User32.dll", "CreateWindowExA", &CreateWindowExAHook, (void**)&CreateWindowExAOrg);
+	}
+
 	MH_CreateHookApi(L"kernel32.dll", "GetPrivateProfileIntA", &GetPrivateProfileIntAHook, (void**)&GetPrivateProfileIntAOri);
 	MH_EnableHook(MH_ALL_HOOKS);
 
