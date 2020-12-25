@@ -320,8 +320,13 @@ static InitFunction globalFunc([]()
 
 		if (hModA)
 		{
+			printf("Score Submission loaded!");
 			void(*fn)() = (void(*)())GetProcAddress(hModA, "Score_Submit_Init");
 			fn();
+		}
+		else
+		{
+			printf("Failed to load Score Submission!");
 		}
 	}
 }, GameID::Global);
