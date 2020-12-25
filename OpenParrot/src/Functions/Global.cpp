@@ -282,6 +282,25 @@ void init_windowHooks(windowHooks* data)
 }
 /* END WINDOW HOOKS */
 
+DWORD FetchDwordInformation(const char* setting, const char* subkey, DWORD defaultValue)
+{
+	try
+	{
+		int value = atol(config[setting][subkey].c_str());
+
+		if (value == NULL)
+			return defaultValue;
+
+		return value;
+	}
+	catch (int e)
+	{
+		return defaultValue;
+	}
+
+	return defaultValue;
+}
+
 static InitFunction globalFunc([]()
 {
 	hook::pattern::InitializeHints();
