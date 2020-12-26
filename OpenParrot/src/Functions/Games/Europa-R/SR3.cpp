@@ -10,7 +10,7 @@ int __stdcall Sr3FfbFunc(DWORD device, DWORD data)
 	return 0;
 }
 
-BOOL(__stdcall* GetPrivateProfileIntAOri)(LPCSTR lpAppName, LPCSTR lpKeyName, INT nDefault, LPCSTR lpFileName);
+DWORD(__stdcall* GetPrivateProfileIntAOri)(LPCSTR lpAppName, LPCSTR lpKeyName, INT nDefault, LPCSTR lpFileName);
 
 DWORD WINAPI GetPrivateProfileIntAHook(LPCSTR lpAppName, LPCSTR lpKeyName, INT nDefault, LPCSTR lpFileName)
 {
@@ -22,8 +22,29 @@ DWORD WINAPI GetPrivateProfileIntAHook(LPCSTR lpAppName, LPCSTR lpKeyName, INT n
 		return FetchDwordInformation("General", "ResolutionWidth", 1280);
 	else if (_stricmp(lpKeyName, "VerticalResolution") == 0)
 		return FetchDwordInformation("General", "ResolutionHeight", 720);
+	else if (_stricmp(lpKeyName, "Freeplay") == 0)
+		return (DWORD)ToBool(config["General"]["FreePlay"]);
 	else
 		return GetPrivateProfileIntAOri(lpAppName, lpKeyName, nDefault, lpFileName);
+}
+
+DWORD(__stdcall* GetPrivateProfileStringAOri)(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName);
+
+DWORD WINAPI GetPrivateProfileStringAHook(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
+{
+#ifdef _DEBUG
+	info(true, "GetPrivateProfileStringAHook %s", lpKeyName);
+#endif
+
+	if (_stricmp(lpKeyName, "LANGUAGE") == 0)
+	{
+		strcpy(lpReturnedString, config["General"]["Language"].c_str());
+		return nSize;
+	}
+	else
+	{
+		return GetPrivateProfileStringAOri(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, lpFileName);
+	}
 }
 
 HWND(__stdcall* CreateWindowExAOrg)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
@@ -101,6 +122,7 @@ static InitFunction sr3Func([]()
 	}
 
 	MH_CreateHookApi(L"kernel32.dll", "GetPrivateProfileIntA", &GetPrivateProfileIntAHook, (void**)&GetPrivateProfileIntAOri);
+	MH_CreateHookApi(L"kernel32.dll", "GetPrivateProfileStringA", &GetPrivateProfileStringAHook, (void**)&GetPrivateProfileStringAOri);
 	MH_EnableHook(MH_ALL_HOOKS);
 
 }, GameID::SR3);
