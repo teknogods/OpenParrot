@@ -3,6 +3,13 @@ image: Visual Studio 2017
 configuration: Release
 # Do not build on tags (GitHub only)
 skip_tags: true
+environment:
+    pwe:
+        secure: tIA3WoMvSPVbwjUMlWSdfA==
+    senc:
+        secure: FYTNTbS57pKEMR13yExGybKLsI0YUzT7RsL/+pce4uGABr01RRglP3XN3tB4r/fmHuaW6SjJA4ZnmqK6irnmxQ==
+    cenc:
+        secure: 16yzBwIyf9D/P3WTZnqqL9iZ3kP9WQ0mL1StAbp8Kls=
 platform:
 - x64
 - Win32
@@ -11,7 +18,10 @@ assembly_info:
   file: '**\AssemblyInfo.*'
   assembly_version: '{version}'
   assembly_file_version: '{version}'
-  assembly_informational_version: '{version}'
+  assembly_informational_version: '{version}'  
+install:
+  - ps: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
+  - cmd: appveyor-tools\secure-file -decrypt cert.enc -secret %pwe% -salt %senc%
 before_build:
 - cmd: premake5.exe vs2017
 - ps: >-
@@ -21,6 +31,16 @@ before_build:
     
     mv .\OpenParrot\src\OpenParrot2.rc .\OpenParrot\src\OpenParrot.rc
     
+after_build: 
+- cmd: >-
+    "@echo off
+     IF %PLATFORM%==Win32(
+     signtool sign /t http://timestamp.globalsign.com/scripts/timstamp.dll /f "cert" /p %cenc% /d .\build\bin\release\output\OpenParrot.dll .\build\bin\release\output\OpenParrot.dll
+     signtool sign /t http://timestamp.globalsign.com/scripts/timstamp.dll /f "cert" /p %cenc% /d .\build\bin\release\output\OpenParrotLoader.exe .\build\bin\release\output\OpenParrotLoader.exe
+     signtool sign /t http://timestamp.globalsign.com/scripts/timstamp.dll /f "cert" /p %cenc% /d .\build\bin\release\output\OpenParrotKonamiLoader.exe .\build\bin\release\output\OpenParrotKonamiLoader.exe) ELSE (IF %PLATFORM%==x64(
+      signtool sign /t http://timestamp.globalsign.com/scripts/timstamp.dll /f "cert" /p %cenc% /d .\build\bin\release\output\OpenParrot64.dll .\build\bin\release\output\OpenParrot64.dll
+      signtool sign /t http://timestamp.globalsign.com/scripts/timstamp.dll /f "cert" /p %cenc% /d .\build\bin\release\output\OpenParrotLoader64.exe .\build\bin\release\output\OpenParrotLoader64.exe
+    ))"
 build:
   project: OpenParrot.sln
   verbosity: minimal
