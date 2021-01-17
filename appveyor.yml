@@ -21,7 +21,7 @@ assembly_info:
   assembly_informational_version: '{version}'  
 install:
   - ps: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
-  - cmd: appveyor-tools\secure-file -decrypt cert.enc -secret %pwe% -salt %senc%
+  - cmd: if "%pwe%" NEQ "" (appveyor-tools\secure-file -decrypt cert.enc -secret %pwe% -salt %senc%)
 before_build:
 - cmd: premake5.exe vs2017
 - ps: >-
