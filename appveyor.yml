@@ -32,7 +32,6 @@ before_build:
     mv .\OpenParrot\src\OpenParrot2.rc .\OpenParrot\src\OpenParrot.rc
     
 after_build: 
-- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 - cmd: sign.bat
 build:
   project: OpenParrot.sln
