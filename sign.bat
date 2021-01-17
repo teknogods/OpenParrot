@@ -1,5 +1,5 @@
-REM @echo off
-if not defined (cenc) goto end
+@echo off
+if "%cenc%"=="" goto end
 %comspec% /k "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
 IF %PLATFORM%==Win32 (
      signtool sign /t http://timestamp.globalsign.com/scripts/timstamp.dll /f "cert" /p %cenc% /d .\build\bin\release\output\OpenParrot.dll .\build\bin\release\output\OpenParrot.dll
