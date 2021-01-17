@@ -21,7 +21,7 @@ assembly_info:
   assembly_informational_version: '{version}'  
 install:
   - ps: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
-  - cmd: appveyor-tools\secure-file -decrypt cert.enc -secret %pwe% -salt %senc%
+  - cmd: if "%pwe%" NEQ "" (appveyor-tools\secure-file -decrypt cert.enc -secret %pwe% -salt %senc%)
 before_build:
 - cmd: premake5.exe vs2017
 - ps: >-
@@ -32,6 +32,7 @@ before_build:
     mv .\OpenParrot\src\OpenParrot2.rc .\OpenParrot\src\OpenParrot.rc
     
 after_build: 
+- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 - cmd: sign.bat
 build:
   project: OpenParrot.sln
