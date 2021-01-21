@@ -1049,6 +1049,11 @@ static DWORD WINAPI KOFSkyStageRunningLoop(LPVOID lpParam)
 	}
 }
 
+static int ReturnsTrue()
+{
+	return 1;
+}
+
 static InitFunction initFunction([]()
 {
 	DWORD imageBase = (DWORD)GetModuleHandleA(0);
@@ -1304,6 +1309,8 @@ static InitFunction initFunction([]()
 			injector::MakeNOP(imageBase + 0xD062, 2, true);
 			// injector::WriteMemory<BYTE>(imageBase + 0xD055, 0xEB, true); // alternative patch?
 
+			injector::MakeJMP(imageBase + 0xFF0A0, ReturnsTrue);
+
 			DWORD oldPageProtection = 0;
 
 			if (ToBool(config["General"]["Windowed"])) 
@@ -1319,6 +1326,11 @@ static InitFunction initFunction([]()
 
 			break;
 		}
+		case X2Type::BlazBlue:
+		{
+			injector::MakeJMP(imageBase + 0xECFD0, ReturnsTrue);
+		}
+		break;
 	}
 
 	if(GameDetect::currentGame == GameID::KOFMIRA)

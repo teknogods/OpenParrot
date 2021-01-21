@@ -303,6 +303,7 @@ static int ThreadLoop()
 			*(DWORD*)(imageBase + 0x15B5DB0) = 0x03;
 		}
 	}
+	return 0;
 }
 
 static DWORD WINAPI RunningLoop(LPVOID lpParam)

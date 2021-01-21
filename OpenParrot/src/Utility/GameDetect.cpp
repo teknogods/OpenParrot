@@ -241,7 +241,7 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0xf9297ecb: // BlazBlue
 		currentGame = GameID::BlazBlue;
-		X2Type = X2Type::Generic;
+		X2Type = X2Type::BlazBlue;
 		break;
 	case 0xee568daa: // BlazBlue Continuum Shift II
 		currentGame = GameID::BlazBlueCS2;
