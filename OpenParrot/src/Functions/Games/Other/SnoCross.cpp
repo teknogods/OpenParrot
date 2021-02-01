@@ -539,11 +539,31 @@ static InitFunction SnoCrossFunc([]()
 	injector::WriteMemoryRaw((0x70DE0 + BaseAddress7), "\x90\x90", 2, true);
 	injector::WriteMemoryRaw((0x71499 + BaseAddress7), "\xE9\x9A\x00\x00\x00\x90", 6, true);
 	injector::WriteMemoryRaw((0x3783AD + BaseAddress7), "\x31\xC0\x40", 3, true);
-	injector::WriteMemoryRaw((0x3A8F90 + BaseAddress7), "\x2E\x5C\x63\x6F\x70\x73\x32\x2E\x68\x73\x74\x00", 12, true);
-	injector::WriteMemoryRaw((0x3A9D48 + BaseAddress7), "\x2E\x5C\x61\x75\x64\x62\x61\x6B\x00\x00\x00\x00\x61\x75\x64\x69\x74\x73\x00\x00\x2E\x5C\x61\x75\x64\x69\x74\x73\x00", 29, true);
-	injector::WriteMemoryRaw((0x3A9D5C + BaseAddress7), "\x2E\x5C\x41\x75\x64\x69\x74\x4C\x6F\x67\x30\x30\x30\x2E\x74\x78\x74\x00\x00", 19, true);
-	injector::WriteMemoryRaw((0x3ACE14 + BaseAddress7), "\x2E\x5C\x70\x72\x65\x66\x73\x62\x61\x6B\x00\x00\x70\x72\x65\x66\x73\x00\x00\x00\x2E\x5C\x70\x72\x65\x66\x73\x00", 28, true);
-	injector::WriteMemoryRaw((0x3AF5C8 + BaseAddress7), "\x2E\x5C\x6D\x70\x2E\x70\x64\x74\x00", 9, true);
+	//injector::WriteMemoryRaw((0x3A8F90 + BaseAddress7), "\x2E\x5C\x63\x6F\x70\x73\x32\x2E\x68\x73\x74\x00", 12, true);
+	//injector::WriteMemoryRaw((0x3A9D48 + BaseAddress7), "\x2E\x5C\x61\x75\x64\x62\x61\x6B\x00\x00\x00\x00\x61\x75\x64\x69\x74\x73\x00\x00\x2E\x5C\x61\x75\x64\x69\x74\x73\x00", 29, true);
+	//injector::WriteMemoryRaw((0x3A9D5C + BaseAddress7), "\x2E\x5C\x41\x75\x64\x69\x74\x4C\x6F\x67\x30\x30\x30\x2E\x74\x78\x74\x00\x00", 19, true);
+	//injector::WriteMemoryRaw((0x3ACE14 + BaseAddress7), "\x2E\x5C\x70\x72\x65\x66\x73\x62\x61\x6B\x00\x00\x70\x72\x65\x66\x73\x00\x00\x00\x2E\x5C\x70\x72\x65\x66\x73\x00", 28, true);
+	//injector::WriteMemoryRaw((0x3AF5C8 + BaseAddress7), "\x2E\x5C\x6D\x70\x2E\x70\x64\x74\x00", 9, true);
+	injector::WriteMemoryRaw(0x3A8F90 + BaseAddress7, ".\\cops2.hst\0", 12, true);
+	injector::WriteMemoryRaw(0x3A9D48 + BaseAddress7, ".\\audbak\0", 9, true);
+	injector::WriteMemoryRaw(0x3A9D5C + BaseAddress7, ".\\audits\0", 9, true);
+	injector::WriteMemoryRaw(0x3AA054 + BaseAddress7, ".\\AuditLog%.3d.txt\0", 19, true);
+	injector::WriteMemoryRaw(0x3ACE14 + BaseAddress7, ".\\prefsbak\0", 11, true);
+	injector::WriteMemoryRaw(0x3ACE28 + BaseAddress7, ".\\prefs\0", 8, true);
+	injector::WriteMemoryRaw(0x3AF5C8 + BaseAddress7, ".\\mp.pdt\0", 9, true);
+	injector::WriteMemoryRaw(0x3AAB00 + BaseAddress7, ".\\\0", 3, true); // C:\rawart
+	injector::WriteMemoryRaw(0x3AE224 + BaseAddress7, ".\\erlg0000.txt\0", 15, true);
+	injector::WriteMemoryRaw(0x3AE294 + BaseAddress7, ".\\HighScores.html\0", 18, true);
+	injector::WriteMemoryRaw(0x3AAAF0 + BaseAddress7, ".\\version.txt\0", 14, true);
+	injector::WriteMemoryRaw(0x3AB6C0 + BaseAddress7, ".\\1stboot.txt\0", 14, true);
+	injector::WriteMemoryRaw(0x3AE200 + BaseAddress7, ".\\errorlog.txt\0", 15, true);
+	injector::WriteMemoryRaw(0x3AE210 + BaseAddress7, ".\\Minidump_%d.dmp\0", 18, true);
+	injector::WriteMemoryRaw(0x3B03A4 + BaseAddress7, ".\\Minidump\0", 11, true);
+
+	// some %c string fix
+	injector::WriteMemory<BYTE>(0xA2A6A + BaseAddress7, 0x2E, true);
+	injector::WriteMemory<BYTE>(0xA298A + BaseAddress7, 0x2E, true);
+	injector::WriteMemory<BYTE>(0xA2BEA + BaseAddress7, 0x2E, true);
 
 	// REPLACE SPACE KEY WITH ESC TO PREVENT EXITING LEVEL PREMATURELY
 	injector::WriteMemory<BYTE>((0x77328 + BaseAddress7), DIK_ESCAPE, true);

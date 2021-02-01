@@ -562,6 +562,7 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::DirtyDrivin;
 			break;
 		case 0x4D91A27A:
+		case 0x31a4f2d0:
 			currentGame = GameID::SnoCross;
 			break;
 		case 0xbd8c984d: // Battle Gear 4 English Ver (2.03) 
