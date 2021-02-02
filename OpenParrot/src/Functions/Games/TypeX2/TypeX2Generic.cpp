@@ -1129,32 +1129,12 @@ static InitFunction initFunction([]()
 			static const char* cab3IP = config["Network"]["Cab3IP"].c_str(); // 192.168.64.102
 			static const char* cab4IP = config["Network"]["Cab4IP"].c_str(); // 192.168.64.103
 
-			DWORD oldPageProtection = 0;
-
-			VirtualProtect((LPVOID)(imageBase + 0x5D868), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x5D868) = (DWORD)cab1IP;
-			VirtualProtect((LPVOID)(imageBase + 0x5D868), 4, oldPageProtection, &oldPageProtection);
-
-			VirtualProtect((LPVOID)(imageBase + 0x5D876), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x5D876) = (DWORD)cab2IP;
-			VirtualProtect((LPVOID)(imageBase + 0x5D876), 4, oldPageProtection, &oldPageProtection);
-
-			VirtualProtect((LPVOID)(imageBase + 0x5D884), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x5D884) = (DWORD)cab3IP;
-			VirtualProtect((LPVOID)(imageBase + 0x5D884), 4, oldPageProtection, &oldPageProtection);
-
-			VirtualProtect((LPVOID)(imageBase + 0x5D892), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x5D892) = (DWORD)cab4IP;
-			VirtualProtect((LPVOID)(imageBase + 0x5D892), 4, oldPageProtection, &oldPageProtection);
-
-			VirtualProtect((LPVOID)(imageBase + 0x5AE0C), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x5AE0C) = (DWORD)cab1IP;
-			VirtualProtect((LPVOID)(imageBase + 0x5AE0C), 4, oldPageProtection, &oldPageProtection);
-
-			VirtualProtect((LPVOID)(imageBase + 0x5AE05), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x5AE05) = (DWORD)cab3IP;
-			VirtualProtect((LPVOID)(imageBase + 0x5AE05), 4, oldPageProtection, &oldPageProtection);
-
+			injector::WriteMemory<DWORD>(imageBase + 0x5D868, (DWORD)cab1IP, true);
+			injector::WriteMemory<DWORD>(imageBase + 0x5D876, (DWORD)cab2IP, true);
+			injector::WriteMemory<DWORD>(imageBase + 0x5D884, (DWORD)cab3IP, true);
+			injector::WriteMemory<DWORD>(imageBase + 0x5D892, (DWORD)cab4IP, true);
+			injector::WriteMemory<DWORD>(imageBase + 0x5AE0C, (DWORD)cab1IP, true);
+			injector::WriteMemory<DWORD>(imageBase + 0x5AE05, (DWORD)cab3IP, true);
 
 			break;
 		}
@@ -1232,13 +1212,8 @@ static InitFunction initFunction([]()
 			}
 
 			// IP stuff for working LAN
-			DWORD oldPageProtection = 0;
-
 			static const char* BroadcastAddress = config["Network"]["BroadcastAddress"].c_str();
-
-			VirtualProtect((LPVOID)(imageBase + 0xA1004), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0xA1004) = (DWORD)BroadcastAddress;
-			VirtualProtect((LPVOID)(imageBase + 0xA1004), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0xA1004, (DWORD)BroadcastAddress, true);
 
 			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
 			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
@@ -1247,8 +1222,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4_Eng:
 		{
-			DWORD oldPageProtection = 0;
-
 			// TODO: DOCUMENT PATCHES
 			//injector::MakeNOP(0x4CBCB8, 10);
 			//injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
@@ -1278,10 +1251,7 @@ static InitFunction initFunction([]()
 
 			// IP stuff for working LAN
 			static const char* BroadcastAddress = config["Network"]["BroadcastAddress"].c_str();
-			
-			VirtualProtect((LPVOID)(imageBase + 0x7F824), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x7F824) = (DWORD)BroadcastAddress;
-			VirtualProtect((LPVOID)(imageBase + 0x7F824), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0x7F824, (DWORD)BroadcastAddress, true);
 
 			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
 			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
@@ -1335,8 +1305,6 @@ static InitFunction initFunction([]()
 
 	if(GameDetect::currentGame == GameID::KOFMIRA)
 	{
-		DWORD oldPageProtection = 0;
-
 		// TODO: DOCUMENT PATCHES
 		injector::WriteMemory<DWORD>(0x0040447C, 0x000800B8, true);
 		injector::WriteMemory<WORD>(0x0040447C+4, 0x9000, true);
@@ -1348,90 +1316,29 @@ static InitFunction initFunction([]()
 		static const char* OptionData = ".\\OpenParrot\\OptionData%d%s%s.txt";
 		static const char* d = ".\\OpenParrot\\%s";
 
-		VirtualProtect((LPVOID)(imageBase + 0x13270), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x13270) = (DWORD)coinFile;
-		VirtualProtect((LPVOID)(imageBase + 0x13270), 4, oldPageProtection, &oldPageProtection);
-		VirtualProtect((LPVOID)(imageBase + 0x136AD), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x136AD) = (DWORD)coinFile;
-		VirtualProtect((LPVOID)(imageBase + 0x136AD), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1B914C), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1B914C) = (DWORD)RnkUsChr;
-		VirtualProtect((LPVOID)(imageBase + 0x1B914C), 4, oldPageProtection, &oldPageProtection);
-		VirtualProtect((LPVOID)(imageBase + 0x1BAB18), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BAB18) = (DWORD)RnkUsChr;
-		VirtualProtect((LPVOID)(imageBase + 0x1BAB18), 4, oldPageProtection, &oldPageProtection);
-		VirtualProtect((LPVOID)(imageBase + 0x1BAB60), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BAB60) = (DWORD)RnkUsChr;
-		VirtualProtect((LPVOID)(imageBase + 0x1BAB60), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1B92BC), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1B92BC) = (DWORD)RnkWn;
-		VirtualProtect((LPVOID)(imageBase + 0x1B92BC), 4, oldPageProtection, &oldPageProtection);
-		VirtualProtect((LPVOID)(imageBase + 0x1BAE1D), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BAE1D) = (DWORD)RnkWn;
-		VirtualProtect((LPVOID)(imageBase + 0x1BAE1D), 4, oldPageProtection, &oldPageProtection);
-		VirtualProtect((LPVOID)(imageBase + 0x1BAE60), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BAB60) = (DWORD)RnkWn;
-		VirtualProtect((LPVOID)(imageBase + 0x1BAE60), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1B941C), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1B941C) = (DWORD)RnkTa;
-		VirtualProtect((LPVOID)(imageBase + 0x1B941C), 4, oldPageProtection, &oldPageProtection);
-		VirtualProtect((LPVOID)(imageBase + 0x1BB11D), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BB11D) = (DWORD)RnkTa;
-		VirtualProtect((LPVOID)(imageBase + 0x1BB11D), 4, oldPageProtection, &oldPageProtection);
-		VirtualProtect((LPVOID)(imageBase + 0x1BB160), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BB160) = (DWORD)RnkTa;
-		VirtualProtect((LPVOID)(imageBase + 0x1BB160), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1BF1A8), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BF1A8) = (DWORD)OptionData;
-		VirtualProtect((LPVOID)(imageBase + 0x1BF1A8), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0xBFEB), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0xBFEB) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0xBFEB), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0xC0A7), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0xC0A7) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0xC0A7), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x12D61), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x12D61) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0x12D61), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x13314), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x13314) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0x13314), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1BA989), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BA989) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0x1BA989), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1BAA31), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BAA31) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0x1BAA31), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1BAC79), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BAC79) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0x1BAC79), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1BAD21), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BAD21) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0x1BAD21), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1BAF79), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BAF79) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0x1BAF79), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1BB021), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1BB021) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0x1BB021), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x1C0049), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1C0049) = (DWORD)d;
-		VirtualProtect((LPVOID)(imageBase + 0x1C0049), 4, oldPageProtection, &oldPageProtection);
+		injector::WriteMemory<DWORD>(imageBase + 0x13270, (DWORD)coinFile, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x136AD, (DWORD)coinFile, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1B914C, (DWORD)RnkUsChr, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BAB18, (DWORD)RnkUsChr, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BAB60, (DWORD)RnkUsChr, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1B92BC, (DWORD)RnkWn, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BAE1D, (DWORD)RnkWn, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BAB60, (DWORD)RnkWn, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1B941C, (DWORD)RnkTa, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BB11D, (DWORD)RnkTa, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BB160, (DWORD)RnkTa, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BF1A8, (DWORD)OptionData, true);
+		injector::WriteMemory<DWORD>(imageBase + 0xBFEB, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0xC0A7, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x12D61, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x13314, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BA989, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BAA31, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BAC79, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BAD21, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BAF79, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1BB021, (DWORD)d, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x1C0049, (DWORD)d, true);
 	}
 
 	if (GameDetect::currentGame == GameID::ChaosBreaker)
@@ -1453,16 +1360,12 @@ static InitFunction initFunction([]()
 
 			// change window name
 			static const char* title = "OpenParrot - Chaos Breaker";
-			VirtualProtect((LPVOID)(imageBase + 0x152A5), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x152A5) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0x152A5), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0x152A5, (DWORD)title, true);
 		}
 	}
 
 	if(GameDetect::currentGame == GameID::ChaseHq2)
 	{
-		DWORD oldPageProtection = 0;
-
 		// Skip calibration
 		injector::WriteMemory<BYTE>(imageBase + 0x107E3, 0xEB, true);
 
@@ -1484,9 +1387,7 @@ static InitFunction initFunction([]()
 
 			// change window name
 			static const char* title = "OpenParrot - Chase H.Q. 2";
-			VirtualProtect((LPVOID)(imageBase + 0x3B58), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x3B58) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0x3B58), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0x3B58, (DWORD)title, true);
 		}
 
 		// IP stuff for working LAN
@@ -1495,29 +1396,12 @@ static InitFunction initFunction([]()
 		//static const char* cab3IP = config["Network"]["Cab3IP"].c_str(); // unused, leftover code?
 		//static const char* cab4IP = config["Network"]["Cab4IP"].c_str(); // unused, leftover code?
 
-		VirtualProtect((LPVOID)(imageBase + 0x6439F), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x6439F) = (DWORD)cab1IP;
-		VirtualProtect((LPVOID)(imageBase + 0x6439F), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x643AA), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x643AA) = (DWORD)cab2IP;
-		VirtualProtect((LPVOID)(imageBase + 0x643AA), 4, oldPageProtection, &oldPageProtection);
-
-		//VirtualProtect((LPVOID)(imageBase + 0x643B5), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		//*(DWORD*)(imageBase + 0x643B5) = (DWORD)cab3IP;
-		//VirtualProtect((LPVOID)(imageBase + 0x643B5), 4, oldPageProtection, &oldPageProtection);
-
-		//VirtualProtect((LPVOID)(imageBase + 0x643C0), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		//*(DWORD*)(imageBase + 0x643C0) = (DWORD)cab4IP;
-		//VirtualProtect((LPVOID)(imageBase + 0x643C0), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x6548C), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x6548C) = (DWORD)cab1IP;
-		VirtualProtect((LPVOID)(imageBase + 0x6548C), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x65C1A), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x65C1A) = (DWORD)cab1IP;
-		VirtualProtect((LPVOID)(imageBase + 0x65C1A), 4, oldPageProtection, &oldPageProtection);
+		injector::WriteMemory<DWORD>(imageBase + 0x6439F, (DWORD)cab1IP, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x643AA, (DWORD)cab2IP, true);
+		//injector::WriteMemory<DWORD>(imageBase + 0x643B5, (DWORD)cab3IP, true); // unused, leftover code?
+		//injector::WriteMemory<DWORD>(imageBase + 0x643C0, (DWORD)cab4IP, true); // unused, leftover code?
+		injector::WriteMemory<DWORD>(imageBase + 0x6548C, (DWORD)cab1IP, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x65C1A, (DWORD)cab1IP, true);
 	}
 	
 	if(GameDetect::currentGame == GameID::TetrisGM3)
@@ -1636,34 +1520,20 @@ static InitFunction initFunction([]()
 
 	if (GameDetect::currentGame == GameID::TroubleWitches)
 	{
-		DWORD oldPageProtection = 0;
-
 		static const char* save = ".\\OpenParrot\\Save";
 		static const char* configd = ".\\OpenParrot\\Save\\Config%d.bin";
 		static const char* config04d = ".\\OpenParrot\\Save\\Config%04d.bin";
 
-		VirtualProtect((LPVOID)(imageBase + 0x1F56), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x1F56) = (DWORD)save;
-		VirtualProtect((LPVOID)(imageBase + 0x1F56), 4, oldPageProtection, &oldPageProtection);
-		VirtualProtect((LPVOID)(imageBase + 0x95CBF), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x95CBF) = (DWORD)save;
-		VirtualProtect((LPVOID)(imageBase + 0x95CBF), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x95D49), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x95D49) = (DWORD)configd;
-		VirtualProtect((LPVOID)(imageBase + 0x95D49), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0x93CF0), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x93CF0) = (DWORD)config04d;
-		VirtualProtect((LPVOID)(imageBase + 0x93CF0), 4, oldPageProtection, &oldPageProtection);
+		injector::WriteMemory<DWORD>(imageBase + 0x1F56, (DWORD)save, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x95CBF, (DWORD)save, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x95D49, (DWORD)configd, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x93CF0, (DWORD)config04d, true);
 
 		if (ToBool(config["General"]["Windowed"])) // NOTE: needs external DLL patch for window style
 		{
 			// fix window title for non-jpn locale
 			static const char* title = "OpenParrot - Trouble Witches AC Version 1.00";
-			VirtualProtect((LPVOID)(imageBase + 0x1D82), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x1D82) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0x1D82), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0x1D82, (DWORD)title, true);
 
 			// don't hide cursor
 			injector::WriteMemory<BYTE>(imageBase + 0x1E56, 0x01, true);
@@ -1678,31 +1548,12 @@ static InitFunction initFunction([]()
 		static const char* cab3IP = config["Network"]["Cab3IP"].c_str();
 		static const char* cab4IP = config["Network"]["Cab4IP"].c_str();
 
-		DWORD oldPageProtection = 0;
-
-		VirtualProtect((LPVOID)(imageBase + 0xA4558), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0xA4558) = (DWORD)cab1IP;
-		VirtualProtect((LPVOID)(imageBase + 0xA4558), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0xA4566), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0xA4566) = (DWORD)cab2IP;
-		VirtualProtect((LPVOID)(imageBase + 0xA4566), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0xA4574), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0xA4574) = (DWORD)cab3IP;
-		VirtualProtect((LPVOID)(imageBase + 0xA4574), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0xA4582), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0xA4582) = (DWORD)cab4IP;
-		VirtualProtect((LPVOID)(imageBase + 0xA4582), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0xA6ECF), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0xA6ECF) = (DWORD)cab1IP;
-		VirtualProtect((LPVOID)(imageBase + 0xA6ECF), 4, oldPageProtection, &oldPageProtection);
-
-		VirtualProtect((LPVOID)(imageBase + 0xA7371), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0xA7371) = (DWORD)cab1IP;
-		VirtualProtect((LPVOID)(imageBase + 0xA7371), 4, oldPageProtection, &oldPageProtection);
+		injector::WriteMemory<DWORD>(imageBase + 0xA4558, (DWORD)cab1IP, true);
+		injector::WriteMemory<DWORD>(imageBase + 0xA4566, (DWORD)cab2IP, true);
+		injector::WriteMemory<DWORD>(imageBase + 0xA4574, (DWORD)cab3IP, true);
+		injector::WriteMemory<DWORD>(imageBase + 0xA4582, (DWORD)cab4IP, true);
+		injector::WriteMemory<DWORD>(imageBase + 0xA6ECF, (DWORD)cab1IP, true);
+		injector::WriteMemory<DWORD>(imageBase + 0xA7371, (DWORD)cab1IP, true);
 	}
 
 	if (GameDetect::currentGame == GameID::SF4) 
@@ -1729,8 +1580,6 @@ static InitFunction initFunction([]()
 
 	if (GameDetect::currentGame == GameID::SSFAE)
 	{
-		DWORD oldPageProtection = 0;
-
 		if (ToBool(config["General"]["Windowed"]))
 		{
 			// change window style
@@ -1745,16 +1594,12 @@ static InitFunction initFunction([]()
 
 			// change window title
 			static const wchar_t* title = L"OpenParrot - Super Street Fighter IV Arcade Edition - %s %s";
-			VirtualProtect((LPVOID)(imageBase + 0x39EAF8), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x39EAF8) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0x39EAF8), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0x39EAF8, (DWORD)title, true);
 		}
 	}
 
 	if (GameDetect::currentGame == GameID::SSFAE_EXP)
 	{
-		DWORD oldPageProtection = 0;
-
 		if (ToBool(config["General"]["Windowed"]))
 		{
 			// change window style
@@ -1769,16 +1614,12 @@ static InitFunction initFunction([]()
 
 			// change window title
 			static const wchar_t* title = L"OpenParrot - Super Street Fighter IV Arcade Edition (Export) - %s %s";
-			VirtualProtect((LPVOID)(imageBase + 0x387E08), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x387E08) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0x387E08), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0x387E08, (DWORD)title, true);
 		}
 	}
 
 	if (GameDetect::currentGame == GameID::SSFAE2012)
 	{
-		DWORD oldPageProtection = 0;
-
 		if (ToBool(config["General"]["Windowed"]))
 		{
 			// change window style
@@ -1793,9 +1634,7 @@ static InitFunction initFunction([]()
 
 			// change window title
 			static const wchar_t* title = L"OpenParrot - Super Street Fighter IV Arcade Edition Ver.2012 - %s %s";
-			VirtualProtect((LPVOID)(imageBase + 0x39F848), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x39F848) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0x39F848), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0x39F848, (DWORD)title, true);
 		}
 	}
 
@@ -1818,26 +1657,21 @@ static InitFunction initFunction([]()
 
 			// change window title
 			static const wchar_t* title = L"OpenParrot - The King of Fighters XIII";
-			VirtualProtect((LPVOID)(imageBase + 0xCE7F9), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0xCE7F9) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0xCE7F9), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0xCE7F9, (DWORD)title, true);
+
 			injector::MakeNOP(imageBase + 0xCE836, 8, true);
 		}
 	}
 
 	if (GameDetect::currentGame == GameID::KOFXII) 
 	{
-		DWORD oldPageProtection = 0;
-
 		if (ToBool(config["General"]["Windowed"])) 
 		{
 			injector::MakeNOP(imageBase + 0x2591D7, 2, true);
 
 			// change window title
 			static const char* title = "OpenParrot - The King of Fighters XII";
-			VirtualProtect((LPVOID)(imageBase + 0x1D6191), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x1D6191) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0x1D6191), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0x1D6191, (DWORD)title, true);
 		}
 	}
 
@@ -1860,25 +1694,19 @@ static InitFunction initFunction([]()
 
 			// change window title
 			static const char* title = "OpenParrot - The King of Fighters Sky Stage";
-			VirtualProtect((LPVOID)(imageBase + 0xBE812), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0xBE812) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0xBE812), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0xBE812, (DWORD)title, true);
 		}
 	}
 
 	if (GameDetect::currentGame == GameID::RaidenIII) 
 	{
-		DWORD oldPageProtection = 0;
-
 		if (ToBool(config["General"]["Windowed"])) 
 		{
 			// fix window style
 			injector::WriteMemory<BYTE>(imageBase + 0x50090, 0xCB, true);
 			// change window title
 			static const char* title = "OpenParrot - Raiden III";
-			VirtualProtect((LPVOID)(imageBase + 0x50093), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			*(DWORD*)(imageBase + 0x50093) = (DWORD)title;
-			VirtualProtect((LPVOID)(imageBase + 0x50093), 4, oldPageProtection, &oldPageProtection);
+			injector::WriteMemory<DWORD>(imageBase + 0x50093, (DWORD)title, true);
 
 			// show cursor
 			injector::WriteMemory<BYTE>(imageBase + 0x500E2, 0x01, true);
@@ -1929,27 +1757,14 @@ static InitFunction initFunction([]()
 
 	if (GameDetect::currentGame == GameID::KOF98UM)
 	{
-		DWORD oldPageProtection = 0;
-
 		//static const char* d = ".\\OpenParrot\\%s";
 		//static const char* s04d02d02d = ".\\OpenParrot\\%s%04d%02d%02d.txt";
 		//static const char* s04d02d02d_03d = ".\\OpenParrot\\%s%04d%02d%02d_%03d.txt";
-		//
-		//VirtualProtect((LPVOID)(imageBase + 0x12E798), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		//*(DWORD*)(imageBase + 0x12E798) = (DWORD)d;
-		//VirtualProtect((LPVOID)(imageBase + 0x12E798), 4, oldPageProtection, &oldPageProtection);
-		//
-		//VirtualProtect((LPVOID)(imageBase + 0x12E8C7), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		//*(DWORD*)(imageBase + 0x12E8C7) = (DWORD)d;
-		//VirtualProtect((LPVOID)(imageBase + 0x12E8C7), 4, oldPageProtection, &oldPageProtection);
-		//
-		//VirtualProtect((LPVOID)(imageBase + 0x12E974), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		//*(DWORD*)(imageBase + 0x12E974) = (DWORD)s04d02d02d;
-		//VirtualProtect((LPVOID)(imageBase + 0x12E974), 4, oldPageProtection, &oldPageProtection);
-		//
-		//VirtualProtect((LPVOID)(imageBase + 0x12E9B9), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		//*(DWORD*)(imageBase + 0x12E9B9) = (DWORD)s04d02d02d_03d;
-		//VirtualProtect((LPVOID)(imageBase + 0x12E9B9), 4, oldPageProtection, &oldPageProtection);
+
+		//injector::WriteMemory<DWORD>(imageBase + 0x12E798, (DWORD)d, true);
+		//injector::WriteMemory<DWORD>(imageBase + 0x12E8C7, (DWORD)d, true);
+		//injector::WriteMemory<DWORD>(imageBase + 0x12E974, (DWORD)s04d02d02d, true);
+		//injector::WriteMemory<DWORD>(imageBase + 0x12E9B9, (DWORD)s04d02d02d_03d, true);
 
 		if (ToBool(config["General"]["Windowed"])) 
 		{

@@ -481,9 +481,7 @@ static InitFunction initFunction_DarkAwake([]()
 
 		// change window name
 		static const char* title = "OpenParrot - Dark Awake";
-		VirtualProtect((LPVOID)(imageBase + 0x16736), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x16736) = (DWORD)title;
-		VirtualProtect((LPVOID)(imageBase + 0x16736), 4, oldPageProtection, &oldPageProtection);
+		injector::WriteMemory<DWORD>(imageBase + 0x16736, (DWORD)title, true);
 
 		// don't resize to current work area
 		injector::MakeNOP(imageBase + 0x377F2, 15, true);
@@ -521,9 +519,7 @@ static InitFunction initFunction_ChaosBreakerNXL([]()
 
 		// change window name
 		static const char* title = "OpenParrot - Chaos Breaker";
-		VirtualProtect((LPVOID)(imageBase + 0x16726), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-		*(DWORD*)(imageBase + 0x16726) = (DWORD)title;
-		VirtualProtect((LPVOID)(imageBase + 0x16726), 4, oldPageProtection, &oldPageProtection);
+		injector::WriteMemory<DWORD>(imageBase + 0x16726, (DWORD)title, true);
 
 		// don't resize to current work area
 		injector::MakeNOP(imageBase + 0x37452, 15, true);
