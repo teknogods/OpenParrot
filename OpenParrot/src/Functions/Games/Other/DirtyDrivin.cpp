@@ -85,7 +85,7 @@ void __stdcall ServiceControlsPatch()
 		}
 	}
 	// VOL+
-	if ((GetAsyncKeyState(VK_UP) & 0x8000) || (*ffbOffset & 0x1000))
+	if (*ffbOffset & 0x1000)
 	{
 		if (previousVolMax == false)
 		{
@@ -102,7 +102,7 @@ void __stdcall ServiceControlsPatch()
 		}
 	}
 	// VOL-
-	if ((GetAsyncKeyState(VK_DOWN) & 0x8000) || (*ffbOffset & 0x2000))
+	if (*ffbOffset & 0x2000)
 	{
 		if (previousVolMin == false)
 		{
@@ -128,100 +128,97 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 
 	while (true)
 	{
-		if (ToBool(config["General"]["Track Select Menu Hack"]))
+		BYTE GameState = *(BYTE*)(0x570190 + BaseAddress9);
+		BYTE Chosen = *(BYTE*)(0x5705E8 + BaseAddress9);
+
+		if (GameState == 0x05)
 		{
-			BYTE GameState = *(BYTE*)(0x570190 + BaseAddress9);
-			float MenuTimer = *(float*)(0x3CA0D4 + BaseAddress9);
-
-			if (GameState == 0x05)
+			if (!MenuHack)
 			{
-				if (!MenuHack)
-				{
-					MenuHack = true;
-					injector::MakeNOP((0x78A27 + BaseAddress9), 6, true);
-				}
+				MenuHack = true;
+				injector::MakeNOP((0x78A27 + BaseAddress9), 6, true);
 			}
-			else if (GameState == 0x06)
-			{
-				if (MenuHack)
-				{
-					MenuHack = false;
-					MenuHackStopWriting = false;
-
-					injector::WriteMemory((0x78A27 + BaseAddress9), 0x03448689, true);
-					injector::WriteMemory((0x78A2B + BaseAddress9), 0x8E890000, true);
-				}
-			}
-
+		}
+		else if (GameState == 0x06 || GameState == 0x08 || GameState == 0x12)
+		{
 			if (MenuHack)
 			{
-				if ((button1pressed) || (STARTpressed) || (MenuTimer == 0) || (*ffbOffset3 > 0x10))
-				{
-					MenuHackStopWriting = true;
-				}
+				MenuHack = false;
+				MenuHackStopWriting = false;
 
-				if (!MenuHackStopWriting)
+				injector::WriteMemory((0x78A27 + BaseAddress9), 0x03448689, true);
+				injector::WriteMemory((0x78A2B + BaseAddress9), 0x8E890000, true);
+			}
+		}
+
+		if (MenuHack)
+		{
+			if (Chosen == 0x01)
+			{
+				MenuHackStopWriting = true;
+			}
+
+			if (!MenuHackStopWriting)
+			{
+				if (*ffbOffset2 >= 0xEE)
 				{
-					if (*ffbOffset2 >= 0xEE)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x0A;
-					}
-					else if (*ffbOffset2 >= 0xDD)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x0C;
-					}
-					else if (*ffbOffset2 >= 0xCC)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x08;
-					}
-					else if (*ffbOffset2 >= 0xBB)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x0D;
-					}
-					else if (*ffbOffset2 >= 0xAA)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x0E;
-					}
-					else if (*ffbOffset2 >= 0x99)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x09;
-					}
-					else if (*ffbOffset2 >= 0x88)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x0B;
-					}
-					else if (*ffbOffset2 >= 0x77)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x02;
-					}
-					else if (*ffbOffset2 >= 0x66)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x00;
-					}
-					else if (*ffbOffset2 >= 0x55)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x04;
-					}
-					else if (*ffbOffset2 >= 0x44)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x06;
-					}
-					else if (*ffbOffset2 >= 0x33)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x05;
-					}
-					else if (*ffbOffset2 >= 0x22)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x03;
-					}
-					else if (*ffbOffset2 >= 0x11)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x01;
-					}
-					else if (*ffbOffset2 >= 0x00)
-					{
-						*(BYTE*)(0x570234 + BaseAddress9) = 0x10;
-					}
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0A;
+				}
+				else if (*ffbOffset2 >= 0xDD)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0C;
+				}
+				else if (*ffbOffset2 >= 0xCC)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x08;
+				}
+				else if (*ffbOffset2 >= 0xBB)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0D;
+				}
+				else if (*ffbOffset2 >= 0xAA)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0E;
+				}
+				else if (*ffbOffset2 >= 0x99)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x09;
+				}
+				else if (*ffbOffset2 >= 0x88)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x0B;
+				}
+				else if (*ffbOffset2 >= 0x77)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x02;
+				}
+				else if (*ffbOffset2 >= 0x66)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x00;
+				}
+				else if (*ffbOffset2 >= 0x55)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x04;
+				}
+				else if (*ffbOffset2 >= 0x44)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x06;
+				}
+				else if (*ffbOffset2 >= 0x33)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x05;
+				}
+				else if (*ffbOffset2 >= 0x22)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x03;
+				}
+				else if (*ffbOffset2 >= 0x11)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x01;
+				}
+				else if (*ffbOffset2 >= 0x00)
+				{
+					*(BYTE*)(0x570234 + BaseAddress9) = 0x10;
 				}
 			}
 		}
