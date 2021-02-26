@@ -37,6 +37,7 @@ static bool SERVICEpressed = false;
 static bool previousVolMin = false;
 static bool previousVolMax = false;
 static bool MenuHack = false;
+static bool RiptideHack = false;
 static bool MenuHackStopWriting = false;
 
 // controls 
@@ -308,9 +309,27 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 		}
 
 		// WHEEL 
-		int iWheel = (((float)*ffbOffset2) - 128);
-		float wheel = (iWheel * 0.0078125f);
-		injector::WriteMemory<float>((0x4AD0FC + BaseAddress9), wheel, true);
+		if ((GameState == 0x06) && (*ffbOffset2 > 0x60 && *ffbOffset2 < 0x70))
+		{
+			if (!RiptideHack)
+			{
+				RiptideHack = true;
+				*(BYTE*)(0x44BAD0 + BaseAddress9) = 0x08;
+				injector::WriteMemory<float>((0x4AD0FC + BaseAddress9), -1.0f, true);
+			}	
+		}
+		else
+		{
+			if (RiptideHack)
+			{
+				RiptideHack = false;
+				*(BYTE*)(0x44BAD0 + BaseAddress9) = 0x0B;
+			}
+			
+			int iWheel = (((float)*ffbOffset2) - 128);
+			float wheel = (iWheel * 0.0078125f);
+			injector::WriteMemory<float>((0x4AD0FC + BaseAddress9), wheel, true);
+		}
 		//// GAS 
 		float gas = (float)*ffbOffset3 / 255.0f;
 		float brake = (float)*ffbOffset4 / 255.0f;
