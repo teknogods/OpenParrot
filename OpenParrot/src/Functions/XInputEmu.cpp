@@ -63,6 +63,8 @@ extern int* ffbOffset4;
 extern int* ffbOffset5;
 extern int* ffbOffset6;
 
+extern int FFBDeadzoneMaxMin;
+
 DWORD WINAPI XInputGetState
 (
 	__in  DWORD         dwUserIndex,						// Index of the gamer associated with the device
@@ -164,11 +166,12 @@ DWORD WINAPI XInputGetState
 		if (GameDetect::currentGame == GameID::Daytona3)
 		{
 			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
+
 			if (*ffbOffset2 < 1)
 			{
 				gamepadState.sThumbLX |= 257 - (-(32767 - *ffbOffset2) * 257);
 			}
-			else if ((*ffbOffset2 >= 121) && (*ffbOffset2 <= 133)) //Deadzone for FFB
+			else if ((*ffbOffset2 >= (128 - FFBDeadzoneMaxMin)) && (*ffbOffset2 <= 128 + FFBDeadzoneMaxMin)) //Deadzone for FFB
 			{
 				gamepadState.sThumbLX == 32768;
 			}
