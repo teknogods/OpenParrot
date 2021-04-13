@@ -890,8 +890,6 @@ static int KOFSkyStageThreadLoop(Helpers* helpers) // Temp Fix for turbo fire (R
 	UINT8 Joystick2Button1 = helpers->ReadByte(0x370986, true);
 	UINT8 Joystick2Button2 = helpers->ReadByte(0x37098C, true);
 	UINT8 Joystick2Button3 = helpers->ReadByte(0x370992, true);
-	UINT8 Joystick1Fire = helpers->ReadByte(0x370872, true);
-	UINT8 Joystick2Fire = helpers->ReadByte(0x370968, true);
 
 	if (!(JVSInput1 & 0x20))
 	{
@@ -938,10 +936,6 @@ static int KOFSkyStageThreadLoop(Helpers* helpers) // Temp Fix for turbo fire (R
 		if (Joystick1Button1 == 0x01)
 		{
 			helpers->WriteByte(0x370890, 0x00, true);
-		}
-
-		if (Joystick1Fire == 0x01)
-		{
 			helpers->WriteByte(0x370872, 0x00, true);
 		}
 	}
@@ -951,6 +945,7 @@ static int KOFSkyStageThreadLoop(Helpers* helpers) // Temp Fix for turbo fire (R
 		if (Joystick1Button2 == 0x01)
 		{
 			helpers->WriteByte(0x370896, 0x00, true);
+			helpers->WriteByte(0x370878, 0x00, true);
 		}
 	}
 
@@ -959,6 +954,7 @@ static int KOFSkyStageThreadLoop(Helpers* helpers) // Temp Fix for turbo fire (R
 		if (Joystick1Button3 == 0x01)
 		{
 			helpers->WriteByte(0x37089C, 0x00, true);
+			helpers->WriteByte(0x370884, 0x00, true);
 		}
 	}
 
@@ -1007,10 +1003,6 @@ static int KOFSkyStageThreadLoop(Helpers* helpers) // Temp Fix for turbo fire (R
 		if (Joystick2Button1 == 0x01)
 		{
 			helpers->WriteByte(0x370986, 0x00, true);
-		}
-
-		if (Joystick2Fire == 0x01)
-		{
 			helpers->WriteByte(0x370968, 0x00, true);
 		}
 	}
@@ -1020,6 +1012,7 @@ static int KOFSkyStageThreadLoop(Helpers* helpers) // Temp Fix for turbo fire (R
 		if (Joystick2Button2 == 0x01)
 		{
 			helpers->WriteByte(0x37098C, 0x00, true);
+			helpers->WriteByte(0x37096E, 0x00, true);
 		}
 	}
 
@@ -1028,6 +1021,7 @@ static int KOFSkyStageThreadLoop(Helpers* helpers) // Temp Fix for turbo fire (R
 		if (Joystick2Button3 == 0x01)
 		{
 			helpers->WriteByte(0x370992, 0x00, true);
+			helpers->WriteByte(0x37097A, 0x00, true);
 		}
 	}
 
