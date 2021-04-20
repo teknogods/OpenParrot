@@ -7,6 +7,7 @@
 #include "Functions/Nesica_Libs/NesysEmu.h"
 #include "Functions/Nesica_Libs/RegHooks.h"
 #include "Utility/Hooking.Patterns.h"
+#include <Functions/Global.h>
 
 static InitFunction initFunction([]()
 {
@@ -45,33 +46,33 @@ static InitFunction initFunction_GC2([]()
 	init_RegHooks();
 	init_NesysEmu();
 
-	// Patch D: references
-	//D:
-	injector::WriteMemoryRaw(imageBase + 0x33D344, ".", 2, true);
-	// D:/garbage%d.txt
-	injector::WriteMemoryRaw(imageBase + 0x2B6B08, "./garbage%d.txt", 16, true);
-	// D:/country.dat
-	injector::WriteMemoryRaw(imageBase + 0x2B4B68, "./country.dat", 14, true);
-	injector::WriteMemoryRaw(imageBase + 0x2B4B54, "./country.dat", 14, true);
-	// D:/NesysQueue_Error_%04d_%02d_%02d_%02d_%02d_%02d.txt
-	injector::WriteMemoryRaw(imageBase + 0x2B205C, "./NesysQueue_Error_%04d_%02d_%02d_%02d_%02d_%02d.txt", 53, true);
-	// D:/count.csv
-	injector::WriteMemoryRaw(imageBase + 0x2B1024, "./count.csv", 12, true);
-	injector::WriteMemoryRaw(imageBase + 0x2B0F40, "./count.csv", 12, true);
-	// D:\\%s/
-	injector::WriteMemoryRaw(imageBase + 0x27AD80, "./%s/", 6, true);
-	// D:\\%s/*
-	injector::WriteMemoryRaw(imageBase + 0x27AD78, "./%s/*", 7, true);
-	// "D:\\%s/%s"
-	injector::WriteMemoryRaw(imageBase + 0x27AD6C, "./%s/%s", 8, true);
-	// "D:\\"
-	injector::WriteMemoryRaw(imageBase + 0x27AC44, "./", 3, true);
-	// D:\\%s%04d%02d%02d_%02d%02d%02d_
-	injector::WriteMemoryRaw(imageBase + 0x27AC00, "./%s%04d%02d%02d_%02d%02d%02d_", 31, true);
-	// D:\\%s/%s/*
-	injector::WriteMemoryRaw(imageBase + 0x27AD60, "./%s/%s/*", 10, true);
-	// D:/PlayData/
-	injector::WriteMemoryRaw(imageBase + 0x2A9CB8, "./PlayData/", 12, true);
+	//// Patch D: references
+	////D:
+	//injector::WriteMemoryRaw(imageBase + 0x33D344, ".", 2, true);
+	//// D:/garbage%d.txt
+	//injector::WriteMemoryRaw(imageBase + 0x2B6B08, "./garbage%d.txt", 16, true);
+	//// D:/country.dat
+	//injector::WriteMemoryRaw(imageBase + 0x2B4B68, "./country.dat", 14, true);
+	//injector::WriteMemoryRaw(imageBase + 0x2B4B54, "./country.dat", 14, true);
+	//// D:/NesysQueue_Error_%04d_%02d_%02d_%02d_%02d_%02d.txt
+	//injector::WriteMemoryRaw(imageBase + 0x2B205C, "./NesysQueue_Error_%04d_%02d_%02d_%02d_%02d_%02d.txt", 53, true);
+	//// D:/count.csv
+	//injector::WriteMemoryRaw(imageBase + 0x2B1024, "./count.csv", 12, true);
+	//injector::WriteMemoryRaw(imageBase + 0x2B0F40, "./count.csv", 12, true);
+	//// D:\\%s/
+	//injector::WriteMemoryRaw(imageBase + 0x27AD80, "./%s/", 6, true);
+	//// D:\\%s/*
+	//injector::WriteMemoryRaw(imageBase + 0x27AD78, "./%s/*", 7, true);
+	//// "D:\\%s/%s"
+	//injector::WriteMemoryRaw(imageBase + 0x27AD6C, "./%s/%s", 8, true);
+	//// "D:\\"
+	//injector::WriteMemoryRaw(imageBase + 0x27AC44, "./", 3, true);
+	//// D:\\%s%04d%02d%02d_%02d%02d%02d_
+	//injector::WriteMemoryRaw(imageBase + 0x27AC00, "./%s%04d%02d%02d_%02d%02d%02d_", 31, true);
+	//// D:\\%s/%s/*
+	//injector::WriteMemoryRaw(imageBase + 0x27AD60, "./%s/%s/*", 10, true);
+	//// D:/PlayData/
+	//injector::WriteMemoryRaw(imageBase + 0x2A9CB8, "./PlayData/", 12, true);
 
 	// C:\\TypeXZEROTemp.dat check
 	safeJMP(imageBase + 0xF81B0, ReturnTrue);
@@ -136,7 +137,7 @@ static InitFunction initFunction_DariusBurst116([]()
 	// NOTE: This could be cause for the non-working TEST MODE. No time to analyze since dump was released and we want to give instant support.
 	//injector::WriteMemory<BYTE>(imageBase + 0x302743, 0xEB, true);
 
-	// D:
+	//// D:
 	injector::WriteMemoryRaw(imageBase + 0x4EEF68, "\x2E\x5C\x44", 3, true); // D:\%s%04d%02d%02d_%02d%02d%02d_
 	injector::WriteMemoryRaw(imageBase + 0x4EF0D0, "\x2E\x5C\x44", 3, true); // D:\%s/%s/*
 	injector::WriteMemoryRaw(imageBase + 0x4EF0DC, "\x2E\x5C\x44", 3, true); // D:\%s/%s
@@ -452,6 +453,82 @@ static InitFunction initFunction_BlazBlueCF201([]()
 	injector::WriteMemory<BYTE>(imageBase + 0x1B04FD, 0x75, true);
 
 }, GameID::BlazBlueCF201);
+
+static InitFunction initFunction_DarkAwake([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	DWORD oldPageProtection = 0;
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+
+	if (ToBool(config["General"]["Windowed"])) 
+	{
+		// force windowed mode
+		injector::MakeNOP(imageBase + 0x169BF, 2, true);
+
+		VirtualProtect((LPVOID)(imageBase + 0x601CC), 64, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+		windowHooks hooks = { 0 };
+		hooks.createWindowExA = imageBase + 0x601E8;
+		hooks.setWindowPos = imageBase + 0x601F0;
+		init_windowHooks(&hooks);
+		VirtualProtect((LPVOID)(imageBase + 0x601CC), 64, oldPageProtection, &oldPageProtection);
+
+		// change window name
+		static const char* title = "OpenParrot - Dark Awake";
+		injector::WriteMemory<DWORD>(imageBase + 0x16736, (DWORD)title, true);
+
+		// don't resize to current work area
+		injector::MakeNOP(imageBase + 0x377F2, 15, true);
+
+		// show cursor
+		injector::WriteMemory<BYTE>(imageBase + 0x165D9, 0x01, true);
+	}
+
+}, GameID::DarkAwake);
+
+static InitFunction initFunction_ChaosBreakerNXL([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	DWORD oldPageProtection = 0;
+	init_FastIoEmu();
+	init_RfidEmu();
+	init_RegHooks();
+	if (GameDetect::enableNesysEmu)
+		init_NesysEmu();
+#if _M_IX86
+	init_CryptoPipe(GameDetect::NesicaKey);
+#endif
+
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		// force windowed mode
+		injector::MakeNOP(imageBase + 0x169AF, 2, true);
+
+		VirtualProtect((LPVOID)(imageBase + 0x601CC), 64, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+		windowHooks hooks = { 0 };
+		hooks.createWindowExA = imageBase + 0x601E8;
+		hooks.setWindowPos = imageBase + 0x601F0;
+		init_windowHooks(&hooks);
+		VirtualProtect((LPVOID)(imageBase + 0x601CC), 64, oldPageProtection, &oldPageProtection);
+
+		// change window name
+		static const char* title = "OpenParrot - Chaos Breaker";
+		injector::WriteMemory<DWORD>(imageBase + 0x16726, (DWORD)title, true);
+
+		// don't resize to current work area
+		injector::MakeNOP(imageBase + 0x37452, 15, true);
+
+		// show cursor
+		injector::WriteMemory<BYTE>(imageBase + 0x165C9, 0x01, true);
+	}
+
+}, GameID::ChaosBreakerNXL);
 
 static InitFunction initFunction_Theatrhythm([]()
 	{

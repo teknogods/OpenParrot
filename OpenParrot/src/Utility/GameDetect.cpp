@@ -241,7 +241,7 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0xf9297ecb: // BlazBlue
 		currentGame = GameID::BlazBlue;
-		X2Type = X2Type::Generic;
+		X2Type = X2Type::BlazBlue;
 		break;
 	case 0xee568daa: // BlazBlue Continuum Shift II
 		currentGame = GameID::BlazBlueCS2;
@@ -518,7 +518,7 @@ void GameDetect::DetectCurrentGame()
 			isNesica = true;
 			break;
 		case 0x1046a695: //Spica Adventure for NXL (honestly no difference i can find from OG version, X2 emu works fine for it)
-			currentGame = GameID::SpicaAdventure;
+			currentGame = GameID::SpicaAdventureNXL;
 			X2Type = X2Type::Generic;
 			break;
 		case 0xbd516d7b: // KOFXIII Climax
@@ -562,6 +562,7 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::DirtyDrivin;
 			break;
 		case 0x4D91A27A:
+		case 0x31a4f2d0:
 			currentGame = GameID::SnoCross;
 			break;
 		case 0xbd8c984d: // Battle Gear 4 English Ver (2.03) 
@@ -576,13 +577,13 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::PowerInstinctV;
 			X2Type = X2Type::Generic;
 			break;
-		case 0x6f913049: // Chaos Breaker for NesicaxLive
-			currentGame = GameID::Nesica;
+		case 0xee586431: // Chaos Breaker for NesicaxLive
+			currentGame = GameID::ChaosBreakerNXL;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;
 		case 0x486e885c: // Dark Awake - The King Has No Name
-			currentGame = GameID::Nesica;
+			currentGame = GameID::DarkAwake;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
 			break;

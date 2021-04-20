@@ -2,15 +2,20 @@
 
 BOOL WINAPI ReadFileHooked(_In_ HANDLE hFile, _Out_writes_bytes_to_opt_(nNumberOfBytesToRead, *lpNumberOfBytesRead) __out_data_source(FILE) LPVOID lpBuffer, _In_ DWORD nNumberOfBytesToRead, _Out_opt_ LPDWORD lpNumberOfBytesRead, _Inout_opt_ LPOVERLAPPED lpOverlapped);
 void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3);
+DWORD FetchDwordInformation(const char* setting, const char* subkey, DWORD defaultValue);
 
 struct windowHooks
 {
 	int createWindowExA;
 	int createWindowExW;
 	int adjustWindowRect;
+	int adjustWindowRectEx;
 	int setWindowPos;
 	int changeDisplaySettings;
+	int changeDisplaySettingsExW;
 	int updateWindow;
+	int clipCursor;
+	int setCursorPos;
 };
 
 void init_windowHooks(windowHooks* data);

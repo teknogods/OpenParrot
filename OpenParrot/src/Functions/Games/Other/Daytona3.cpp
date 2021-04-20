@@ -11,6 +11,7 @@ extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
+int FFBDeadzoneMaxMin;
 bool daytonaPressStart = false;
 uintptr_t imageBase;
 bool shiftup = false;
@@ -19,6 +20,26 @@ static bool viewchange = false;
 static bool keybdleft = false;
 static bool keybdright = false;
 static bool keybdup = false;
+
+float Cubic(const float x, const float weight) 
+{
+	return weight * x * x * x + (1.0 - weight) * x;
+}
+
+float joystickCubicScaledDeadband(const float x)
+{
+	const float deadbandCutoff = 0.2f;
+	const float weight = 0.5f;
+
+	if (fabs(x) < deadbandCutoff)
+	{
+		return 0;
+	}
+	else 
+	{
+		return (Cubic(x, weight) - (fabs(x) / x) * Cubic(deadbandCutoff, weight)) / (1.0 - Cubic(deadbandCutoff, weight));
+	}
+}
 
 void ShiftUp(BYTE shift)
 {
@@ -30,9 +51,8 @@ void ShiftDown(BYTE shift)
 	*(BYTE*)(imageBase + 0x15B468C) = shift - 1;
 }
 
-static void InjectKeys()
+static int ThreadLoop()
 {
-
 	DWORD buttons2 = *wheelSection;
 	DWORD buttons = *ffbOffset;
 	BYTE wheel = *ffbOffset2;
@@ -48,6 +68,15 @@ static void InjectKeys()
 
 	HWND hWnd = FindWindowA(0, ("Daytona Championship USA"));
 
+	if (ToBool(config["General"]["Cubic Scaled Deadband"]))
+	{
+		float joycubicdeadband = joystickCubicScaledDeadband((*ffbOffset2 - 128) / 128.0);
+		wheel = 128 + (joycubicdeadband * 128.0);
+
+		if (wheel >= 251)
+			wheel = 255;
+	}
+	
 	//Menu Movement & Game Initial Screen
 	if (gamestate == 18 || gamestate == 30)
 	{
@@ -275,15 +304,16 @@ static void InjectKeys()
 			*(DWORD*)(imageBase + 0x15B5DB0) = 0x03;
 		}
 	}
+	return 0;
 }
 
-int(__stdcall* g_origControlsFunction)();
-
-int __stdcall ControlsFunction()
+static DWORD WINAPI RunningLoop(LPVOID lpParam)
 {
-	int result = g_origControlsFunction();
-	InjectKeys();
-	return result;
+	while (true)
+	{
+		ThreadLoop();
+		Sleep(16);
+	}
 }
 
 static InitFunction Daytona3Func([]()
@@ -299,17 +329,22 @@ static InitFunction Daytona3Func([]()
 		injector::MakeNOP(imageBase + 0x1DE10D, 6);
 		injector::MakeNOP(imageBase + 0x29B481, 3);
 		injector::MakeNOP(imageBase + 0x29B513, 4);
+
 		if (ToBool(config["General"]["MSAA4X Disable"]))
 		{
 			injector::WriteMemoryRaw(imageBase + 0x17CD3D, "\x00", 1, true);
 		}
+
 		if (ToBool(config["General"]["Hide Cursor"]))
 		{
 			SetCursorPos(20000, 20000);
 		}
-		MH_Initialize();
-		MH_CreateHook((void*)(imageBase + 0x1E9280), ControlsFunction, (void**)&g_origControlsFunction);
-		MH_EnableHook(MH_ALL_HOOKS);
+
+		std::string FFBDeadzoneString = config["General"]["FFB Deadzone Percent"];
+		int FFBDeadzone = std::stoi(FFBDeadzoneString);
+		FFBDeadzoneMaxMin = (128 * FFBDeadzone) / 100.0;
+
+		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 
 	}, GameID::Daytona3);
 #endif
