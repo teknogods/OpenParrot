@@ -14,6 +14,7 @@
 #include <shlobj.h> 
 #include <fstream> 
 #include "d3d9.h"
+#include "Utility/Helper.h"
 
 #if _M_IX86
 #pragma optimize("", off)
@@ -39,6 +40,7 @@ static bool previousVolMax = false;
 static bool MenuHack = false;
 static bool RiptideHack = false;
 static bool MenuHackStopWriting = false;
+static bool CoinPressed = false;
 
 // controls 
 extern int* ffbOffset;
@@ -121,6 +123,123 @@ void __stdcall ServiceControlsPatch()
 	}
 
 	return;
+}
+
+static char CoinDigitChar[256];
+static DWORD CoinDigitAddress;
+static char Digits[256];
+static int Digit1CoinValueinHex;
+static int Digit2CoinValueinHex;
+
+static void CoinInput(Helpers* helpers)
+{
+	UINT8 CoinValue = helpers->ReadByte(0x4947AC, true);
+	
+	INT_PTR CoinDigitBase = helpers->ReadIntPtr(0x5AF2B8, true);
+	INT_PTR CoinDigitA = helpers->ReadIntPtr(CoinDigitBase + 0xD8, false);
+	INT_PTR CoinDigitB = helpers->ReadIntPtr(CoinDigitA + 0x0C, false);
+	INT_PTR CoinDigitC = helpers->ReadIntPtr(CoinDigitB + 0x1A0, false);
+
+	if (*ffbOffset & 0x04)
+	{
+		if (!CoinPressed)
+		{
+			CoinPressed = true;
+
+			helpers->WriteByte(0x8947AC, ++CoinValue, false);
+		}
+	}
+	else
+	{
+		if (CoinPressed)
+		{
+			CoinPressed = false;
+		}
+	}
+
+	if (CoinDigitC != NULL)
+	{
+		memset(CoinDigitChar, 0, 256);
+		sprintf(CoinDigitChar, "%p", CoinDigitC + 0xE70);
+		CoinDigitAddress = strtoul(CoinDigitChar, NULL, 16);
+
+		helpers->WriteIntPtr(0x4947B0, 0x0000, true);
+
+		if (CoinValue > 99)
+			helpers->WriteByte(0x8947AC, 0x63, false);
+
+		if (CoinValue >= 0x0A)
+		{
+			injector::WriteMemoryRaw(CoinDigitAddress + 0x03, "\x00\x20\x00\x20\x00\x43\x00\x52\x00\x45\x00\x44\x00\x49\x00\x54\x00\x53\x00\x00\x00\x00\x00\x00\x00\x00", 27, false);
+
+			if (CoinValue >= 99)
+			{
+				itoa(0x39, Digits, 16);
+				Digit1CoinValueinHex = 0x39;
+			}
+			else if (CoinValue >= 90)
+			{
+				itoa(CoinValue - 42, Digits, 16);
+				Digit1CoinValueinHex = 0x39;
+			}
+			else if (CoinValue >= 80)
+			{ 
+				itoa(CoinValue - 32, Digits, 16);
+				Digit1CoinValueinHex = 0x38;
+			}	
+			else if (CoinValue >= 70)
+			{
+				itoa(CoinValue - 22, Digits, 16);
+				Digit1CoinValueinHex = 0x37;
+			}
+			else if (CoinValue >= 60)
+			{
+				itoa(CoinValue - 12, Digits, 16);
+				Digit1CoinValueinHex = 0x36;
+			}
+			else if (CoinValue >= 50)
+			{
+				itoa(CoinValue - 2, Digits, 16);
+				Digit1CoinValueinHex = 0x35;
+			}
+			else if (CoinValue >= 40)
+			{
+				itoa(CoinValue + 8, Digits, 16);
+				Digit1CoinValueinHex = 0x34;
+			}
+			else if (CoinValue >= 30)
+			{
+				itoa(CoinValue + 18, Digits, 16);
+				Digit1CoinValueinHex = 0x33;
+			}
+			else if (CoinValue >= 20)
+			{
+				itoa(CoinValue + 28, Digits, 16);
+				Digit1CoinValueinHex = 0x32;
+			}
+			else
+			{
+				itoa(CoinValue + 38, Digits, 16);
+				Digit1CoinValueinHex = 0x31;
+			}
+
+			Digit2CoinValueinHex = strtoul(Digits, NULL, 16);
+
+			helpers->WriteByte(CoinDigitC + 0xE70, Digit1CoinValueinHex, false);
+			helpers->WriteByte(CoinDigitC + 0xE71, 0x00, false);
+			helpers->WriteByte(CoinDigitC + 0xE72, Digit2CoinValueinHex, false);
+		}
+		else
+		{
+			injector::WriteMemoryRaw(CoinDigitAddress + 0x01, "\x00\x20\x00\x20\x00\x43\x00\x52\x00\x45\x00\x44\x00\x49\x00\x54\x00\x53\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 29, false);
+
+			itoa(48 + CoinValue, Digits, 16);
+
+			Digit1CoinValueinHex = strtoul(Digits, NULL, 16);
+
+			helpers->WriteByte(CoinDigitC + 0xE70, Digit1CoinValueinHex, false);
+		}
+	}
 }
 
 DWORD WINAPI InputRT9(LPVOID lpParam)
@@ -252,6 +371,11 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
+		if (!ToBool(config["General"]["Free Play"]))
+		{
+			CoinInput(0);
+		}
+
 		// buttons see bitwise values in TPui//RawThrills.cs 
 		// START	 
 		if (*ffbOffset & 0x08)
@@ -371,7 +495,14 @@ static InitFunction DirtyDrivinFunc([]()
 		// PATCHING EXE AT RUNTIME (reboots, network, filepath, config, CRC... 
 		injector::WriteMemoryRaw((0x335DD4 + BaseAddress9), "\x44\x69\x72\x74\x79\x20\x44\x72\x69\x76\x69\x6E\x27\x00", 14, true); // edit window caption text
 		injector::WriteMemoryRaw((0x3B00 + BaseAddress9), "\xEB", 1, true);
-		injector::WriteMemoryRaw((0x43B88 + BaseAddress9), "\xC6\x05\x6C\xFE\x96\x00\x01\x90\x90\xC6\x05\x58\x4A\x88\x00\x01\xB8\x58\x2A\x74\x00\xEB", 22, true);
+		if (ToBool(config["General"]["Free Play"]))
+		{
+			injector::WriteMemoryRaw((0x43B88 + BaseAddress9), "\xC6\x05\x6C\xFE\x96\x00\x01\x90\x90\xC6\x05\x58\x4A\x88\x00\x01\xB8\x58\x2A\x74\x00\xEB", 22, true);
+		}
+		else
+		{
+			injector::WriteMemoryRaw((0x43B88 + BaseAddress9), "\x83\x3D\x6C\xFE\x96\x00\x00\x74\x0E\x83\x3D\x58\x4A\x88\x00\x00\xB8\x58\x2A\x74\x00\x75", 22, true);
+		}
 		injector::WriteMemoryRaw((0x65447 + BaseAddress9), "\xEB\x0B\x90\x90", 4, true);
 		injector::WriteMemoryRaw((0xBC9E8 + BaseAddress9), "\xEB", 1, true);
 		injector::WriteMemoryRaw((0x1B5BF5 + BaseAddress9), "\x90\x90", 2, true);
