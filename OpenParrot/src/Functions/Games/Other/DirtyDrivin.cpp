@@ -15,10 +15,12 @@
 #include <fstream> 
 #include "d3d9.h"
 #include "Utility/Helper.h"
+#include "Mmsystem.h"
 
 #if _M_IX86
 #pragma optimize("", off)
-#pragma comment(lib, "Ws2_32.lib") 
+#pragma comment(lib, "Ws2_32.lib")
+#pragma comment( lib, "winmm.lib" )
 
 typedef unsigned int U32;
 typedef unsigned char U8;
@@ -130,6 +132,7 @@ static DWORD CoinDigitAddress;
 static char Digits[256];
 static int Digit1CoinValueinHex;
 static int Digit2CoinValueinHex;
+static bool SoundFail;
 
 static void CoinInput(Helpers* helpers)
 {
@@ -145,6 +148,20 @@ static void CoinInput(Helpers* helpers)
 		if (!CoinPressed)
 		{
 			CoinPressed = true;
+
+			if (!SoundFail)
+			{
+				LPCWSTR Stop = L"stop .\\Coin\\Coin.mp3";
+				int Stopping = mciSendString(Stop, NULL, 0, 0);
+
+				LPCWSTR Play = L"play .\\Coin\\Coin.mp3 from 0";
+				int Playing = mciSendString(Play, NULL, 0, 0);
+
+				if (Playing != 0 && Stopping != 0)
+				{
+					SoundFail = true;
+				}
+			}
 
 			helpers->WriteByte(0x8947AC, ++CoinValue, false);
 		}
@@ -502,6 +519,13 @@ static InitFunction DirtyDrivinFunc([]()
 		else
 		{
 			injector::WriteMemoryRaw((0x43B88 + BaseAddress9), "\x83\x3D\x6C\xFE\x96\x00\x00\x74\x0E\x83\x3D\x58\x4A\x88\x00\x00\xB8\x58\x2A\x74\x00\x75", 22, true);
+
+			LPCWSTR Open = L"open .\\Coin\\Coin.mp3 type mpegvideo";
+			int Opening = mciSendString(Open, NULL, 0, 0);
+			if (Opening != 0)
+			{
+				SoundFail = true;
+			}
 		}
 		injector::WriteMemoryRaw((0x65447 + BaseAddress9), "\xEB\x0B\x90\x90", 4, true);
 		injector::WriteMemoryRaw((0xBC9E8 + BaseAddress9), "\xEB", 1, true);
