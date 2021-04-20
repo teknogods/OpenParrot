@@ -166,8 +166,6 @@ static InitFunction initFunc([]()
 		return;
 	if (GameDetect::currentGame == GameID::TER)
 		return;
-	if (GameDetect::currentGame == GameID::FNFSC)
-		InitD3D8WindowHook();
 	if (GameDetect::currentGame == GameID::SnoCross)
 	{
 		swShaderHack = ToBool(config["General"]["SoftwareVertexShaders"]);
