@@ -691,24 +691,5 @@ static InitFunction FNFSB2Func([]()
 			injector::WriteMemory<DWORD>((0x46D7D8 + BaseAddress5), 0x00, true);
 		}
 
-		// FPS Fix
-		if ((strcmp(config["General"]["FPSFix"].c_str(), "0") != 0))
-		{
-			std::string FPSstring = (LPCSTR)(config["General"]["FPSFix"].c_str());
-			int FPSvalue = std::stoi(FPSstring);
-			if (FPSvalue > 255)
-			{
-				FPSvalue = 0;
-			}
-			if (FPSvalue < 0)
-			{
-				FPSvalue = 0;
-			}
-			injector::WriteMemoryRaw((0x9F3D0 + BaseAddress5), "\x6A", 1, true);
-			injector::WriteMemory<BYTE>((0x9F3D1 + BaseAddress5), FPSvalue, true);
-			injector::WriteMemoryRaw((0x9F3D2 + BaseAddress5), "\xFF\x15\x7C\x71\x71\x00", 6, true);
-			injector::WriteMemoryRaw((0x9F3D8 + BaseAddress5), "\xC3", 1, true);
-		}
-
 	}, GameID::FNFSB2);
 #endif
