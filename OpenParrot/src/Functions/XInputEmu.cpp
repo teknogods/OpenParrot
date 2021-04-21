@@ -142,18 +142,27 @@ DWORD WINAPI XInputGetState
 		{
 			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
 
-			if (*ffbOffset2 < 1)
+			int Wheel = 0;
+
+			if ((*ffbOffset2 >= (128 - FFBDeadzoneMaxMin)) && (*ffbOffset2 <= 128 + FFBDeadzoneMaxMin)) //Deadzone for FFB
 			{
-				gamepadState.sThumbLX |= 257 - (-(32767 - *ffbOffset2) * 257);
+				gamepadState.sThumbLX = 0;
 			}
-			else if ((*ffbOffset2 >= (128 - FFBDeadzoneMaxMin)) && (*ffbOffset2 <= 128 + FFBDeadzoneMaxMin)) //Deadzone for FFB
+			else if (*ffbOffset2 > 128)
 			{
-				gamepadState.sThumbLX == 32768;
+				Wheel = -(-32767 + -(*ffbOffset2 * 255.9921875));
+
+				if (*ffbOffset2 >= 254)
+					Wheel = 32767;
 			}
 			else
 			{
-				gamepadState.sThumbLX |= (-(32768 - *ffbOffset2) * 257);
+				Wheel = (-32767 - -(*ffbOffset2 * 255.9921875));
+
+				if (*ffbOffset2 >= 254)
+					Wheel = -32767;
 			}
+			gamepadState.sThumbLX = Wheel;
 		}
 #endif
 		if (pState->dwPacketNumber == UINT_MAX)
