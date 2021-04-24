@@ -1100,12 +1100,14 @@ static InitFunction initFunction([]()
 			// card dispenser scene bypass (cause it hangs without one)
 			injector::WriteMemory<BYTE>(0x004E9391, 0x0A, true);
 			injector::WriteMemory<BYTE>(0x004E93B3, 0x0A, true);
+
 			break;
 		}
 		case X2Type::MB4:
 		{
 			// Redirect messagelog file
 			injector::WriteMemoryRaw(0x00AD8B6C, ".\\messagelog.dat\0", 18, true);
+
 			break;
 		}
 		case X2Type::VRL:
@@ -1262,9 +1264,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BattleFantasia:
 		{
-			// TODO: DISABLE DUAL INPUT PLS
-			OutputDebugStringA("Please fix the dual input issue sir");
-
 			// restore retarded patched exes to D: instead of SV
 			injector::WriteMemoryRaw(imageBase + 0x1214E0, "D:", 2, true); // 0x5214E0
 			injector::WriteMemoryRaw(imageBase + 0x1588C4, "D:", 2, true);
@@ -1274,7 +1273,7 @@ static InitFunction initFunction([]()
 			injector::MakeNOP(imageBase + 0xD062, 2, true);
 			// injector::WriteMemory<BYTE>(imageBase + 0xD055, 0xEB, true); // alternative patch?
 
-			injector::MakeJMP(imageBase + 0xFF0A0, ReturnsTrue);
+			injector::MakeJMP(imageBase + 0xFF0A0, ReturnsTrue); //Fixes Dual Input issue
 
 			DWORD oldPageProtection = 0;
 
@@ -1295,6 +1294,7 @@ static InitFunction initFunction([]()
 		{
 			injector::MakeJMP(imageBase + 0xECFD0, ReturnsTrue);
 		}
+
 		break;
 	}
 
@@ -1494,7 +1494,6 @@ static InitFunction initFunction([]()
 			init_windowHooks(&hooks);
 			VirtualProtect((LPVOID)(imageBase + 0xF32C0), 4, oldPageProtection, &oldPageProtection);
 		}
-
 	}
 
 	if (GameDetect::currentGame == GameID::KOFSkyStage100J)
@@ -1588,7 +1587,6 @@ static InitFunction initFunction([]()
 
 			// don't hide mouse
 			injector::MakeNOP(imageBase + 0x15D6E6, 8, true);
-
 		}
 	}
 
@@ -1766,7 +1764,6 @@ static InitFunction initFunction([]()
 			injector::WriteMemory<BYTE>(imageBase + 0x1CD8, 0x01, true);
 		}
 	}
-
 });
 #endif
 #pragma optimize("", on)
