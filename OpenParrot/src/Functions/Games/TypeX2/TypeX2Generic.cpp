@@ -1377,8 +1377,7 @@ static InitFunction initFunction([]()
 
 		if (ToBool(config["General"]["Disable Cel Shaded"]))
 		{
-			injector::MakeNOP(imageBase + 0x31FFA, 6);
-			injector::MakeRET(0x42DD30);
+			injector::WriteMemory<BYTE>(imageBase + 0x2E022, 1, true);
 		}
 
 		if (ToBool(config["General"]["Windowed"]))
