@@ -1510,6 +1510,26 @@ static InitFunction initFunction([]()
 
 		// skip dinput devices (TODO: maybe make original Dinput.dll wrapper?)
 		injector::WriteMemory<BYTE>(imageBase + 0xBD1D7, 0xEB, true);
+
+		DWORD oldPageProtection = 0;
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			VirtualProtect((LPVOID)(imageBase + 0x21F290), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+			windowHooks hooks = { 0 };
+			hooks.createWindowExA = imageBase + 0x21F290;
+			init_windowHooks(&hooks);
+			VirtualProtect((LPVOID)(imageBase + 0x21F290), 4, oldPageProtection, &oldPageProtection);
+
+			// show cursor
+			injector::WriteMemory<BYTE>(imageBase + 0x12F6CA, 0x01, true);
+			injector::WriteMemory<BYTE>(imageBase + 0x12F7D8, 0xEB, true);
+			injector::WriteMemory<BYTE>(imageBase + 0x12F7FD, 0x01, true);
+
+			// change window title
+			static const char* title = "OpenParrot - The King of Fighters Sky Stage";
+			injector::WriteMemory<DWORD>(imageBase + 0xBE812, (DWORD)title, true);
+		}
 	}
 
 	if (GameDetect::currentGame == GameID::TroubleWitches)
@@ -1666,29 +1686,6 @@ static InitFunction initFunction([]()
 			// change window title
 			static const char* title = "OpenParrot - The King of Fighters XII";
 			injector::WriteMemory<DWORD>(imageBase + 0x1D6191, (DWORD)title, true);
-		}
-	}
-
-	if (GameDetect::currentGame == GameID::KOFSkyStage100J) 
-	{
-		DWORD oldPageProtection = 0;
-
-		if (ToBool(config["General"]["Windowed"]))
-		{
-			VirtualProtect((LPVOID)(imageBase + 0x21F290), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-			windowHooks hooks = { 0 };
-			hooks.createWindowExA = imageBase + 0x21F290;
-			init_windowHooks(&hooks);
-			VirtualProtect((LPVOID)(imageBase + 0x21F290), 4, oldPageProtection, &oldPageProtection);
-
-			// show cursor
-			injector::WriteMemory<BYTE>(imageBase + 0x12F6CA, 0x01, true);
-			injector::WriteMemory<BYTE>(imageBase + 0x12F7D8, 0xEB, true);
-			injector::WriteMemory<BYTE>(imageBase + 0x12F7FD, 0x01, true);
-
-			// change window title
-			static const char* title = "OpenParrot - The King of Fighters Sky Stage";
-			injector::WriteMemory<DWORD>(imageBase + 0xBE812, (DWORD)title, true);
 		}
 	}
 
