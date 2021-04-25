@@ -1,18 +1,18 @@
-﻿#include <StdInc.h> 
-#include "Utility/InitFunction.h" 
-#include "Functions/Global.h" 
-#include "Utility\Hooking.Patterns.h" 
-#include <Xinput.h> 
-#include <math.h> 
-#include <dinput.h> 
-#include "Functions/GlobalRegHooks.h" 
-#include "Utility\Hooking.Patterns.h" 
-#include <atlstr.h> 
-#include <windows.h> 
-#include <string> 
-#include <iostream> 
-#include <shlobj.h> 
-#include <fstream> 
+﻿#include <StdInc.h>
+#include "Utility/InitFunction.h"
+#include "Functions/Global.h"
+#include "Utility\Hooking.Patterns.h"
+#include <Xinput.h>
+#include <math.h>
+#include <dinput.h>
+#include "Functions/GlobalRegHooks.h"
+#include "Utility\Hooking.Patterns.h"
+#include <atlstr.h>
+#include <windows.h>
+#include <string>
+#include <iostream>
+#include <shlobj.h>
+#include <fstream>
 #include "d3d9.h"
 #include "Utility/Helper.h"
 #include "Mmsystem.h"
@@ -43,8 +43,10 @@ static bool MenuHack = false;
 static bool RiptideHack = false;
 static bool MenuHackStopWriting = false;
 static bool CoinPressed = false;
+static bool NameEntryHack;
+static BYTE GameState;
 
-// controls 
+// controls
 extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
@@ -55,7 +57,7 @@ BOOL(__stdcall* original_CreateWindowExA9)(DWORD dwExStyle, LPCSTR lpClassName, 
 
 void __stdcall ServiceControlsPatch()
 {
-	// TEST 
+	// TEST
 	if ((GetAsyncKeyState(VK_INSERT) & 0x8000) || (*ffbOffset & 0x400))
 	{
 		if (TESTpressed == false)
@@ -137,7 +139,7 @@ static bool SoundFail;
 static void CoinInput(Helpers* helpers)
 {
 	UINT8 CoinValue = helpers->ReadByte(0x4947AC, true);
-	
+
 	INT_PTR CoinDigitBase = helpers->ReadIntPtr(0x494064, true);
 	INT_PTR CoinDigitA = helpers->ReadIntPtr(CoinDigitBase + 0x10, false);
 	INT_PTR CoinDigitB = helpers->ReadIntPtr(CoinDigitA + 0x600, false);
@@ -200,10 +202,10 @@ static void CoinInput(Helpers* helpers)
 				Digit1CoinValueinHex = 0x39;
 			}
 			else if (CoinValue >= 80)
-			{ 
+			{
 				itoa(CoinValue - 32, Digits, 16);
 				Digit1CoinValueinHex = 0x38;
-			}	
+			}
 			else if (CoinValue >= 70)
 			{
 				itoa(CoinValue - 22, Digits, 16);
@@ -259,13 +261,229 @@ static void CoinInput(Helpers* helpers)
 	}
 }
 
+static void NameScreenInput(Helpers* helpers)
+{
+	if (!NameEntryHack)
+	{
+		NameEntryHack = true;
+		injector::MakeNOP(0x7CC26 + BaseAddress9, 6);
+		injector::MakeNOP(0x7CC2C + BaseAddress9, 6);
+		injector::MakeNOP(0x76864 + BaseAddress9, 3);
+		injector::MakeNOP(0x76867 + BaseAddress9, 5);
+	}
+
+	INT_PTR NameBase = helpers->ReadIntPtr(0x5AE500, true);
+	INT_PTR NameBaseOff1 = helpers->ReadIntPtr(NameBase + 0x10, false);
+	UINT8 NameNum = helpers->ReadByte(NameBaseOff1 + 0x388, false);
+
+	DWORD LetterAddr{};
+
+	switch (NameNum)
+	{
+	case 0:
+		injector::WriteMemoryRaw((0x57057D + BaseAddress9), "\x00\x00\x00\x00\x00\x00", 6, true);
+		LetterAddr = 0x57057C;
+		break;
+	case 1:
+		LetterAddr = 0x57057D;
+		break;
+	case 2:
+		LetterAddr = 0x57057E;
+		break;
+	case 3:
+		LetterAddr = 0x57057F;
+		break;
+	case 4:
+		LetterAddr = 0x570580;
+		break;
+	case 5:
+		LetterAddr = 0x570581;
+		break;
+	case 6:
+		helpers->WriteFloat32(0x4AD0FC, 1.0, true);
+		LetterAddr = 0x570582;
+		break;
+	}
+
+	if (*ffbOffset2 >= 0xF3)
+	{
+		helpers->WriteFloat32(0x4AD0FC, 1.0, true);
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x10;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x1B;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x10;
+	}
+	else if (*ffbOffset2 >= 0xEA)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x5A;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x1A;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x5A;
+	}
+	else if (*ffbOffset2 >= 0xE1)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x59;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x19;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x59;
+	}
+	else if (*ffbOffset2 >= 0xD8)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x58;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x18;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x58;
+	}
+	else if (*ffbOffset2 >= 0xCF)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x57;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x17;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x57;
+	}
+	else if (*ffbOffset2 >= 0xC6)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x56;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x16;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x56;
+	}
+	else if (*ffbOffset2 >= 0xBD)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x55;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x15;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x55;
+	}
+	else if (*ffbOffset2 >= 0xB4)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x54;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x14;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x54;
+	}
+	else if (*ffbOffset2 >= 0xAB)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x53;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x13;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x53;
+	}
+	else if (*ffbOffset2 >= 0xA2)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x52;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x12;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x52;
+	}
+	else if (*ffbOffset2 >= 0x99)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x51;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x11;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x51;
+	}
+	else if (*ffbOffset2 >= 0x90)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x50;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x10;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x50;
+	}
+	else if (*ffbOffset2 >= 0x87)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4F;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0F;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4F;
+	}
+	else if (*ffbOffset2 >= 0x7E)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4E;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0E;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4E;
+	}
+	else if (*ffbOffset2 >= 0x75)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4D;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0D;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4D;
+	}
+	else if (*ffbOffset2 >= 0x6C)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4C;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0C;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4C;
+	}
+	else if (*ffbOffset2 >= 0x63)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4B;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0B;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4B;
+	}
+	else if (*ffbOffset2 >= 0x5A)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4A;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0A;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4A;
+	}
+	else if (*ffbOffset2 >= 0x51)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x49;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x09;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x49;
+	}
+	else if (*ffbOffset2 >= 0x48)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x48;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x08;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x48;
+	}
+	else if (*ffbOffset2 >= 0x3F)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x47;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x07;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x47;
+	}
+	else if (*ffbOffset2 >= 0x36)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x46;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x06;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x46;
+	}
+	else if (*ffbOffset2 >= 0x2D)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x45;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x05;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x45;
+	}
+	else if (*ffbOffset2 >= 0x24)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x44;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x04;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x44;
+	}
+	else if (*ffbOffset2 >= 0x1B)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x43;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x03;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x43;
+	}
+	else if (*ffbOffset2 >= 0x12)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x42;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x02;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x42;
+	}
+	else if (*ffbOffset2 >= 0x09)
+	{
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x41;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x01;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x41;
+	}
+	else if (*ffbOffset2 >= 0x00)
+	{
+		helpers->WriteFloat32(0x4AD0FC, -1.0, true);
+		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x08;
+		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x00;
+		*(BYTE*)(LetterAddr + BaseAddress9) = 0x00;
+	}
+}
+
 DWORD WINAPI InputRT9(LPVOID lpParam)
 {
 	int deltaTimer = 16;
 
 	while (true)
 	{
-		BYTE GameState = *(BYTE*)(0x570190 + BaseAddress9);
+		GameState = *(BYTE*)(0x570190 + BaseAddress9);
 		BYTE Chosen = *(BYTE*)(0x5705E8 + BaseAddress9);
 
 		if (GameState == 0x05)
@@ -360,6 +578,20 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
+		if (GameState == 0x09)
+			NameScreenInput(0);
+		else
+		{
+			if (NameEntryHack)
+			{
+				NameEntryHack = false;
+				injector::WriteMemoryRaw((0x7CC26 + BaseAddress9), "\x89\x83\xB4\x06\x00\x00", 6, true);
+				injector::WriteMemoryRaw((0x7CC2C + BaseAddress9), "\x89\xB3\xB0\x06\x00\x00", 6, true);
+				injector::WriteMemoryRaw((0x76864 + BaseAddress9), "\x88\x0C\x06", 3, true);
+				injector::WriteMemoryRaw((0x76867 + BaseAddress9), "\xC6\x44\x06\x01\x00", 5, true);
+			}
+		}
+
 		if (ToBool(config["General"]["Windowed"]))
 		{
 			if (hWndRT9 == 0)
@@ -374,7 +606,7 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
-			// ESCAPE QUITS GAME  
+		// ESCAPE QUITS GAME
 		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
 		{
 			HWND hWndTMP = GetForegroundWindow();
@@ -393,8 +625,8 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			CoinInput(0);
 		}
 
-		// buttons see bitwise values in TPui//RawThrills.cs 
-		// START	 
+		// buttons see bitwise values in TPui//RawThrills.cs
+		// START
 		if (*ffbOffset & 0x08)
 		{
 			if (STARTpressed == false)
@@ -412,7 +644,7 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
-		// BUTTON 1/ CRANK BACKWARD 
+		// BUTTON 1/ CRANK BACKWARD
 		// !!! NOTE: CRANK FORWARD ONLY USED FOR GAS WHEN CONVERTING FROM H2Overdrive CABINET !!! //
 		if (*ffbOffset & 0x100)
 		{
@@ -431,7 +663,7 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
-		// BUTTON 2/ VIEW 
+		// BUTTON 2/ VIEW
 		if (*ffbOffset & 0x200)
 		{
 			if (button2pressed == false)
@@ -449,7 +681,7 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
-		// WHEEL 
+		// WHEEL
 		if ((GameState == 0x06) && (*ffbOffset2 > 0x60 && *ffbOffset2 < 0x70))
 		{
 			if (!RiptideHack)
@@ -457,7 +689,7 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 				RiptideHack = true;
 				*(BYTE*)(0x44BAD0 + BaseAddress9) = 0x08;
 				injector::WriteMemory<float>((0x4AD0FC + BaseAddress9), -1.0f, true);
-			}	
+			}
 		}
 		else
 		{
@@ -466,21 +698,24 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 				RiptideHack = false;
 				*(BYTE*)(0x44BAD0 + BaseAddress9) = 0x0B;
 			}
-			
-			int iWheel = (((float)*ffbOffset2) - 128);
-			float wheel = (iWheel * 0.0078125f);
-			injector::WriteMemory<float>((0x4AD0FC + BaseAddress9), wheel, true);
+
+			if (GameState != 9)
+			{
+				int iWheel = (((float)*ffbOffset2) - 128);
+				float wheel = (iWheel * 0.0078125f);
+				injector::WriteMemory<float>((0x4AD0FC + BaseAddress9), wheel, true);
+			}
 		}
-		//// GAS 
+		//// GAS
 		float gas = (float)*ffbOffset3 / 255.0f;
 		float brake = (float)*ffbOffset4 / 255.0f;
-	//	injector::WriteMemory<float>((0x4AD0F8 + BaseAddress9), gas, true);
+		// injector::WriteMemory<float>((0x4AD0F8 + BaseAddress9), gas, true);
 		// BRAKE BUTTON HACK = if brake pressed gas is reduced
 		injector::WriteMemory<float>((0x4AD0F8 + BaseAddress9), gas - brake, true);
-		
-		//DEBUG////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-		//	info(true, "test value %f  %f ", *ffbOffset2, x); 
-		//DEBUG////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+
+		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// info(true, "test value %f %f ", *ffbOffset2, x);
+		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		Sleep(deltaTimer);
 	}
@@ -490,26 +725,26 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 
 D3DPRESENT_PARAMETERS* pPresentationParameters_RT9;
 uintptr_t d3dcall;
-void __stdcall D3D9CreateParamPatch() 
+void __stdcall D3D9CreateParamPatch()
 {
-	#if _M_IX86
-	__asm mov d3dcall , edx
+#if _M_IX86
+	__asm mov d3dcall, edx
 	__asm mov edx, [ebp + 0x1c]
-	__asm mov pPresentationParameters_RT9 , edx
+		__asm mov pPresentationParameters_RT9, edx
 	pPresentationParameters_RT9->Windowed = TRUE;
 	pPresentationParameters_RT9->FullScreen_RefreshRateInHz = 0;
 	pPresentationParameters_RT9->hDeviceWindow = NULL;
 	injector::WriteMemoryRaw(0x63B332, "\xFF\xD2\x3D\x68\x08", 5, true);
-	__asm mov edx , pPresentationParameters_RT9
-	__asm mov [ebp + 0x1c], edx
-	__asm mov edx , d3dcall
-	#endif
+	__asm mov edx, pPresentationParameters_RT9
+	__asm mov[ebp + 0x1c], edx
+	__asm mov edx, d3dcall
+#endif
 	return;
 }
 
 static InitFunction DirtyDrivinFunc([]()
 	{
-		// PATCHING EXE AT RUNTIME (reboots, network, filepath, config, CRC... 
+		// PATCHING EXE AT RUNTIME (reboots, network, filepath, config, CRC...
 		injector::WriteMemoryRaw((0x335DD4 + BaseAddress9), "\x44\x69\x72\x74\x79\x20\x44\x72\x69\x76\x69\x6E\x27\x00", 14, true); // edit window caption text
 		injector::WriteMemoryRaw((0x3B00 + BaseAddress9), "\xEB", 1, true);
 		if (ToBool(config["General"]["Free Play"]))
@@ -535,7 +770,7 @@ static InitFunction DirtyDrivinFunc([]()
 		injector::WriteMemoryRaw((0x2FB88F + BaseAddress9), "\x90\x90", 2, true);
 		injector::WriteMemoryRaw((0x337A07 + BaseAddress9), "\x35", 1, true);
 
-		//CONTROLS PATCH 
+		//CONTROLS PATCH
 		injector::MakeNOP((0x5159A + BaseAddress9), 6, true);
 		injector::MakeNOP((0x515AC + BaseAddress9), 6, true);
 		injector::MakeNOP((0x514BB + BaseAddress9), 4, true);
@@ -569,12 +804,12 @@ static InitFunction DirtyDrivinFunc([]()
 
 		CreateThread(NULL, 0, InputRT9, NULL, 0, NULL);
 
-		// auto accl off 
+		// auto accl off
 		if (ToBool(config["General"]["AutoAcclOff"]))
 		{
 			injector::MakeNOP((0xAA6E6 + BaseAddress9), 6, true);
 			// alternative patch
-		//	injector::WriteMemoryRaw((0x96fd70), "\x00", 1, true);
+			// injector::WriteMemoryRaw((0x96fd70), "\x00", 1, true);
 		}
 
 		if (ToBool(config["General"]["Windowed"]))
