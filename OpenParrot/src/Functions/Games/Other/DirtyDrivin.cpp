@@ -261,7 +261,7 @@ static void CoinInput(Helpers* helpers)
 	}
 }
 
-static void NameScreenInput(Helpers* helpers)
+static void NameScreenInput(Helpers* helpers) //"Fix" stupid name not allowing all characters to be selected
 {
 	if (!NameEntryHack)
 	{
