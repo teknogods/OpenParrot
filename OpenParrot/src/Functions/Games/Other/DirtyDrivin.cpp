@@ -138,9 +138,9 @@ static void CoinInput(Helpers* helpers)
 {
 	UINT8 CoinValue = helpers->ReadByte(0x4947AC, true);
 	
-	INT_PTR CoinDigitBase = helpers->ReadIntPtr(0x5AF2B8, true);
-	INT_PTR CoinDigitA = helpers->ReadIntPtr(CoinDigitBase + 0xD8, false);
-	INT_PTR CoinDigitB = helpers->ReadIntPtr(CoinDigitA + 0x0C, false);
+	INT_PTR CoinDigitBase = helpers->ReadIntPtr(0x494064, true);
+	INT_PTR CoinDigitA = helpers->ReadIntPtr(CoinDigitBase + 0x10, false);
+	INT_PTR CoinDigitB = helpers->ReadIntPtr(CoinDigitA + 0x600, false);
 	INT_PTR CoinDigitC = helpers->ReadIntPtr(CoinDigitB + 0x1A0, false);
 
 	if (*ffbOffset & 0x04)
