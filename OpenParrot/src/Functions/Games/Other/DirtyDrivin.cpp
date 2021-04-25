@@ -275,8 +275,11 @@ static void NameScreenInput(Helpers* helpers) //"Fix" stupid name not allowing a
 	INT_PTR NameBase = helpers->ReadIntPtr(0x5AE500, true);
 	INT_PTR NameBaseOff1 = helpers->ReadIntPtr(NameBase + 0x10, false);
 	UINT8 NameNum = helpers->ReadByte(NameBaseOff1 + 0x388, false);
+	UINT8 ViewNum = helpers->ReadByte(0x57D618, true);
 
 	DWORD LetterAddr{};
+
+	helpers->WriteFloat32(0x4AD0FC, 0.0, true);
 
 	switch (NameNum)
 	{
@@ -308,165 +311,412 @@ static void NameScreenInput(Helpers* helpers) //"Fix" stupid name not allowing a
 	if (*ffbOffset2 >= 0xF3)
 	{
 		helpers->WriteFloat32(0x4AD0FC, 1.0, true);
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x10;
-		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x1B;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x10;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x10;
+			*(BYTE*)(0x5705A4 + BaseAddress9) = 0x1B;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x10;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x10;
+			*(BYTE*)(0x5705A4 + BaseAddress9) = 0x1A;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x10;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0xEA)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x5A;
-		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x1A;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x5A;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x5A;
+			*(BYTE*)(0x5705A4 + BaseAddress9) = 0x1A;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x5A;
+			break;
+		case 1:
+			helpers->WriteFloat32(0x4AD0FC, 1.0, true);
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x10;
+			*(BYTE*)(0x5705A4 + BaseAddress9) = 0x1A;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x10;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0xE1)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x59;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x19;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x59;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x59;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x59;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x7D;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x7D;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0xD8)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x58;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x18;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x58;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x58;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x58;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x7B;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x7B;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0xCF)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x57;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x17;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x57;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x57;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x57;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x5E;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x5E;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0xC6)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x56;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x16;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x56;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x56;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x56;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x5D;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x5D;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0xBD)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x55;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x15;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x55;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x55;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x55;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x5B;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x5B;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0xB4)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x54;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x14;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x54;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x54;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x54;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x2F;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x2F;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0xAB)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x53;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x13;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x53;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x53;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x53;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x3E;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x3E;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0xA2)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x52;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x12;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x52;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x52;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x52;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x3C;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x3C;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x99)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x51;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x11;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x51;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x51;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x51;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x40;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x40;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x90)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x50;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x10;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x50;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x50;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x50;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x5F;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x5F;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x87)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4F;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0F;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4F;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4F;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x4F;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x2D;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x2D;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x7E)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4E;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0E;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4E;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4E;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x4E;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x21;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x21;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x75)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4D;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0D;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4D;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4D;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x4D;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x3F;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x3F;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x6C)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4C;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0C;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4C;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4C;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x4C;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x2E;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x2E;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x63)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4B;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0B;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4B;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4B;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x4B;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x20;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x20;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x5A)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4A;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x0A;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x4A;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x4A;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x4A;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x39;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x39;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x51)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x49;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x09;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x49;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x49;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x49;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x38;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x38;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x48)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x48;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x08;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x48;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x48;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x48;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x37;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x37;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x3F)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x47;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x07;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x47;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x47;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x47;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x36;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x36;
+			break;
+		}
+
 	}
 	else if (*ffbOffset2 >= 0x36)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x46;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x06;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x46;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x46;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x46;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x35;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x35;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x2D)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x45;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x05;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x45;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x45;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x45;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x34;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x34;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x24)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x44;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x04;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x44;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x44;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x44;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x33;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x33;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x1B)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x43;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x03;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x43;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x43;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x43;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x32;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x32;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x12)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x42;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x02;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x42;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x42;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x42;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x31;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x31;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x09)
 	{
-		*(BYTE*)(0x5705A0 + BaseAddress9) = 0x41;
 		*(BYTE*)(0x5705A4 + BaseAddress9) = 0x01;
-		*(BYTE*)(LetterAddr + BaseAddress9) = 0x41;
+		switch (ViewNum)
+		{
+		case 0:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x41;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x41;
+			break;
+		case 1:
+			*(BYTE*)(0x5705A0 + BaseAddress9) = 0x30;
+			*(BYTE*)(LetterAddr + BaseAddress9) = 0x30;
+			break;
+		}
 	}
 	else if (*ffbOffset2 >= 0x00)
 	{
