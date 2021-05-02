@@ -245,6 +245,8 @@ static InitFunction RadikalBikersFunc([]()
 		imageBase = (DWORD)GetModuleHandleA(0);
 
 		//Disable Native Handle
+		injector::MakeNOP(imageBase + 0x28C1, 5);
+		injector::MakeNOP(imageBase + 0x28A6, 5);
 		injector::MakeNOP(imageBase + 0x28FC, 5);
 		injector::MakeNOP(imageBase + 0x28DA, 5);
 		injector::MakeNOP(imageBase + 0x29B7, 10);
