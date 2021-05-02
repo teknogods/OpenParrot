@@ -231,6 +231,15 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 	}
 }
 
+static BOOL(__stdcall* original_DebugBreak)();
+
+static void DebugBreakFunc()
+{
+#if _DEBUG
+	OutputDebugStringA("DEBUG BREAK CALLED");
+#endif
+}
+
 static InitFunction RadikalBikersFunc([]()
 	{
 		imageBase = (DWORD)GetModuleHandleA(0);
@@ -261,7 +270,9 @@ static InitFunction RadikalBikersFunc([]()
 		injector::WriteMemoryRaw(imageBase + 0x2887, "\x00", 1, true);
 
 		//Fix Crash on Medium Stage
-		injector::MakeNOP(kernelbase + 0x15F4B2, 1);
+		MH_Initialize();
+		MH_CreateHookApi(L"kernelbase.dll", "DebugBreak", &DebugBreakFunc, (void**)&original_DebugBreak);
+		MH_EnableHook(MH_ALL_HOOKS);
 
 		//Create Thread For Inputs etc
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
