@@ -243,7 +243,6 @@ static void DebugBreakFunc()
 static InitFunction RadikalBikersFunc([]()
 	{
 		imageBase = (DWORD)GetModuleHandleA(0);
-		DWORD kernelbase = (DWORD)GetModuleHandleA("kernelbase.dll");
 
 		//Disable Native Handle
 		injector::MakeNOP(imageBase + 0x28FC, 5);
