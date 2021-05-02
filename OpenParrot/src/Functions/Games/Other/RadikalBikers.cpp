@@ -234,6 +234,7 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 static InitFunction RadikalBikersFunc([]()
 	{
 		imageBase = (DWORD)GetModuleHandleA(0);
+		DWORD kernelbase = (DWORD)GetModuleHandleA("kernelbase.dll");
 
 		//Disable Native Handle
 		injector::MakeNOP(imageBase + 0x28FC, 5);
@@ -258,6 +259,9 @@ static InitFunction RadikalBikersFunc([]()
 		injector::WriteMemoryRaw(imageBase + 0x2867, "\x00", 1, true);
 		injector::WriteMemoryRaw(imageBase + 0x2877, "\x00", 1, true);
 		injector::WriteMemoryRaw(imageBase + 0x2887, "\x00", 1, true);
+
+		//Fix Crash on Medium Stage
+		injector::MakeNOP(kernelbase + 0x15F4B2, 1);
 
 		//Create Thread For Inputs etc
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
