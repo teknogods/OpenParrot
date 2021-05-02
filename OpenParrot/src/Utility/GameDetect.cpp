@@ -565,6 +565,9 @@ void GameDetect::DetectCurrentGame()
 		case 0x31a4f2d0:
 			currentGame = GameID::SnoCross;
 			break;
+		case 0x28b99e8d:
+			currentGame = GameID::RadikalBikers; //3rd Party using Aaron Giles Emulator
+			break;
 		case 0xbd8c984d: // Battle Gear 4 English Ver (2.03) 
 			currentGame = GameID::BG4_Eng;
 			X2Type = X2Type::BG4_Eng;
