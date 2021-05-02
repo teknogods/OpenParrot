@@ -259,6 +259,7 @@ static InitFunction RadikalBikersFunc([]()
 		injector::WriteMemoryRaw(imageBase + 0x2877, "\x00", 1, true);
 		injector::WriteMemoryRaw(imageBase + 0x2887, "\x00", 1, true);
 
+		//Create Thread For Inputs etc
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 
 	}, GameID::RadikalBikers);
