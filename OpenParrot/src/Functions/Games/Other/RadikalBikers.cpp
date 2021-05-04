@@ -123,7 +123,7 @@ static int ThreadLoop()
 		if (!Test)
 		{
 			Test = true;
-			*(BYTE*)(imageBase + 0x715FC28) += 0x10;
+			*(BYTE*)(imageBase + 0x668822C) -= 0x08;
 		}
 	}
 	else
@@ -131,6 +131,7 @@ static int ThreadLoop()
 		if (Test)
 		{
 			Test = false;
+			*(BYTE*)(imageBase + 0x668822C) += 0x08;
 		}
 	}
 
