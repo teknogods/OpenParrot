@@ -139,7 +139,7 @@ static int ThreadLoop()
 		if (!Service)
 		{
 			Service = true;
-			*(BYTE*)(imageBase + 0x715FC28) += 0x20;
+			*(BYTE*)(imageBase + 0x668822C) -= 0x04;
 		}
 	}
 	else
@@ -147,6 +147,7 @@ static int ThreadLoop()
 		if (Service)
 		{
 			Service = false;
+			*(BYTE*)(imageBase + 0x668822C) += 0x04;
 		}
 	}
 
@@ -155,7 +156,7 @@ static int ThreadLoop()
 		if (!Coin)
 		{
 			Coin = true;
-			*(BYTE*)(imageBase + 0x715FC28) += 0x20;
+			*(BYTE*)(imageBase + 0x668822C) -= 0x01;
 		}
 	}
 	else
@@ -163,6 +164,7 @@ static int ThreadLoop()
 		if (Coin)
 		{
 			Coin = false;
+			*(BYTE*)(imageBase + 0x668822C) += 0x01;
 		}
 	}
 
@@ -231,51 +233,26 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 	}
 }
 
-static BOOL(__stdcall* original_DebugBreak)();
-
-static void DebugBreakFunc()
-{
-#if _DEBUG
-	OutputDebugStringA("DEBUG BREAK CALLED");
-#endif
-}
+static void DebugBreakFunc(){}
 
 static InitFunction RadikalBikersFunc([]()
 	{
+		//Find imagebase address
 		imageBase = (DWORD)GetModuleHandleA(0);
 
-		//Disable Native Handle
-		injector::MakeNOP(imageBase + 0x28C1, 5);
-		injector::MakeNOP(imageBase + 0x28A6, 5);
-		injector::MakeNOP(imageBase + 0x28FC, 5);
-		injector::MakeNOP(imageBase + 0x28DA, 5);
-		injector::MakeNOP(imageBase + 0x29B7, 10);
-		injector::MakeNOP(imageBase + 0x2907, 10);
-		injector::MakeNOP(imageBase + 0x29A1, 10);
-		injector::MakeNOP(imageBase + 0x28E5, 10);
+		//Disable native inputs etc
+		injector::MakeRET(0x4027E0);
 
-		//Disable Native Buttons
-		injector::MakeNOP(imageBase + 0x27E5, 5);
-
-		//Buttons 0xFF by default
+		//Set buttons to default values
+		injector::WriteMemory<BYTE>(imageBase + 0x668822C, 0xEF, false);
 		injector::WriteMemory<BYTE>(imageBase + 0x668820D, 0xFF, false);
 
-		//Disable Native Keyboard Inputs
-		injector::WriteMemoryRaw(imageBase + 0x2811, "\x00", 1, true);
-		injector::WriteMemoryRaw(imageBase + 0x2821, "\x00", 1, true);
-		injector::WriteMemoryRaw(imageBase + 0x2834, "\x00", 1, true);
-		injector::WriteMemoryRaw(imageBase + 0x2847, "\x00", 1, true);
-		injector::WriteMemoryRaw(imageBase + 0x2857, "\x00", 1, true);
-		injector::WriteMemoryRaw(imageBase + 0x2867, "\x00", 1, true);
-		injector::WriteMemoryRaw(imageBase + 0x2877, "\x00", 1, true);
-		injector::WriteMemoryRaw(imageBase + 0x2887, "\x00", 1, true);
-
-		//Fix Crash on Medium Stage
+		//Fix crash on medium stage
 		MH_Initialize();
-		MH_CreateHookApi(L"kernelbase.dll", "DebugBreak", &DebugBreakFunc, (void**)&original_DebugBreak);
+		MH_CreateHookApi(L"kernelbase.dll", "DebugBreak", DebugBreakFunc, NULL);
 		MH_EnableHook(MH_ALL_HOOKS);
 
-		//Create Thread For Inputs etc
+		//Create thread for inputs etc
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 
 	}, GameID::RadikalBikers);
