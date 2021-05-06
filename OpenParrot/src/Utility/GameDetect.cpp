@@ -241,7 +241,7 @@ void GameDetect::DetectCurrentGame()
 		break;
 	case 0xf9297ecb: // BlazBlue
 		currentGame = GameID::BlazBlue;
-		X2Type = X2Type::Generic;
+		X2Type = X2Type::BlazBlue;
 		break;
 	case 0xee568daa: // BlazBlue Continuum Shift II
 		currentGame = GameID::BlazBlueCS2;
@@ -562,7 +562,11 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::DirtyDrivin;
 			break;
 		case 0x4D91A27A:
+		case 0x31a4f2d0:
 			currentGame = GameID::SnoCross;
+			break;
+		case 0x28b99e8d:
+			currentGame = GameID::RadikalBikers; //3rd Party using Aaron Giles Emulator
 			break;
 		case 0xbd8c984d: // Battle Gear 4 English Ver (2.03) 
 			currentGame = GameID::BG4_Eng;

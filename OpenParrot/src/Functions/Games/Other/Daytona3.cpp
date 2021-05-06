@@ -11,6 +11,7 @@ extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
+int FFBDeadzoneMaxMin;
 bool daytonaPressStart = false;
 uintptr_t imageBase;
 bool shiftup = false;
@@ -303,6 +304,7 @@ static int ThreadLoop()
 			*(DWORD*)(imageBase + 0x15B5DB0) = 0x03;
 		}
 	}
+	return 0;
 }
 
 static DWORD WINAPI RunningLoop(LPVOID lpParam)
@@ -337,6 +339,10 @@ static InitFunction Daytona3Func([]()
 		{
 			SetCursorPos(20000, 20000);
 		}
+
+		std::string FFBDeadzoneString = config["General"]["FFB Deadzone Percent"];
+		int FFBDeadzone = std::stoi(FFBDeadzoneString);
+		FFBDeadzoneMaxMin = (128 * FFBDeadzone) / 100.0;
 
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 

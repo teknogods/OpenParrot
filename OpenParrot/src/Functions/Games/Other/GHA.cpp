@@ -14,7 +14,7 @@ using namespace std;
 
 #pragma comment(lib, "Ws2_32.lib")
 
-DWORD BaseAddress6 = 0x00400000;
+static uintptr_t imageBase;
 int horizontal6 = 0;
 int vertical6 = 0;
 HWND hWndRT6 = 0;
@@ -22,6 +22,26 @@ HWND hWndRT6 = 0;
 extern int* ffbOffset;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
+extern XINPUT_GAMEPAD gamepadState;
+
+static bool GHAStart;
+static bool GHAStart2;
+static bool GHAUP;
+static bool GHADOWN;
+static bool GHALEFT;
+static bool GHARIGHT;
+static bool GHAUP2;
+static bool GHADOWN2;
+static bool GHALEFT2;
+static bool GHARIGHT2;
+static bool GHAA;
+static bool GHAB;
+static bool GHAX;
+static bool GHAY;
+static bool GHALB;
+static bool GHARB;
+
+static bool init;
 
 // hooks ori
 BOOL(__stdcall *original_SetWindowPos6)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
@@ -68,6 +88,262 @@ DWORD WINAPI WindowRT6(LPVOID lpParam)
 				original_SetWindowPos6(hWndRT6, HWND_BOTTOM, 0, 0, 1360, 768, SWP_NOSIZE);
 				ShowWindow(hWndRT6, SW_MINIMIZE);
 			}
+		}
+	}
+}
+
+void GHAInputs()
+{
+	if (!init)
+	{
+		BYTE Modify = *(BYTE*)(imageBase + 0x13B3DC4);
+
+		if (Modify)
+		{
+			init = true;
+			*(BYTE*)(imageBase + 0x857AE0) = 0x00;
+		}	
+	}
+	
+	BYTE Active = *(BYTE*)(imageBase + 0x857AE0);
+
+	if (*ffbOffset & XINPUT_GAMEPAD_START) // START KEY MACRO (When not playing song)
+	{
+		if (!GHAStart)
+		{
+			GHAStart = true;
+			GHAStart2 = true;
+			if (!Active)
+			{
+				gamepadState.wButtons += 0xF000;
+				gamepadState.bLeftTrigger += 0xFF;
+				gamepadState.bRightTrigger += 0xFF;
+			}
+		}
+		else
+		{
+			if (GHAStart2)
+			{
+				GHAStart2 = false;
+				if (!Active)
+				{
+					gamepadState.wButtons -= 0xF000;
+					gamepadState.bLeftTrigger -= 0xFF;
+					gamepadState.bRightTrigger -= 0xFF;
+
+				}
+			}
+		}
+	}
+	else
+	{
+		if (GHAStart)
+		{
+			GHAStart = false;
+
+			if (Active)
+			{
+				if (gamepadState.wButtons == 0xF000 && gamepadState.bLeftTrigger == 0xFF && gamepadState.bRightTrigger == 0xFF)
+				{
+					gamepadState.wButtons -= 0xF000;
+					gamepadState.bLeftTrigger -= 0xFF;
+					gamepadState.bRightTrigger -= 0xFF;
+				}
+			}
+		}
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_X) // GREEN KEY MACRO
+	{
+		if (!GHAX)
+		{
+			GHAX = true;
+			gamepadState.bLeftTrigger += 0xFF;
+		}
+	}
+	else
+	{
+		if (GHAX)
+		{
+			GHAX = false;
+			gamepadState.bLeftTrigger -= 0xFF;
+		}
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_Y) // BLUE KEY MACRO
+	{
+		if (!GHAY)
+		{
+			GHAY = true;
+			gamepadState.bRightTrigger += 0xFF;
+		}
+	}
+	else
+	{
+		if (GHAY)
+		{
+			GHAY = false;
+			gamepadState.bRightTrigger -= 0xFF;
+		}
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_A)
+	{
+		if (!GHAA)
+		{
+			GHAA = true;
+			gamepadState.wButtons += XINPUT_GAMEPAD_A;
+		}
+	}
+	else
+	{
+		if (GHAA)
+		{
+			GHAA = false;
+			gamepadState.wButtons -= XINPUT_GAMEPAD_A;
+		}
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_B)
+	{
+		if (!GHAB)
+		{
+			GHAB = true;
+			gamepadState.wButtons += XINPUT_GAMEPAD_B;
+		}
+	}
+	else
+	{
+		if (GHAB)
+		{
+			GHAB = false;
+			gamepadState.wButtons -= XINPUT_GAMEPAD_B;
+		}
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_DPAD_UP)
+	{
+		if (!GHAUP)
+		{
+			GHAUP = true;
+			GHAUP2 = true;
+			gamepadState.wButtons += XINPUT_GAMEPAD_DPAD_UP;
+		}
+		else
+		{
+			if (GHAUP2)
+			{
+				GHAUP2 = false;
+				gamepadState.wButtons -= XINPUT_GAMEPAD_DPAD_UP;
+			}
+		}
+	}
+	else
+	{
+		if (GHAUP)
+			GHAUP = false;
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_DPAD_DOWN)
+	{
+		if (!GHADOWN)
+		{
+			GHADOWN = true;
+			GHADOWN2 = true;
+			gamepadState.wButtons += XINPUT_GAMEPAD_DPAD_DOWN;
+		}
+		else
+		{
+			if (GHADOWN2)
+			{
+				GHADOWN2 = false;
+				gamepadState.wButtons -= XINPUT_GAMEPAD_DPAD_DOWN;
+			}
+		}
+	}
+	else
+	{
+		if (GHADOWN)
+			GHADOWN = false;
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_DPAD_LEFT)
+	{
+		if (!GHALEFT)
+		{
+			GHALEFT = true;
+			GHALEFT2 = true;
+			gamepadState.wButtons += XINPUT_GAMEPAD_DPAD_LEFT;
+		}
+		else
+		{
+			if (GHALEFT2)
+			{
+				GHALEFT2 = false;
+				gamepadState.wButtons -= XINPUT_GAMEPAD_DPAD_LEFT;
+			}
+		}
+	}
+	else
+	{
+		if (GHALEFT)
+			GHALEFT = false;
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_DPAD_RIGHT)
+	{
+		if (!GHARIGHT)
+		{
+			GHARIGHT = true;
+			GHARIGHT2 = true;
+			gamepadState.wButtons += XINPUT_GAMEPAD_DPAD_RIGHT;
+		}
+		else
+		{
+			if (GHARIGHT2)
+			{
+				GHARIGHT2 = false;
+				gamepadState.wButtons -= XINPUT_GAMEPAD_DPAD_RIGHT;
+			}
+		}
+	}
+	else
+	{
+		if (GHARIGHT)
+			GHARIGHT = false;
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_LEFT_SHOULDER)
+	{
+		if (!GHALB)
+		{
+			GHALB = true;
+			gamepadState.wButtons += XINPUT_GAMEPAD_LEFT_SHOULDER;
+		}
+	}
+	else
+	{
+		if (GHALB)
+		{
+			GHALB = false;
+			gamepadState.wButtons -= XINPUT_GAMEPAD_LEFT_SHOULDER;
+		}
+	}
+
+	if (*ffbOffset & XINPUT_GAMEPAD_RIGHT_SHOULDER)
+	{
+		if (!GHARB)
+		{
+			GHARB = true;
+			gamepadState.wButtons += XINPUT_GAMEPAD_RIGHT_SHOULDER;
+		}
+	}
+	else
+	{
+		if (GHARB)
+		{
+			GHARB = false;
+			gamepadState.wButtons -= XINPUT_GAMEPAD_RIGHT_SHOULDER;
 		}
 	}
 }
@@ -134,6 +410,8 @@ DWORD WINAPI SetWindowTextWRT6(HWND hWnd, LPCWSTR lpString)
 
 static InitFunction GHAFunc([]()
 {
+	imageBase = (uintptr_t)GetModuleHandleA(0);
+
 	init_GlobalRegHooks();
 	GetDesktopResolution(horizontal6, vertical6);
 

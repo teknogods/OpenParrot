@@ -94,5 +94,6 @@ enum class GameID
 	SpicaAdventureNXL,
 	DarkAwake,
 	ChaosBreakerNXL,
-	LinuxEmulation
+	LinuxEmulation,
+	RadikalBikers
 };

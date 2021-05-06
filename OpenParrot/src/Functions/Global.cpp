@@ -225,6 +225,11 @@ BOOL WINAPI ClipCursorHk(const RECT* lpRect)
 	return false;
 }
 
+BOOL WINAPI SetCursorPosHk(int X, int Y) 
+{
+	return true;
+}
+
 void init_windowHooks(windowHooks* data)
 {
 	g_windowStyle = WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
@@ -278,6 +283,11 @@ void init_windowHooks(windowHooks* data)
 	if (data->clipCursor != NULL)
 	{
 		*(BOOL*)data->clipCursor = (BOOL)ClipCursorHk;
+	}
+
+	if (data->setCursorPos != NULL)
+	{
+		*(BOOL*)data->setCursorPos = (BOOL)SetCursorPosHk;
 	}
 }
 /* END WINDOW HOOKS */

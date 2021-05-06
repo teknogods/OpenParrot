@@ -15,6 +15,7 @@ struct windowHooks
 	int changeDisplaySettingsExW;
 	int updateWindow;
 	int clipCursor;
+	int setCursorPos;
 };
 
 void init_windowHooks(windowHooks* data);

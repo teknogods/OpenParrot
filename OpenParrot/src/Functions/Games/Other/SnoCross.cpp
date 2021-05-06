@@ -13,9 +13,6 @@ typedef unsigned int U32;
 typedef unsigned char U8;
 
 DWORD BaseAddress7 = 0x00400000;
-int horizontal7 = 0;
-int vertical7 = 0;
-HWND hWndRT7 = 0;
 
 static bool previousLeft = false;
 static bool previousRight = false;
@@ -43,9 +40,6 @@ extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
-// hooks ori
-BOOL(__stdcall* original_SetWindowPos7)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
-BOOL(__stdcall* original_CreateWindowExA7)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 
 DWORD WINAPI InputRT7(LPVOID lpParam)
 {
@@ -55,198 +49,184 @@ DWORD WINAPI InputRT7(LPVOID lpParam)
 
 	while (true)
 	{
-		// ESCAPE QUITS GAME 
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+		if (GetAsyncKeyState(VK_NUMPAD1) & 0x0001)
 		{
-			HWND hWndTMP = GetForegroundWindow();
-			if (hWndRT7 == 0)
+			if (NUMpressed1 == false)
 			{
-				hWndRT7 = FindWindowA(NULL, "X-Games SnoCross");
-			}
-			if (hWndTMP == hWndRT7)
-			{
-				exit(0);
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x01\x00\x00\x00\x90", 6, true);
+				NUMpressed1 = true;
 			}
 		}
-
-	if (GetAsyncKeyState(VK_NUMPAD1) & 0x0001)
-	{
-		if (NUMpressed1 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x01\x00\x00\x00\x90", 6, true);
-			NUMpressed1 = true;
+			if (NUMpressed1 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed1 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed1 == true)
+		if (GetAsyncKeyState(VK_NUMPAD2) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed1 = false;
+			if (NUMpressed2 == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x02\x00\x00\x00\x90", 6, true);
+				NUMpressed2 = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_NUMPAD2) & 0x0001)
-	{
-		if (NUMpressed2 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x02\x00\x00\x00\x90", 6, true);
-			NUMpressed2 = true;
+			if (NUMpressed2 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed2 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed2 == true)
+		if (GetAsyncKeyState(VK_NUMPAD3) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed2 = false;
+			if (NUMpressed3 == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x03\x00\x00\x00\x90", 6, true);
+				NUMpressed3 = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_NUMPAD3) & 0x0001)
-	{
-		if (NUMpressed3 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x03\x00\x00\x00\x90", 6, true);
-			NUMpressed3 = true;
+			if (NUMpressed3 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed3 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed3 == true)
+		if (GetAsyncKeyState(VK_NUMPAD4) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed3 = false;
+			if (NUMpressed4 == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x04\x00\x00\x00\x90", 6, true);
+				NUMpressed4 = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_NUMPAD4) & 0x0001)
-	{
-		if (NUMpressed4 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x04\x00\x00\x00\x90", 6, true);
-			NUMpressed4 = true;
+			if (NUMpressed4 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed4 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed4 == true)
+		if (GetAsyncKeyState(VK_NUMPAD5) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed4 = false;
+			if (NUMpressed5 == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x05\x00\x00\x00\x90", 6, true);
+				NUMpressed5 = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_NUMPAD5) & 0x0001)
-	{
-		if (NUMpressed5 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x05\x00\x00\x00\x90", 6, true);
-			NUMpressed5 = true;
+			if (NUMpressed5 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed5 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed5 == true)
+		if (GetAsyncKeyState(VK_NUMPAD6) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed5 = false;
+			if (NUMpressed6 == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x06\x00\x00\x00\x90", 6, true);
+				NUMpressed6 = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_NUMPAD6) & 0x0001)
-	{
-		if (NUMpressed6 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x06\x00\x00\x00\x90", 6, true);
-			NUMpressed6 = true;
+			if (NUMpressed6 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed6 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed6 == true)
+		if (GetAsyncKeyState(VK_NUMPAD7) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed6 = false;
+			if (NUMpressed7 == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x07\x00\x00\x00\x90", 6, true);
+				NUMpressed7 = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_NUMPAD7) & 0x0001)
-	{
-		if (NUMpressed7 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x07\x00\x00\x00\x90", 6, true);
-			NUMpressed7 = true;
+			if (NUMpressed7 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed7 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed7 == true)
+		if (GetAsyncKeyState(VK_NUMPAD8) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed7 = false;
+			if (NUMpressed8 == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x08\x00\x00\x00\x90", 6, true);
+				NUMpressed8 = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_NUMPAD8) & 0x0001)
-	{
-		if (NUMpressed8 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x08\x00\x00\x00\x90", 6, true);
-			NUMpressed8 = true;
+			if (NUMpressed8 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed8 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed8 == true)
+		if (GetAsyncKeyState(VK_NUMPAD9) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed8 = false;
+			if (NUMpressed9 == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x09\x00\x00\x00\x90", 6, true);
+				NUMpressed9 = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_NUMPAD9) & 0x0001)
-	{
-		if (NUMpressed9 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x09\x00\x00\x00\x90", 6, true);
-			NUMpressed9 = true;
+			if (NUMpressed9 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed9 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed9 == true)
+		if (GetAsyncKeyState(VK_NUMPAD0) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed9 = false;
+			if (NUMpressed0 == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x00\x00\x00\x00\x90", 6, true);
+				NUMpressed0 = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_NUMPAD0) & 0x0001)
-	{
-		if (NUMpressed0 == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x00\x00\x00\x00\x90", 6, true);
-			NUMpressed0 = true;
+			if (NUMpressed0 == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				NUMpressed0 = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed0 == true)
+		if (GetAsyncKeyState(VK_RETURN) & 0x0001)
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			NUMpressed0 = false;
+			if (NUMpressed == false)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x0A\x00\x00\x00\x90", 6, true);
+				injector::WriteMemoryRaw((0x1A77D + BaseAddress7), "\x90\x90", 2, true);
+				NUMpressed = true;
+			}
 		}
-	}
-	if (GetAsyncKeyState(VK_RETURN) & 0x0001)
-	{
-		if (NUMpressed == false)
+		else
 		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x0A\x00\x00\x00\x90", 6, true);
-			injector::WriteMemoryRaw((0x1A77D + BaseAddress7), "\x90\x90", 2, true);
-			NUMpressed = true;
+			if (NUMpressed == true)
+			{
+				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
+				injector::WriteMemoryRaw((0x1A77D + BaseAddress7), "\x7C\x49", 2, true);
+				NUMpressed = false;
+			}
 		}
-	}
-	else
-	{
-		if (NUMpressed == true)
-		{
-			injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
-			injector::WriteMemoryRaw((0x1A77D + BaseAddress7), "\x7C\x49", 2, true);
-			NUMpressed = false;
-		}
-	}
 
 		// buttons see bitwise values in TPui//RawThrills.cs
 		// START
@@ -254,21 +234,21 @@ DWORD WINAPI InputRT7(LPVOID lpParam)
 		{
 			injector::WriteMemory<BYTE>((keyboardBuffer + 4 * 0x00), 2, true);
 			if (NUMpressed == false)
-				{
+			{
 				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\xB8\x0A\x00\x00\x00\x90", 6, true);
 				injector::WriteMemoryRaw((0x1A77D + BaseAddress7), "\x90\x90", 2, true);
 				NUMpressed = true;
-				}
 			}
-			else
+		}
+		else
+		{
+			if (NUMpressed == true)
 			{
-				if (NUMpressed == true)
-					{
 				injector::WriteMemoryRaw((0x1A634 + BaseAddress7), "\x8D\x87\x80\xFF\xFE\xFF", 6, true);
 				injector::WriteMemoryRaw((0x1A77D + BaseAddress7), "\x7C\x49", 2, true);
 				NUMpressed = false;
-					}
 			}
+		}
 		// TEST
 		if (*ffbOffset & 0x01)
 		{
@@ -346,11 +326,11 @@ DWORD WINAPI InputRT7(LPVOID lpParam)
 				injector::WriteMemoryRaw((0x26614 + BaseAddress7), "\x90\x90", 2, true);
 				injector::WriteMemoryRaw((0x2661F + BaseAddress7), "\x90\x90", 2, true);
 				injector::WriteMemoryRaw((0x26638 + BaseAddress7), "\x90\x90", 2, true);
-				
+
 				injector::WriteMemoryRaw((0x28BE2 + BaseAddress7), "\x90\x90", 2, true);
 				injector::WriteMemoryRaw((0x28BED + BaseAddress7), "\x90\x90", 2, true);
 				injector::WriteMemoryRaw((0x28C08 + BaseAddress7), "\x90\x90", 2, true);
-			
+
 				injector::WriteMemoryRaw((0x2A5A4 + BaseAddress7), "\x90\x90", 2, true);
 				injector::WriteMemoryRaw((0x2A5AF + BaseAddress7), "\x90\x90", 2, true);
 				injector::WriteMemoryRaw((0x2A5C8 + BaseAddress7), "\x90\x90", 2, true);
@@ -409,16 +389,16 @@ DWORD WINAPI InputRT7(LPVOID lpParam)
 		}
 
 		// WHEEL
-		int iWheel0 = (((float)* ffbOffset2) - 128);
+		int iWheel0 = (((float)*ffbOffset2) - 128);
 		float wheel = (iWheel0 * 0.0078125f);
 		int iWheel = (int)(2047.5 + 2047.5 * wheel);
 		injector::WriteMemory<INT32>(((0x5CA300 + BaseAddress7) + 4 * 0x20), iWheel, true);
 		//// GAS
-		float gas = (float)* ffbOffset3 / 255.0f;
+		float gas = (float)*ffbOffset3 / 255.0f;
 		int iGas = (int)(gas * 4095);
 		injector::WriteMemory<INT32>(((0x5CA300 + BaseAddress7) + 4 * 0x21), iGas, true);
 		//// BRAKE
-		float brake = (float)* ffbOffset4 / 255.0f;
+		float brake = (float)*ffbOffset4 / 255.0f;
 		int iBrake = (int)(brake * 4095);
 		injector::WriteMemory<INT32>(((0x5CA300 + BaseAddress7) + 4 * 0x22), iBrake, true);
 
@@ -432,103 +412,8 @@ DWORD WINAPI InputRT7(LPVOID lpParam)
 	return 0;
 }
 
-DWORD WINAPI WindowRT7(LPVOID lpParam)
-{
-	while (true)
-	{
-		// RIGHT-CLICK MINIMIZES WINDOW
-		if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
-		{
-			HWND hWndTMP = GetForegroundWindow();
-			if (hWndRT7 == 0)
-			{
-				hWndRT7 = FindWindowA(NULL, "X-Games SnoCross");
-			}
-			if (hWndTMP == hWndRT7)
-			{
-				RECT rect;
-				GetWindowRect(hWndRT7, &rect);
-				int currentwidth = rect.right - rect.left;
-				int currentheight = rect.bottom - rect.top;
-				original_SetWindowPos7(hWndRT7, HWND_BOTTOM, 0, 0, 1366, 768, SWP_NOSIZE);
-				ShowWindow(hWndRT7, SW_MINIMIZE);
-			}
-		}
-	}
-}
-
-BOOL(__stdcall* original_DefWindowProcA7)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-DWORD WINAPI DefWindowProcART7(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	static int xClick;
-	static int yClick;
-
-	switch (message)
-	{
-	case WM_LBUTTONDOWN:
-		SetCapture(hWnd);
-		xClick = LOWORD(lParam);
-		yClick = HIWORD(lParam);
-		break;
-
-	case WM_LBUTTONUP:
-		ReleaseCapture();
-		break;
-
-	case WM_MOUSEMOVE:
-	{
-		if (GetCapture() == hWnd)
-		{
-			RECT rcWindow;
-			GetWindowRect(hWnd, &rcWindow);
-			int xMouse = LOWORD(lParam);
-			int yMouse = HIWORD(lParam);
-			int xWindow = rcWindow.left + xMouse - xClick;
-			int yWindow = rcWindow.top + yMouse - yClick;
-			if (xWindow >= (horizontal7 - 100))
-				xWindow = 0;
-			if (yWindow >= (vertical7 - 100))
-				yWindow = 0;
-			original_SetWindowPos7(hWnd, NULL, xWindow, yWindow, 1366, 768, SWP_NOSIZE | SWP_NOZORDER);
-		}
-		break;
-	}
-
-	}
-	return original_DefWindowProcA7(hWnd, message, wParam, lParam);
-}
-
-DWORD WINAPI CreateWindowExART7(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
-{
-	return original_CreateWindowExA7(dwExStyle, lpClassName, "X-Games SnoCross", 0x94000000, 0, 0, 1366, 768, hWndParent, hMenu, hInstance, lpParam);
-}
-
-DWORD WINAPI SetCursorPosRT7(int X, int Y)
-{
-	return 1;
-}
-
-DWORD WINAPI SetWindowPosRT7(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
-{
-	return 1;
-}
-
-bool windowed = false;
-
 static InitFunction SnoCrossFunc([]()
 {
-	MH_Initialize();
-	MH_CreateHookApi(L"user32.dll", "CreateWindowExA", CreateWindowExART7, (void**)& original_CreateWindowExA7);
-	MH_CreateHookApi(L"user32.dll", "SetWindowPos", SetWindowPosRT7, (void**)& original_SetWindowPos7);
-	if (ToBool(config["General"]["Windowed"]))
-	{
-		windowed = true;
-		MH_CreateHookApi(L"user32.dll", "DefWindowProcA", DefWindowProcART7, (void**)& original_DefWindowProcA7);
-		MH_CreateHookApi(L"user32.dll", "SetCursorPos", SetCursorPosRT7, NULL);
-	}
-
-	GetDesktopResolution(horizontal7, vertical7);
-
 	// PATCHING EXE AT RUNTIME (reboots, network, filepath, config, CRC...36DF3D
 	injector::WriteMemoryRaw((0x36DF3D + BaseAddress7), "\x75\x0D", 2, true);
 	injector::WriteMemoryRaw((0x6C7EB + BaseAddress7), "\xF0", 1, true);
@@ -539,11 +424,30 @@ static InitFunction SnoCrossFunc([]()
 	injector::WriteMemoryRaw((0x70DE0 + BaseAddress7), "\x90\x90", 2, true);
 	injector::WriteMemoryRaw((0x71499 + BaseAddress7), "\xE9\x9A\x00\x00\x00\x90", 6, true);
 	injector::WriteMemoryRaw((0x3783AD + BaseAddress7), "\x31\xC0\x40", 3, true);
-	injector::WriteMemoryRaw((0x3A8F90 + BaseAddress7), "\x2E\x5C\x63\x6F\x70\x73\x32\x2E\x68\x73\x74\x00", 12, true);
-	injector::WriteMemoryRaw((0x3A9D48 + BaseAddress7), "\x2E\x5C\x61\x75\x64\x62\x61\x6B\x00\x00\x00\x00\x61\x75\x64\x69\x74\x73\x00\x00\x2E\x5C\x61\x75\x64\x69\x74\x73\x00", 29, true);
-	injector::WriteMemoryRaw((0x3A9D5C + BaseAddress7), "\x2E\x5C\x41\x75\x64\x69\x74\x4C\x6F\x67\x30\x30\x30\x2E\x74\x78\x74\x00\x00", 19, true);
-	injector::WriteMemoryRaw((0x3ACE14 + BaseAddress7), "\x2E\x5C\x70\x72\x65\x66\x73\x62\x61\x6B\x00\x00\x70\x72\x65\x66\x73\x00\x00\x00\x2E\x5C\x70\x72\x65\x66\x73\x00", 28, true);
-	injector::WriteMemoryRaw((0x3AF5C8 + BaseAddress7), "\x2E\x5C\x6D\x70\x2E\x70\x64\x74\x00", 9, true);
+	injector::WriteMemoryRaw(0x3A8F90 + BaseAddress7, ".\\cops2.hst\0", 12, true);
+	injector::WriteMemoryRaw(0x3A9D48 + BaseAddress7, ".\\audbak\0", 9, true);
+	injector::WriteMemoryRaw(0x3A9D5C + BaseAddress7, ".\\audits\0", 9, true);
+	injector::WriteMemoryRaw(0x3AA054 + BaseAddress7, ".\\AuditLog%.3d.txt\0", 19, true);
+	injector::WriteMemoryRaw(0x3ACE14 + BaseAddress7, ".\\prefsbak\0", 11, true);
+	injector::WriteMemoryRaw(0x3ACE28 + BaseAddress7, ".\\prefs\0", 8, true);
+	injector::WriteMemoryRaw(0x3AF5C8 + BaseAddress7, ".\\mp.pdt\0", 9, true);
+	injector::WriteMemoryRaw(0x3AAB00 + BaseAddress7, ".\\\0", 3, true); // C:\rawart
+	injector::WriteMemoryRaw(0x3AE224 + BaseAddress7, ".\\erlg0000.txt\0", 15, true);
+	injector::WriteMemoryRaw(0x3AE294 + BaseAddress7, ".\\HighScores.html\0", 18, true);
+	injector::WriteMemoryRaw(0x3AAAF0 + BaseAddress7, ".\\version.txt\0", 14, true);
+	injector::WriteMemoryRaw(0x3AB6C0 + BaseAddress7, ".\\1stboot.txt\0", 14, true);
+	injector::WriteMemoryRaw(0x3AE200 + BaseAddress7, ".\\errorlog.txt\0", 15, true);
+	injector::WriteMemoryRaw(0x3AE210 + BaseAddress7, ".\\Minidump_%d.dmp\0", 18, true);
+	injector::WriteMemoryRaw(0x3B03A4 + BaseAddress7, ".\\Minidump\0", 11, true);
+	injector::WriteMemoryRaw(0x3AE268 + BaseAddress7, "%c\\AuditLog%04i.txt\0", 20, true);
+	injector::WriteMemoryRaw(0x3AE23C + BaseAddress7, "%c\\erlg%.4d.txt\0", 16, true);
+	injector::WriteMemoryRaw(0x3AE2B0 + BaseAddress7, "%c\\scores%04i.html\0", 19, true);
+	injector::WriteMemoryRaw(0x3AE280 + BaseAddress7, "%c\\audit%04i.txt\0", 17, true);
+
+	// some %c string fix
+	injector::WriteMemory<BYTE>(0xA2A6A + BaseAddress7, 0x2E, true);
+	injector::WriteMemory<BYTE>(0xA298A + BaseAddress7, 0x2E, true);
+	injector::WriteMemory<BYTE>(0xA2BEA + BaseAddress7, 0x2E, true);
 
 	// REPLACE SPACE KEY WITH ESC TO PREVENT EXITING LEVEL PREMATURELY
 	injector::WriteMemory<BYTE>((0x77328 + BaseAddress7), DIK_ESCAPE, true);
@@ -553,12 +457,23 @@ static InitFunction SnoCrossFunc([]()
 
 	CreateThread(NULL, 0, InputRT7, NULL, 0, NULL);
 
-	if (windowed)
+	if (ToBool(config["General"]["Windowed"]))
 	{
 		// NO HIDE CURSOR
 		injector::WriteMemory<BYTE>((0x14A9F + BaseAddress7), 0x01, true);
+		injector::MakeNOP(BaseAddress7 + 0x14B44, 8, true);
 
-		CreateThread(NULL, 0, WindowRT7, NULL, 0, NULL);
+		static const char* title = "OpenParrot - X-Games SnoCross";
+		injector::WriteMemory<DWORD>(BaseAddress7 + 0x14DC5, (DWORD)title, true);
+
+		windowHooks hooks = { 0 };
+		hooks.createWindowExA = BaseAddress7 + 0x3A32F4;
+		hooks.adjustWindowRect = BaseAddress7 + 0x3A332C;
+		hooks.adjustWindowRectEx = BaseAddress7 + 0x3A32F8;
+		hooks.setWindowPos = BaseAddress7 + 0x3A3328;
+		hooks.setCursorPos = BaseAddress7 + 0x3A3300;
+
+		init_windowHooks(&hooks);
 	}
 
 	// MACHINE ID setting
@@ -601,13 +516,9 @@ static InitFunction SnoCrossFunc([]()
 	// redirect messages.txt
 	injector::WriteMemoryRaw(BaseAddress7 + 0x4A9EF4, "./messages.txt", 14, true);
 
-	// redirect auditlog.txt
-	injector::WriteMemoryRaw(BaseAddress7 + 0x3AA054, ".//AuditLog%.3d.txt", 19, true);
-
 	//graphics crashfix
 	injector::WriteMemory<BYTE>(BaseAddress7 + 0xC7FE2, 0xEB, true);
 	injector::MakeNOP(BaseAddress7 + 0xC7FDB, 2, true);
 
-	MH_EnableHook(MH_ALL_HOOKS);
 }, GameID::SnoCross);
 #endif

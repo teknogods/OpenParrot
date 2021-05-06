@@ -56,12 +56,18 @@ int iround(double num) {
 	return (num > 0.0) ? (int)floor(num + 0.5) : (int)ceil(num - 0.5);
 }
 
+extern void GHAInputs();
+
 extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 extern int* ffbOffset6;
+
+extern int FFBDeadzoneMaxMin;
+
+XINPUT_GAMEPAD gamepadState = { 0 };
 
 DWORD WINAPI XInputGetState
 (
@@ -75,42 +81,13 @@ DWORD WINAPI XInputGetState
 	}
 	if (controllerInit && dwUserIndex == 0)
 	{
-		XINPUT_GAMEPAD gamepadState = { 0 };
-
 		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament)
 		{
 			gamepadState.wButtons |= *ffbOffset;
 		}
 		else if (GameDetect::currentGame == GameID::GHA)
 		{
-			gamepadState.wButtons = 0;
-			gamepadState.bLeftTrigger = 0;
-			gamepadState.bRightTrigger = 0;
-			// START KEY MACRO (only on ATTRACT SCREEN)
-			if (*ffbOffset == XINPUT_GAMEPAD_START)
-			{
-				gamepadState.wButtons = 0xF000;
-				gamepadState.bLeftTrigger = 255;
-				gamepadState.bRightTrigger = 255;
-			}
-			// GREEN KEY MACRO
-			if (*ffbOffset == XINPUT_GAMEPAD_X)
-			{
-				gamepadState.bLeftTrigger = 255;
-			}
-			else gamepadState.bLeftTrigger = 0;
-			// BLUE KEY MACRO
-			if (*ffbOffset == XINPUT_GAMEPAD_Y)
-			{
-				gamepadState.bRightTrigger = 255;
-			}
-			else gamepadState.bRightTrigger = 0;
-			// OTHER KEYs PASSTHROUGH
-			if (*ffbOffset == XINPUT_GAMEPAD_DPAD_UP || *ffbOffset == XINPUT_GAMEPAD_DPAD_DOWN || *ffbOffset == XINPUT_GAMEPAD_DPAD_LEFT || *ffbOffset == XINPUT_GAMEPAD_DPAD_RIGHT || *ffbOffset == XINPUT_GAMEPAD_LEFT_SHOULDER || *ffbOffset == XINPUT_GAMEPAD_RIGHT_SHOULDER || *ffbOffset == XINPUT_GAMEPAD_A || *ffbOffset == XINPUT_GAMEPAD_B)
-			{
-				gamepadState.wButtons |= *ffbOffset;
-			}
-			else gamepadState.wButtons = 0;
+			GHAInputs();
 		}
 		else if (GameDetect::currentGame == GameID::JLeague)
 		{
@@ -164,18 +141,28 @@ DWORD WINAPI XInputGetState
 		if (GameDetect::currentGame == GameID::Daytona3)
 		{
 			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
-			if (*ffbOffset2 < 1)
+
+			int Wheel = 0;
+
+			if ((*ffbOffset2 >= (128 - FFBDeadzoneMaxMin)) && (*ffbOffset2 <= 128 + FFBDeadzoneMaxMin)) //Deadzone for FFB
 			{
-				gamepadState.sThumbLX |= 257 - (-(32767 - *ffbOffset2) * 257);
+				gamepadState.sThumbLX = 0;
 			}
-			else if ((*ffbOffset2 >= 121) && (*ffbOffset2 <= 133)) //Deadzone for FFB
+			else if (*ffbOffset2 > 128)
 			{
-				gamepadState.sThumbLX == 32768;
+				Wheel = -(-32767 + -(*ffbOffset2 * 255.9921875));
+
+				if (*ffbOffset2 >= 254)
+					Wheel = 32767;
 			}
 			else
 			{
-				gamepadState.sThumbLX |= (-(32768 - *ffbOffset2) * 257);
+				Wheel = (-32767 - -(*ffbOffset2 * 255.9921875));
+
+				if (*ffbOffset2 >= 254)
+					Wheel = -32767;
 			}
+			gamepadState.sThumbLX = Wheel;
 		}
 #endif
 		if (pState->dwPacketNumber == UINT_MAX)
