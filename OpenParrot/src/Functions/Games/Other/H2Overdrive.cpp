@@ -272,9 +272,9 @@ static InitFunction H2OverdriveFunc([]()
 		injector::WriteMemoryRaw((0x146E68 + BaseAddress10), "\x6A\x2E", 2, true);
 		//SERVICE REMAP to INSERT
 		injector::WriteMemoryRaw((0x146EB2 + BaseAddress10), "\x6A\x2D", 2, true);
-		//VOL+- REMAP to UP/DOWN
-		injector::WriteMemoryRaw((0x146F03 + BaseAddress10), "\x6A\x26", 2, true);
-		injector::WriteMemoryRaw((0x146F54 + BaseAddress10), "\x6A\x28", 2, true);
+		//VOL+- REMAP to Page Up/Down
+		injector::WriteMemoryRaw((0x146F03 + BaseAddress10), "\x6A\x21", 2, true);
+		injector::WriteMemoryRaw((0x146F54 + BaseAddress10), "\x6A\x22", 2, true);
 		//ENABLE KEYPAD
 		injector::WriteMemoryRaw((0x186302 + BaseAddress10), "\xEB", 1, true);
 		//KEYPAD HACK
