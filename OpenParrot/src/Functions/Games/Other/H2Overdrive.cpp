@@ -188,7 +188,6 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				if (NameChoosing && !NameViewButton)
 				{
 					NameViewButton = true;
-					OutputDebugStringA("View Pressed");
 					injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true);
 				}
 			}
