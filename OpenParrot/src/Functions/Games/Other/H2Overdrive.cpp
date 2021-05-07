@@ -289,6 +289,33 @@ static InitFunction H2OverdriveFunc([]()
 			MH_EnableHook(MH_ALL_HOOKS);
 		}
 
+		if (ToBool(config["Network"]["Enable"]))
+		{
+			injector::MakeNOP(0xF78AE + BaseAddress10, 6); // Stop game writing to cabinet id values
+
+			int PC1 = FetchDwordInformation("Network", "Cabinet 1 IP X.X.X.???", 256);
+			int PC2 = FetchDwordInformation("Network", "Cabinet 2 IP X.X.X.???", 256);
+			int PC3 = FetchDwordInformation("Network", "Cabinet 3 IP X.X.X.???", 256);
+			int PC4 = FetchDwordInformation("Network", "Cabinet 4 IP X.X.X.???", 256);
+			int PC5 = FetchDwordInformation("Network", "Cabinet 5 IP X.X.X.???", 256);
+			int PC6 = FetchDwordInformation("Network", "Cabinet 6 IP X.X.X.???", 256);
+			int PC7 = FetchDwordInformation("Network", "Cabinet 7 IP X.X.X.???", 256);
+			int PC8 = FetchDwordInformation("Network", "Cabinet 8 IP X.X.X.???", 256);
+
+			for (int i = 0; i < 255; i++) {
+				injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + i, 0x00, true);
+			}
+
+			if (PC1 > 0 && PC1 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC1, 0x01, true);
+			if (PC2 > 0 && PC2 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC2, 0x02, true);
+			if (PC3 > 0 && PC3 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC3, 0x03, true);
+			if (PC4 > 0 && PC4 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC4, 0x04, true);
+			if (PC5 > 0 && PC5 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC5, 0x05, true);
+			if (PC6 > 0 && PC6 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC6, 0x06, true);
+			if (PC7 > 0 && PC7 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC7, 0x07, true);
+			if (PC8 > 0 && PC8 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC8, 0x08, true);
+		}
+
 		CreateThread(NULL, 0, InputRT10, NULL, 0, NULL);
 
 	}, GameID::H2Overdrive);
