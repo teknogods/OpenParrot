@@ -20,6 +20,8 @@ static bool button4pressed = false;
 static bool STARTpressed = false;
 static bool STARTpressed2 = false;
 static bool NameChoosing = false;
+static bool NameViewButton = false;
+static int ViewCount;
 
 // controls
 extern int* ffbOffset;
@@ -51,11 +53,30 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 			exit(0);
 		}
 
+		BYTE ViewName = *(BYTE*)(0x398CB8 + BaseAddress10);
+
 		// FIX FOR NAME CHOOSING
 		if (strcmp((char*)0x3CB4F8 + BaseAddress10, EnterYourName) == 0)
 			NameChoosing = true;
 		else
 			NameChoosing = false;
+
+		if (NameChoosing && NameViewButton)
+		{
+			if (ViewName)
+			{
+				++ViewCount;
+				if (ViewCount == 2)
+				{
+					injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true);
+					ViewCount = 0;
+				}
+
+			}
+			else
+				if (ViewCount > 0)
+					ViewCount = 0;
+		}
 
 		// REAL NUMERIC KEYPAD
 		int keys[] = { VK_NUMPAD1, VK_NUMPAD2, VK_NUMPAD3, VK_NUMPAD4, VK_NUMPAD5, VK_NUMPAD6, VK_NUMPAD7, VK_NUMPAD8, VK_NUMPAD9, VK_MULTIPLY, VK_NUMPAD0, VK_DIVIDE };
@@ -163,6 +184,13 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				{
 					injector::WriteMemory<INT32>((ptr + 0x840), 1, true);
 				}
+
+				if (NameChoosing && !NameViewButton)
+				{
+					NameViewButton = true;
+					OutputDebugStringA("View Pressed");
+					injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true);
+				}
 			}
 			else if (button2pressed == true)
 			{
@@ -180,6 +208,11 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				if (0 != ptr)
 				{
 					injector::WriteMemory<INT32>((ptr + 0x840), 0, true);
+				}
+
+				if (NameViewButton)
+				{
+					NameViewButton = false;
 				}
 			}
 		}
