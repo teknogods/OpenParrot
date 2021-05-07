@@ -1195,6 +1195,9 @@ static InitFunction initFunction([]()
 				injector::MakeNOP(imageBase + 0x1E799, 6);
 				injector::MakeNOP(imageBase + 0x1E880, 6);
 				injector::MakeNOP(imageBase + 0x27447, 3);
+			
+				// Fix 6MT warning upon key entry
+				injector::WriteMemoryRaw(imageBase + 0xD4AC3, "\xE9\x0E\x01\x00", 4, true);
 
 				if (ToBool(config["General"]["Professional Edition Hold Gear"]))
 				{
