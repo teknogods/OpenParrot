@@ -13,16 +13,21 @@ DWORD BaseAddress10 = 0x00400000;
 HWND hWndRT10 = 0;
 
 static bool button1pressed = false;
+static bool button1pressed2 = false;
 static bool button2pressed = false;
 static bool button3pressed = false;
 static bool button4pressed = false;
 static bool STARTpressed = false;
+static bool STARTpressed2 = false;
+static bool NameChoosing = false;
 
 // controls
 extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
+
+static const char* EnterYourName = ("ENTER YOUR NAME!");
 
 CREATE_PROCESS_DEBUG_INFO gProcDbgInfo = { 0 };
 
@@ -45,6 +50,12 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			exit(0);
 		}
+
+		// FIX FOR NAME CHOOSING
+		if (strcmp((char*)0x3CB4F8 + BaseAddress10, EnterYourName) == 0)
+			NameChoosing = true;
+		else
+			NameChoosing = false;
 
 		// REAL NUMERIC KEYPAD
 		int keys[] = { VK_NUMPAD1, VK_NUMPAD2, VK_NUMPAD3, VK_NUMPAD4, VK_NUMPAD5, VK_NUMPAD6, VK_NUMPAD7, VK_NUMPAD8, VK_NUMPAD9, VK_MULTIPLY, VK_NUMPAD0, VK_DIVIDE };
@@ -87,6 +98,15 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 0, true);
 				STARTpressed = true;
 			}
+			else
+			{
+				if (NameChoosing && !STARTpressed2)
+				{
+					injector::WriteMemory<INT32>((0x398CB0 + BaseAddress10), 0, true);
+					injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 1, true);
+					STARTpressed2 = true;
+				}
+			}
 		}
 		else
 		{
@@ -95,6 +115,7 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				injector::WriteMemory<INT32>((0x398CB0 + BaseAddress10), 0, true);
 				injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 1, true);
 				STARTpressed = false;
+				STARTpressed2 = false;
 			}
 		}
 
@@ -107,6 +128,15 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 0, true);
 				button1pressed = true;
 			}
+			else
+			{
+				if (NameChoosing && !button1pressed2)
+				{
+					injector::WriteMemory<INT32>((0x398CB0 + BaseAddress10), 0, true);
+					injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 1, true);
+					button1pressed2 = true;
+				}
+			}
 		}
 		else
 		{
@@ -115,6 +145,7 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				injector::WriteMemory<INT32>((0x398CB0 + BaseAddress10), 0, true);
 				injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 1, true);
 				button1pressed = false;
+				button1pressed2 = false;
 			}
 		}
 		
