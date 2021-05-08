@@ -6,6 +6,9 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
+static const char* EnterYourName = ("ENTER YOUR NAME!");
+static const char* HighScoreName = ("PLAYER BEST TIMES");
+
 typedef unsigned int U32;
 typedef unsigned char U8;
 
@@ -29,8 +32,6 @@ extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
 
-static const char* EnterYourName = ("ENTER YOUR NAME!");
-
 CREATE_PROCESS_DEBUG_INFO gProcDbgInfo = { 0 };
 
 LPVOID GetTranslatedOffset(int offset)
@@ -46,23 +47,22 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 
 	while (true)
 	{
-
 		// ESCAPE QUITS GAME 
 		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
 		{
 			exit(0);
 		}
 
-		BYTE ViewName = *(BYTE*)(0x398CB8 + BaseAddress10);
-
 		// FIX FOR NAME CHOOSING
-		if (strcmp((char*)0x3CB4F8 + BaseAddress10, EnterYourName) == 0)
+		if (strcmp((char*)0x3CB4F8 + BaseAddress10, EnterYourName) == 0 || strcmp((char*)0x3CB4FE + BaseAddress10, HighScoreName) == 0 || strcmp((char*)0x3CB4FF + BaseAddress10, HighScoreName) == 0)
 			NameChoosing = true;
 		else
 			NameChoosing = false;
 
 		if (NameChoosing && NameViewButton)
 		{
+			BYTE ViewName = *(BYTE*)(0x398CB8 + BaseAddress10);
+
 			if (ViewName)
 			{
 				++ViewCount;
