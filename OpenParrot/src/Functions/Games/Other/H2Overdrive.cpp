@@ -20,6 +20,8 @@ static bool button1pressed2 = false;
 static bool button2pressed = false;
 static bool button3pressed = false;
 static bool button4pressed = false;
+static bool button5pressed = false;
+static bool button6pressed = false;
 static bool STARTpressed = false;
 static bool STARTpressed2 = false;
 static bool NameChoosing = false;
@@ -253,7 +255,6 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button4pressed == false)
 			{
-				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true); // MENU COUNTDOWN HACK
 				keybd_event(0x2D, MapVirtualKey(0x2D, MAPVK_VK_TO_VSC), 0, 0);
 				button4pressed = true;
 			}
@@ -262,9 +263,42 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button4pressed == true)
 			{
-				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true); // MENU COUNTDOWN HACK
 				keybd_event(0x2D, MapVirtualKey(0x2D, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 				button4pressed = false;
+			}
+		}
+		// BUTTON 5/ VOL/MENU UP
+		if (*ffbOffset & 0x10)
+		{
+			if (button5pressed == false)
+			{
+				keybd_event(0x21, MapVirtualKey(0x21, MAPVK_VK_TO_VSC), 0, 0);
+				button5pressed = true;
+			}
+		}
+		else
+		{
+			if (button5pressed == true)
+			{
+				keybd_event(0x21, MapVirtualKey(0x21, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				button5pressed = false;
+			}
+		}
+		// BUTTON 6/ VOL/MENU DOWN
+		if (*ffbOffset & 0x20)
+		{
+			if (button6pressed == false)
+			{
+				keybd_event(0x22, MapVirtualKey(0x22, MAPVK_VK_TO_VSC), 0, 0);
+				button6pressed = true;
+			}
+		}
+		else
+		{
+			if (button6pressed == true)
+			{
+				keybd_event(0x22, MapVirtualKey(0x22, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				button6pressed = false;
 			}
 		}
 
