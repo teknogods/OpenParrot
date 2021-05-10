@@ -4,52 +4,41 @@
 #include "Functions/Global.h"
 #include "Utility/Helper.h"
 
-static bool CoinPressed = false;
-static bool TestPressed = false;
-static bool ServicePressed = false;
-static bool TimeStartPressed = false;
-static bool StartPressed = false;
-static bool ViewPressed = false;
-static bool HazardPressed = false;
-static bool OverTakePressed = false;
-static bool ShiftLeftPressed = false;
-static bool ShiftRightPressed = false;
-static bool SideBrakePressed = false;
-static bool SeatSwitch1Pressed = false;
-static bool SeatSwitch2Pressed = false;
-static bool Gear1Pressed = false;
-static bool Gear2Pressed = false;
-static bool Gear3Pressed = false;
-static bool Gear4Pressed = false;
-static bool Gear5Pressed = false;
-static bool Gear6Pressed = false;
-static bool KeyPressed = false;
-static bool init = false;
-static bool MenuHack = false;
-static bool MenuHackDelay = false;
-static bool TestMode = false;
+static bool CoinPressed;
+static bool TestPressed;
+static bool ServicePressed;
+static bool TimeStartPressed;
+static bool StartPressed;
+static bool ViewPressed;
+static bool HazardPressed;
+static bool OverTakePressed;
+static bool ShiftLeftPressed;
+static bool ShiftRightPressed;
+static bool SideBrakePressed;
+static bool SeatSwitch1Pressed;
+static bool SeatSwitch2Pressed;
+static bool Gear1Pressed;
+static bool Gear2Pressed;
+static bool Gear3Pressed;
+static bool Gear4Pressed;
+static bool Gear5Pressed;
+static bool Gear6Pressed;
+static bool KeyPressed;
+static bool init;
+static bool MenuHack;
+static bool MenuHackDelay;
+static bool TestMode;
+
+static DWORD imageBase;
 
 extern int* wheelSection;
 extern int* ffbOffset;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
-static Helpers* myHelpers;
 
-static DWORD WINAPI ChangeValues(LPVOID lpParam)
-{
-	Sleep(10000);
-
-	DWORD imageBase = (DWORD)GetModuleHandleA(0);
-	myHelpers->WriteByte(0x42E296, 0x01, true);
-	myHelpers->WriteByte(0x42E295, 0x80, true);
-	injector::MakeNOP(imageBase + 0x27400, 6);
-	return 0;
-}
-
-void BG4ManualHack(Helpers* helpers)
-{
-	//Hack to allow us to select Manual		
+void BG4ManualHack(Helpers* helpers) //Hack to allow us to select Manual	
+{	
 	INT_PTR MenuTimerBase = helpers->ReadIntPtr(0x4C2924, true);
 	INT_PTR MenuTimerBaseA = helpers->ReadIntPtr(MenuTimerBase + 0x08, false);
 	INT_PTR MenuTime = helpers->ReadIntPtr(MenuTimerBaseA + 0x45C, false);
@@ -82,21 +71,18 @@ void BG4ManualHack(Helpers* helpers)
 	}
 }
 
-void BG4ProInputs(Helpers* helpers)
-{
-	if (!init)
-	{
-		init = true;
-		myHelpers = helpers;
-		CreateThread(NULL, 0, ChangeValues, NULL, 0, NULL);
-	}
-
-	//Hack to allow us to select Manual and Manual with Clutch		
+static void BG4ProManualHack(Helpers* helpers) //Hack to allow us to select Manual and Manual with Clutch
+{	
 	INT_PTR MenuTimerBase = helpers->ReadIntPtr(0x4C2924, true);
 	INT_PTR MenuTimerBaseA = helpers->ReadIntPtr(MenuTimerBase + 0x08, false);
 	INT_PTR MenuTime = helpers->ReadIntPtr(MenuTimerBaseA + 0x45C, false);
 
-	if (MenuTime == 0x1194)
+	INT_PTR VehicleSelectionBase = helpers->ReadIntPtr(0x42D4A0, true);
+	INT_PTR VehicleSelectionOff1 = helpers->ReadIntPtr(VehicleSelectionBase + 0x78, false);
+	INT_PTR VehicleSelectionOff2 = helpers->ReadIntPtr(VehicleSelectionOff1 + 0x190, false);
+	UINT8 VehicleSelection = helpers->ReadByte(VehicleSelectionOff2 + 0x20, false);
+
+	if (VehicleSelection)
 	{
 		if (!MenuHack)
 		{
@@ -109,32 +95,45 @@ void BG4ProInputs(Helpers* helpers)
 		if (MenuHack)
 		{
 			MenuHack = false;
-			MenuHackDelay = false;
 		}
 	}
 
 	if (MenuHack)
 	{
-		if (!MenuHackDelay)
-		{
-			MenuHackDelay = true;
-			Sleep(2500);
-		}
 		helpers->WriteByte(MenuTimerBaseA + 0x454, 0x04, false);
 		BYTE This = helpers->ReadByte(MenuTimerBaseA + 0x44C, false);
 
-		if (This == 0x02)
+		switch (This)
 		{
-			helpers->WriteByte(0x42E341, 0xD0, true);  //Set Shift SEN 2 to ON or error
+			case 0x02:
+				helpers->WriteByte(0x42E341, 0xD0, true);  //Set Shift SEN 2 to ON or error
+				break;
+			case 0x03:
+				helpers->WriteByte(0x42E341, 0xE0, true);  //Set Shift SEN 1 to ON or error
+				break;
 		}
-		else if (This == 0x03)
+	}
+}
+
+void BG4ProInputs(Helpers* helpers)
+{
+	if (!init)
+	{
+		imageBase = (DWORD)GetModuleHandleA(0);
+		UINT8 WaitForAttract = helpers->ReadByte(0x42D964, true);
+
+		if (WaitForAttract)
 		{
-			helpers->WriteByte(0x42E341, 0xE0, true);  //Set Shift SEN 1 to ON or error
+			helpers->WriteByte(0x42E296, 0x01, true);
+			helpers->WriteByte(0x42E295, 0x80, true);
+			injector::MakeNOP(imageBase + 0x27400, 6);
+			init = true;
 		}
 	}
 
-	DWORD imageBase = (DWORD)GetModuleHandleA(0);
-	UINT8 KeyInput = helpers->ReadByte(imageBase + 0x42E296, false);
+	BG4ProManualHack(0);
+	
+	UINT8 KeyInput = helpers->ReadByte(0x42E296, true);
 
 	if (*ffbOffset & 0x01) //Test
 	{
