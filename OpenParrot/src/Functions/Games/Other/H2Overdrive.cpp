@@ -404,8 +404,6 @@ static InitFunction H2OverdriveFunc([]()
 		if (ToBool(config["Network"]["Enable"]))
 		{
 			injector::MakeNOP(0xF78AE + BaseAddress10, 6); // Stop game writing to cabinet id values
-			injector::MakeNOP(0x1457F3 + BaseAddress10, 5); // Stop game adding certain ips if user has specific adapter
-			injector::MakeNOP(0x1457FB + BaseAddress10, 5); // Stop game adding certain ips if user has specific adapter
 
 			int PC1 = FetchDwordInformation("Network", "Cabinet 1 IP X.X.X.???", 256);
 			int PC2 = FetchDwordInformation("Network", "Cabinet 2 IP X.X.X.???", 256);
@@ -429,6 +427,9 @@ static InitFunction H2OverdriveFunc([]()
 			if (PC7 > 0 && PC7 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC7, 0x07, true);
 			if (PC8 > 0 && PC8 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC8, 0x08, true);
 		}
+
+		injector::MakeNOP(0x1457F3 + BaseAddress10, 5); // Stop game adding certain ips if user has specific adapter
+		injector::MakeNOP(0x1457FB + BaseAddress10, 5); // Stop game adding certain ips if user has specific adapter
 
 		CreateThread(NULL, 0, InputRT10, NULL, 0, NULL);
 
