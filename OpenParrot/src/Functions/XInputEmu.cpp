@@ -83,7 +83,7 @@ DWORD WINAPI XInputGetState
 	{
 		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament)
 		{
-			gamepadState.wButtons |= *ffbOffset;
+			gamepadState.wButtons = *ffbOffset;
 		}
 		else if (GameDetect::currentGame == GameID::GHA)
 		{
