@@ -22,19 +22,46 @@ static int ReturnTrue()
 	return 1;
 }
 
+DWORD windowStyle = WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+int centeredX;
+int centeredY;
+
+static HWND WINAPI CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+{
+	centeredX = (GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2;
+	centeredY = (GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2;
+
+	lpWindowName = "OpenParrot - Pokken Tournament";
+
+	return CreateWindowExA(dwExStyle, lpClassName, lpWindowName, windowStyle, centeredX, centeredY, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+}
+
+static HWND WINAPI CreateWindowExWHook(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+{
+	centeredX = (GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2;
+	centeredY = (GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2;
+
+	lpWindowName = L"OpenParrot - Pokken Tournament";
+
+	return CreateWindowExW(dwExStyle, lpClassName, lpWindowName, windowStyle, centeredX, centeredY, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+}
+
 static InitFunction PokkenFunc([]()
 {
 	hookPort = "COM3";
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
 
 	// force windowed
-	// BE 01 00 00 00 8B CE -0x8 // ok 10-24
+	// BE 01 00 00 00 8B CE -0x8 // ok 00-24
 	// 18: imageBase + 0x5A5A2A
 	char* windowedPattern = hook::get_pattern<char>("BE 01 00 00 00 8B CE", -0x8);
 	if (ToBool(config["General"]["Windowed"]))
 	{
 		injector::MakeNOP(windowedPattern, 8);
 		injector::WriteMemory<BYTE>(windowedPattern + 0x48, 0x00, true);
+
+		iatHook("user32.dll", CreateWindowExAHook, "CreateWindowExA");
+		iatHook("user32.dll", CreateWindowExWHook, "CreateWindowExW");
 	}
 
 	// Remove BlockInput
@@ -42,7 +69,7 @@ static InitFunction PokkenFunc([]()
 
 	// make english into japanese
 	// TODO: other system locales
-	// 65 6E 00 00 6A 61 00 00 // ok 10-24
+	// 65 6E 00 00 6A 61 00 00 // ok 00-24
 	// 18: imageBase + 0x9AC1FC
 	char* localePattern = hook::get_pattern<char>("65 6E 00 00 6A 61 00 00");
 	injector::WriteMemory<char>(localePattern, 'j', true);
@@ -50,27 +77,27 @@ static InitFunction PokkenFunc([]()
 
 
 	// dongle
-	// 41 B8 28 06 00 00 49 8B CE -0x42 // ok 10-24
+	// 41 B8 28 06 00 00 49 8B CE -0x42 // ok 00-24
 	// 18: imageBase + 0x318610
 	safeJMP(hook::get_pattern("41 B8 28 06 00 00 49 8B CE", -0x42), PokkenGetSerial);
 
 	// icmp pinging
-	// 44 89 4C 24 20 53 41 54 48 83 EC 58 // ok 10-24
+	// 44 89 4C 24 20 53 41 54 48 83 EC 58 // ok 00-24
 	// 18: imageBase + 0x609450
 	safeJMP(hook::get_pattern("44 89 4C 24 20 53 41 54 48 83 EC 58"), ReturnTrue);
 
 	// subnet check (don't force 192.168.123.xxx)
-	// 48 8B C4 55 48 8D 68 A1 48 81 EC B0 00 00 00 48 C7 45 D7 FE // ok 10-24
+	// 48 8B C4 55 48 8D 68 A1 48 81 EC B0 00 00 00 48 C7 45 D7 FE // ok 00-24
 	// 18: imageBase + 0x60A5E0
 	safeJMP(hook::get_pattern("48 8B C4 55 48 8D 68 A1 48 81 EC B0 00 00 00 48 C7 45 D7 FE"), ReturnTrue);
 
 	// no cpuid detection (crashes on Core 2?)
-	// 48 89 5C 24 08 4C 8B C9 C7 41 08 FF FF FF FF // ok 10-24
+	// 48 89 5C 24 08 4C 8B C9 C7 41 08 FF FF FF FF // ok 00-24
 	// 18: imageBase + 0x6F7C80
 	injector::MakeRET(hook::get_pattern("48 89 5C 24 08 4C 8B C9 C7 41 08 FF FF FF FF"));
 
 	// don't give usb controller error #2
-	// 48 8D 8F F8 00 00 00 88 9F 05 01 00 00 -0x2 // ok 10-24
+	// 48 8D 8F F8 00 00 00 88 9F 05 01 00 00 -0x2 // ok 00-24
 	// 18: imageBase + 0x661820
 	injector::MakeNOP(hook::get_pattern("48 8D 8F F8 00 00 00 88 9F 05 01 00 00", -0x2), 2);
 

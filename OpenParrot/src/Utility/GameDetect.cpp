@@ -444,6 +444,7 @@ void GameDetect::DetectCurrentGame()
 		//	currentGame = GameID::SchoolOfRagnarok;
 		//	isNesica = true;
 		//}
+		// Update 08-26
 		if (*(uint32_t*)(moduleBase + 0x1C04) == 0x7401C3F6)
 		{
 			currentGame = GameID::PokkenTournament;
@@ -623,6 +624,16 @@ void GameDetect::DetectCurrentGame()
 			break;
 		case 0xce9718fd:
 			currentGame = GameID::Tekken7Update00;
+			break;
+		case 0xc017f0be: // 00 doesn't work, broken dump?
+		case 0x17059cf3: // 01
+		case 0xe325036f: // 02
+		case 0x652fee7d: // 03
+		case 0x246b5f7e: // 04
+		case 0x94d16ccc: // 05
+		case 0x3cc1be43: // 06
+		case 0x247b6f8c: // 07
+			currentGame = GameID::PokkenTournament;
 			break;
 #endif
 		default:
