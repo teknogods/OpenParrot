@@ -81,7 +81,7 @@ DWORD WINAPI XInputGetState
 	}
 	if (controllerInit && dwUserIndex == 0)
 	{
-		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament)
+		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26)
 		{
 			gamepadState.wButtons = *ffbOffset;
 		}
@@ -362,7 +362,7 @@ DWORD WINAPI XInputGetStateEx
 	{
 		XINPUT_GAMEPAD gamepadState = { 0 };
 
-		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament)
+		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26)
 			gamepadState.wButtons = *ffbOffset;
 		else
 			gamepadState.wButtons = 0;
@@ -419,7 +419,7 @@ LPCWSTR ptrToUse;
 
 static InitFunction XInputHook([]()
 	{
-		if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GHA || GameDetect::currentGame == GameID::JLeague)
+		if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26 || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GHA || GameDetect::currentGame == GameID::JLeague)
 		{
 			controllerInit = true;
 

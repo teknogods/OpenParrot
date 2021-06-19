@@ -46,10 +46,54 @@ static HWND WINAPI CreateWindowExWHook(DWORD dwExStyle, LPCWSTR lpClassName, LPC
 	return CreateWindowExW(dwExStyle, lpClassName, lpWindowName, windowStyle, centeredX, centeredY, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 }
 
+enum class INIT_STATE : int32_t
+{
+	CHECKING = 0,
+	OK = 1,
+	NG = 2,
+	NOT_CHECKED = 3,
+	OFFLINE = 4,
+	DASH = 5
+};
+
+class InitData
+{
+public:
+	uint64_t StateFunctionCurrent; //0x0000
+	uint64_t StateFunctionNext; //0x0008
+	uint32_t StateFunctionRV; //0x0010
+	INIT_STATE StateSN; //0x0014
+	INIT_STATE StateIO; //0x0018
+	INIT_STATE StateBackupMemory; //0x001C
+	INIT_STATE StateCardReader; //0x0020
+	INIT_STATE StateUsbController; //0x0024
+	INIT_STATE StateLocalNetwork; //0x0028
+	INIT_STATE StateAllNet; //0x002C
+	INIT_STATE StateGameServer; //0x0030
+	INIT_STATE StateMatchingServer; //0x0034
+	INIT_STATE StateVersion; //0x0038
+	INIT_STATE StateClock; //0x003C
+	uint32_t Timer1; //0x0040
+	uint32_t Timer2; //0x0044
+	bool Done; //0x0048
+	char SerialNumber[13]; //0x0049
+}; //Size: 0x0056
+
+static uintptr_t imageBase;
+
+static __int64 __fastcall StateFunctionSN(InitData* a1)
+{
+	a1->StateSN = INIT_STATE::OK;
+	sprintf(a1->SerialNumber, "TEKNOPARROT");
+	a1->StateFunctionNext = imageBase + 0x5902E0;
+
+	return 1;
+}
+
 static InitFunction PokkenFunc([]()
 {
 	hookPort = "COM3";
-	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	imageBase = (uintptr_t)GetModuleHandleA(0);
 
 	// force windowed
 	// BE 01 00 00 00 8B CE -0x8 // ok 00-24
@@ -124,4 +168,10 @@ static InitFunction PokkenFunc([]()
 		}
 	}
 }, GameID::PokkenTournament);
+
+static InitFunction PokkenFunc26([]()
+{
+	InitFunction::RunFunctions(GameID::PokkenTournament);
+	safeJMP(imageBase + 0x590320, StateFunctionSN);
+}, GameID::PokkenTournament26);
 #endif

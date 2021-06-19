@@ -444,12 +444,6 @@ void GameDetect::DetectCurrentGame()
 		//	currentGame = GameID::SchoolOfRagnarok;
 		//	isNesica = true;
 		//}
-		// Update 08-26
-		if (*(uint32_t*)(moduleBase + 0x1C04) == 0x7401C3F6)
-		{
-			currentGame = GameID::PokkenTournament;
-			break;
-		}
 		// PATCHES 0-9
 		if (*(uint32_t*)(moduleBase + 0x2F00) == 0xFFCB8B48)
 		{
@@ -475,6 +469,18 @@ void GameDetect::DetectCurrentGame()
 #endif
 		* (DWORD*)(newCrc + pePTR + 54) = 0x00000000;
 		uint32_t newCrcResult = GetCRC32(newCrc, 0x400);
+
+		// Pokken update 08-26
+		if (*(uint32_t*)(moduleBase + 0x1C04) == 0x7401C3F6)
+		{
+			if (newCrcResult == 0x4D4F1EBF)
+				currentGame = GameID::PokkenTournament26;
+			else
+				currentGame = GameID::PokkenTournament;
+
+			break;
+		}
+
 		switch (newCrcResult)
 		{
 		case 0xfe7afff4:
@@ -625,14 +631,14 @@ void GameDetect::DetectCurrentGame()
 		case 0xce9718fd:
 			currentGame = GameID::Tekken7Update00;
 			break;
-		case 0xc017f0be: // 00 doesn't work, broken dump?
-		case 0x17059cf3: // 01
-		case 0xe325036f: // 02
-		case 0x652fee7d: // 03
-		case 0x246b5f7e: // 04
-		case 0x94d16ccc: // 05
-		case 0x3cc1be43: // 06
-		case 0x247b6f8c: // 07
+		case 0xC017F0BE: // 00 doesn't work, broken dump?
+		case 0x17059CF3: // 01
+		case 0xE325036F: // 02
+		case 0x652FEE7D: // 03
+		case 0x246B5F7E: // 04
+		case 0x94D16CCC: // 05
+		case 0x3CC1BE43: // 06
+		case 0x247B6F8C: // 07
 			currentGame = GameID::PokkenTournament;
 			break;
 #endif

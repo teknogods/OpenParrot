@@ -40,6 +40,7 @@ enum class GameID
 	VirtuaRLimit,
 	SchoolOfRagnarok,
 	PokkenTournament,
+	PokkenTournament26,
 	ExBoardGeneric,
 	GrooveCoaster2,
 	PuzzleBobble,
