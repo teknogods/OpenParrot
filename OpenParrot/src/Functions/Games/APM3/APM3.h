@@ -133,7 +133,7 @@ static void** NetworkProperty_getAddressStringReturnValue = nullptr;
 
 static __int64 NetworkProperty_getAddressValueReturnValue = 0;
 
-static __int64 Sequence_beginPlayReturnValue = 0;
+static __int64 Sequence_beginPlayReturnValue = 1;
 
 static __int64 Sequence_clearBackupReturnValue = 0;
 
