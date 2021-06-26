@@ -641,6 +641,15 @@ void GameDetect::DetectCurrentGame()
 		case 0x247B6F8C: // 07
 			currentGame = GameID::PokkenTournament;
 			break;
+		case 0xcb9c4353:
+			currentGame = GameID::Pengoe5_Test;
+			break;
+		case 0x0f98a7a2:
+			currentGame = GameID::Pengoe5;
+			break;
+		case 0x6fc27eed:
+			currentGame = GameID::VF5Esports;
+			break;
 #endif
 		default:
 #ifdef _DEBUG

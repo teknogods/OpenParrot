@@ -96,5 +96,8 @@ enum class GameID
 	DarkAwake,
 	ChaosBreakerNXL,
 	LinuxEmulation,
-	RadikalBikers
+	RadikalBikers,
+	Pengoe5,
+    Pengoe5_Test,
+    VF5Esports
 };
