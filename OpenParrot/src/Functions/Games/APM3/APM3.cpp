@@ -603,12 +603,12 @@ int __fastcall Input_isOn(unsigned int buttonId)
 	return g_APM3IOValues[buttonId];
 }
 
-char __fastcall Input_isOnNow(unsigned int a1)
+char __fastcall Input_isOnNow(unsigned int buttonId)
 {
 #ifdef _DEBUG
 	info(true, "Input_isOnNow");
 #endif
-	return Input_isOnNowReturnValue;
+	return g_APM3IOValues[buttonId];
 }
 
 __int64 Input_isOpenPewviewWindow()
