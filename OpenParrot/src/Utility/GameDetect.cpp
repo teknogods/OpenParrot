@@ -666,6 +666,7 @@ void GameDetect::DetectCurrentGame()
 #else
 			memset(errorBuffer, 0, 256);
 			sprintf_s(errorBuffer, 256, "Unsupported Executable, NEW CRC: %08X!", newCrcResult);
+			WritePrivateProfileStringA("Error", "Unsupported Executable", errorBuffer, ".\\teknoparrot.ini");
 			MessageBoxA(0, errorBuffer, "Error", MB_ICONERROR);
 			ExitProcess(0);
 #endif
