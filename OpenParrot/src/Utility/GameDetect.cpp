@@ -647,8 +647,15 @@ void GameDetect::DetectCurrentGame()
 		case 0x0f98a7a2:
 			currentGame = GameID::Pengoe5;
 			break;
-		case 0x6fc27eed:
+		case 0x6fc27eed: // Original
+		case 0x3b3fc3ab: // Other exe
 			currentGame = GameID::VF5Esports;
+			break;
+		case 0x1ab0f981:
+			currentGame = GameID::GoonyaFighter;
+			break;
+		case 0x8c30fa5a:
+			currentGame = GameID::PuyoPuyoEsports;
 			break;
 #endif
 		default:
@@ -659,6 +666,7 @@ void GameDetect::DetectCurrentGame()
 #else
 			memset(errorBuffer, 0, 256);
 			sprintf_s(errorBuffer, 256, "Unsupported Executable, NEW CRC: %08X!", newCrcResult);
+			WritePrivateProfileStringA("Error", "Unsupported Executable", errorBuffer, ".\\teknoparrot.ini");
 			MessageBoxA(0, errorBuffer, "Error", MB_ICONERROR);
 			ExitProcess(0);
 #endif

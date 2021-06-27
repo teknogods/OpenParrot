@@ -99,5 +99,7 @@ enum class GameID
 	RadikalBikers,
 	Pengoe5,
     Pengoe5_Test,
-    VF5Esports
+    VF5Esports,
+	GoonyaFighter,
+	PuyoPuyoEsports
 };
