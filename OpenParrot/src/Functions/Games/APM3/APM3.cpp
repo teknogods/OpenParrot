@@ -1040,5 +1040,20 @@ static InitFunction initVF5Func([]()
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	}, GameID::VF5Esports);
+	
+static InitFunction initGoonyaFunc([]()
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDGX");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
+	}, GameID::GoonyaFighter);
+	
+static InitFunction initPuyoFunc([]()
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDFF");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	}, GameID::PuyoPuyoEsports);
 #endif
