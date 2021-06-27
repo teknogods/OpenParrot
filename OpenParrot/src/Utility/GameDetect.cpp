@@ -603,6 +603,9 @@ void GameDetect::DetectCurrentGame()
 			isNesica = true;
 			break;
 #ifdef _AMD64_
+		case 0xf322d053:
+		  currentGame = GameID::SFV;
+		  break;				  
 		case 0x80ebd207:
 			currentGame = GameID::Theatrhythm;
 			break;

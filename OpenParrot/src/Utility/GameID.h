@@ -98,8 +98,9 @@ enum class GameID
 	LinuxEmulation,
 	RadikalBikers,
 	Pengoe5,
-    Pengoe5_Test,
-    VF5Esports,
+        Pengoe5_Test,
+        VF5Esports,
 	GoonyaFighter,
-	PuyoPuyoEsports
+	PuyoPuyoEsports,
+        SFV
 };
