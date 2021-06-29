@@ -28,54 +28,61 @@ NesysEmu::NesysEmu()
 
 	m_commandHandlers[LCOMMAND_CONNECT_REQUEST] = [=](const uint8_t* data, size_t length)
 	{
-		SendResponse(SCOMMAND_CONNECT_REPLY, nullptr);
-
-
-		Sleep(100);
-
-		// h
-		struct __declspec(align(4)) NESYS_TENPO_TABLE
+		if (GameDetect::currentGame != GameID::SFV) 
 		{
-			int tenpo_id;
-			char tenpo_name[31];
-			char tenpo_addr[33];
-			char ticket[33];
-			char pref_name[17];
-		};
+                  SendResponse(SCOMMAND_CONNECT_REPLY, nullptr);
 
-		struct NESYS_NEWS_TABLE
+
+                  Sleep(100);
+
+                  // h
+                  struct __declspec(align(4)) NESYS_TENPO_TABLE
+                  {
+                    int tenpo_id;
+                    char tenpo_name[31];
+                    char tenpo_addr[33];
+                    char ticket[33];
+                    char pref_name[17];
+                  };
+
+                  struct NESYS_NEWS_TABLE
+                  {
+                    int type;
+                    int size;
+                    char iFilePath[1024];
+                  };
+
+                  struct nesys_cert_init_response
+                  {
+                    NESYS_TENPO_TABLE tenpo;
+                    NESYS_NEWS_TABLE news;
+                    uint32_t serverSize;
+                    char server[];
+                  };
+
+                  const char* wat = "card_id=7020392010281502";
+
+                  nesys_cert_init_response* response = (nesys_cert_init_response*)malloc(sizeof(nesys_cert_init_response) + strlen(wat));
+                  response->tenpo.tenpo_id = 1337;
+                  strcpy(response->tenpo.tenpo_name, "leet");
+                  strcpy(response->tenpo.tenpo_addr, "l33t");
+                  strcpy(response->tenpo.ticket, "teel");
+                  strcpy(response->tenpo.pref_name, "t33l");
+
+                  response->news.type = 0;
+                  response->news.size = strlen("./OpenParrot/news.png");
+                  strcpy(response->news.iFilePath, "./OpenParrot/news.png");
+
+                  response->serverSize = strlen(wat);
+                  memcpy(response->server, wat, strlen(wat));
+
+                  SendResponse(SCOMMAND_CERT_INIT_NOTICE, response, sizeof(nesys_cert_init_response) + strlen(wat));
+                  free(response);
+                }
+		else 
 		{
-			int type;
-			int size;
-			char iFilePath[1024];
-		};
-
-		struct nesys_cert_init_response
-		{
-			NESYS_TENPO_TABLE tenpo;
-			NESYS_NEWS_TABLE news;
-			uint32_t serverSize;
-			char server[];
-		};
-
-		const char* wat = "card_id=7020392010281502";
-
-		nesys_cert_init_response* response = (nesys_cert_init_response*)malloc(sizeof(nesys_cert_init_response) + strlen(wat));
-		response->tenpo.tenpo_id = 1337;
-		strcpy(response->tenpo.tenpo_name, "leet");
-		strcpy(response->tenpo.tenpo_addr, "l33t");
-		strcpy(response->tenpo.ticket, "teel");
-		strcpy(response->tenpo.pref_name, "t33l");
-
-		response->news.type = 0;
-		response->news.size = strlen("./OpenParrot/news.png");
-		strcpy(response->news.iFilePath, "./OpenParrot/news.png");
-
-		response->serverSize = strlen(wat);
-		memcpy(response->server, wat, strlen(wat));
-
-		SendResponse(SCOMMAND_CERT_INIT_NOTICE, response, sizeof(nesys_cert_init_response) + strlen(wat));
-		free(response);
+                  SendResponse(SCOMMAND_CERT_ERROR, nullptr);
+                }
 	};
 
 	m_commandHandlers[LCOMMAND_DISCONNECT_REQUEST] = [=](const uint8_t* data, size_t length)

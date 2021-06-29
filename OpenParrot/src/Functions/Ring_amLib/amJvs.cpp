@@ -340,6 +340,8 @@ static InitFunction jvsInit([]()
 	{
 		return;
 	}
+	if (GameDetect::currentGame == GameID::SFV)
+		return;
 	if (GameDetect::IsTypeX())
 		hookPort = "COM2";
 
