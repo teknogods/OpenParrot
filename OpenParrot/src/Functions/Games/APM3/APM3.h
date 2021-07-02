@@ -69,7 +69,7 @@ static char ApmSystemSetting_getUiSettingReturnValue = 0;
 
 static __int64 Backup_getRecordStatusReturnValue = 0;
 
-static __int64 Backup_isSetupSucceededReturnValue = 0;
+static __int64 Backup_isSetupSucceededReturnValue = 1;
 
 static __int64 Backup_saveRecordReturnValue = 0;
 
@@ -97,7 +97,7 @@ static __int64 Credit_getCreditReturnValue = 0;
 
 static __int64 Credit_getRemainReturnValue = 0;
 
-static __int64 Credit_isFreePlayReturnValue = 0;
+static __int64 Credit_isFreePlayReturnValue = 1;
 
 static __int64 Credit_isGameCostEnoughReturnValue = 0;
 
