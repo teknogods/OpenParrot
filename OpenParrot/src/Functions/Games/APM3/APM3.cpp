@@ -1006,6 +1006,15 @@ static void HookAPM3()
 		}, nullptr, 0, nullptr);
 }
 
+static InitFunction initFuncTapping([]()
+{
+    HookAPM3();
+    strcpy(APM3GameId, "SDFJ");
+
+    __int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::TappingSkillTest);
+
 static InitFunction initFunc([]()
 {
 	HookAPM3();

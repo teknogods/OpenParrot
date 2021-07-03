@@ -660,6 +660,12 @@ void GameDetect::DetectCurrentGame()
 		case 0x8c30fa5a:
 			currentGame = GameID::PuyoPuyoEsports;
 			break;
+		case 0xe000b287: // Ver 10
+		case 0x4f878b4e: // Ver 10 TEST
+		case 0x29a4a185: // Ver 11
+		case 0x9c7bb2e1: // Ver 11 TEST
+			currentGame = GameID::TappingSkillTest;
+			break;
 #endif
 		default:
 #ifdef _DEBUG
