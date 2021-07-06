@@ -650,6 +650,9 @@ void GameDetect::DetectCurrentGame()
 		case 0x0f98a7a2:
 			currentGame = GameID::Pengoe5;
 			break;
+		case 0x3f67d5b2:
+			currentGame = GameID::Pengoe511;
+			break;
 		case 0x6fc27eed: // Original
 		case 0x3b3fc3ab: // Other exe
 			currentGame = GameID::VF5Esports;

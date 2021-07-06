@@ -103,5 +103,6 @@ enum class GameID
 	GoonyaFighter,
 	PuyoPuyoEsports,
         SFV,
-	TappingSkillTest
+	TappingSkillTest,
+	Pengoe511
 };
