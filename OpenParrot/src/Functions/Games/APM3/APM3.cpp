@@ -1027,6 +1027,8 @@ static InitFunction initFunc([]()
 	// Skip keyboard
 	injector::MakeRET(mainModuleBase + 0x15CBA0);
 
+	injector::MakeRET(mainModuleBase + 0x24CD0); // some print gay
+
 }, GameID::Pengoe5);
 
 static InitFunction initTestFunc([]()
