@@ -1042,6 +1042,10 @@ static InitFunction initTestFunc([]()
 		// Skip keyboard
 		injector::MakeRET(mainModuleBase + 0x158E10);
 
+		Sequence_isTestReturnValue = 1;
+
+		injector::MakeRET(mainModuleBase + 0x240C0);
+
 	}, GameID::Pengoe5_Test);
 
 static InitFunction initVF5Func([]()
