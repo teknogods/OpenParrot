@@ -323,7 +323,7 @@ char __fastcall ApmSystemSetting_getUiSetting(__int64 a1)
 __int64 __fastcall Backup_getRecordStatus(__int64 a1)
 {
 #ifdef _DEBUG
-	info(true, "Backup_getRecordStatus");
+	info(true, "Backup_getRecordStatus %llx", a1);
 #endif
 	return Backup_getRecordStatusReturnValue;
 }
@@ -336,10 +336,10 @@ __int64 Backup_isSetupSucceeded()
 	return Backup_isSetupSucceededReturnValue;
 }
 
-__int64 __fastcall Backup_saveRecord(__int64 a1, __int64 a2, __int64 a3, __int64 a4, int a5, int a6, int a7, char a8, int a9, __int64 a10, int a11, int a12, int a13, int a14, __int64 a15)
+__int64 __fastcall Backup_saveRecord(__int64 a1)
 {
 #ifdef _DEBUG
-	info(true, "Backup_saveRecord");
+	info(true, "Backup_saveRecord %llx", a1);
 #endif
 	return Backup_saveRecordReturnValue;
 }
@@ -347,16 +347,16 @@ __int64 __fastcall Backup_saveRecord(__int64 a1, __int64 a2, __int64 a3, __int64
 __int64 __fastcall Backup_saveRecordByAddress(__int64 a1)
 {
 #ifdef _DEBUG
-	info(true, "Backup_saveRecordByAddress");
+	info(true, "Backup_saveRecordByAddress %llx", a1);
 #endif
 	return Backup_saveRecordByAddressReturnValue;
 }
 
 //__int64 __fastcall Backup_setupRecords(__int128* a1, unsigned int a2)
-__int64 __fastcall Backup_setupRecords(__int64 *a1, unsigned int a2)
+__int64 __fastcall Backup_setupRecords(__int64 a1, unsigned int a2)
 {
 #ifdef _DEBUG
-	info(true, "Backup_setupRecords");
+	info(true, "Backup_setupRecords %llx, %llx", a1, a2);
 #endif
 	return Backup_setupRecordsReturnValue;
 }
@@ -1071,6 +1071,16 @@ static InitFunction initVF5Func([]()
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	}, GameID::VF5Esports);
+
+static InitFunction initVF5TestFunc([]()
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDHF");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+		Sequence_isTestReturnValue = 1;
+
+	}, GameID::VF5EsportsTest);
 	
 static InitFunction initGoonyaFunc([]()
 	{

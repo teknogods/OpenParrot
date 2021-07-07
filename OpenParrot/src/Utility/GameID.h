@@ -104,5 +104,6 @@ enum class GameID
 	PuyoPuyoEsports,
         SFV,
 	TappingSkillTest,
-	Pengoe511
+	Pengoe511,
+		VF5EsportsTest
 };
