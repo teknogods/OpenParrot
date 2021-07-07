@@ -769,7 +769,7 @@ wchar_t* System_getBoardId()
 #ifdef _DEBUG
 	info(true, "System_getBoardId");
 #endif
-	static wchar_t lol[64];
+	static wchar_t lol[64] = L"REAVERHARMBOYBAND";
 	return lol;
 }
 
@@ -781,13 +781,15 @@ char* System_getGameId()
 	return APM3GameId;
 }
 
+// Make this thing to make sure mem around is not taken. Guess it's __int64 *? works like this fine lol
+char version[256] = { 0 };
+
 int* System_getGameVersion()
 {
 #ifdef _DEBUG
 	info(true, "System_getGameVersion");
 #endif
-	static int version = 1;
-	return &version;
+	return (int *)version;
 }
 
 wchar_t* System_getKeychipId()
@@ -1066,8 +1068,6 @@ static InitFunction initFunc([]()
 	// Skip keyboard
 	injector::MakeRET(mainModuleBase + 0x15CBA0);
 
-	injector::MakeRET(mainModuleBase + 0x24CD0);
-
 }, GameID::Pengoe5);
 
 static InitFunction initFuncPengoe511([]()
@@ -1081,8 +1081,6 @@ static InitFunction initFuncPengoe511([]()
 	injector::MakeRET(mainModuleBase + 0x16A7C0); // CC 48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40
 	// Skip keyboard
 	injector::MakeRET(mainModuleBase + 0x16ADB0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
-
-	injector::MakeRET(mainModuleBase + 0x24EB0); // 4C 89 44 24 18 4C 89 4C 24 20 53 55 56 57 48 83 EC 38 49 8B F0 48 8D 6C 24 78 48 8B DA 48 8B F9
 
 }, GameID::Pengoe511);
 
@@ -1098,8 +1096,6 @@ static InitFunction initTestFunc([]()
 	injector::MakeRET(mainModuleBase + 0x158E10);
 
 	Sequence_isTestReturnValue = 1;
-
-	injector::MakeRET(mainModuleBase + 0x240C0);
 
 }, GameID::Pengoe5_Test);
 
