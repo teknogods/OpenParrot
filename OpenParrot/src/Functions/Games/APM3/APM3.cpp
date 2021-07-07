@@ -192,7 +192,7 @@ __int64 AllnetAuth_getLocationId()
 	return AllnetAuth_getLocationIdReturnValue;
 }
 
-char *AllnetAuth_getLocationName()
+char* AllnetAuth_getLocationName()
 {
 #ifdef _DEBUG
 	info(true, "AllnetAuth_getLocationName");
@@ -200,7 +200,7 @@ char *AllnetAuth_getLocationName()
 	return LocationName;
 }
 
-char *__fastcall AllnetAuth_getLocationNickname(int a1)
+char* __fastcall AllnetAuth_getLocationNickname(int a1)
 {
 #ifdef _DEBUG
 	info(true, "AllnetAuth_getLocationNickname");
@@ -224,7 +224,7 @@ __int64 AllnetAuth_getRegionCode()
 	return AllnetAuth_getRegionCodeReturnValue;
 }
 
-char *__fastcall AllnetAuth_getRegionName(int a1)
+char* __fastcall AllnetAuth_getRegionName(int a1)
 {
 #ifdef _DEBUG
 	info(true, "AllnetAuth_getRegionName");
@@ -320,12 +320,18 @@ char __fastcall ApmSystemSetting_getUiSetting(__int64 a1)
 	return ApmSystemSetting_getUiSettingReturnValue;
 }
 
+unsigned char saveArray[0x2000]; // some stupid size
+int sectorSize = 0x20; // Guess
+__int64* InGameSavePointer;
+__int64 SaveFileSize = 0;
+char* SaveFileName = "savedata.bin";
+
 __int64 __fastcall Backup_getRecordStatus(__int64 a1)
 {
 #ifdef _DEBUG
 	info(true, "Backup_getRecordStatus %llx", a1);
 #endif
-	return Backup_getRecordStatusReturnValue;
+	return Backup_getRecordStatusReturnValue; // CRC is ok always bro = 0
 }
 
 __int64 Backup_isSetupSucceeded()
@@ -336,11 +342,20 @@ __int64 Backup_isSetupSucceeded()
 	return Backup_isSetupSucceededReturnValue;
 }
 
-__int64 __fastcall Backup_saveRecord(__int64 a1)
+__int64 __fastcall Backup_saveRecord(__int64 sector)
 {
 #ifdef _DEBUG
-	info(true, "Backup_saveRecord %llx", a1);
+	info(true, "Backup_saveRecord %llx", sector);
 #endif
+	memcpy(saveArray, InGameSavePointer + (1 * sector), sectorSize);
+	auto file = fopen(SaveFileName, "wb+");
+	if (file)
+	{
+		fwrite(saveArray, 1, SaveFileSize, file);
+		fclose(file);
+		return 0;
+	}
+
 	return Backup_saveRecordReturnValue;
 }
 
@@ -353,11 +368,33 @@ __int64 __fastcall Backup_saveRecordByAddress(__int64 a1)
 }
 
 //__int64 __fastcall Backup_setupRecords(__int128* a1, unsigned int a2)
-__int64 __fastcall Backup_setupRecords(__int64 a1, unsigned int a2)
+__int64 __fastcall Backup_setupRecords(__int64* a1, unsigned int a2)
 {
 #ifdef _DEBUG
 	info(true, "Backup_setupRecords %llx, %llx", a1, a2);
 #endif
+	InGameSavePointer = (__int64*)*(__int64*)a1;
+	SaveFileSize = sectorSize * a2;
+	FILE* f = fopen(SaveFileName, "r");
+	// Save exists
+	if (f != NULL)
+	{
+		memset(saveArray, 0, sectorSize * a2);
+		fread(saveArray, 1, sectorSize * a2, f);
+		memcpy(InGameSavePointer, saveArray, sectorSize * a2);
+		fclose(f);
+		return 1;
+	}
+
+	memcpy(saveArray, InGameSavePointer, sectorSize * a2);
+	auto file = fopen(SaveFileName, "wb+");
+	if (file)
+	{
+		fwrite(saveArray, 1, sectorSize * a2, file);
+		fclose(file);
+		return 1;
+	}
+
 	return Backup_setupRecordsReturnValue;
 }
 
@@ -498,7 +535,7 @@ __int64 Credit_setCoinInHook()
 	return Credit_setCoinInHookReturnValue;
 }
 
-wchar_t *Credit_toString()
+wchar_t* Credit_toString()
 {
 #ifdef _DEBUG
 	info(true, "Credit_toString");
@@ -598,7 +635,7 @@ char __fastcall Input_isOffNow(unsigned int a1)
 int __fastcall Input_isOn(unsigned int buttonId)
 {
 #ifdef _DEBUG
-	info(true, "Input_isOn id: %u", buttonId);
+	info(true, "Input_isOn");
 #endif
 	return g_APM3IOValues[buttonId];
 }
@@ -606,7 +643,7 @@ int __fastcall Input_isOn(unsigned int buttonId)
 char __fastcall Input_isOnNow(unsigned int buttonId)
 {
 #ifdef _DEBUG
-	info(true, "Input_isOnNow id: %u", buttonId);
+	info(true, "Input_isOnNow");
 #endif
 	return g_APM3IOValues[buttonId];
 }
@@ -660,7 +697,7 @@ __int64 Sequence_clearBackup()
 	return Sequence_clearBackupReturnValue;
 }
 
-__int64 __fastcall Sequence_continuePlay(__int64 a1, __int64 a2, DWORD *a3, __int64 a4)
+__int64 __fastcall Sequence_continuePlay(__int64 a1, __int64 a2, DWORD* a3, __int64 a4)
 {
 #ifdef _DEBUG
 	info(true, "Sequence_continuePlay");
@@ -734,7 +771,7 @@ wchar_t* System_getBoardId()
 	return lol;
 }
 
-char *System_getGameId()
+char* System_getGameId()
 {
 #ifdef _DEBUG
 	info(true, "System_getGameId");
@@ -1007,95 +1044,95 @@ static void HookAPM3()
 }
 
 static InitFunction initFuncTapping([]()
-{
-    HookAPM3();
-    strcpy(APM3GameId, "SDFJ");
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDFJ");
 
-    __int64 mainModuleBase = (__int64)GetModuleHandle(0);
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-}, GameID::TappingSkillTest);
+	}, GameID::TappingSkillTest);
 
 static InitFunction initFunc([]()
-{
-	HookAPM3();
-	strcpy(APM3GameId, "SDFH");
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDFH");
 
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
-	/// PATTERNS BELOW
-	// Skip joysticks
-	injector::MakeRET(mainModuleBase + 0x15C5B0);
-	// Skip keyboard
-	injector::MakeRET(mainModuleBase + 0x15CBA0);
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+		/// PATTERNS BELOW
+		// Skip joysticks
+		injector::MakeRET(mainModuleBase + 0x15C5B0);
+		// Skip keyboard
+		injector::MakeRET(mainModuleBase + 0x15CBA0);
 
-	injector::MakeRET(mainModuleBase + 0x24CD0);
+		injector::MakeRET(mainModuleBase + 0x24CD0);
 
-}, GameID::Pengoe5);
+	}, GameID::Pengoe5);
 
 static InitFunction initFuncPengoe511([]()
-{
-	HookAPM3();
-	strcpy(APM3GameId, "SDFH");
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDFH");
 
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	// Skip joysticks
-	injector::MakeRET(mainModuleBase + 0x16A7C0); // CC 48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40
-	// Skip keyboard
-	injector::MakeRET(mainModuleBase + 0x16ADB0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
+		// Skip joysticks
+		injector::MakeRET(mainModuleBase + 0x16A7C0); // CC 48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40
+		// Skip keyboard
+		injector::MakeRET(mainModuleBase + 0x16ADB0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
 
-	injector::MakeRET(mainModuleBase + 0x24EB0); // 4C 89 44 24 18 4C 89 4C 24 20 53 55 56 57 48 83 EC 38 49 8B F0 48 8D 6C 24 78 48 8B DA 48 8B F9
+		injector::MakeRET(mainModuleBase + 0x24EB0); // 4C 89 44 24 18 4C 89 4C 24 20 53 55 56 57 48 83 EC 38 49 8B F0 48 8D 6C 24 78 48 8B DA 48 8B F9
 
-}, GameID::Pengoe511);
+	}, GameID::Pengoe511);
 
 static InitFunction initTestFunc([]()
-{
-	HookAPM3();
-	strcpy(APM3GameId, "SDFH");
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDFH");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	// Skip joysticks
-	injector::MakeRET(mainModuleBase + 0x158820);
-	// Skip keyboard
-	injector::MakeRET(mainModuleBase + 0x158E10);
+		// Skip joysticks
+		injector::MakeRET(mainModuleBase + 0x158820);
+		// Skip keyboard
+		injector::MakeRET(mainModuleBase + 0x158E10);
 
-	Sequence_isTestReturnValue = 1;
-
-	injector::MakeRET(mainModuleBase + 0x240C0);
-
-}, GameID::Pengoe5_Test);
-
-static InitFunction initVF5Func([]()
-{
-	HookAPM3();
-	strcpy(APM3GameId, "SDHF");
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
-
-}, GameID::VF5Esports);
-
-static InitFunction initVF5TestFunc([]()
-{
-	HookAPM3();
-	strcpy(APM3GameId, "SDHF");
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
-
-	if (strstr(GetCommandLineA(), "-tptest") != NULL)
 		Sequence_isTestReturnValue = 1;
 
-}, GameID::VF5EsportsTest);
-	
+		injector::MakeRET(mainModuleBase + 0x240C0);
+
+	}, GameID::Pengoe5_Test);
+
+static InitFunction initVF5Func([]()
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDHF");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+		SaveFileName = ".\\vf5fs\\savedata.bin";
+
+	}, GameID::VF5Esports);
+
+static InitFunction initVF5TestFunc([]()
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDHF");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+		Sequence_isTestReturnValue = 1;
+	}, GameID::VF5EsportsTest);
+
 static InitFunction initGoonyaFunc([]()
-{
-	HookAPM3();
-	strcpy(APM3GameId, "SDGX");
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDGX");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-}, GameID::GoonyaFighter);
-	
+	}, GameID::GoonyaFighter);
+
 static InitFunction initPuyoFunc([]()
-{
-	HookAPM3();
-	strcpy(APM3GameId, "SDFF");
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	{
+		HookAPM3();
+		strcpy(APM3GameId, "SDFF");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-}, GameID::PuyoPuyoEsports);
+	}, GameID::PuyoPuyoEsports);
 #endif
