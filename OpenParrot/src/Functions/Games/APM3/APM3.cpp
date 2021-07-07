@@ -714,12 +714,14 @@ __int64 __fastcall Sequence_endPlay(__int64 a1, void* a2)
 	return Sequence_endPlayReturnValue;
 }
 
-__int64 Sequence_getBookkeeping()
+char bookeepingArray[0x2000] = { 0 };
+
+char *Sequence_getBookkeeping()
 {
 #ifdef _DEBUG
 	info(true, "Sequence_getBookkeeping");
 #endif
-	return Sequence_getBookkeepingReturnValue;
+	return bookeepingArray;
 }
 
 __int64 Sequence_getPlayingAimeId()
