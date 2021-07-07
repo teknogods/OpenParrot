@@ -635,7 +635,7 @@ char __fastcall Input_isOffNow(unsigned int a1)
 int __fastcall Input_isOn(unsigned int buttonId)
 {
 #ifdef _DEBUG
-	info(true, "Input_isOn");
+	info(true, "Input_isOn id: %u", buttonId);
 #endif
 	return g_APM3IOValues[buttonId];
 }
@@ -643,7 +643,7 @@ int __fastcall Input_isOn(unsigned int buttonId)
 char __fastcall Input_isOnNow(unsigned int buttonId)
 {
 #ifdef _DEBUG
-	info(true, "Input_isOnNow");
+	info(true, "Input_isOnNow id: %u", buttonId);
 #endif
 	return g_APM3IOValues[buttonId];
 }
@@ -1044,95 +1044,97 @@ static void HookAPM3()
 }
 
 static InitFunction initFuncTapping([]()
-	{
-		HookAPM3();
-		strcpy(APM3GameId, "SDFJ");
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFJ");
 
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::TappingSkillTest);
+}, GameID::TappingSkillTest);
 
 static InitFunction initFunc([]()
-	{
-		HookAPM3();
-		strcpy(APM3GameId, "SDFH");
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFH");
 
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
-		/// PATTERNS BELOW
-		// Skip joysticks
-		injector::MakeRET(mainModuleBase + 0x15C5B0);
-		// Skip keyboard
-		injector::MakeRET(mainModuleBase + 0x15CBA0);
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	/// PATTERNS BELOW
+	// Skip joysticks
+	injector::MakeRET(mainModuleBase + 0x15C5B0);
+	// Skip keyboard
+	injector::MakeRET(mainModuleBase + 0x15CBA0);
 
-		injector::MakeRET(mainModuleBase + 0x24CD0);
+	injector::MakeRET(mainModuleBase + 0x24CD0);
 
-	}, GameID::Pengoe5);
+}, GameID::Pengoe5);
 
 static InitFunction initFuncPengoe511([]()
-	{
-		HookAPM3();
-		strcpy(APM3GameId, "SDFH");
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFH");
 
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		// Skip joysticks
-		injector::MakeRET(mainModuleBase + 0x16A7C0); // CC 48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40
-		// Skip keyboard
-		injector::MakeRET(mainModuleBase + 0x16ADB0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
+	// Skip joysticks
+	injector::MakeRET(mainModuleBase + 0x16A7C0); // CC 48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40
+	// Skip keyboard
+	injector::MakeRET(mainModuleBase + 0x16ADB0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
 
-		injector::MakeRET(mainModuleBase + 0x24EB0); // 4C 89 44 24 18 4C 89 4C 24 20 53 55 56 57 48 83 EC 38 49 8B F0 48 8D 6C 24 78 48 8B DA 48 8B F9
+	injector::MakeRET(mainModuleBase + 0x24EB0); // 4C 89 44 24 18 4C 89 4C 24 20 53 55 56 57 48 83 EC 38 49 8B F0 48 8D 6C 24 78 48 8B DA 48 8B F9
 
-	}, GameID::Pengoe511);
+}, GameID::Pengoe511);
 
 static InitFunction initTestFunc([]()
-	{
-		HookAPM3();
-		strcpy(APM3GameId, "SDFH");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFH");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		// Skip joysticks
-		injector::MakeRET(mainModuleBase + 0x158820);
-		// Skip keyboard
-		injector::MakeRET(mainModuleBase + 0x158E10);
+	// Skip joysticks
+	injector::MakeRET(mainModuleBase + 0x158820);
+	// Skip keyboard
+	injector::MakeRET(mainModuleBase + 0x158E10);
 
-		Sequence_isTestReturnValue = 1;
+	Sequence_isTestReturnValue = 1;
 
-		injector::MakeRET(mainModuleBase + 0x240C0);
+	injector::MakeRET(mainModuleBase + 0x240C0);
 
-	}, GameID::Pengoe5_Test);
+}, GameID::Pengoe5_Test);
 
 static InitFunction initVF5Func([]()
-	{
-		HookAPM3();
-		strcpy(APM3GameId, "SDHF");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDHF");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		SaveFileName = ".\\vf5fs\\savedata.bin";
+	SaveFileName = ".\\vf5fs\\savedata.bin";
 
-	}, GameID::VF5Esports);
+}, GameID::VF5Esports);
 
 static InitFunction initVF5TestFunc([]()
-	{
-		HookAPM3();
-		strcpy(APM3GameId, "SDHF");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDHF");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
+	if (strstr(GetCommandLineA(), "-tptest") != NULL)
 		Sequence_isTestReturnValue = 1;
-	}, GameID::VF5EsportsTest);
+
+}, GameID::VF5EsportsTest);
 
 static InitFunction initGoonyaFunc([]()
-	{
-		HookAPM3();
-		strcpy(APM3GameId, "SDGX");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDGX");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::GoonyaFighter);
+}, GameID::GoonyaFighter);
 
 static InitFunction initPuyoFunc([]()
-	{
-		HookAPM3();
-		strcpy(APM3GameId, "SDFF");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFF");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::PuyoPuyoEsports);
+}, GameID::PuyoPuyoEsports);
 #endif
