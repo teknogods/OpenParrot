@@ -105,5 +105,12 @@ enum class GameID
 	SFV,
 	TappingSkillTest,
 	Pengoe511,
-	VF5EsportsTest
+	VF5EsportsTest,
+	SenxinAleste,
+	RollingGunner,
+	OtoshuDX,
+	GuiltyGearXRD2,
+	DeadOrAlive6,
+	UmiharaKawase,
+	KoihimeEnbuRyorai
 };
