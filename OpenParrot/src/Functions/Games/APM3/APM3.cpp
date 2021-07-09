@@ -1135,4 +1135,12 @@ static InitFunction initPuyoFunc([]()
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::PuyoPuyoEsports);
+
+static InitFunction initSenxinFunc([]()
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDHB");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::Senxin Aleste);
 #endif
