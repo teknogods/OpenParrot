@@ -1142,5 +1142,21 @@ static InitFunction initSenxinFunc([]()
 	strcpy(APM3GameId, "SDHB");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-}, GameID::Senxin Aleste);
+}, GameID::SenxinAleste);
+
+static InitFunction initRollingFunc([]()
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDGW");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::RollingGunner);
+
+static InitFunction initOtoshuFunc([]()
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDGF");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::OtoshuDX);
 #endif
