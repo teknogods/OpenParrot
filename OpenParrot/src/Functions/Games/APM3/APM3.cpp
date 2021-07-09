@@ -1159,4 +1159,52 @@ static InitFunction initOtoshuFunc([]()
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::OtoshuDX);
+
+static InitFunction initXRD2Func([]()
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFB");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::GuiltyGearXRD2);
+
+static InitFunction initBlazBlueFunc([]()
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFU");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::BlazBlueCrossTagBattle);
+
+static InitFunction initDOA6Func([]()
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFM");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::DeadOrAlive6);
+
+static InitFunction initBladeFunc([]()
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFD");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::BladeStrangers);
+
+static InitFunction initUmiharaFunc([]()
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDGU");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::UmiharaKawase);
+
+static InitFunction initKoihimeFunc([]()
+{
+	HookAPM3();
+	strcpy(APM3GameId, "SDFR");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+}, GameID::KoihimeEnbuRyorai);
 #endif
