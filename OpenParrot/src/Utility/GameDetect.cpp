@@ -671,6 +671,12 @@ void GameDetect::DetectCurrentGame()
 		case 0x9c7bb2e1: // Ver 11 TEST
 			currentGame = GameID::TappingSkillTest;
 			break;
+			currentGame = GameID::SenxinAleste;
+			break;
+			currentGame = GameID::RollingGunner;
+			break;
+			currentGame = GameID::OtoshuDX;
+			break;
 #endif
 		default:
 #ifdef _DEBUG
