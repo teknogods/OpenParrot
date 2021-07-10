@@ -645,6 +645,7 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::PokkenTournament;
 			break;
 		case 0xcb9c4353:
+		case 0x6EF07067 // 01
 			currentGame = GameID::Pengoe5_Test;
 			break;
 		case 0x0f98a7a2:
