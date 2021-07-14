@@ -74,13 +74,11 @@ static __int64 Backup_saveRecordByAddressReturnValue = 0;
 
 static __int64 Backup_setupRecordsReturnValue = 0;
 
-static __int64 Core_executeReturnValue = 0;
-
-static __int64 Core_exitGameReturnValue = 0;
+static bool Core_exitGameReturnValue = 0;
 
 static __int64 Core_hookExceptionReturnValue = 0;
 
-static char Core_isExitNeededReturnValue = 0;
+static bool Core_isExitNeededReturnValue = false;
 
 static __int64 Core_resetExceptionReturnValue = 0;
 

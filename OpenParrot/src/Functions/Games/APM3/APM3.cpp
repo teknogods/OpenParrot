@@ -461,15 +461,14 @@ bool __fastcall Backup_setupRecords(BackupRecord *records, unsigned int recordCo
 	return true;
 }
 
-__int64 Core_execute()
+void Core_execute()
 {
 #ifdef _DEBUG
 	info(true, "Core_execute");
 #endif
-	return Core_executeReturnValue;
 }
 
-__int64 __fastcall Core_exitGame(unsigned __int8 a1)
+bool __fastcall Core_exitGame(bool isTest)
 {
 #ifdef _DEBUG
 	info(true, "Core_exitGame");
@@ -485,7 +484,7 @@ __int64 Core_hookException()
 	return Core_hookExceptionReturnValue;
 }
 
-char Core_isExitNeeded()
+bool Core_isExitNeeded()
 {
 #ifdef _DEBUG
 	info(true, "Core_isExitNeeded");
@@ -662,13 +661,29 @@ __int64 Error_setDeviceLost()
 	return Error_setDeviceLostReturnValue;
 }
 
-__int16* Input_getGamepadInfo()
+struct GamepadInfo
+{
+	unsigned short vid;
+	unsigned short pid;
+	char name[260];
+};
+
+GamepadInfo* Input_getGamepadInfo()
 {
 #ifdef _DEBUG
 	info(true, "Input_getGamepadInfo");
 #endif
-	static __int16 g = 0;
-	return &g;
+	static GamepadInfo *_gamePad;
+	if (_gamePad == nullptr)
+	{
+		_gamePad = (GamepadInfo*)malloc(sizeof(GamepadInfo));
+	}
+
+	_gamePad->vid = 1337;
+	_gamePad->pid = 1337;
+	memset(_gamePad->name, 0, 260);
+	strcpy(_gamePad->name, "ParrotJoyCon");
+	return _gamePad;
 }
 
 char __fastcall Input_isFlipNow(unsigned int a1)
@@ -777,14 +792,37 @@ __int64 __fastcall Sequence_endPlay(__int64 a1, void* a2)
 	return Sequence_endPlayReturnValue;
 }
 
-char bookeepingArray[0x2000] = { 0 };
+struct SequenceTimeHistogramItem
+{
+	unsigned int TimeRangeMin;
+	unsigned int TimeRangeMax;
+	unsigned int Count;
+};
 
-char *Sequence_getBookkeeping()
+struct SequenceBookkeeping
+{
+	const unsigned long MaxTimeHistogramCount = 32;
+	unsigned int NumberOfGames;
+	unsigned int TotalTime;
+	unsigned int PlayTime;
+	unsigned int AveragePlayTime;
+	unsigned int LongestPlayTime;
+	unsigned int ShortestPlayTime;
+	unsigned int TimeHistogramCount;
+	SequenceTimeHistogramItem TimeHistogram[32];
+};
+
+SequenceBookkeeping* Sequence_getBookkeeping()
 {
 #ifdef _DEBUG
 	info(true, "Sequence_getBookkeeping");
 #endif
-	return bookeepingArray;
+	static SequenceBookkeeping *_sequenceBookkeeping;
+	if (_sequenceBookkeeping == nullptr)
+	{
+		_sequenceBookkeeping = (SequenceBookkeeping*)malloc(sizeof(SequenceBookkeeping));
+	}
+	return _sequenceBookkeeping;
 }
 
 __int64 Sequence_getPlayingAimeId()
@@ -827,13 +865,37 @@ __int64 System_getAppRootPath()
 	return System_getAppRootPathReturnValue;
 }
 
-wchar_t* System_getBoardId()
+struct StandardSerialID
+{
+	const unsigned long LENGTH = 16;
+	char Value[17];
+};
+
+struct ShortSerialID
+{
+	const unsigned long LENGTH = 11;
+	char Value[17];
+};
+
+struct SerialID
+{
+	StandardSerialID *ID;
+	ShortSerialID *ShortId;
+};
+
+SerialID* System_getBoardId()
 {
 #ifdef _DEBUG
 	info(true, "System_getBoardId");
 #endif
-	static wchar_t lol[64] = L"REAVERHARMBOYBAND";
-	return lol;
+	static SerialID *_serialId;
+	if (_serialId == nullptr)
+	{
+		_serialId = (SerialID*)malloc(sizeof(SerialID));
+		_serialId->ID = (StandardSerialID*)malloc(sizeof(StandardSerialID));
+		_serialId->ShortId = (ShortSerialID*)malloc(sizeof(ShortSerialID));
+	}
+	return _serialId;
 }
 
 char* System_getGameId()
@@ -844,24 +906,39 @@ char* System_getGameId()
 	return APM3GameId;
 }
 
-// Make this thing to make sure mem around is not taken. Guess it's __int64 *? works like this fine lol
-char version[256] = { 0 };
 
-int* System_getGameVersion()
+struct GameVersion
+{
+	unsigned int Major;
+	unsigned int Minor;
+};
+
+GameVersion* System_getGameVersion()
 {
 #ifdef _DEBUG
 	info(true, "System_getGameVersion");
 #endif
-	return (int *)version;
+	static GameVersion *_gameVersion;
+	if (_gameVersion == nullptr)
+	{
+		_gameVersion = (GameVersion*)malloc(sizeof(GameVersion));
+	}
+	return _gameVersion;
 }
 
-wchar_t* System_getKeychipId()
+SerialID* System_getKeychipId()
 {
 #ifdef _DEBUG
 	info(true, "System_getKeychipId");
 #endif
-	static wchar_t lol[64];
-	return lol;
+	static SerialID* _serialId;
+	if (_serialId == nullptr)
+	{
+		_serialId = (SerialID*)malloc(sizeof(SerialID));
+		_serialId->ID = (StandardSerialID*)malloc(sizeof(StandardSerialID));
+		_serialId->ShortId = (ShortSerialID*)malloc(sizeof(ShortSerialID));
+	}
+	return _serialId;
 }
 
 enum class SystemRegionCode
