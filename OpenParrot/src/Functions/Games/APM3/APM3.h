@@ -6,32 +6,31 @@ static char LocationName[64];
 static char LinkServerName[64];
 static char ServerName[64];
 
-static __int64 Aime_acceptConfirmReturnValue = 0;
-static __int64 Aime_cancelReturnValue = 0;
+static bool Aime_acceptConfirmReturnValue = false;
+static bool Aime_cancelReturnValue = false;
 static __int64 Aime_getAccessCodeReturnValue = 0;
 static bool Aime_getAimeIdReturnValue = false;
 static __int64 Aime_getConfirmReturnValue = 0;
-static __int64 Aime_getErrorCategoryReturnValue = 0;
 static bool Aime_hasConfirmReturnValue = false;
-static __int64 Aime_hasErrorReturnValue = 0;
-static __int64 Aime_hasResultReturnValue = 0;
-static __int64 Aime_isBusyReturnValue = 0;
+static bool Aime_hasErrorReturnValue = false;
+static bool Aime_hasResultReturnValue = false;
+static bool Aime_isBusyReturnValue = false;
 
-static __int64 Aime_isDBAliveReturnValue = 0;
+static bool Aime_isDBAliveReturnValue = false;
 
 static __int64 System_getResolutionReturnValue = 0;
 
-static __int64 Aime_isMobileReturnValue = 0;
+static bool Aime_isMobileReturnValue = false;
 
-static __int64 Aime_isReaderDetectedReturnValue = 0;
+static bool Aime_isReaderDetectedReturnValue = false;
 
 static char Aime_sendLogReturnValue = 0;
 
-static __int64 Aime_setLedErrorReturnValue = 0;
+static bool Aime_setLedErrorReturnValue = false;
 
-static __int64 Aime_setLedSuccessReturnValue = 0;
+static bool Aime_setLedSuccessReturnValue = false;
 
-static char Aime_startReturnValue = 0;
+static bool Aime_startReturnValue = false;
 
 static __int64 AllnetAccounting_beginPlayReturnValue = 0;
 
