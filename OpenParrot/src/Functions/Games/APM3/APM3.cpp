@@ -324,17 +324,35 @@ unsigned char saveArray[0x2000]; // some stupid size
 int sectorSize = 0x20; // Guess
 __int64* InGameSavePointer;
 __int64 SaveFileSize = 0;
-char* SaveFileName = "savedata.bin";
+char* SaveFileName = "save";
+char fileBuffer[256];
 
-__int64 __fastcall Backup_getRecordStatus(__int64 a1)
+struct BackupRecord
+{
+	void* Address;
+	unsigned long Size;
+};
+
+BackupRecord *internal_Records;
+unsigned int internal_recordCount;
+
+enum BackupRecordStatus
+{
+	BackupRecordStatus_InvalidCall = -1, // 0xFFFFFFFF
+	BackupRecordStatus_Valid = 0,
+	BackupRecordStatus_DiffApp = 1,
+	BackupRecordStatus_BrokenData = 2,
+};
+
+BackupRecordStatus __fastcall Backup_getRecordStatus(__int64 recordIndex)
 {
 #ifdef _DEBUG
-	info(true, "Backup_getRecordStatus %llx", a1);
+	info(true, "Backup_getRecordStatus %llx", recordIndex);
 #endif
-	return Backup_getRecordStatusReturnValue; // CRC is ok always bro = 0
+	return BackupRecordStatus_Valid;
 }
 
-__int64 Backup_isSetupSucceeded()
+bool Backup_isSetupSucceeded()
 {
 #ifdef _DEBUG
 	info(true, "Backup_isSetupSucceeded");
@@ -342,60 +360,65 @@ __int64 Backup_isSetupSucceeded()
 	return Backup_isSetupSucceededReturnValue;
 }
 
-__int64 __fastcall Backup_saveRecord(__int64 sector)
+bool __fastcall Backup_saveRecord(unsigned long recordIndex)
 {
 #ifdef _DEBUG
-	info(true, "Backup_saveRecord %llx", sector);
+	info(true, "Backup_saveRecord recordIndex: %llx", recordIndex);
 #endif
-	memcpy(saveArray, InGameSavePointer + (1 * sector), sectorSize);
-	auto file = fopen(SaveFileName, "wb+");
+	memset(fileBuffer, 0, sizeof(fileBuffer));
+	sprintf(fileBuffer, "%s%02d.bin", SaveFileName, recordIndex);
+	auto file = fopen(fileBuffer, "wb+");
 	if (file)
 	{
-		fwrite(saveArray, 1, SaveFileSize, file);
+		fwrite(internal_Records[recordIndex].Address, 1, internal_Records[recordIndex].Size, file);
 		fclose(file);
-		return 0;
 	}
-
 	return Backup_saveRecordReturnValue;
 }
 
-__int64 __fastcall Backup_saveRecordByAddress(__int64 a1)
+__int64 __fastcall Backup_saveRecordByAddress(__int64 recordAddress)
 {
 #ifdef _DEBUG
-	info(true, "Backup_saveRecordByAddress %llx", a1);
+	info(true, "Backup_saveRecordByAddress %llx", recordAddress);
 #endif
 	return Backup_saveRecordByAddressReturnValue;
 }
 
+
+
+
 //__int64 __fastcall Backup_setupRecords(__int128* a1, unsigned int a2)
-__int64 __fastcall Backup_setupRecords(__int64* a1, unsigned int a2)
+bool __fastcall Backup_setupRecords(BackupRecord *records, unsigned int recordCount)
 {
+	for (int i = 0; i < recordCount; i++)
+	{
+		memset(fileBuffer, 0, sizeof(fileBuffer));
+		sprintf(fileBuffer, "%s%02d.bin", SaveFileName, i);
+		FILE* fsave = fopen(fileBuffer, "r");
+		internal_Records = records;
+		internal_recordCount = recordCount;
+		if (fsave != NULL)
+		{
 #ifdef _DEBUG
-	info(true, "Backup_setupRecords %llx, %llx", a1, a2);
+		info(true, "Backup setuprecords %02d of %02d, loading file %s", i, recordCount, fileBuffer);
+#endif		
+			fread(records[i].Address, 1, records[i].Size, fsave); // add file size check noob
+			fclose(fsave);
+		}
+		else
+		{
+#ifdef _DEBUG
+			info(true, "Backup setuprecords %02d of %02d, saving file %s", i, recordCount, fileBuffer);
 #endif
-	InGameSavePointer = (__int64*)*(__int64*)a1;
-	SaveFileSize = sectorSize * a2;
-	FILE* f = fopen(SaveFileName, "r");
-	// Save exists
-	if (f != NULL)
-	{
-		memset(saveArray, 0, sectorSize * a2);
-		fread(saveArray, 1, sectorSize * a2, f);
-		memcpy(InGameSavePointer, saveArray, sectorSize * a2);
-		fclose(f);
-		return 1;
+			auto file = fopen(fileBuffer, "wb+");
+			if (file)
+			{
+				fwrite(records[i].Address, 1, records[i].Size, file);
+				fclose(file);
+			}
+		}
 	}
-
-	memcpy(saveArray, InGameSavePointer, sectorSize * a2);
-	auto file = fopen(SaveFileName, "wb+");
-	if (file)
-	{
-		fwrite(saveArray, 1, sectorSize * a2, file);
-		fclose(file);
-		return 1;
-	}
-
-	return Backup_setupRecordsReturnValue;
+	return true;
 }
 
 __int64 Core_execute()
@@ -1105,7 +1128,7 @@ static InitFunction initVF5Func([]()
 	strcpy(APM3GameId, "SDHF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	SaveFileName = ".\\vf5fs\\savedata.bin";
+	SaveFileName = ".\\vf5fs\\save";
 
 }, GameID::VF5Esports);
 
