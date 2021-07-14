@@ -821,6 +821,7 @@ SequenceBookkeeping* Sequence_getBookkeeping()
 	if (_sequenceBookkeeping == nullptr)
 	{
 		_sequenceBookkeeping = (SequenceBookkeeping*)malloc(sizeof(SequenceBookkeeping));
+		memset(_sequenceBookkeeping, 0, sizeof(SequenceBookkeeping));
 	}
 	return _sequenceBookkeeping;
 }
