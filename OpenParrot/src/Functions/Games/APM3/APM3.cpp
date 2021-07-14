@@ -7,7 +7,7 @@
 
 static uint8_t g_APM3IOValues[256];
 
-__int64 Aime_acceptConfirm()
+bool Aime_acceptConfirm()
 {
 #ifdef _DEBUG
 	info(true, "Aime_acceptConfirm");
@@ -15,7 +15,7 @@ __int64 Aime_acceptConfirm()
 	return Aime_acceptConfirmReturnValue;
 }
 
-__int64 Aime_cancel()
+bool Aime_cancel()
 {
 #ifdef _DEBUG
 	info(true, "Aime_cancel");
@@ -24,7 +24,16 @@ __int64 Aime_cancel()
 	return Aime_cancelReturnValue;
 }
 
-__int64 __fastcall Aime_getAccessCode(__int64 a1)
+struct AccessCode
+{
+	const int DigitCount = 20;
+	const int Size = 10;
+	const int StrSize = 41;
+	char values[10];
+	char valueStr[41];
+};
+
+bool __fastcall Aime_getAccessCode(AccessCode *accessCode)
 {
 #ifdef _DEBUG
 	info(true, "Aime_getAccessCode");
@@ -32,7 +41,7 @@ __int64 __fastcall Aime_getAccessCode(__int64 a1)
 	return Aime_getAccessCodeReturnValue;
 }
 
-bool __fastcall Aime_getAimeId(DWORD* a1)
+bool __fastcall Aime_getAimeId(unsigned int* uid)
 {
 #ifdef _DEBUG
 	info(true, "Aime_getAimeId");
@@ -40,20 +49,36 @@ bool __fastcall Aime_getAimeId(DWORD* a1)
 	return Aime_getAimeIdReturnValue;
 }
 
-__int64 Aime_getConfirm()
+enum class AIME_CONFIRM
+{
+	NoneDB,
+	FeliCaDB,
+	AimeDB,
+};
+
+AIME_CONFIRM Aime_getConfirm()
 {
 #ifdef _DEBUG
 	info(true, "Aime_getConfirm");
 #endif
-	return Aime_getConfirmReturnValue;
+	return AIME_CONFIRM::AimeDB;
 }
 
-__int64 Aime_getErrorCategory()
+enum class AIME_ERROR_CATEGORY
+{
+	NONE,
+	WARNING,
+	NETWORK,
+	FATAL,
+	UNKNOWN,
+};
+
+AIME_ERROR_CATEGORY Aime_getErrorCategory()
 {
 #ifdef _DEBUG
 	info(true, "Aime_getErrorCategory");
 #endif
-	return Aime_getErrorCategoryReturnValue;
+	return AIME_ERROR_CATEGORY::NONE;
 }
 
 bool Aime_hasConfirm()
@@ -64,7 +89,7 @@ bool Aime_hasConfirm()
 	return Aime_hasConfirmReturnValue;
 }
 
-__int64 Aime_hasError()
+bool Aime_hasError()
 {
 #ifdef _DEBUG
 	info(true, "Aime_hasError");
@@ -72,7 +97,7 @@ __int64 Aime_hasError()
 	return Aime_hasErrorReturnValue;
 }
 
-__int64 Aime_hasResult()
+bool Aime_hasResult()
 {
 #ifdef _DEBUG
 	info(true, "Aime_hasResult");
@@ -80,7 +105,7 @@ __int64 Aime_hasResult()
 	return Aime_hasResultReturnValue;
 }
 
-__int64 Aime_isBusy()
+bool Aime_isBusy()
 {
 #ifdef _DEBUG
 	info(true, "Aime_isBusy");
@@ -88,7 +113,7 @@ __int64 Aime_isBusy()
 	return Aime_isBusyReturnValue;
 }
 
-__int64 Aime_isDBAlive()
+bool Aime_isDBAlive()
 {
 #ifdef _DEBUG
 	info(true, "Aime_isDBAlive");
@@ -96,7 +121,7 @@ __int64 Aime_isDBAlive()
 	return Aime_isDBAliveReturnValue;
 }
 
-__int64 Aime_isMobile()
+bool Aime_isMobile()
 {
 #ifdef _DEBUG
 	info(true, "Aime_isMobile");
@@ -104,7 +129,7 @@ __int64 Aime_isMobile()
 	return Aime_isMobileReturnValue;
 }
 
-__int64 Aime_isReaderDetected()
+bool Aime_isReaderDetected()
 {
 #ifdef _DEBUG
 	info(true, "Aime_isReaderDetected");
@@ -112,7 +137,15 @@ __int64 Aime_isReaderDetected()
 	return Aime_isReaderDetectedReturnValue;
 }
 
-char __fastcall Aime_sendLog(int a1, int a2, unsigned __int64 a3)
+
+enum class AIME_LOG_STATUS
+{
+	BEGIN,
+	CONTINUE,
+	END,
+};
+
+bool __fastcall Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, unsigned __int64 count)
 {
 #ifdef _DEBUG
 	info(true, "Aime_sendLog");
@@ -120,7 +153,7 @@ char __fastcall Aime_sendLog(int a1, int a2, unsigned __int64 a3)
 	return Aime_sendLogReturnValue;
 }
 
-__int64 Aime_setLedError()
+bool Aime_setLedError()
 {
 #ifdef _DEBUG
 	info(true, "Aime_setLedError");
@@ -128,7 +161,7 @@ __int64 Aime_setLedError()
 	return Aime_setLedErrorReturnValue;
 }
 
-__int64 Aime_setLedSuccess()
+bool Aime_setLedSuccess()
 {
 #ifdef _DEBUG
 	info(true, "Aime_setLedSuccess");
@@ -136,7 +169,7 @@ __int64 Aime_setLedSuccess()
 	return Aime_setLedSuccessReturnValue;
 }
 
-char Aime_start()
+bool Aime_start()
 {
 #ifdef _DEBUG
 	info(true, "Aime_start");
@@ -336,7 +369,7 @@ struct BackupRecord
 BackupRecord *internal_Records;
 unsigned int internal_recordCount;
 
-enum BackupRecordStatus
+enum class BackupRecordStatus
 {
 	BackupRecordStatus_InvalidCall = -1, // 0xFFFFFFFF
 	BackupRecordStatus_Valid = 0,
@@ -349,7 +382,7 @@ BackupRecordStatus __fastcall Backup_getRecordStatus(__int64 recordIndex)
 #ifdef _DEBUG
 	info(true, "Backup_getRecordStatus %llx", recordIndex);
 #endif
-	return BackupRecordStatus_Valid;
+	return BackupRecordStatus::BackupRecordStatus_Valid;
 }
 
 bool Backup_isSetupSucceeded()
