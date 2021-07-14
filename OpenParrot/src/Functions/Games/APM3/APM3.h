@@ -50,17 +50,17 @@ static __int64 AllnetAuth_isDevelopReturnValue = 0;
 
 static __int64 AllnetAuth_isGoodReturnValue = 0;
 
-static char ApmSystemSetting_getAdvertizeSoundReturnValue = 0;
+static bool ApmSystemSetting_getAdvertizeSoundReturnValue = false;
 
-static char ApmSystemSetting_getClosingTimesReturnValue = 0;
+static bool ApmSystemSetting_getClosingTimesReturnValue = false;
 
 static char ApmSystemSetting_getEmoneySettingReturnValue = 0;
 
-static char ApmSystemSetting_getFixedTitleReturnValue = 0;
+static bool ApmSystemSetting_getFixedTitleReturnValue = false;
 
 static char ApmSystemSetting_getGamePadSettingReturnValue = 0;
 
-static char ApmSystemSetting_getMatchingGroupReturnValue = 0;
+static bool ApmSystemSetting_getMatchingGroupReturnValue = false;
 
 static char ApmSystemSetting_getTimeToClosingTimeReturnValue = 0;
 

@@ -289,7 +289,7 @@ __int64 AllnetAuth_isGood()
 	return AllnetAuth_isGoodReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getAdvertizeSound(BYTE* a1)
+bool __fastcall ApmSystemSetting_getAdvertizeSound(bool *enable)
 {
 #ifdef _DEBUG
 	info(true, "ApmSystemSetting_getAdvertizeSound");
@@ -297,7 +297,7 @@ char __fastcall ApmSystemSetting_getAdvertizeSound(BYTE* a1)
 	return ApmSystemSetting_getAdvertizeSoundReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getClosingTimes(__int64 a1)
+bool __fastcall ApmSystemSetting_getClosingTimes(__int64 *closingTimes)
 {
 #ifdef _DEBUG
 	info(true, "ApmSystemSetting_getClosingTimes");
@@ -313,7 +313,7 @@ char __fastcall ApmSystemSetting_getEmoneySetting(__int64 a1)
 	return ApmSystemSetting_getEmoneySettingReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getFixedTitle(BYTE* a1)
+bool __fastcall ApmSystemSetting_getFixedTitle(bool *enable)
 {
 #ifdef _DEBUG
 	info(true, "ApmSystemSetting_getFixedTitle");
@@ -329,7 +329,13 @@ char __fastcall ApmSystemSetting_getGamePadSetting(WORD* a1)
 	return ApmSystemSetting_getGamePadSettingReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getMatchingGroup(WORD* a1)
+struct MatchingGroup
+{
+	char alphabet[1];
+	char number[1];
+};
+
+bool __fastcall ApmSystemSetting_getMatchingGroup(MatchingGroup* matchingGroup)
 {
 #ifdef _DEBUG
 	info(true, "ApmSystemSetting_getMatchingGroup");
@@ -337,11 +343,12 @@ char __fastcall ApmSystemSetting_getMatchingGroup(WORD* a1)
 	return ApmSystemSetting_getMatchingGroupReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getTimeToClosingTime(DWORD* a1)
+bool __fastcall ApmSystemSetting_getTimeToClosingTime(unsigned int* seconds)
 {
 #ifdef _DEBUG
 	info(true, "ApmSystemSetting_getTimeToClosingTime");
 #endif
+	*seconds = 0;
 	return ApmSystemSetting_getTimeToClosingTimeReturnValue;
 }
 
@@ -857,12 +864,20 @@ wchar_t* System_getKeychipId()
 	return lol;
 }
 
-__int64 System_getRegionCode()
+enum class SystemRegionCode
+{
+	Unknown,
+	Japan,
+	China,
+	Export,
+};
+
+SystemRegionCode System_getRegionCode()
 {
 #ifdef _DEBUG
 	info(true, "System_getRegionCode");
 #endif
-	return System_getRegionCodeReturnValue;
+	return SystemRegionCode::Japan;
 }
 
 __int64 System_getResolution()
