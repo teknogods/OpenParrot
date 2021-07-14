@@ -67,9 +67,7 @@ static char ApmSystemSetting_getTimeToClosingTimeReturnValue = 0;
 
 static char ApmSystemSetting_getUiSettingReturnValue = 0;
 
-static __int64 Backup_getRecordStatusReturnValue = 0;
-
-static __int64 Backup_isSetupSucceededReturnValue = 1;
+static bool Backup_isSetupSucceededReturnValue = true;
 
 static __int64 Backup_saveRecordReturnValue = 0;
 
