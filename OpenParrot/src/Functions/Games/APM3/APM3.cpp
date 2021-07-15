@@ -444,6 +444,8 @@ GameVersion* System_getGameVersion()
 	if (_gameVersion == nullptr)
 	{
 		_gameVersion = (GameVersion*)malloc(sizeof(GameVersion));
+		_gameVersion->Minor = 0;
+		_gameVersion->Major = 1;
 	}
 	return _gameVersion;
 }
@@ -582,7 +584,7 @@ int apmGamepadUpdate()
 static void HookAPM3()
 {
 	wcscpy(ServerName, L"TeknoParrot Server Hi!");
-	wcscpy(LinkServerName, L"TeknoParrot Link Server Hi!");
+	wcscpy(LinkServerName, L"localhost");
 	wcscpy(LocationNickName, L"Flatty");
 	wcscpy(LocationName, L"Flatearth");
 	wcscpy(RegionName, L"Santaland");
