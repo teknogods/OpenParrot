@@ -5,6 +5,7 @@
 #include "Functions\Global.h"
 #include "APM3.h"
 #include "Aime.h"
+#include "Backup.h"
 
 static uint8_t g_APM3IOValues[256];
 
@@ -189,103 +190,6 @@ char __fastcall ApmSystemSetting_getUiSetting(__int64 a1)
 	info(true, "ApmSystemSetting_getUiSetting");
 #endif
 	return ApmSystemSetting_getUiSettingReturnValue;
-}
-
-char* SaveFileName = "save";
-char fileBuffer[256];
-
-struct BackupRecord
-{
-	void* Address;
-	unsigned long Size;
-};
-
-BackupRecord *internal_Records;
-unsigned int internal_recordCount;
-
-enum class BackupRecordStatus
-{
-	BackupRecordStatus_InvalidCall = -1, // 0xFFFFFFFF
-	BackupRecordStatus_Valid = 0,
-	BackupRecordStatus_DiffApp = 1,
-	BackupRecordStatus_BrokenData = 2,
-};
-
-BackupRecordStatus __fastcall Backup_getRecordStatus(__int64 recordIndex)
-{
-#ifdef _DEBUG
-	info(true, "Backup_getRecordStatus %llx", recordIndex);
-#endif
-	return BackupRecordStatus::BackupRecordStatus_Valid;
-}
-
-bool Backup_isSetupSucceeded()
-{
-#ifdef _DEBUG
-	info(true, "Backup_isSetupSucceeded");
-#endif
-	return Backup_isSetupSucceededReturnValue;
-}
-
-bool __fastcall Backup_saveRecord(unsigned long recordIndex)
-{
-#ifdef _DEBUG
-	info(true, "Backup_saveRecord recordIndex: %llx", recordIndex);
-#endif
-	memset(fileBuffer, 0, sizeof(fileBuffer));
-	sprintf(fileBuffer, "%s%02d.bin", SaveFileName, recordIndex);
-	auto file = fopen(fileBuffer, "wb+");
-	if (file)
-	{
-		fwrite(internal_Records[recordIndex].Address, 1, internal_Records[recordIndex].Size, file);
-		fclose(file);
-	}
-	return Backup_saveRecordReturnValue;
-}
-
-__int64 __fastcall Backup_saveRecordByAddress(__int64 recordAddress)
-{
-#ifdef _DEBUG
-	info(true, "Backup_saveRecordByAddress %llx", recordAddress);
-#endif
-	return Backup_saveRecordByAddressReturnValue;
-}
-
-
-
-
-//__int64 __fastcall Backup_setupRecords(__int128* a1, unsigned int a2)
-bool __fastcall Backup_setupRecords(BackupRecord *records, unsigned int recordCount)
-{
-	for (int i = 0; i < recordCount; i++)
-	{
-		memset(fileBuffer, 0, sizeof(fileBuffer));
-		sprintf(fileBuffer, "%s%02d.bin", SaveFileName, i);
-		FILE* fsave = fopen(fileBuffer, "r");
-		internal_Records = records;
-		internal_recordCount = recordCount;
-		if (fsave != NULL)
-		{
-#ifdef _DEBUG
-		info(true, "Backup setuprecords %02d of %02d, loading file %s", i, recordCount, fileBuffer);
-#endif		
-			fread(records[i].Address, 1, records[i].Size, fsave); // add file size check noob
-			fclose(fsave);
-		}
-		else
-		{
-#ifdef _DEBUG
-			info(true, "Backup setuprecords %02d of %02d, saving file %s", i, recordCount, fileBuffer);
-#endif
-			auto file = fopen(fileBuffer, "wb+");
-			if (file)
-			{
-				fwrite(records[i].Address, 1, records[i].Size, file);
-				fclose(file);
-			}
-		}
-	}
-	return true;
 }
 
 void Core_execute()
@@ -1081,7 +985,7 @@ static InitFunction initVF5Func([]()
 	strcpy(APM3GameId, "SDHF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	SaveFileName = ".\\vf5fs\\save";
+	BackupSaveFileName = ".\\vf5fs\\save";
 
 }, GameID::VF5Esports);
 
