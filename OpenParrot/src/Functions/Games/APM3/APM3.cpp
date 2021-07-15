@@ -6,120 +6,10 @@
 #include "APM3.h"
 #include "Aime.h"
 #include "Backup.h"
+#include "Auth.h"
+#include "Sequence.h"
 
 static uint8_t g_APM3IOValues[256];
-
-__int64 __fastcall AllnetAccounting_beginPlay(unsigned int a1)
-{
-#ifdef _DEBUG
-	info(true, "AllnetAccounting_beginPlay");
-#endif
-	return AllnetAccounting_beginPlayReturnValue;
-}
-
-__int64 __fastcall AllnetAccounting_endPlay(int a1, int a2, int a3)
-{
-#ifdef _DEBUG
-	info(true, "AllnetAccounting_endPlay");
-#endif
-	return AllnetAccounting_endPlayReturnValue;
-}
-
-char* AllnetAuth_getAbaasGsServerName()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getAbaasGsServerName");
-#endif
-	return ServerName;
-}
-
-char* AllnetAuth_getAbaasLinkServerName()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getAbaasLinkServerName");
-#endif
-	return LinkServerName;
-}
-
-__int64 AllnetAuth_getCountryCode()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getCountryCode");
-#endif
-	return AllnetAuth_getCountryCodeReturnValue;
-}
-
-__int64 AllnetAuth_getLocationId()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getLocationId");
-#endif
-	return AllnetAuth_getLocationIdReturnValue;
-}
-
-char* AllnetAuth_getLocationName()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getLocationName");
-#endif
-	return LocationName;
-}
-
-char* __fastcall AllnetAuth_getLocationNickname(int a1)
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getLocationNickname");
-#endif
-	return LocationNickName;
-}
-
-__int64 AllnetAuth_getLocationNicknamePartCount()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getLocationNicknamePartCount");
-#endif
-	return AllnetAuth_getLocationNicknamePartCountReturnValue;
-}
-
-__int64 AllnetAuth_getRegionCode()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getRegionCode");
-#endif
-	return AllnetAuth_getRegionCodeReturnValue;
-}
-
-char* __fastcall AllnetAuth_getRegionName(int a1)
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getRegionName");
-#endif
-	return RegionName;
-}
-
-__int64 AllnetAuth_getRegionNamePartCount()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getRegionNamePartCount");
-#endif
-	return AllnetAuth_getRegionNamePartCountReturnValue;
-}
-
-__int64 AllnetAuth_isDevelop()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_isDevelop");
-#endif
-	return AllnetAuth_isDevelopReturnValue;
-}
-
-__int64 AllnetAuth_isGood()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_isGood");
-#endif
-	return AllnetAuth_isGoodReturnValue;
-}
 
 bool __fastcall ApmSystemSetting_getAdvertizeSound(bool *enable)
 {
@@ -489,106 +379,6 @@ __int64 NetworkProperty_getAddressValue()
 	return NetworkProperty_getAddressValueReturnValue;
 }
 
-//__int64 __fastcall Sequence_beginPlay(__int64 a1, struct Concurrency::details::_CancellationTokenState* a2, _DWORD* a3, __int64 a4)
-__int64 __fastcall Sequence_beginPlay(__int64 a1, void* a2, DWORD* a3, __int64 a4)
-{
-#ifdef _DEBUG
-	info(true, "Sequence_beginPlay");
-#endif
-	return Sequence_beginPlayReturnValue;
-}
-
-__int64 Sequence_clearBackup()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_clearBackup");
-#endif
-	return Sequence_clearBackupReturnValue;
-}
-
-__int64 __fastcall Sequence_continuePlay(__int64 a1, __int64 a2, DWORD* a3, __int64 a4)
-{
-#ifdef _DEBUG
-	info(true, "Sequence_continuePlay");
-#endif
-	return Sequence_continuePlayReturnValue;
-}
-
-//__int64 __fastcall Sequence_endPlay(__int64 a1, struct Concurrency::details::_CancellationTokenState* a2)
-__int64 __fastcall Sequence_endPlay(__int64 a1, void* a2)
-{
-#ifdef _DEBUG
-	info(true, "Sequence_endPlay");
-#endif
-	return Sequence_endPlayReturnValue;
-}
-
-struct SequenceTimeHistogramItem
-{
-	unsigned int TimeRangeMin;
-	unsigned int TimeRangeMax;
-	unsigned int Count;
-};
-
-struct SequenceBookkeeping
-{
-	const unsigned long MaxTimeHistogramCount = 32;
-	unsigned int NumberOfGames;
-	unsigned int TotalTime;
-	unsigned int PlayTime;
-	unsigned int AveragePlayTime;
-	unsigned int LongestPlayTime;
-	unsigned int ShortestPlayTime;
-	unsigned int TimeHistogramCount;
-	SequenceTimeHistogramItem TimeHistogram[32];
-};
-
-SequenceBookkeeping* Sequence_getBookkeeping()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_getBookkeeping");
-#endif
-	static SequenceBookkeeping *_sequenceBookkeeping;
-	if (_sequenceBookkeeping == nullptr)
-	{
-		_sequenceBookkeeping = (SequenceBookkeeping*)malloc(sizeof(SequenceBookkeeping));
-		memset(_sequenceBookkeeping, 0, sizeof(SequenceBookkeeping));
-	}
-	return _sequenceBookkeeping;
-}
-
-__int64 Sequence_getPlayingAimeId()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_getPlayingAimeId");
-#endif
-	return Sequence_getPlayingAimeIdReturnValue;
-}
-
-__int64 Sequence_isAccountingPlaying()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_isAccountingPlaying");
-#endif
-	return Sequence_isAccountingPlayingReturnValue;
-}
-
-__int64 Sequence_isPlaying()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_isPlaying");
-#endif
-	return Sequence_isPlayingReturnValue;
-}
-
-__int64 Sequence_isTest()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_isTest");
-#endif
-	return Sequence_isTestReturnValue;
-}
-
 __int64 System_getAppRootPath()
 {
 #ifdef _DEBUG
@@ -791,11 +581,11 @@ int apmGamepadUpdate()
 
 static void HookAPM3()
 {
-	strcpy(ServerName, "TeknoParrot Server Hi!");
-	strcpy(LinkServerName, "TeknoParrot Link Server Hi!");
-	strcpy(LocationNickName, "Flatty");
-	strcpy(LocationName, "Flatearth");
-	strcpy(RegionName, "Santaland");
+	wcscpy(ServerName, L"TeknoParrot Server Hi!");
+	wcscpy(LinkServerName, L"TeknoParrot Link Server Hi!");
+	wcscpy(LocationNickName, L"Flatty");
+	wcscpy(LocationName, L"Flatearth");
+	wcscpy(RegionName, L"Santaland");
 	Credit_isGameCostEnoughReturnValue = 1;
 
 	MH_Initialize();

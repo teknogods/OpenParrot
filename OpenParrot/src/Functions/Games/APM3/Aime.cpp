@@ -5,8 +5,6 @@
 #include "Functions\Global.h"
 #include "Aime.h"
 
-static uint8_t g_APM3IOValues[256];
-
 bool Aime_acceptConfirm()
 {
 #ifdef _DEBUG

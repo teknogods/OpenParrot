@@ -1,30 +1,6 @@
 #ifdef _M_AMD64
-static char APM3GameId[5];
-static char RegionName[64];
-static char LocationNickName[64];
-static char LocationName[64];
-static char LinkServerName[64];
-static char ServerName[64];
 
 static __int64 System_getResolutionReturnValue = 0;
-
-static __int64 AllnetAccounting_beginPlayReturnValue = 0;
-
-static __int64 AllnetAccounting_endPlayReturnValue = 0;
-
-static __int64 AllnetAuth_getCountryCodeReturnValue = 0;
-
-static __int64 AllnetAuth_getLocationIdReturnValue = 0;
-
-static __int64 AllnetAuth_getLocationNicknamePartCountReturnValue = 0;
-
-static __int64 AllnetAuth_getRegionCodeReturnValue = 0;
-
-static __int64 AllnetAuth_getRegionNamePartCountReturnValue = 0;
-
-static __int64 AllnetAuth_isDevelopReturnValue = 0;
-
-static __int64 AllnetAuth_isGoodReturnValue = 0;
 
 static bool ApmSystemSetting_getAdvertizeSoundReturnValue = false;
 
@@ -95,24 +71,6 @@ static char Input_setGamepadConfigReturnValue = 0;
 static void** NetworkProperty_getAddressStringReturnValue = nullptr;
 
 static __int64 NetworkProperty_getAddressValueReturnValue = 0;
-
-static __int64 Sequence_beginPlayReturnValue = 1;
-
-static __int64 Sequence_clearBackupReturnValue = 0;
-
-static __int64 Sequence_continuePlayReturnValue = 0;
-
-static __int64 Sequence_endPlayReturnValue = 0;
-
-static __int64 Sequence_getBookkeepingReturnValue = 0;
-
-static __int64 Sequence_getPlayingAimeIdReturnValue = 0;
-
-static __int64 Sequence_isAccountingPlayingReturnValue = 0;
-
-static __int64 Sequence_isPlayingReturnValue = 0;
-
-static __int64 Sequence_isTestReturnValue = 0;
 
 static __int64 System_getAppRootPathReturnValue = 0;
 
