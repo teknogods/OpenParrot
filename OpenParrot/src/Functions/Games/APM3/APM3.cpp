@@ -4,467 +4,97 @@
 #ifdef _M_AMD64
 #include "Functions\Global.h"
 #include "APM3.h"
+#include "Aime.h"
+#include "Backup.h"
+#include "Auth.h"
+#include "Sequence.h"
 
 static uint8_t g_APM3IOValues[256];
 
-bool Aime_acceptConfirm()
+bool __fastcall ApmSystemSetting_getAdvertizeSound(bool *enable)
 {
-#ifdef _DEBUG
-	info(true, "Aime_acceptConfirm");
-#endif
-	return Aime_acceptConfirmReturnValue;
-}
-
-bool Aime_cancel()
-{
-#ifdef _DEBUG
-	info(true, "Aime_cancel");
-#endif
-
-	return Aime_cancelReturnValue;
-}
-
-struct AccessCode
-{
-	const int DigitCount = 20;
-	const int Size = 10;
-	const int StrSize = 41;
-	char values[10];
-	char valueStr[41];
-};
-
-bool __fastcall Aime_getAccessCode(AccessCode *accessCode)
-{
-#ifdef _DEBUG
-	info(true, "Aime_getAccessCode");
-#endif
-	return Aime_getAccessCodeReturnValue;
-}
-
-bool __fastcall Aime_getAimeId(unsigned int* uid)
-{
-#ifdef _DEBUG
-	info(true, "Aime_getAimeId");
-#endif
-	return Aime_getAimeIdReturnValue;
-}
-
-enum class AIME_CONFIRM
-{
-	NoneDB,
-	FeliCaDB,
-	AimeDB,
-};
-
-AIME_CONFIRM Aime_getConfirm()
-{
-#ifdef _DEBUG
-	info(true, "Aime_getConfirm");
-#endif
-	return AIME_CONFIRM::AimeDB;
-}
-
-enum class AIME_ERROR_CATEGORY
-{
-	NONE,
-	WARNING,
-	NETWORK,
-	FATAL,
-	UNKNOWN,
-};
-
-AIME_ERROR_CATEGORY Aime_getErrorCategory()
-{
-#ifdef _DEBUG
-	info(true, "Aime_getErrorCategory");
-#endif
-	return AIME_ERROR_CATEGORY::NONE;
-}
-
-bool Aime_hasConfirm()
-{
-#ifdef _DEBUG
-	info(true, "Aime_hasConfirm");
-#endif
-	return Aime_hasConfirmReturnValue;
-}
-
-bool Aime_hasError()
-{
-#ifdef _DEBUG
-	info(true, "Aime_hasError");
-#endif
-	return Aime_hasErrorReturnValue;
-}
-
-bool Aime_hasResult()
-{
-#ifdef _DEBUG
-	info(true, "Aime_hasResult");
-#endif
-	return Aime_hasResultReturnValue;
-}
-
-bool Aime_isBusy()
-{
-#ifdef _DEBUG
-	info(true, "Aime_isBusy");
-#endif
-	return Aime_isBusyReturnValue;
-}
-
-bool Aime_isDBAlive()
-{
-#ifdef _DEBUG
-	info(true, "Aime_isDBAlive");
-#endif
-	return Aime_isDBAliveReturnValue;
-}
-
-bool Aime_isMobile()
-{
-#ifdef _DEBUG
-	info(true, "Aime_isMobile");
-#endif
-	return Aime_isMobileReturnValue;
-}
-
-bool Aime_isReaderDetected()
-{
-#ifdef _DEBUG
-	info(true, "Aime_isReaderDetected");
-#endif
-	return Aime_isReaderDetectedReturnValue;
-}
-
-
-enum class AIME_LOG_STATUS
-{
-	BEGIN,
-	CONTINUE,
-	END,
-};
-
-bool __fastcall Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, unsigned __int64 count)
-{
-#ifdef _DEBUG
-	info(true, "Aime_sendLog");
-#endif
-	return Aime_sendLogReturnValue;
-}
-
-bool Aime_setLedError()
-{
-#ifdef _DEBUG
-	info(true, "Aime_setLedError");
-#endif
-	return Aime_setLedErrorReturnValue;
-}
-
-bool Aime_setLedSuccess()
-{
-#ifdef _DEBUG
-	info(true, "Aime_setLedSuccess");
-#endif
-	return Aime_setLedSuccessReturnValue;
-}
-
-bool Aime_start()
-{
-#ifdef _DEBUG
-	info(true, "Aime_start");
-#endif
-	return Aime_startReturnValue;
-}
-
-__int64 __fastcall AllnetAccounting_beginPlay(unsigned int a1)
-{
-#ifdef _DEBUG
-	info(true, "AllnetAccounting_beginPlay");
-#endif
-	return AllnetAccounting_beginPlayReturnValue;
-}
-
-__int64 __fastcall AllnetAccounting_endPlay(int a1, int a2, int a3)
-{
-#ifdef _DEBUG
-	info(true, "AllnetAccounting_endPlay");
-#endif
-	return AllnetAccounting_endPlayReturnValue;
-}
-
-char* AllnetAuth_getAbaasGsServerName()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getAbaasGsServerName");
-#endif
-	return ServerName;
-}
-
-char* AllnetAuth_getAbaasLinkServerName()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getAbaasLinkServerName");
-#endif
-	return LinkServerName;
-}
-
-__int64 AllnetAuth_getCountryCode()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getCountryCode");
-#endif
-	return AllnetAuth_getCountryCodeReturnValue;
-}
-
-__int64 AllnetAuth_getLocationId()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getLocationId");
-#endif
-	return AllnetAuth_getLocationIdReturnValue;
-}
-
-char* AllnetAuth_getLocationName()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getLocationName");
-#endif
-	return LocationName;
-}
-
-char* __fastcall AllnetAuth_getLocationNickname(int a1)
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getLocationNickname");
-#endif
-	return LocationNickName;
-}
-
-__int64 AllnetAuth_getLocationNicknamePartCount()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getLocationNicknamePartCount");
-#endif
-	return AllnetAuth_getLocationNicknamePartCountReturnValue;
-}
-
-__int64 AllnetAuth_getRegionCode()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getRegionCode");
-#endif
-	return AllnetAuth_getRegionCodeReturnValue;
-}
-
-char* __fastcall AllnetAuth_getRegionName(int a1)
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getRegionName");
-#endif
-	return RegionName;
-}
-
-__int64 AllnetAuth_getRegionNamePartCount()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_getRegionNamePartCount");
-#endif
-	return AllnetAuth_getRegionNamePartCountReturnValue;
-}
-
-__int64 AllnetAuth_isDevelop()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_isDevelop");
-#endif
-	return AllnetAuth_isDevelopReturnValue;
-}
-
-__int64 AllnetAuth_isGood()
-{
-#ifdef _DEBUG
-	info(true, "AllnetAuth_isGood");
-#endif
-	return AllnetAuth_isGoodReturnValue;
-}
-
-char __fastcall ApmSystemSetting_getAdvertizeSound(BYTE* a1)
-{
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getAdvertizeSound");
 #endif
+	*enable = true;
 	return ApmSystemSetting_getAdvertizeSoundReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getClosingTimes(__int64 a1)
+bool __fastcall ApmSystemSetting_getClosingTimes(__int64 *closingTimes)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getClosingTimes");
 #endif
+	*closingTimes = 0;
 	return ApmSystemSetting_getClosingTimesReturnValue;
 }
 
 char __fastcall ApmSystemSetting_getEmoneySetting(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getEmoneySetting");
 #endif
 	return ApmSystemSetting_getEmoneySettingReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getFixedTitle(BYTE* a1)
+bool __fastcall ApmSystemSetting_getFixedTitle(bool *enable)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getFixedTitle");
 #endif
+	*enable = false;
 	return ApmSystemSetting_getFixedTitleReturnValue;
 }
 
 char __fastcall ApmSystemSetting_getGamePadSetting(WORD* a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getGamePadSetting");
 #endif
 	return ApmSystemSetting_getGamePadSettingReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getMatchingGroup(WORD* a1)
+struct MatchingGroup
 {
-#ifdef _DEBUG
+	char alphabet[1];
+	char number[1];
+};
+
+bool __fastcall ApmSystemSetting_getMatchingGroup(MatchingGroup* matchingGroup)
+{
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getMatchingGroup");
 #endif
 	return ApmSystemSetting_getMatchingGroupReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getTimeToClosingTime(DWORD* a1)
+bool __fastcall ApmSystemSetting_getTimeToClosingTime(unsigned int* seconds)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getTimeToClosingTime");
 #endif
+	*seconds = 0;
 	return ApmSystemSetting_getTimeToClosingTimeReturnValue;
 }
 
 char __fastcall ApmSystemSetting_getUiSetting(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getUiSetting");
 #endif
 	return ApmSystemSetting_getUiSettingReturnValue;
 }
 
-unsigned char saveArray[0x2000]; // some stupid size
-int sectorSize = 0x20; // Guess
-__int64* InGameSavePointer;
-__int64 SaveFileSize = 0;
-char* SaveFileName = "save";
-char fileBuffer[256];
-
-struct BackupRecord
+void Core_execute()
 {
-	void* Address;
-	unsigned long Size;
-};
-
-BackupRecord *internal_Records;
-unsigned int internal_recordCount;
-
-enum class BackupRecordStatus
-{
-	BackupRecordStatus_InvalidCall = -1, // 0xFFFFFFFF
-	BackupRecordStatus_Valid = 0,
-	BackupRecordStatus_DiffApp = 1,
-	BackupRecordStatus_BrokenData = 2,
-};
-
-BackupRecordStatus __fastcall Backup_getRecordStatus(__int64 recordIndex)
-{
-#ifdef _DEBUG
-	info(true, "Backup_getRecordStatus %llx", recordIndex);
-#endif
-	return BackupRecordStatus::BackupRecordStatus_Valid;
-}
-
-bool Backup_isSetupSucceeded()
-{
-#ifdef _DEBUG
-	info(true, "Backup_isSetupSucceeded");
-#endif
-	return Backup_isSetupSucceededReturnValue;
-}
-
-bool __fastcall Backup_saveRecord(unsigned long recordIndex)
-{
-#ifdef _DEBUG
-	info(true, "Backup_saveRecord recordIndex: %llx", recordIndex);
-#endif
-	memset(fileBuffer, 0, sizeof(fileBuffer));
-	sprintf(fileBuffer, "%s%02d.bin", SaveFileName, recordIndex);
-	auto file = fopen(fileBuffer, "wb+");
-	if (file)
-	{
-		fwrite(internal_Records[recordIndex].Address, 1, internal_Records[recordIndex].Size, file);
-		fclose(file);
-	}
-	return Backup_saveRecordReturnValue;
-}
-
-__int64 __fastcall Backup_saveRecordByAddress(__int64 recordAddress)
-{
-#ifdef _DEBUG
-	info(true, "Backup_saveRecordByAddress %llx", recordAddress);
-#endif
-	return Backup_saveRecordByAddressReturnValue;
-}
-
-
-
-
-//__int64 __fastcall Backup_setupRecords(__int128* a1, unsigned int a2)
-bool __fastcall Backup_setupRecords(BackupRecord *records, unsigned int recordCount)
-{
-	for (int i = 0; i < recordCount; i++)
-	{
-		memset(fileBuffer, 0, sizeof(fileBuffer));
-		sprintf(fileBuffer, "%s%02d.bin", SaveFileName, i);
-		FILE* fsave = fopen(fileBuffer, "r");
-		internal_Records = records;
-		internal_recordCount = recordCount;
-		if (fsave != NULL)
-		{
-#ifdef _DEBUG
-		info(true, "Backup setuprecords %02d of %02d, loading file %s", i, recordCount, fileBuffer);
-#endif		
-			fread(records[i].Address, 1, records[i].Size, fsave); // add file size check noob
-			fclose(fsave);
-		}
-		else
-		{
-#ifdef _DEBUG
-			info(true, "Backup setuprecords %02d of %02d, saving file %s", i, recordCount, fileBuffer);
-#endif
-			auto file = fopen(fileBuffer, "wb+");
-			if (file)
-			{
-				fwrite(records[i].Address, 1, records[i].Size, file);
-				fclose(file);
-			}
-		}
-	}
-	return true;
-}
-
-__int64 Core_execute()
-{
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_execute");
 #endif
-	return Core_executeReturnValue;
 }
 
-__int64 __fastcall Core_exitGame(unsigned __int8 a1)
+bool __fastcall Core_exitGame(bool isTest)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_exitGame");
 #endif
 	return Core_exitGameReturnValue;
@@ -472,15 +102,15 @@ __int64 __fastcall Core_exitGame(unsigned __int8 a1)
 
 __int64 Core_hookException()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_hookException");
 #endif
 	return Core_hookExceptionReturnValue;
 }
 
-char Core_isExitNeeded()
+bool Core_isExitNeeded()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_isExitNeeded");
 #endif
 	return Core_isExitNeededReturnValue;
@@ -488,14 +118,14 @@ char Core_isExitNeeded()
 
 void Core_resetCount()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_resetCount");
 #endif
 }
 
 __int64 Core_resetException()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_resetException");
 #endif
 	return Core_resetExceptionReturnValue;
@@ -503,7 +133,7 @@ __int64 Core_resetException()
 
 __int64 Credit_getAddableCoin()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getAddableCoin");
 #endif
 	return Credit_getAddableCoinReturnValue;
@@ -511,7 +141,7 @@ __int64 Credit_getAddableCoin()
 
 __int64 Credit_getCoinMultipliers()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getCoinMultipliers");
 #endif
 	return Credit_getCoinMultipliersReturnValue;
@@ -519,7 +149,7 @@ __int64 Credit_getCoinMultipliers()
 
 __int64 Credit_getCoinToCredit()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getCoinToCredit");
 #endif
 	return Credit_getCoinToCreditReturnValue;
@@ -527,7 +157,7 @@ __int64 Credit_getCoinToCredit()
 
 __int64 Credit_getCredit()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getCredit");
 #endif
 	return Credit_getCreditReturnValue;
@@ -535,7 +165,7 @@ __int64 Credit_getCredit()
 
 __int64 Credit_getRemain()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getRemain");
 #endif
 	return Credit_getRemainReturnValue;
@@ -543,7 +173,7 @@ __int64 Credit_getRemain()
 
 __int64 Credit_isFreePlay()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_isFreePlay");
 #endif
 	return Credit_isFreePlayReturnValue;
@@ -551,7 +181,7 @@ __int64 Credit_isFreePlay()
 
 __int64 __fastcall Credit_isGameCostEnough(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_isGameCostEnough");
 #endif
 	return Credit_isGameCostEnoughReturnValue; // 1
@@ -559,7 +189,7 @@ __int64 __fastcall Credit_isGameCostEnough(__int64 a1)
 
 __int64 Credit_isZero()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_isZero");
 #endif
 	return Credit_isZeroReturnValue;
@@ -567,7 +197,7 @@ __int64 Credit_isZero()
 
 __int64 __fastcall Credit_payGameCost(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_payGameCost");
 #endif
 	return Credit_payGameCostReturnValue;
@@ -575,7 +205,7 @@ __int64 __fastcall Credit_payGameCost(__int64 a1)
 
 __int64 Credit_resetCoinInHook()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_resetCoinInHook");
 #endif
 
@@ -584,7 +214,7 @@ __int64 Credit_resetCoinInHook()
 
 __int64 Credit_setCoinInHook()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_setCoinInHook");
 #endif
 
@@ -593,7 +223,7 @@ __int64 Credit_setCoinInHook()
 
 wchar_t* Credit_toString()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_toString");
 #endif
 
@@ -604,14 +234,14 @@ wchar_t* Credit_toString()
 
 void Emoney_close()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_close");
 #endif
 }
 
 __int64 Emoney_isOpenMainWindow()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_isOpenMainWindow");
 #endif
 	return Emoney_isOpenMainWindowReturnValue;
@@ -619,7 +249,7 @@ __int64 Emoney_isOpenMainWindow()
 
 char Emoney_launch()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_launch");
 #endif
 	return Emoney_launchReturnValue;
@@ -627,21 +257,21 @@ char Emoney_launch()
 
 void __fastcall Emoney_setSoundHook(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_setSoundHook");
 #endif
 }
 
 void __fastcall Emoney_update(BYTE* a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_update");
 #endif
 }
 
 __int64 Error_isOccurred()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Error_isOccurred");
 #endif
 	return Error_isOccurredReturnValue;
@@ -649,24 +279,40 @@ __int64 Error_isOccurred()
 
 __int64 Error_setDeviceLost()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Error_setDeviceLost");
 #endif
 	return Error_setDeviceLostReturnValue;
 }
 
-__int16* Input_getGamepadInfo()
+struct GamepadInfo
 {
-#ifdef _DEBUG
+	unsigned short vid;
+	unsigned short pid;
+	char name[260];
+};
+
+GamepadInfo* Input_getGamepadInfo()
+{
+#ifdef _LOGAPM3
 	info(true, "Input_getGamepadInfo");
 #endif
-	static __int16 g = 0;
-	return &g;
+	static GamepadInfo *_gamePad;
+	if (_gamePad == nullptr)
+	{
+		_gamePad = (GamepadInfo*)malloc(sizeof(GamepadInfo));
+	}
+
+	_gamePad->vid = 1337;
+	_gamePad->pid = 1337;
+	memset(_gamePad->name, 0, 260);
+	strcpy(_gamePad->name, "ParrotJoyCon");
+	return _gamePad;
 }
 
 char __fastcall Input_isFlipNow(unsigned int a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isFlipNow");
 #endif
 	return Input_isFlipNowReturnValue;
@@ -674,7 +320,7 @@ char __fastcall Input_isFlipNow(unsigned int a1)
 
 __int64 Input_isGamepadDetect()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isGamepadDetect");
 #endif
 	return Input_isGamepadDetectReturnValue;
@@ -682,7 +328,7 @@ __int64 Input_isGamepadDetect()
 
 char __fastcall Input_isOffNow(unsigned int a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isOffNow");
 #endif
 	return Input_isOffNowReturnValue;
@@ -690,7 +336,7 @@ char __fastcall Input_isOffNow(unsigned int a1)
 
 int __fastcall Input_isOn(unsigned int buttonId)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isOn id: %u", buttonId);
 #endif
 	return g_APM3IOValues[buttonId];
@@ -698,7 +344,7 @@ int __fastcall Input_isOn(unsigned int buttonId)
 
 char __fastcall Input_isOnNow(unsigned int buttonId)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isOnNow id: %u", buttonId);
 #endif
 	return g_APM3IOValues[buttonId];
@@ -706,7 +352,7 @@ char __fastcall Input_isOnNow(unsigned int buttonId)
 
 __int64 Input_isOpenPewviewWindow()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isOpenPewviewWindow");
 #endif
 	return Input_isOpenPewviewWindowReturnValue;
@@ -714,7 +360,7 @@ __int64 Input_isOpenPewviewWindow()
 
 char __fastcall Input_setGamepadConfig(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_setGamepadConfig");
 #endif
 	return Input_setGamepadConfigReturnValue;
@@ -736,138 +382,111 @@ __int64 NetworkProperty_getAddressValue()
 	return NetworkProperty_getAddressValueReturnValue;
 }
 
-//__int64 __fastcall Sequence_beginPlay(__int64 a1, struct Concurrency::details::_CancellationTokenState* a2, _DWORD* a3, __int64 a4)
-__int64 __fastcall Sequence_beginPlay(__int64 a1, void* a2, DWORD* a3, __int64 a4)
-{
-#ifdef _DEBUG
-	info(true, "Sequence_beginPlay");
-#endif
-	return Sequence_beginPlayReturnValue;
-}
-
-__int64 Sequence_clearBackup()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_clearBackup");
-#endif
-	return Sequence_clearBackupReturnValue;
-}
-
-__int64 __fastcall Sequence_continuePlay(__int64 a1, __int64 a2, DWORD* a3, __int64 a4)
-{
-#ifdef _DEBUG
-	info(true, "Sequence_continuePlay");
-#endif
-	return Sequence_continuePlayReturnValue;
-}
-
-//__int64 __fastcall Sequence_endPlay(__int64 a1, struct Concurrency::details::_CancellationTokenState* a2)
-__int64 __fastcall Sequence_endPlay(__int64 a1, void* a2)
-{
-#ifdef _DEBUG
-	info(true, "Sequence_endPlay");
-#endif
-	return Sequence_endPlayReturnValue;
-}
-
-char bookeepingArray[0x2000] = { 0 };
-
-char *Sequence_getBookkeeping()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_getBookkeeping");
-#endif
-	return bookeepingArray;
-}
-
-__int64 Sequence_getPlayingAimeId()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_getPlayingAimeId");
-#endif
-	return Sequence_getPlayingAimeIdReturnValue;
-}
-
-__int64 Sequence_isAccountingPlaying()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_isAccountingPlaying");
-#endif
-	return Sequence_isAccountingPlayingReturnValue;
-}
-
-__int64 Sequence_isPlaying()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_isPlaying");
-#endif
-	return Sequence_isPlayingReturnValue;
-}
-
-__int64 Sequence_isTest()
-{
-#ifdef _DEBUG
-	info(true, "Sequence_isTest");
-#endif
-	return Sequence_isTestReturnValue;
-}
-
 __int64 System_getAppRootPath()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getAppRootPath");
 #endif
 	return System_getAppRootPathReturnValue;
 }
 
-wchar_t* System_getBoardId()
+struct StandardSerialID
 {
-#ifdef _DEBUG
+	const BYTE LENGTH = 16;
+	wchar_t Value[15];
+};
+
+struct ShortSerialID
+{
+	const BYTE LENGTH = 12;
+	wchar_t Value[12];
+};
+
+struct SerialID
+{
+	StandardSerialID ID;
+	ShortSerialID ShortId;
+};
+
+SerialID* System_getBoardId()
+{
+#ifdef _LOGAPM3
 	info(true, "System_getBoardId");
 #endif
-	static wchar_t lol[64] = L"REAVERHARMBOYBAND";
-	return lol;
+	static SerialID *_serialId;
+	if (_serialId == nullptr)
+	{
+		_serialId = (SerialID*)malloc(sizeof(SerialID));
+		wcscpy(_serialId->ID.Value, L"IAMGODBEAVER");
+		wcscpy(_serialId->ShortId.Value, L"IAMGODBEAVER");
+	}
+	return _serialId;
 }
 
-char* System_getGameId()
+wchar_t* System_getGameId()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getGameId");
 #endif
 	return APM3GameId;
 }
 
-// Make this thing to make sure mem around is not taken. Guess it's __int64 *? works like this fine lol
-char version[256] = { 0 };
 
-int* System_getGameVersion()
+struct GameVersion
 {
-#ifdef _DEBUG
+	unsigned int Major;
+	unsigned int Minor;
+};
+
+GameVersion* System_getGameVersion()
+{
+#ifdef _LOGAPM3
 	info(true, "System_getGameVersion");
 #endif
-	return (int *)version;
+	static GameVersion *_gameVersion;
+	if (_gameVersion == nullptr)
+	{
+		_gameVersion = (GameVersion*)malloc(sizeof(GameVersion));
+		_gameVersion->Minor = 0;
+		_gameVersion->Major = 1;
+	}
+	return _gameVersion;
 }
 
-wchar_t* System_getKeychipId()
+SerialID* System_getKeychipId()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getKeychipId");
 #endif
-	static wchar_t lol[64];
-	return lol;
+	static SerialID* _serialId;
+	if (_serialId == nullptr)
+	{
+		_serialId = (SerialID*)malloc(sizeof(SerialID));
+		wcscpy(_serialId->ID.Value, L"IAMGODBEAVER");
+		wcscpy(_serialId->ShortId.Value, L"IAMGODBEAVER");
+	}
+	return _serialId;
 }
 
-__int64 System_getRegionCode()
+enum class SystemRegionCode
 {
-#ifdef _DEBUG
+	Unknown,
+	Japan,
+	China,
+	Export,
+};
+
+SystemRegionCode System_getRegionCode()
+{
+#ifdef _LOGAPM3
 	info(true, "System_getRegionCode");
 #endif
-	return System_getRegionCodeReturnValue;
+	return SystemRegionCode::Japan;
 }
 
 __int64 System_getResolution()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getResolution");
 #endif
 	return System_getResolutionReturnValue;
@@ -875,7 +494,7 @@ __int64 System_getResolution()
 
 __int64 System_isDevelop()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_isDevelop");
 #endif
 	return System_isDevelopReturnValue;
@@ -883,7 +502,7 @@ __int64 System_isDevelop()
 
 char __fastcall apmGamepadConfig(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadConfig");
 #endif
 	return apmGamepadConfigReturnValue;
@@ -891,7 +510,7 @@ char __fastcall apmGamepadConfig(__int64 a1)
 
 char __fastcall apmGamepadGetApmInput(DWORD* a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetApmInput");
 #endif
 	return apmGamepadGetApmInputReturnValue;
@@ -900,7 +519,7 @@ char __fastcall apmGamepadGetApmInput(DWORD* a1)
 //__int128* apmGamepadGetConfig()
 __int64* apmGamepadGetConfig()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetConfig");
 #endif
 	static __int64 dumb = 0;
@@ -909,7 +528,7 @@ __int64* apmGamepadGetConfig()
 
 char __fastcall apmGamepadGetDeviceCaps(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetDeviceCaps");
 #endif
 	return apmGamepadGetDeviceCapsReturnValue;
@@ -918,7 +537,7 @@ char __fastcall apmGamepadGetDeviceCaps(__int64 a1)
 //errno_t __fastcall apmGamepadGetInfo(__int64 a1)
 __int64 __fastcall apmGamepadGetInfo(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetInfo");
 #endif
 	return apmGamepadGetInfoReturnValue;
@@ -927,7 +546,7 @@ __int64 __fastcall apmGamepadGetInfo(__int64 a1)
 //char __fastcall apmGamepadGetRawInput(_QWORD* a1)
 char __fastcall apmGamepadGetRawInput(__int64* a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetRawInput");
 #endif
 	return apmGamepadGetRawInputReturnValue;
@@ -935,7 +554,7 @@ char __fastcall apmGamepadGetRawInput(__int64* a1)
 
 __int64 apmGamepadInitConfig()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadInitConfig");
 #endif
 	return apmGamepadInitConfigReturnValue;
@@ -943,7 +562,7 @@ __int64 apmGamepadInitConfig()
 
 char apmGamepadIsDetected()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadIsDetected");
 #endif
 	return apmGamepadIsDetectedReturnValue;
@@ -951,7 +570,7 @@ char apmGamepadIsDetected()
 
 __int64 apmGamepadIsXInputDevice()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadIsXInputDevice");
 #endif
 	return apmGamepadIsXInputDeviceReturnValue;
@@ -959,7 +578,7 @@ __int64 apmGamepadIsXInputDevice()
 
 int apmGamepadUpdate()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadUpdate");
 #endif
 	return apmGamepadUpdateReturnValue;
@@ -967,11 +586,11 @@ int apmGamepadUpdate()
 
 static void HookAPM3()
 {
-	strcpy(ServerName, "TeknoParrot Server Hi!");
-	strcpy(LinkServerName, "TeknoParrot Link Server Hi!");
-	strcpy(LocationNickName, "Flatty");
-	strcpy(LocationName, "Flatearth");
-	strcpy(RegionName, "Santaland");
+	wcscpy(ServerName, L"localhost");
+	wcscpy(LinkServerName, L"localhost");
+	wcscpy(LocationNickName, L"Flatty");
+	wcscpy(LocationName, L"Flatearth");
+	wcscpy(RegionName, L"Santaland");
 	Credit_isGameCostEnoughReturnValue = 1;
 
 	MH_Initialize();
@@ -1106,18 +725,45 @@ static void HookAPM3()
 static InitFunction initFuncTapping([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFJ");
+	wcscpy(APM3GameId, L"SDFJ");
 
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::TappingSkillTest);
 
+void __fastcall printPengo(const char* format, ...)
+{
+	__try
+	{
+		va_list args;
+		char buffer[1024];
+
+		va_start(args, format);
+		int len = _vsnprintf(buffer, sizeof(buffer), format, args);
+		va_end(args);
+
+		buffer[len] = '\n';
+		buffer[len + 1] = '\0';
+
+		OutputDebugStringA(buffer);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+
+	}
+}
+
 static InitFunction initFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFH");
+	wcscpy(APM3GameId, L"SDFH");
 
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	MH_Initialize();
+	//MH_CreateHook((void*)(mainModuleBase + 0x1944B0), (void *)printPengo, NULL);
+	MH_EnableHook(MH_ALL_HOOKS);
+
 	/// PATTERNS BELOW
 	// Skip joysticks
 	injector::MakeRET(mainModuleBase + 0x15C5B0);
@@ -1129,7 +775,7 @@ static InitFunction initFunc([]()
 static InitFunction initFuncPengoe511([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFH");
+	wcscpy(APM3GameId, L"SDFH");
 
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
@@ -1143,7 +789,7 @@ static InitFunction initFuncPengoe511([]()
 static InitFunction initTestFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFH");
+	wcscpy(APM3GameId, L"SDFH");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	// Skip joysticks
@@ -1158,17 +804,17 @@ static InitFunction initTestFunc([]()
 static InitFunction initVF5Func([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDHF");
+	wcscpy(APM3GameId, L"SDHF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	SaveFileName = ".\\vf5fs\\save";
+	BackupSaveFileName = ".\\vf5fs\\save";
 
 }, GameID::VF5Esports);
 
 static InitFunction initVF5TestFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDHF");
+	wcscpy(APM3GameId, L"SDHF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	if (strstr(GetCommandLineA(), "-tptest") != NULL)
@@ -1179,7 +825,7 @@ static InitFunction initVF5TestFunc([]()
 static InitFunction initGoonyaFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDGX");
+	wcscpy(APM3GameId, L"SDGX");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::GoonyaFighter);
@@ -1187,7 +833,7 @@ static InitFunction initGoonyaFunc([]()
 static InitFunction initPuyoFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFF");
+	wcscpy(APM3GameId, L"SDFF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::PuyoPuyoEsports);
