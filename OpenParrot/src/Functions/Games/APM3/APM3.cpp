@@ -368,7 +368,7 @@ char __fastcall Input_setGamepadConfig(__int64 a1)
 
 void** NetworkProperty_getAddressString()
 {
-#ifdef _LOGAPM3
+#ifdef _DEBUG
 	info(true, "NetworkProperty_getAddressString");
 #endif
 	return NetworkProperty_getAddressStringReturnValue;
@@ -376,7 +376,7 @@ void** NetworkProperty_getAddressString()
 
 __int64 NetworkProperty_getAddressValue()
 {
-#ifdef _LOGAPM3
+#ifdef _DEBUG
 	info(true, "NetworkProperty_getAddressValue");
 #endif
 	return NetworkProperty_getAddressValueReturnValue;
@@ -398,8 +398,8 @@ struct StandardSerialID
 
 struct ShortSerialID
 {
-	const BYTE LENGTH = 11;
-	wchar_t Value[11];
+	const BYTE LENGTH = 12;
+	wchar_t Value[12];
 };
 
 struct SerialID
@@ -417,8 +417,8 @@ SerialID* System_getBoardId()
 	if (_serialId == nullptr)
 	{
 		_serialId = (SerialID*)malloc(sizeof(SerialID));
-		wcscpy(_serialId->ID.Value, L"IAMGOD");
-		wcscpy(_serialId->ShortId.Value, L"IAMGOD");
+		wcscpy(_serialId->ID.Value, L"IAMGODBEAVER");
+		wcscpy(_serialId->ShortId.Value, L"IAMGODBEAVER");
 	}
 	return _serialId;
 }
@@ -462,8 +462,8 @@ SerialID* System_getKeychipId()
 	if (_serialId == nullptr)
 	{
 		_serialId = (SerialID*)malloc(sizeof(SerialID));
-		wcscpy(_serialId->ID.Value, L"IAMGOD");
-		wcscpy(_serialId->ShortId.Value, L"IAMGOD");
+		wcscpy(_serialId->ID.Value, L"IAMGODBEAVER");
+		wcscpy(_serialId->ShortId.Value, L"IAMGODBEAVER");
 	}
 	return _serialId;
 }
