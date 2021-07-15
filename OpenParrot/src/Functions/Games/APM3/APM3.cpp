@@ -16,6 +16,7 @@ bool __fastcall ApmSystemSetting_getAdvertizeSound(bool *enable)
 #ifdef _DEBUG
 	info(true, "ApmSystemSetting_getAdvertizeSound");
 #endif
+	*enable = true;
 	return ApmSystemSetting_getAdvertizeSoundReturnValue;
 }
 
@@ -24,6 +25,7 @@ bool __fastcall ApmSystemSetting_getClosingTimes(__int64 *closingTimes)
 #ifdef _DEBUG
 	info(true, "ApmSystemSetting_getClosingTimes");
 #endif
+	*closingTimes = 0;
 	return ApmSystemSetting_getClosingTimesReturnValue;
 }
 
@@ -40,6 +42,7 @@ bool __fastcall ApmSystemSetting_getFixedTitle(bool *enable)
 #ifdef _DEBUG
 	info(true, "ApmSystemSetting_getFixedTitle");
 #endif
+	*enable = false;
 	return ApmSystemSetting_getFixedTitleReturnValue;
 }
 
