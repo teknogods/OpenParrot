@@ -4,10 +4,10 @@
 #ifdef _M_AMD64
 #include "Functions\Global.h"
 #include "Aime.h"
-
+	
 bool Aime_acceptConfirm()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_acceptConfirm");
 #endif
 	return 0;
@@ -15,7 +15,7 @@ bool Aime_acceptConfirm()
 
 bool Aime_cancel()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_cancel");
 #endif
 
@@ -24,7 +24,7 @@ bool Aime_cancel()
 
 bool __fastcall Aime_getAccessCode(AccessCode *accessCode)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_getAccessCode");
 #endif
 	return 0;
@@ -32,7 +32,7 @@ bool __fastcall Aime_getAccessCode(AccessCode *accessCode)
 
 bool __fastcall Aime_getAimeId(unsigned int* uid)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_getAimeId");
 #endif
 	return 0;
@@ -41,7 +41,7 @@ bool __fastcall Aime_getAimeId(unsigned int* uid)
 
 AIME_CONFIRM Aime_getConfirm()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_getConfirm");
 #endif
 	return AIME_CONFIRM::AimeDB;
@@ -50,7 +50,7 @@ AIME_CONFIRM Aime_getConfirm()
 
 AIME_ERROR_CATEGORY Aime_getErrorCategory()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_getErrorCategory");
 #endif
 	return AIME_ERROR_CATEGORY::NONE;
@@ -58,89 +58,89 @@ AIME_ERROR_CATEGORY Aime_getErrorCategory()
 
 bool Aime_hasConfirm()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_hasConfirm");
 #endif
-	return 0;
+	return false;
 }
 
 bool Aime_hasError()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_hasError");
 #endif
-	return 0;
+	return false;
 }
 
 bool Aime_hasResult()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_hasResult");
 #endif
-	return 0;
+	return false;
 }
 
 bool Aime_isBusy()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_isBusy");
 #endif
-	return 0;
+	return false;
 }
 
 bool Aime_isDBAlive()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_isDBAlive");
 #endif
-	return 0;
+	return false;
 }
 
 bool Aime_isMobile()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_isMobile");
 #endif
-	return 0;
+	return false;
 }
 
 bool Aime_isReaderDetected()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_isReaderDetected");
 #endif
-	return 0;
+	return true;
 }
 
 bool __fastcall Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, unsigned __int64 count)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_sendLog");
 #endif
-	return 0;
+	return true;
 }
 
 bool Aime_setLedError()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_setLedError");
 #endif
-	return 0;
+	return true;
 }
 
 bool Aime_setLedSuccess()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_setLedSuccess");
 #endif
-	return 0;
+	return true;
 }
 
 bool Aime_start()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3AIME
 	info(true, "Aime_start");
 #endif
-	return 0;
+	return false;
 }
 #endif

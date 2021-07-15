@@ -13,7 +13,7 @@ static uint8_t g_APM3IOValues[256];
 
 bool __fastcall ApmSystemSetting_getAdvertizeSound(bool *enable)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getAdvertizeSound");
 #endif
 	*enable = true;
@@ -22,7 +22,7 @@ bool __fastcall ApmSystemSetting_getAdvertizeSound(bool *enable)
 
 bool __fastcall ApmSystemSetting_getClosingTimes(__int64 *closingTimes)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getClosingTimes");
 #endif
 	*closingTimes = 0;
@@ -31,7 +31,7 @@ bool __fastcall ApmSystemSetting_getClosingTimes(__int64 *closingTimes)
 
 char __fastcall ApmSystemSetting_getEmoneySetting(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getEmoneySetting");
 #endif
 	return ApmSystemSetting_getEmoneySettingReturnValue;
@@ -39,7 +39,7 @@ char __fastcall ApmSystemSetting_getEmoneySetting(__int64 a1)
 
 bool __fastcall ApmSystemSetting_getFixedTitle(bool *enable)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getFixedTitle");
 #endif
 	*enable = false;
@@ -48,7 +48,7 @@ bool __fastcall ApmSystemSetting_getFixedTitle(bool *enable)
 
 char __fastcall ApmSystemSetting_getGamePadSetting(WORD* a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getGamePadSetting");
 #endif
 	return ApmSystemSetting_getGamePadSettingReturnValue;
@@ -62,7 +62,7 @@ struct MatchingGroup
 
 bool __fastcall ApmSystemSetting_getMatchingGroup(MatchingGroup* matchingGroup)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getMatchingGroup");
 #endif
 	return ApmSystemSetting_getMatchingGroupReturnValue;
@@ -70,7 +70,7 @@ bool __fastcall ApmSystemSetting_getMatchingGroup(MatchingGroup* matchingGroup)
 
 bool __fastcall ApmSystemSetting_getTimeToClosingTime(unsigned int* seconds)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getTimeToClosingTime");
 #endif
 	*seconds = 0;
@@ -79,7 +79,7 @@ bool __fastcall ApmSystemSetting_getTimeToClosingTime(unsigned int* seconds)
 
 char __fastcall ApmSystemSetting_getUiSetting(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getUiSetting");
 #endif
 	return ApmSystemSetting_getUiSettingReturnValue;
@@ -87,14 +87,14 @@ char __fastcall ApmSystemSetting_getUiSetting(__int64 a1)
 
 void Core_execute()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_execute");
 #endif
 }
 
 bool __fastcall Core_exitGame(bool isTest)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_exitGame");
 #endif
 	return Core_exitGameReturnValue;
@@ -102,7 +102,7 @@ bool __fastcall Core_exitGame(bool isTest)
 
 __int64 Core_hookException()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_hookException");
 #endif
 	return Core_hookExceptionReturnValue;
@@ -110,7 +110,7 @@ __int64 Core_hookException()
 
 bool Core_isExitNeeded()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_isExitNeeded");
 #endif
 	return Core_isExitNeededReturnValue;
@@ -118,14 +118,14 @@ bool Core_isExitNeeded()
 
 void Core_resetCount()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_resetCount");
 #endif
 }
 
 __int64 Core_resetException()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Core_resetException");
 #endif
 	return Core_resetExceptionReturnValue;
@@ -133,7 +133,7 @@ __int64 Core_resetException()
 
 __int64 Credit_getAddableCoin()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getAddableCoin");
 #endif
 	return Credit_getAddableCoinReturnValue;
@@ -141,7 +141,7 @@ __int64 Credit_getAddableCoin()
 
 __int64 Credit_getCoinMultipliers()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getCoinMultipliers");
 #endif
 	return Credit_getCoinMultipliersReturnValue;
@@ -149,7 +149,7 @@ __int64 Credit_getCoinMultipliers()
 
 __int64 Credit_getCoinToCredit()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getCoinToCredit");
 #endif
 	return Credit_getCoinToCreditReturnValue;
@@ -157,7 +157,7 @@ __int64 Credit_getCoinToCredit()
 
 __int64 Credit_getCredit()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getCredit");
 #endif
 	return Credit_getCreditReturnValue;
@@ -165,7 +165,7 @@ __int64 Credit_getCredit()
 
 __int64 Credit_getRemain()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_getRemain");
 #endif
 	return Credit_getRemainReturnValue;
@@ -173,7 +173,7 @@ __int64 Credit_getRemain()
 
 __int64 Credit_isFreePlay()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_isFreePlay");
 #endif
 	return Credit_isFreePlayReturnValue;
@@ -181,7 +181,7 @@ __int64 Credit_isFreePlay()
 
 __int64 __fastcall Credit_isGameCostEnough(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_isGameCostEnough");
 #endif
 	return Credit_isGameCostEnoughReturnValue; // 1
@@ -189,7 +189,7 @@ __int64 __fastcall Credit_isGameCostEnough(__int64 a1)
 
 __int64 Credit_isZero()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_isZero");
 #endif
 	return Credit_isZeroReturnValue;
@@ -197,7 +197,7 @@ __int64 Credit_isZero()
 
 __int64 __fastcall Credit_payGameCost(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_payGameCost");
 #endif
 	return Credit_payGameCostReturnValue;
@@ -205,7 +205,7 @@ __int64 __fastcall Credit_payGameCost(__int64 a1)
 
 __int64 Credit_resetCoinInHook()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_resetCoinInHook");
 #endif
 
@@ -214,7 +214,7 @@ __int64 Credit_resetCoinInHook()
 
 __int64 Credit_setCoinInHook()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_setCoinInHook");
 #endif
 
@@ -223,7 +223,7 @@ __int64 Credit_setCoinInHook()
 
 wchar_t* Credit_toString()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Credit_toString");
 #endif
 
@@ -234,14 +234,14 @@ wchar_t* Credit_toString()
 
 void Emoney_close()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_close");
 #endif
 }
 
 __int64 Emoney_isOpenMainWindow()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_isOpenMainWindow");
 #endif
 	return Emoney_isOpenMainWindowReturnValue;
@@ -249,7 +249,7 @@ __int64 Emoney_isOpenMainWindow()
 
 char Emoney_launch()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_launch");
 #endif
 	return Emoney_launchReturnValue;
@@ -257,21 +257,21 @@ char Emoney_launch()
 
 void __fastcall Emoney_setSoundHook(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_setSoundHook");
 #endif
 }
 
 void __fastcall Emoney_update(BYTE* a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Emoney_update");
 #endif
 }
 
 __int64 Error_isOccurred()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Error_isOccurred");
 #endif
 	return Error_isOccurredReturnValue;
@@ -279,7 +279,7 @@ __int64 Error_isOccurred()
 
 __int64 Error_setDeviceLost()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Error_setDeviceLost");
 #endif
 	return Error_setDeviceLostReturnValue;
@@ -294,7 +294,7 @@ struct GamepadInfo
 
 GamepadInfo* Input_getGamepadInfo()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_getGamepadInfo");
 #endif
 	static GamepadInfo *_gamePad;
@@ -312,7 +312,7 @@ GamepadInfo* Input_getGamepadInfo()
 
 char __fastcall Input_isFlipNow(unsigned int a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isFlipNow");
 #endif
 	return Input_isFlipNowReturnValue;
@@ -320,7 +320,7 @@ char __fastcall Input_isFlipNow(unsigned int a1)
 
 __int64 Input_isGamepadDetect()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isGamepadDetect");
 #endif
 	return Input_isGamepadDetectReturnValue;
@@ -328,7 +328,7 @@ __int64 Input_isGamepadDetect()
 
 char __fastcall Input_isOffNow(unsigned int a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isOffNow");
 #endif
 	return Input_isOffNowReturnValue;
@@ -336,7 +336,7 @@ char __fastcall Input_isOffNow(unsigned int a1)
 
 int __fastcall Input_isOn(unsigned int buttonId)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isOn id: %u", buttonId);
 #endif
 	return g_APM3IOValues[buttonId];
@@ -344,7 +344,7 @@ int __fastcall Input_isOn(unsigned int buttonId)
 
 char __fastcall Input_isOnNow(unsigned int buttonId)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isOnNow id: %u", buttonId);
 #endif
 	return g_APM3IOValues[buttonId];
@@ -352,7 +352,7 @@ char __fastcall Input_isOnNow(unsigned int buttonId)
 
 __int64 Input_isOpenPewviewWindow()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_isOpenPewviewWindow");
 #endif
 	return Input_isOpenPewviewWindowReturnValue;
@@ -360,7 +360,7 @@ __int64 Input_isOpenPewviewWindow()
 
 char __fastcall Input_setGamepadConfig(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "Input_setGamepadConfig");
 #endif
 	return Input_setGamepadConfigReturnValue;
@@ -368,7 +368,7 @@ char __fastcall Input_setGamepadConfig(__int64 a1)
 
 void** NetworkProperty_getAddressString()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "NetworkProperty_getAddressString");
 #endif
 	return NetworkProperty_getAddressStringReturnValue;
@@ -376,7 +376,7 @@ void** NetworkProperty_getAddressString()
 
 __int64 NetworkProperty_getAddressValue()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "NetworkProperty_getAddressValue");
 #endif
 	return NetworkProperty_getAddressValueReturnValue;
@@ -384,7 +384,7 @@ __int64 NetworkProperty_getAddressValue()
 
 __int64 System_getAppRootPath()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getAppRootPath");
 #endif
 	return System_getAppRootPathReturnValue;
@@ -392,40 +392,40 @@ __int64 System_getAppRootPath()
 
 struct StandardSerialID
 {
-	const unsigned long LENGTH = 16;
-	char Value[17];
+	const BYTE LENGTH = 16;
+	wchar_t Value[15];
 };
 
 struct ShortSerialID
 {
-	const unsigned long LENGTH = 11;
-	char Value[17];
+	const BYTE LENGTH = 11;
+	wchar_t Value[11];
 };
 
 struct SerialID
 {
-	StandardSerialID *ID;
-	ShortSerialID *ShortId;
+	StandardSerialID ID;
+	ShortSerialID ShortId;
 };
 
 SerialID* System_getBoardId()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getBoardId");
 #endif
 	static SerialID *_serialId;
 	if (_serialId == nullptr)
 	{
 		_serialId = (SerialID*)malloc(sizeof(SerialID));
-		_serialId->ID = (StandardSerialID*)malloc(sizeof(StandardSerialID));
-		_serialId->ShortId = (ShortSerialID*)malloc(sizeof(ShortSerialID));
+		wcscpy(_serialId->ID.Value, L"IAMGOD");
+		wcscpy(_serialId->ShortId.Value, L"IAMGOD");
 	}
 	return _serialId;
 }
 
-char* System_getGameId()
+wchar_t* System_getGameId()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getGameId");
 #endif
 	return APM3GameId;
@@ -440,7 +440,7 @@ struct GameVersion
 
 GameVersion* System_getGameVersion()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getGameVersion");
 #endif
 	static GameVersion *_gameVersion;
@@ -455,15 +455,15 @@ GameVersion* System_getGameVersion()
 
 SerialID* System_getKeychipId()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getKeychipId");
 #endif
 	static SerialID* _serialId;
 	if (_serialId == nullptr)
 	{
 		_serialId = (SerialID*)malloc(sizeof(SerialID));
-		_serialId->ID = (StandardSerialID*)malloc(sizeof(StandardSerialID));
-		_serialId->ShortId = (ShortSerialID*)malloc(sizeof(ShortSerialID));
+		wcscpy(_serialId->ID.Value, L"IAMGOD");
+		wcscpy(_serialId->ShortId.Value, L"IAMGOD");
 	}
 	return _serialId;
 }
@@ -478,7 +478,7 @@ enum class SystemRegionCode
 
 SystemRegionCode System_getRegionCode()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getRegionCode");
 #endif
 	return SystemRegionCode::Japan;
@@ -486,7 +486,7 @@ SystemRegionCode System_getRegionCode()
 
 __int64 System_getResolution()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_getResolution");
 #endif
 	return System_getResolutionReturnValue;
@@ -494,7 +494,7 @@ __int64 System_getResolution()
 
 __int64 System_isDevelop()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "System_isDevelop");
 #endif
 	return System_isDevelopReturnValue;
@@ -502,7 +502,7 @@ __int64 System_isDevelop()
 
 char __fastcall apmGamepadConfig(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadConfig");
 #endif
 	return apmGamepadConfigReturnValue;
@@ -510,7 +510,7 @@ char __fastcall apmGamepadConfig(__int64 a1)
 
 char __fastcall apmGamepadGetApmInput(DWORD* a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetApmInput");
 #endif
 	return apmGamepadGetApmInputReturnValue;
@@ -519,7 +519,7 @@ char __fastcall apmGamepadGetApmInput(DWORD* a1)
 //__int128* apmGamepadGetConfig()
 __int64* apmGamepadGetConfig()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetConfig");
 #endif
 	static __int64 dumb = 0;
@@ -528,7 +528,7 @@ __int64* apmGamepadGetConfig()
 
 char __fastcall apmGamepadGetDeviceCaps(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetDeviceCaps");
 #endif
 	return apmGamepadGetDeviceCapsReturnValue;
@@ -537,7 +537,7 @@ char __fastcall apmGamepadGetDeviceCaps(__int64 a1)
 //errno_t __fastcall apmGamepadGetInfo(__int64 a1)
 __int64 __fastcall apmGamepadGetInfo(__int64 a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetInfo");
 #endif
 	return apmGamepadGetInfoReturnValue;
@@ -546,7 +546,7 @@ __int64 __fastcall apmGamepadGetInfo(__int64 a1)
 //char __fastcall apmGamepadGetRawInput(_QWORD* a1)
 char __fastcall apmGamepadGetRawInput(__int64* a1)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadGetRawInput");
 #endif
 	return apmGamepadGetRawInputReturnValue;
@@ -554,7 +554,7 @@ char __fastcall apmGamepadGetRawInput(__int64* a1)
 
 __int64 apmGamepadInitConfig()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadInitConfig");
 #endif
 	return apmGamepadInitConfigReturnValue;
@@ -562,7 +562,7 @@ __int64 apmGamepadInitConfig()
 
 char apmGamepadIsDetected()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadIsDetected");
 #endif
 	return apmGamepadIsDetectedReturnValue;
@@ -570,7 +570,7 @@ char apmGamepadIsDetected()
 
 __int64 apmGamepadIsXInputDevice()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadIsXInputDevice");
 #endif
 	return apmGamepadIsXInputDeviceReturnValue;
@@ -578,7 +578,7 @@ __int64 apmGamepadIsXInputDevice()
 
 int apmGamepadUpdate()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3
 	info(true, "apmGamepadUpdate");
 #endif
 	return apmGamepadUpdateReturnValue;
@@ -586,7 +586,7 @@ int apmGamepadUpdate()
 
 static void HookAPM3()
 {
-	wcscpy(ServerName, L"TeknoParrot Server Hi!");
+	wcscpy(ServerName, L"localhost");
 	wcscpy(LinkServerName, L"localhost");
 	wcscpy(LocationNickName, L"Flatty");
 	wcscpy(LocationName, L"Flatearth");
@@ -725,18 +725,45 @@ static void HookAPM3()
 static InitFunction initFuncTapping([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFJ");
+	wcscpy(APM3GameId, L"SDFJ");
 
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::TappingSkillTest);
 
+void __fastcall printPengo(const char* format, ...)
+{
+	__try
+	{
+		va_list args;
+		char buffer[1024];
+
+		va_start(args, format);
+		int len = _vsnprintf(buffer, sizeof(buffer), format, args);
+		va_end(args);
+
+		buffer[len] = '\n';
+		buffer[len + 1] = '\0';
+
+		OutputDebugStringA(buffer);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+
+	}
+}
+
 static InitFunction initFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFH");
+	wcscpy(APM3GameId, L"SDFH");
 
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	MH_Initialize();
+	//MH_CreateHook((void*)(mainModuleBase + 0x1944B0), (void *)printPengo, NULL);
+	MH_EnableHook(MH_ALL_HOOKS);
+
 	/// PATTERNS BELOW
 	// Skip joysticks
 	injector::MakeRET(mainModuleBase + 0x15C5B0);
@@ -748,7 +775,7 @@ static InitFunction initFunc([]()
 static InitFunction initFuncPengoe511([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFH");
+	wcscpy(APM3GameId, L"SDFH");
 
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
@@ -762,7 +789,7 @@ static InitFunction initFuncPengoe511([]()
 static InitFunction initTestFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFH");
+	wcscpy(APM3GameId, L"SDFH");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	// Skip joysticks
@@ -777,7 +804,7 @@ static InitFunction initTestFunc([]()
 static InitFunction initVF5Func([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDHF");
+	wcscpy(APM3GameId, L"SDHF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	BackupSaveFileName = ".\\vf5fs\\save";
@@ -787,7 +814,7 @@ static InitFunction initVF5Func([]()
 static InitFunction initVF5TestFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDHF");
+	wcscpy(APM3GameId, L"SDHF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	if (strstr(GetCommandLineA(), "-tptest") != NULL)
@@ -798,7 +825,7 @@ static InitFunction initVF5TestFunc([]()
 static InitFunction initGoonyaFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDGX");
+	wcscpy(APM3GameId, L"SDGX");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::GoonyaFighter);
@@ -806,7 +833,7 @@ static InitFunction initGoonyaFunc([]()
 static InitFunction initPuyoFunc([]()
 {
 	HookAPM3();
-	strcpy(APM3GameId, "SDFF");
+	wcscpy(APM3GameId, L"SDFF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::PuyoPuyoEsports);

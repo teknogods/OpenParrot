@@ -1,10 +1,10 @@
 #ifdef _M_AMD64
-static char APM3GameId[5];
-static wchar_t RegionName[64];
-static wchar_t LocationNickName[64];
-static wchar_t LocationName[64];
-static wchar_t LinkServerName[64];
-static wchar_t ServerName[64];
+extern wchar_t APM3GameId[10];
+extern wchar_t RegionName[64];
+extern wchar_t LocationNickName[64];
+extern wchar_t LocationName[64];
+extern wchar_t LinkServerName[64];
+extern wchar_t ServerName[64];
 
 static __int64 AllnetAccounting_beginPlayReturnValue = 0;
 

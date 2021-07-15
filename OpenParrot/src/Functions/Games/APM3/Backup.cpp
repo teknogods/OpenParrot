@@ -12,7 +12,7 @@ unsigned int internal_recordCount;
 
 BackupRecordStatus __fastcall Backup_getRecordStatus(__int64 recordIndex)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3BACKUP
 	info(true, "Backup_getRecordStatus %llx", recordIndex);
 #endif
 	return BackupRecordStatus::BackupRecordStatus_Valid;
@@ -20,7 +20,7 @@ BackupRecordStatus __fastcall Backup_getRecordStatus(__int64 recordIndex)
 
 bool Backup_isSetupSucceeded()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3BACKUP
 	info(true, "Backup_isSetupSucceeded");
 #endif
 	return Backup_isSetupSucceededReturnValue;
@@ -28,7 +28,7 @@ bool Backup_isSetupSucceeded()
 
 bool __fastcall Backup_saveRecord(unsigned long recordIndex)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3BACKUP
 	info(true, "Backup_saveRecord recordIndex: %llx", recordIndex);
 #endif
 	memset(fileBuffer, 0, sizeof(fileBuffer));
@@ -44,7 +44,7 @@ bool __fastcall Backup_saveRecord(unsigned long recordIndex)
 
 __int64 __fastcall Backup_saveRecordByAddress(__int64 recordAddress)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3BACKUP
 	info(true, "Backup_saveRecordByAddress %llx", recordAddress);
 #endif
 	return Backup_saveRecordByAddressReturnValue;
@@ -65,7 +65,7 @@ bool __fastcall Backup_setupRecords(BackupRecord* records, unsigned int recordCo
 		internal_recordCount = recordCount;
 		if (fsave != NULL)
 		{
-#ifdef _DEBUG
+#ifdef _LOGAPM3BACKUP
 			info(true, "Backup setuprecords %02d of %02d, loading file %s", i, recordCount, fileBuffer);
 #endif		
 			fread(records[i].Address, 1, records[i].Size, fsave); // add file size check noob
@@ -73,7 +73,7 @@ bool __fastcall Backup_setupRecords(BackupRecord* records, unsigned int recordCo
 		}
 		else
 		{
-#ifdef _DEBUG
+#ifdef _LOGAPM3BACKUP
 			info(true, "Backup setuprecords %02d of %02d, saving file %s", i, recordCount, fileBuffer);
 #endif
 			auto file = fopen(fileBuffer, "wb+");

@@ -7,7 +7,7 @@
 
 bool __fastcall Sequence_beginPlay(SequenceAccountingBegin beginPlay, unsigned int uid, SEQUENCE_PLAY_ERROR_ID* errorID, unsigned long count)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_beginPlay");
 #endif
 	return Sequence_beginPlayReturnValue;
@@ -15,7 +15,7 @@ bool __fastcall Sequence_beginPlay(SequenceAccountingBegin beginPlay, unsigned i
 
 bool Sequence_clearBackup()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_clearBackup");
 #endif
 	return Sequence_clearBackupReturnValue;
@@ -23,7 +23,7 @@ bool Sequence_clearBackup()
 
 bool __fastcall Sequence_continuePlay(SequenceAccountingBegin beginPlay, SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorId, unsigned long count)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_continuePlay");
 #endif
 	return Sequence_continuePlayReturnValue;
@@ -31,7 +31,7 @@ bool __fastcall Sequence_continuePlay(SequenceAccountingBegin beginPlay, Sequenc
 
 bool __fastcall Sequence_endPlay(SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorID)
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_endPlay");
 #endif
 	return Sequence_endPlayReturnValue;
@@ -39,7 +39,7 @@ bool __fastcall Sequence_endPlay(SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ER
 
 SequenceBookkeeping* Sequence_getBookkeeping()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_getBookkeeping");
 #endif
 	static SequenceBookkeeping* _sequenceBookkeeping;
@@ -53,7 +53,7 @@ SequenceBookkeeping* Sequence_getBookkeeping()
 
 unsigned int Sequence_getPlayingAimeId()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_getPlayingAimeId");
 #endif
 	return Sequence_getPlayingAimeIdReturnValue;
@@ -61,7 +61,7 @@ unsigned int Sequence_getPlayingAimeId()
 
 bool Sequence_isAccountingPlaying()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_isAccountingPlaying");
 #endif
 	return Sequence_isAccountingPlayingReturnValue;
@@ -69,7 +69,7 @@ bool Sequence_isAccountingPlaying()
 
 bool Sequence_isPlaying()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_isPlaying");
 #endif
 	return Sequence_isPlayingReturnValue;
@@ -77,7 +77,7 @@ bool Sequence_isPlaying()
 
 bool Sequence_isTest()
 {
-#ifdef _DEBUG
+#ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_isTest");
 #endif
 	return Sequence_isTestReturnValue;
