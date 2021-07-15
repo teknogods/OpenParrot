@@ -360,10 +360,6 @@ char __fastcall ApmSystemSetting_getUiSetting(__int64 a1)
 	return ApmSystemSetting_getUiSettingReturnValue;
 }
 
-unsigned char saveArray[0x2000]; // some stupid size
-int sectorSize = 0x20; // Guess
-__int64* InGameSavePointer;
-__int64 SaveFileSize = 0;
 char* SaveFileName = "save";
 char fileBuffer[256];
 
