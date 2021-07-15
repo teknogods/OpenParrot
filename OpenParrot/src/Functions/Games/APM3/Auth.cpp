@@ -46,12 +46,14 @@ wchar_t* AllnetAuth_getAbaasLinkServerName()
 	return LinkServerName;
 }
 
-int AllnetAuth_getCountryCode()
+char countryCode[4] = "JPN";
+
+char *AllnetAuth_getCountryCode()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getCountryCode");
 #endif
-	return AllnetAuth_getCountryCodeReturnValue;
+	return countryCode;
 }
 
 unsigned int AllnetAuth_getLocationId()
@@ -123,6 +125,6 @@ bool AllnetAuth_isGood()
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_isGood");
 #endif
-	return false;
+	return true;
 }
 #endif

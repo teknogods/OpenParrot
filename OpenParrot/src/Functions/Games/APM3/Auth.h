@@ -33,7 +33,7 @@ int AllnetAuth_getLocationNicknamePartCount();
 wchar_t* __fastcall AllnetAuth_getLocationNickname(int index);
 wchar_t* AllnetAuth_getLocationName();
 unsigned int AllnetAuth_getLocationId();
-int AllnetAuth_getCountryCode();
+char *AllnetAuth_getCountryCode();
 wchar_t* AllnetAuth_getAbaasLinkServerName();
 wchar_t* AllnetAuth_getAbaasGsServerName();
 __int64 __fastcall AllnetAccounting_endPlay(int a1, int a2, int a3);

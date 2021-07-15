@@ -93,7 +93,7 @@ bool Aime_isDBAlive()
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_isDBAlive");
 #endif
-	return false;
+	return true;
 }
 
 bool Aime_isMobile()
@@ -141,6 +141,6 @@ bool Aime_start()
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_start");
 #endif
-	return false;
+	return true;
 }
 #endif
