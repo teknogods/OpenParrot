@@ -824,6 +824,12 @@ static InitFunction initVF5TestFunc([]()
 
 static InitFunction initGoonyaFunc([]()
 {
+	auto d = LoadLibraryA("apm.dll");
+	if (d == nullptr)
+	{
+		MessageBoxA(0, "Cannot load apm.dll!", "Error", 0);
+		ExitProcess(0);
+	}
 	HookAPM3();
 	wcscpy(APM3GameId, L"SDGX");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
