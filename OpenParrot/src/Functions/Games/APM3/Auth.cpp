@@ -4,7 +4,6 @@
 #ifdef _M_AMD64
 #include "Functions\Global.h"
 #include "Auth.h"
-#define _LOGAPM3AUTH 1
 
 wchar_t APM3GameId[10];
 wchar_t RegionName[64];
