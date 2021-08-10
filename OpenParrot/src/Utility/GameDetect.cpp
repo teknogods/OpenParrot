@@ -671,6 +671,13 @@ void GameDetect::DetectCurrentGame()
 		case 0x9c7bb2e1: // Ver 11 TEST
 			currentGame = GameID::TappingSkillTest;
 			break;
+		case 0x0bad58c2: // FM14
+		case 0x65753fe4: // FM13
+		case 0xd7028acd: // FM12
+		case 0xf9df097f: // FM11
+		case 0x03577d43: // FM10
+			currentGame = GameID::Doa6FM14;
+			break;
 #endif
 		default:
 #ifdef _DEBUG
