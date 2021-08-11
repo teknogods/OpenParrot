@@ -105,5 +105,10 @@ enum class GameID
 	SFV,
 	TappingSkillTest,
 	Pengoe511,
-	VF5EsportsTest
+	VF5EsportsTest,
+	Doa6FM10,
+	Doa6FM11,
+	Doa6FM12,
+	Doa6FM13,
+	Doa6FM14
 };

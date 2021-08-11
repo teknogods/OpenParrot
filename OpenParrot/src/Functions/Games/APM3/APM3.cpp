@@ -843,4 +843,12 @@ static InitFunction initPuyoFunc([]()
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::PuyoPuyoEsports);
+
+static InitFunction initDoa6FM14Func([]()
+	{
+		HookAPM3();
+		wcscpy(APM3GameId, L"SDFM");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	}, GameID::Doa6FM14);
 #endif
