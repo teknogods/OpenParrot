@@ -392,7 +392,7 @@ LSTATUS __stdcall RegQueryValueExAWrap(
 			*lpData = FillDwordInformation("NESiCA", "SystemType", SystemType); // UNK
 			*lpcbData = 4;
 		}
-		if (stricmp(lpValueName, "ConditionTime") == 0) // REG_DWORD
+		else if (stricmp(lpValueName, "ConditionTime") == 0) // REG_DWORD
 		{
 			*lpData = FillDwordInformation("NESiCA", "ConditionTime", 300); // UNK
 			*lpcbData = 4;
