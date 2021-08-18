@@ -68,7 +68,7 @@ static __int64 Input_isOpenPewviewWindowReturnValue = 0;
 
 static char Input_setGamepadConfigReturnValue = 0;
 
-static void** NetworkProperty_getAddressStringReturnValue = nullptr;
+static char *NetworkProperty_getAddressStringReturnValue = "192.168.0.1";
 
 static __int64 NetworkProperty_getAddressValueReturnValue = 0;
 

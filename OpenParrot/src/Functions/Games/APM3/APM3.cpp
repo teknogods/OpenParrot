@@ -366,7 +366,7 @@ char __fastcall Input_setGamepadConfig(__int64 a1)
 	return Input_setGamepadConfigReturnValue;
 }
 
-void** NetworkProperty_getAddressString()
+char* NetworkProperty_getAddressString()
 {
 #ifdef _DEBUG
 	info(true, "NetworkProperty_getAddressString");
