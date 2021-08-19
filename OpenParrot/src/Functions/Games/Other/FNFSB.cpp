@@ -1,3 +1,4 @@
+#if __has_include(<atlstr.h>)
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
@@ -435,3 +436,4 @@ static InitFunction FNFSBFunc([]()
 	}
 
 }, GameID::FNFSB);
+#endif

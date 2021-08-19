@@ -1,3 +1,4 @@
+#if __has_include(<atlstr.h>)
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
@@ -2117,4 +2118,5 @@ static InitFunction SFVFunc([]()
 		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateSFV, NULL);
 		MH_EnableHook(MH_ALL_HOOKS); 
 	}, GameID::SFV);
+#endif
 #endif
