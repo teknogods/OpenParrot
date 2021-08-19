@@ -851,4 +851,19 @@ static InitFunction initDoa6FM14Func([]()
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	}, GameID::Doa6FM14);
+
+
+static InitFunction initDoa6TestFunc([]()
+	{
+		auto d = LoadLibraryA("apm.dll");
+		if (d == nullptr)
+		{
+			MessageBoxA(0, "Cannot load apm.dll!", "Error", 0);
+			ExitProcess(0);
+		}
+		HookAPM3();
+		wcscpy(APM3GameId, L"SDFM");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	}, GameID::Doa6Test);
 #endif

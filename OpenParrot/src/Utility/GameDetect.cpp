@@ -447,13 +447,13 @@ void GameDetect::DetectCurrentGame()
 		// PATCHES 0-9
 		if (*(uint32_t*)(moduleBase + 0x2F00) == 0xFFCB8B48)
 		{
-			currentGame = GameID::WMMT5;
+			SetGameId(GameID::WMMT5, "WMMT5");
 			break;
 		}
 		// PATCHES 10-21
 		if (*(uint32_t*)(moduleBase + 0x2F00) == 0x084AFF48)
 		{
-			currentGame = GameID::WMMT5;
+			SetGameId(GameID::WMMT5, "WMMT5");
 			break;
 		}
 #endif
@@ -469,20 +469,24 @@ void GameDetect::DetectCurrentGame()
 #endif
 		* (DWORD*)(newCrc + pePTR + 54) = 0x00000000;
 		uint32_t newCrcResult = GetCRC32(newCrc, 0x400);
-
-		// Pokken update 08-26
-		if (*(uint32_t*)(moduleBase + 0x1C04) == 0x7401C3F6)
+#ifdef _AMD64_
+		if (getenv("TP_DIRECTHOOK") == nullptr)
 		{
-			if (newCrcResult == 0x4D4F1EBF)
-				currentGame = GameID::PokkenTournament26;
-			else
-				currentGame = GameID::PokkenTournament;
+			// Pokken update 08-26
+			if (*(uint32_t*)(moduleBase + 0x1C04) == 0x7401C3F6)
+			{
+				if (newCrcResult == 0x4D4F1EBF)
+					SetGameId(GameID::PokkenTournament26, "PokkenTournament26");
+				else
+					SetGameId(GameID::PokkenTournament, "PokkenTournament");
 
-			break;
+				break;
+			}
 		}
-
+#endif
 		switch (newCrcResult)
 		{
+#ifndef _AMD64_
 		case 0xfe7afff4:
 			currentGame = GameID::FNFSB2;
 			break;
@@ -602,37 +606,38 @@ void GameDetect::DetectCurrentGame()
 			NesicaKey = NesicaKey::BlazBlueCentralFiction;
 			isNesica = true;
 			break;
+#endif
 #ifdef _AMD64_
 		case 0xf322d053:
-		  currentGame = GameID::SFV;
+		  SetGameId(GameID::SFV, "SFV");
 		  break;				  
 		case 0x80ebd207:
-			currentGame = GameID::Theatrhythm;
+			SetGameId(GameID::Theatrhythm, "Theatrhythm");
 			break;
 		case 0xdb9c3a90:
-			currentGame = GameID::TER;
+			SetGameId(GameID::TER, "TER");
 			break;
 		case 0xf3d3f699:
-			currentGame = GameID::StarWarsEs3XLauncher;
+			SetGameId(GameID::StarWarsEs3XLauncher, "StarWarsEs3XLauncher");
 			break;
 		case 0x5424a6d8:
-			currentGame = GameID::StarWarsJapEs3XLauncher;
+			SetGameId(GameID::StarWarsJapEs3XLauncher, "StarWarsJapEs3XLauncher");
 			break;
 		case 0x8505c794:
-			currentGame = GameID::StarWarsEs3X;
+			SetGameId(GameID::StarWarsEs3X, "StarWarsEs3X");
 			break;
 		case 0xe1e9e32c: // JPN
-			currentGame = GameID::StarWarsJapEs3X;
+			SetGameId(GameID::StarWarsJapEs3X, "StarWarsJapEs3X");
 			break;
 		case 0x30F676AD:
-			currentGame = GameID::SchoolOfRagnarok;
+			SetGameId(GameID::SchoolOfRagnarok, "SchoolOfRagnarok");
 			isNesica = true;
 			break;
 		case 0x00ed2300:
-			currentGame = GameID::Tekken7Update12;
+			SetGameId(GameID::Tekken7Update12, "Tekken7Update12");
 			break;
 		case 0xce9718fd:
-			currentGame = GameID::Tekken7Update00;
+			SetGameId(GameID::Tekken7Update00, "Tekken7Update00");
 			break;
 		case 0xC017F0BE: // 00 doesn't work, broken dump?
 		case 0x17059CF3: // 01
@@ -642,41 +647,46 @@ void GameDetect::DetectCurrentGame()
 		case 0x94D16CCC: // 05
 		case 0x3CC1BE43: // 06
 		case 0x247B6F8C: // 07
-			currentGame = GameID::PokkenTournament;
+			SetGameId(GameID::PokkenTournament, "Pokken Tournament");
 			break;
 		case 0xcb9c4353:
-			currentGame = GameID::Pengoe5_Test;
+			SetGameId(GameID::Pengoe5_Test, "Pengoe5_Test");
 			break;
 		case 0x0f98a7a2:
-			currentGame = GameID::Pengoe5;
+			SetGameId(GameID::Pengoe5, "Pengoe5");
 			break;
 		case 0x3f67d5b2:
-			currentGame = GameID::Pengoe511;
+			SetGameId(GameID::Pengoe511, "Pengoe511");
 			break;
 		case 0x6fc27eed: // Original
-			currentGame = GameID::VF5Esports;
+			SetGameId(GameID::VF5Esports, "VF5Esports");
 			break;
 		case 0x3b3fc3ab: // TEST MENU VF5E
-			currentGame = GameID::VF5EsportsTest;
+			SetGameId(GameID::VF5EsportsTest, "VF5EsportsTest");
 			break;
 		case 0x1ab0f981:
-			currentGame = GameID::GoonyaFighter;
+			SetGameId(GameID::GoonyaFighter, "GoonyaFighter");
 			break;
 		case 0x8c30fa5a:
-			currentGame = GameID::PuyoPuyoEsports;
+			SetGameId(GameID::PuyoPuyoEsports, "PuyoPuyoEsports");
 			break;
 		case 0xe000b287: // Ver 10
 		case 0x4f878b4e: // Ver 10 TEST
 		case 0x29a4a185: // Ver 11
 		case 0x9c7bb2e1: // Ver 11 TEST
-			currentGame = GameID::TappingSkillTest;
+			SetGameId(GameID::TappingSkillTest, "Tapping Skill Test Generic");
 			break;
 		case 0x0bad58c2: // FM14
 		case 0x65753fe4: // FM13
 		case 0xd7028acd: // FM12
 		case 0xf9df097f: // FM11
 		case 0x03577d43: // FM10
-			currentGame = GameID::Doa6FM14;
+			SetGameId(GameID::Doa6FM14, "Dead or Alive 6 Generic");
+			break;
+		case 0x94aababc: // FM14 Test
+		case 0x4286c538: // FM12 Test
+		case 0x0e285533: // FM13 Test
+			SetGameId(GameID::Doa6Test, "Dead or Alive 6 Test Generic");
 			break;
 #endif
 		default:
@@ -696,6 +706,17 @@ void GameDetect::DetectCurrentGame()
 		break;
 	}
 }
+
+void GameDetect::SetGameId(GameID gameId, char* name)
+{
+	currentGame = gameId;
+#ifdef _DEBUG
+	info(true, "---------------------------------");
+	info(true, "Game CRC %s detected", name);
+	info(true, "---------------------------------");
+#endif
+}
+
 bool GameDetect::IsNesicaGame()
 {
 	return isNesica;

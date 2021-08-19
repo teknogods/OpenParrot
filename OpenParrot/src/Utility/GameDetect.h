@@ -11,6 +11,7 @@ public:
 	static X2Type X2Type;
 	static bool IsTypeX();
 	static bool IsNesicaGame();
+	static void SetGameId(GameID gameId, char* name);
 	static NesicaKey NesicaKey;
 	static std::string GetGameName();
 	static std::string GameDetect::GetGameName(GameID game);

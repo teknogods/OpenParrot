@@ -110,5 +110,6 @@ enum class GameID
 	Doa6FM11,
 	Doa6FM12,
 	Doa6FM13,
-	Doa6FM14
+	Doa6FM14,
+	Doa6Test
 };
