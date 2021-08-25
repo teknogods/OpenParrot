@@ -1,21 +1,25 @@
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
+#include <iostream>
+#include <cstdint>
+#include <fstream>
 #include "MinHook.h"
 #include <Utility/Hooking.Patterns.h>
+#include <chrono>
 #include <thread>
 #ifdef _M_AMD64
 #pragma optimize("", off)
 #pragma comment(lib, "Ws2_32.lib")
 
 extern LPCSTR hookPort;
-uintptr_t imageBase;
+uintptr_t imageBasedxplus;
 static unsigned char hasp_buffer[0xD40];
-static bool isFreePlay;
-static bool isEventMode2P;
-static bool isEventMode4P;
-const char *ipaddr;
-
+//static bool isFreePlay;
+//static bool isEventMode2P;
+//static bool isEventMode4P;
+const char *ipaddrdxplus;
+/*
 // Data for IC card, Force Feedback etc OFF.
 unsigned char settingData[408] = {
 	0x1F, 0x8B, 0x08, 0x08, 0x53, 0x6A, 0x8B, 0x5A, 0x00, 0x03, 0x46, 0x73,
@@ -53,9 +57,9 @@ unsigned char settingData[408] = {
 	0xA0, 0x63, 0xE9, 0x86, 0x3C, 0xBC, 0x37, 0xD5, 0x4D, 0x5B, 0x7C, 0x24,
 	0x8F, 0x3D, 0x7F, 0x00, 0x10, 0x1E, 0x34, 0xD9, 0xB5, 0x03, 0x00, 0x00
 };
-
+*/
 // FOR FREEPLAY
-unsigned char terminalPackage1_Free[79] = {
+unsigned char dxpterminalPackage1_Free[79] = {
 	0x01, 0x04, 0x4B, 0x00, 0x12, 0x14, 0x0A, 0x00, 0x10, 0x04, 0x18, 0x00,
 	0x20, 0x00, 0x28, 0x00, 0x30, 0x00, 0x38, 0x00, 0x40, 0x00, 0x48, 0x00,
 	0x50, 0x00, 0x1A, 0x02, 0x5A, 0x00, 0x2A, 0x12, 0x08, 0x12, 0x12, 0x0C,
@@ -65,7 +69,7 @@ unsigned char terminalPackage1_Free[79] = {
 	0x00, 0x28, 0x00, 0xEC, 0x72, 0x00, 0x41
 };
 
-unsigned char terminalPackage2_Free[139] = {
+unsigned char dxpterminalPackage2_Free[139] = {
 	0x01, 0x04, 0x87, 0x00, 0x12, 0x14, 0x0A, 0x00, 0x10, 0x04, 0x18, 0x00,
 	0x20, 0x00, 0x28, 0x00, 0x30, 0x00, 0x38, 0x00, 0x40, 0x00, 0x48, 0x00,
 	0x50, 0x00, 0x1A, 0x02, 0x5A, 0x00, 0x2A, 0x12, 0x08, 0x14, 0x12, 0x0C,
@@ -80,7 +84,7 @@ unsigned char terminalPackage2_Free[139] = {
 	0x00, 0x28, 0x00, 0x99, 0x4E, 0xC6, 0x14
 };
 
-unsigned char terminalPackage3_Free[79] = {
+unsigned char dxpterminalPackage3_Free[79] = {
 	0x01, 0x04, 0x4B, 0x00, 0x12, 0x14, 0x0A, 0x00, 0x10, 0x04, 0x18, 0x00,
 	0x20, 0x00, 0x28, 0x00, 0x30, 0x00, 0x38, 0x00, 0x40, 0x00, 0x48, 0x00,
 	0x50, 0x00, 0x1A, 0x02, 0x5A, 0x00, 0x2A, 0x12, 0x08, 0x19, 0x12, 0x0C,
@@ -90,7 +94,7 @@ unsigned char terminalPackage3_Free[79] = {
 	0x00, 0x28, 0x00, 0x89, 0x93, 0x3A, 0x22
 };
 
-unsigned char terminalPackage4_Free[139] = {
+unsigned char dxpterminalPackage4_Free[139] = {
 	0x01, 0x04, 0x87, 0x00, 0x12, 0x14, 0x0A, 0x00, 0x10, 0x04, 0x18, 0x00,
 	0x20, 0x00, 0x28, 0x00, 0x30, 0x00, 0x38, 0x00, 0x40, 0x00, 0x48, 0x00,
 	0x50, 0x00, 0x1A, 0x02, 0x5A, 0x00, 0x2A, 0x12, 0x08, 0x2E, 0x12, 0x0C,
@@ -105,7 +109,7 @@ unsigned char terminalPackage4_Free[139] = {
 	0x00, 0x28, 0x00, 0x55, 0x42, 0x47, 0xD5
 };
 
-unsigned char terminalPackage5_Free[79] = {
+unsigned char dxpterminalPackage5_Free[79] = {
 	0x01, 0x04, 0x4B, 0x00, 0x12, 0x14, 0x0A, 0x00, 0x10, 0x04, 0x18, 0x00,
 	0x20, 0x00, 0x28, 0x00, 0x30, 0x00, 0x38, 0x00, 0x40, 0x00, 0x48, 0x00,
 	0x50, 0x00, 0x1A, 0x02, 0x5A, 0x00, 0x2A, 0x12, 0x08, 0x2F, 0x12, 0x0C,
@@ -115,7 +119,7 @@ unsigned char terminalPackage5_Free[79] = {
 	0x00, 0x28, 0x00, 0x9C, 0xC9, 0xE0, 0x73
 };
 
-unsigned char terminalPackage6_Free[139] = {
+unsigned char dxpterminalPackage6_Free[139] = {
 	0x01, 0x04, 0x87, 0x00, 0x12, 0x14, 0x0A, 0x00, 0x10, 0x04, 0x18, 0x00,
 	0x20, 0x00, 0x28, 0x00, 0x30, 0x00, 0x38, 0x00, 0x40, 0x00, 0x48, 0x00,
 	0x50, 0x00, 0x1A, 0x02, 0x5A, 0x00, 0x2A, 0x12, 0x08, 0x6A, 0x12, 0x0C,
@@ -129,7 +133,7 @@ unsigned char terminalPackage6_Free[139] = {
 	0x20, 0x00, 0x52, 0x0B, 0x08, 0x64, 0x10, 0xDE, 0x0F, 0x18, 0x05, 0x20,
 	0x00, 0x28, 0x00, 0x26, 0xB7, 0x89, 0xD0
 };
-
+/*
 // FOR COIN ENTRY!
 unsigned char terminalPackage1_Coin[75] = {
 	0x01, 0x04, 0x47, 0x00, 0x12, 0x14, 0x0A, 0x00, 0x10, 0x04, 0x18, 0x00,
@@ -351,38 +355,38 @@ unsigned char terminalPackage6_Event2P[139] = {
 	0x03, 0x10, 0x01, 0x18, 0x00, 0x20, 0x00, 0x52, 0x0b, 0x08, 0x64, 0x10,
 	0xde, 0x0f, 0x18, 0x05, 0x20, 0x00, 0x28, 0x00, 0x97, 0xd5, 0x79, 0xa6
 };
-
+*/
 
 #define HASP_STATUS_OK 0
-unsigned int Hook_hasp_login(int feature_id, void* vendor_code, int hasp_handle) {
+unsigned int dxpHook_hasp_login(int feature_id, void* vendor_code, int hasp_handle) {
 #ifdef _DEBUG
 	OutputDebugStringA("hasp_login\n");
 #endif
 	return HASP_STATUS_OK;
 }
 
-unsigned int Hook_hasp_logout(int hasp_handle) {
+unsigned int dxpHook_hasp_logout(int hasp_handle) {
 #ifdef _DEBUG
 	OutputDebugStringA("hasp_logout\n");
 #endif
 	return HASP_STATUS_OK;
 }
 
-unsigned int Hook_hasp_encrypt(int hasp_handle, unsigned char* buffer, unsigned int buffer_size) {
+unsigned int dxpHook_hasp_encrypt(int hasp_handle, unsigned char* buffer, unsigned int buffer_size) {
 #ifdef _DEBUG
 	OutputDebugStringA("hasp_encrypt\n");
 #endif
 	return HASP_STATUS_OK;
 }
 
-unsigned int Hook_hasp_decrypt(int hasp_handle, unsigned char* buffer, unsigned int buffer_size) {
+unsigned int dxpHook_hasp_decrypt(int hasp_handle, unsigned char* buffer, unsigned int buffer_size) {
 #ifdef _DEBUG
 	OutputDebugStringA("hasp_decrypt\n");
 #endif
 	return HASP_STATUS_OK;
 }
 
-unsigned int Hook_hasp_get_size(int hasp_handle, int hasp_fileid, unsigned int* hasp_size) {
+unsigned int dxpHook_hasp_get_size(int hasp_handle, int hasp_fileid, unsigned int* hasp_size) {
 #ifdef _DEBUG
 	OutputDebugStringA("hasp_get_size\n");
 #endif
@@ -390,7 +394,7 @@ unsigned int Hook_hasp_get_size(int hasp_handle, int hasp_fileid, unsigned int* 
 	return HASP_STATUS_OK;
 }
 
-unsigned int Hook_hasp_read(int hasp_handle, int hasp_fileid, unsigned int offset, unsigned int length, unsigned char* buffer) {
+unsigned int dxpHook_hasp_read(int hasp_handle, int hasp_fileid, unsigned int offset, unsigned int length, unsigned char* buffer) {
 #ifdef _DEBUG
 	OutputDebugStringA("hasp_read\n");
 #endif
@@ -398,33 +402,13 @@ unsigned int Hook_hasp_read(int hasp_handle, int hasp_fileid, unsigned int offse
 	return HASP_STATUS_OK;
 }
 
-unsigned int Hook_hasp_write(int hasp_handle, int hasp_fileid, unsigned int offset, unsigned int length, unsigned char* buffer) {
+unsigned int dxpHook_hasp_write(int hasp_handle, int hasp_fileid, unsigned int offset, unsigned int length, unsigned char* buffer) {
 	return HASP_STATUS_OK;
 }
 
-typedef int (WINAPI *BIND)(SOCKET, CONST SOCKADDR *, INT);
-BIND pbind = NULL;
-
-unsigned int WINAPI Hook_bind(SOCKET s, const sockaddr *addr, int namelen) {
-	sockaddr_in bindAddr = { 0 };
-	bindAddr.sin_family = AF_INET;
-	bindAddr.sin_addr.s_addr = inet_addr("192.168.96.20");
-	bindAddr.sin_port = htons(50765);
-	if (addr == (sockaddr*)&bindAddr) {
-		sockaddr_in bindAddr2 = { 0 };
-		bindAddr2.sin_family = AF_INET;
-		bindAddr2.sin_addr.s_addr = inet_addr(ipaddr);
-		bindAddr2.sin_port = htons(50765);
-		return pbind(s, (sockaddr*)&bindAddr2, namelen);
-	}
-	else {
-		return pbind(s, addr, namelen);
-		
-	}
-}
 
 
-unsigned char saveData[0x2000];
+unsigned char saveDatadxp[0x2000];
 // BASE: 0x24E0 
 // Campaing honor data: 2998, save 0xB8
 // Story Mode Honor data: 25F0, save 0x98
@@ -499,23 +483,77 @@ unsigned char saveData[0x2000];
 //	return 1;
 //}
 
+static DWORD WINAPI forceFT(void* pArguments)
+{
+	while (true) {
+		Sleep(16);
+		auto carSaveBase = (uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x01F7D578) + 0x268);
+		auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xAC);
+		auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xB8);
+		injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
+		injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
+	}
+	//debug
+	/*
+	std::ofstream myfile("debug.txt");
+	myfile << "Base: ";
+	myfile << carSaveBase;
+	myfile << " Power: ";
+	myfile << powerAddress;
+	myfile << " Handling: ";
+	myfile << handleAddress;
+	myfile.close();
+	*/
+}
+
 static bool saveOk = false;
-unsigned char carData[0xFF];
+unsigned char carDatadxp[0xFF];
 static int SaveOk()
 {
 	saveOk = true;
 	return 1;
 }
 
-char carFileName[0xFF];
-bool loadOk = false;
-bool customCar = false;
+char carFileNamedxp[0xFF];
+bool loadOkdxp = false;
+bool customCardxp = false;
 
 static int SaveGameData()
 {
 	if (!saveOk)
 		return 1;
 
+	// Car Profile saving
+	memset(carDatadxp, 0, 0xFF);
+	memset(carFileNamedxp, 0, 0xFF);
+
+	//new multilevel
+	uintptr_t carSaveBase = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
+
+	//memcpy(carData + 0x00, (void*)(carSaveBase + 0xAC), 0x1);
+	//memcpy(carData + 0x01, (void*)(carSaveBase + 0xB8), 0x1); //successfully dumped power and handling!
+	memcpy(carDatadxp + 0x00, (void*)(carSaveBase + 0x0), 0xFF); //dumps whole region
+
+
+	CreateDirectoryA("OpenParrot_Cars", nullptr);
+
+	if (customCardxp)
+	{
+		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\custom.car");
+	}
+	else
+	{
+		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
+	}
+
+	FILE* file = fopen(carFileNamedxp, "wb");
+	fwrite(carDatadxp, 1, 0xFF, file);
+	fclose(file);
+
+	saveOk = false;
+	return 1;
+
+	/*
 	memset(saveData, 0, 0x2000);
 	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
 	value = *(uintptr_t*)(value + 0x108);
@@ -526,18 +564,18 @@ static int SaveGameData()
 
 	// Car Profile saving
 	memset(carData, 0, 0xFF);
-	memset(carFileName, 0, 0xFF);
+	memset(carFileNamedxp, 0, 0xFF);
 	memcpy(carData, (void *)*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18), 0xE0);
 	CreateDirectoryA("OpenParrot_Cars", nullptr);
-	if(customCar)
+	if(customCardxp)
 	{
-		sprintf(carFileName, ".\\OpenParrot_Cars\\custom.car");
+		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\custom.car");
 	}
 	else
 	{
-		sprintf(carFileName, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
+		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
 	}
-	FILE *carSave = fopen(carFileName, "wb");
+	FILE *carSave = fopen(carFileNamedxp, "wb");
 	fwrite(carData, 1, 0xE0, file);
 	fclose(carSave);
 	//SaveStoryData();
@@ -547,9 +585,10 @@ static int SaveGameData()
 	//SaveCampaingHonorData2();
 	saveOk = false;
 	return 1;
+	*/
 }
 
-uintptr_t saveGameOffset;
+uintptr_t saveGameOffsetdxp;
 
 //static int LoadCampaingHonorData2()
 //{
@@ -666,7 +705,7 @@ uintptr_t saveGameOffset;
 static int LoadGameData()
 {
 	saveOk = false;
-	memset(saveData, 0x0, 0x2000);
+	memset(saveDatadxp, 0x0, 0x2000);
 	FILE* file = fopen("openprogress.sav", "rb");
 	if (file)
 	{
@@ -675,41 +714,41 @@ static int LoadGameData()
 		if (fsize == 0x2000)
 		{
 			fseek(file, 0, SEEK_SET);
-			fread(saveData, fsize, 1, file);
-			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
+			fread(saveDatadxp, fsize, 1, file);
+			uintptr_t value = *(uintptr_t*)(imageBasedxplus + 0x1948F10);
 			value = *(uintptr_t*)(value + 0x108);
 
 			// First page
 			//memcpy((void *)(value), saveData, 0x48);
-			memcpy((void *)(value + 0x10), saveData + 0x10, 0x20);
-			memcpy((void *)(value + 0x40), saveData + 0x40, 0x08);
+			memcpy((void *)(value + 0x10), saveDatadxp + 0x10, 0x20);
+			memcpy((void *)(value + 0x40), saveDatadxp + 0x40, 0x08);
 			//memcpy((void *)(value + 0x48 + 8), saveData + 0x48 + 8, 0x20);
-			memcpy((void *)(value + 0x48 + 8), saveData + 0x48 + 8, 0x08);
-			memcpy((void *)(value + 0x48 + 24), saveData + 0x48 + 24, 0x08);
-			memcpy((void *)(value + 0x48 + 32), saveData + 0x48 + 32, 0x08);
+			memcpy((void *)(value + 0x48 + 8), saveDatadxp + 0x48 + 8, 0x08);
+			memcpy((void *)(value + 0x48 + 24), saveDatadxp + 0x48 + 24, 0x08);
+			memcpy((void *)(value + 0x48 + 32), saveDatadxp + 0x48 + 32, 0x08);
 
 			// Second page
 			value += 0x110;
-			memcpy((void *)(value), saveData + 0x110, 0x90);
+			memcpy((void *)(value), saveDatadxp + 0x110, 0x90);
 			value -= 0x110;
 
 			// Third Page
 			value += 0x1B8;
-			memcpy((void *)(value), saveData + 0x1B8, 0x48);
-			memcpy((void *)(value + 0x48 + 8), saveData + 0x1B8 + 0x48 + 8, 0x28);
+			memcpy((void *)(value), saveDatadxp + 0x1B8, 0x48);
+			memcpy((void *)(value + 0x48 + 8), saveDatadxp + 0x1B8 + 0x48 + 8, 0x28);
 			value -= 0x1B8;
 
 			// Fourth page
 			value += 0x240;
-			memcpy((void *)(value), saveData + 0x240, 0x68);
+			memcpy((void *)(value), saveDatadxp + 0x240, 0x68);
 			value -= 0x240;
 
 			// Fifth page
 			value += 0x2B8;
-			memcpy((void *)(value), saveData + 0x2B8, 0x88);
+			memcpy((void *)(value), saveDatadxp + 0x2B8, 0x88);
 			value -= 0x2B8;
 
-			loadOk = true;
+			loadOkdxp = true;
 
 			//+ 0x80
 
@@ -802,99 +841,120 @@ static int LoadGameData()
 	return 1;
 }
 
+
+
 static void LoadWmmt5CarData()
 {
-	if (!loadOk)
-		return;
-	customCar = false;
-	memset(carData, 0, 0xFF);
-	memset(carFileName, 0, 0xFF);
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+//	if (!loadOkdxp)
+//		return;
+	customCardxp = false;
+	memset(carDatadxp, 0, 0xFF);
+	memset(carFileNamedxp, 0, 0xFF);
 	CreateDirectoryA("OpenParrot_Cars", nullptr);
 
 	// check for custom car
-	sprintf(carFileName, ".\\OpenParrot_Cars\\custom.car");
-	if (FileExists(carFileName))
+	sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\custom.car");
+	if (FileExists(carFileNamedxp))
 	{
-		FILE* file = fopen(carFileName, "rb");
+		FILE* file = fopen(carFileNamedxp, "rb");
 		if (file)
 		{
 			fseek(file, 0, SEEK_END);
 			int fsize = ftell(file);
-			if (fsize == 0xE0)
+			if (fsize == 0xFF)
 			{
 				fseek(file, 0, SEEK_SET);
-				fread(carData, fsize, 1, file);
-				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
-				memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
-				memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
-				memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
-				memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
-				memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 8);
-				memcpy((void *)(carSaveLocation + 0x38), carData + 0x38, 8);
-				memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 8);
-				memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
-				memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 8);
-				memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
-				//				memcpy((void *)(carSaveLocation + 0x70), carData + 0x70, 8);
-				memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 8);
-				memcpy((void *)(carSaveLocation + 0x88), carData + 0x88, 8);
-				memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
-				memcpy((void *)(carSaveLocation + 0x98), carData + 0x98, 8);
-				memcpy((void *)(carSaveLocation + 0xA0), carData + 0xA0, 8);
-				memcpy((void *)(carSaveLocation + 0xA8), carData + 0xA8, 8);
-				memcpy((void *)(carSaveLocation + 0xB8), carData + 0xB8, 8);
-				memcpy((void *)(carSaveLocation + 0xC8), carData + 0xC8, 8);
-				memcpy((void *)(carSaveLocation + 0xD8), carData + 0xD8, 8);
-				//memcpy((void *)(carSaveLocation + 0xE0), carData + 0xE0, 8);
-				customCar = true;
+				fread(carDatadxp, fsize, 1, file);
+				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
+				memcpy((void*)(carSaveLocation + 0xAC), carDatadxp + 0xAC, 0x1); //power
+				memcpy((void*)(carSaveLocation + 0xB8), carDatadxp + 0xB8, 0x1); //handling
+				memcpy((void*)(carSaveLocation + 0x28), carDatadxp + 0x28, 0x1); //region
+				memcpy((void*)(carSaveLocation + 0x34), carDatadxp + 0x34, 0x1); //carID
+				memcpy((void*)(carSaveLocation + 0x38), carDatadxp + 0x38, 0x1); //defaultColor
+				memcpy((void*)(carSaveLocation + 0x3C), carDatadxp + 0x3C, 0x1); //customColor
+				memcpy((void*)(carSaveLocation + 0x40), carDatadxp + 0x40, 0x1); //rims
+				memcpy((void*)(carSaveLocation + 0x44), carDatadxp + 0x44, 0x1); //rimColor
+				memcpy((void*)(carSaveLocation + 0x48), carDatadxp + 0x48, 0x1); //aero
+				memcpy((void*)(carSaveLocation + 0x4C), carDatadxp + 0x4C, 0x1); //hood
+				memcpy((void*)(carSaveLocation + 0x58), carDatadxp + 0x58, 0x1); //wang
+				memcpy((void*)(carSaveLocation + 0x5C), carDatadxp + 0x5C, 0x1); //mirror
+				memcpy((void*)(carSaveLocation + 0x60), carDatadxp + 0x60, 0x1); //sticker
+				memcpy((void*)(carSaveLocation + 0x64), carDatadxp + 0x64, 0x1); //stickerVariant
+				memcpy((void*)(carSaveLocation + 0x88), carDatadxp + 0x88, 0x1); //roofSticker
+				memcpy((void*)(carSaveLocation + 0x8C), carDatadxp + 0x8C, 0x1); //roofStickerVariant
+				memcpy((void*)(carSaveLocation + 0x90), carDatadxp + 0x90, 0x1); //neon
+				memcpy((void*)(carSaveLocation + 0x94), carDatadxp + 0x94, 0x1); //trunk
+				memcpy((void*)(carSaveLocation + 0x98), carDatadxp + 0x98, 0x1); //plateFrame
+				memcpy((void*)(carSaveLocation + 0xA0), carDatadxp + 0xA0, 0x4); //plateNumber
+				memcpy((void*)(carSaveLocation + 0xA4), carDatadxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
+				memcpy((void*)(carSaveLocation + 0xA8), carDatadxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
+				memcpy((void*)(carSaveLocation + 0xBC), carDatadxp + 0xBC, 0x1); //rank
+				memcpy((void*)(carSaveLocation + 0xF0), carDatadxp + 0xF0, 0x1); //title??
+
+				customCardxp = true;
 			}
-			loadOk = false;
+			loadOkdxp = false;
 			fclose(file);
 			return;
 		}
 	}
-
-	memset(carFileName, 0, 0xFF);
-	// Load actual car if available
-	sprintf(carFileName, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
-	if(FileExists(carFileName))
+	if (ToBool(config["Tune"]["Force Full Tune"]))
 	{
-		FILE* file = fopen(carFileName, "rb");
+		CreateThread(0, 0, forceFT, 0, 0, 0);
+	}
+
+	memset(carFileNamedxp, 0, 0xFF);
+	// Load actual car if available
+	sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
+	if(FileExists(carFileNamedxp))
+	{
+		FILE* file = fopen(carFileNamedxp, "rb");
 		if (file)
 		{
 			fseek(file, 0, SEEK_END);
 			int fsize = ftell(file);
-			if (fsize == 0xE0)
-			{
+			if (fsize == 0xFF)
+			{	
 				fseek(file, 0, SEEK_SET);
-				fread(carData, fsize, 1, file);
-				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
-				memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
-				memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
-				memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
-				memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
-				memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 8);
-				memcpy((void *)(carSaveLocation + 0x38), carData + 0x38, 8);
-				memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 8);
-				memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
-				memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 8);
-				memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
-//				memcpy((void *)(carSaveLocation + 0x70), carData + 0x70, 8);
-				memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 8);
-				memcpy((void *)(carSaveLocation + 0x88), carData + 0x88, 8);
-				memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
-				memcpy((void *)(carSaveLocation + 0x98), carData + 0x98, 8);
-				memcpy((void *)(carSaveLocation + 0xA0), carData + 0xA0, 8);
-				memcpy((void *)(carSaveLocation + 0xA8), carData + 0xA8, 8);
-				memcpy((void *)(carSaveLocation + 0xB8), carData + 0xB8, 8);
-				memcpy((void *)(carSaveLocation + 0xC8), carData + 0xC8, 8);
-				memcpy((void *)(carSaveLocation + 0xD8), carData + 0xD8, 8);
-				//memcpy((void *)(carSaveLocation + 0xE0), carData + 0xE0, 8);
+				fread(carDatadxp, fsize, 1, file);
+				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
+				memcpy((void*)(carSaveLocation + 0xAC), carDatadxp + 0xAC, 0x1); //power
+				memcpy((void*)(carSaveLocation + 0xB8), carDatadxp + 0xB8, 0x1); //handling
+				memcpy((void*)(carSaveLocation + 0x28), carDatadxp + 0x28, 0x1); //region
+				memcpy((void*)(carSaveLocation + 0x34), carDatadxp + 0x34, 0x1); //carID
+				memcpy((void*)(carSaveLocation + 0x38), carDatadxp + 0x38, 0x1); //defaultColor
+				memcpy((void*)(carSaveLocation + 0x3C), carDatadxp + 0x3C, 0x1); //customColor
+				memcpy((void*)(carSaveLocation + 0x40), carDatadxp + 0x40, 0x1); //rims
+				memcpy((void*)(carSaveLocation + 0x44), carDatadxp + 0x44, 0x1); //rimColor
+				memcpy((void*)(carSaveLocation + 0x48), carDatadxp + 0x48, 0x1); //aero
+				memcpy((void*)(carSaveLocation + 0x4C), carDatadxp + 0x4C, 0x1); //hood
+				memcpy((void*)(carSaveLocation + 0x58), carDatadxp + 0x58, 0x1); //wang
+				memcpy((void*)(carSaveLocation + 0x5C), carDatadxp + 0x5C, 0x1); //mirror
+				memcpy((void*)(carSaveLocation + 0x60), carDatadxp + 0x60, 0x1); //sticker
+				memcpy((void*)(carSaveLocation + 0x64), carDatadxp + 0x64, 0x1); //stickerVariant
+				memcpy((void*)(carSaveLocation + 0x88), carDatadxp + 0x88, 0x1); //roofSticker
+				memcpy((void*)(carSaveLocation + 0x8C), carDatadxp + 0x8C, 0x1); //roofStickerVariant
+				memcpy((void*)(carSaveLocation + 0x90), carDatadxp + 0x90, 0x1); //neon
+				memcpy((void*)(carSaveLocation + 0x94), carDatadxp + 0x94, 0x1); //trunk
+				memcpy((void*)(carSaveLocation + 0x98), carDatadxp + 0x98, 0x1); //plateFrame
+				memcpy((void*)(carSaveLocation + 0xA0), carDatadxp + 0xA0, 0x4); //plateNumber
+				memcpy((void*)(carSaveLocation + 0xA4), carDatadxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
+				memcpy((void*)(carSaveLocation + 0xA8), carDatadxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
+				memcpy((void*)(carSaveLocation + 0xBC), carDatadxp + 0xBC, 0x1); //rank
+				memcpy((void*)(carSaveLocation + 0xF0), carDatadxp + 0xF0, 0x1); //title??
 			}
 			fclose(file);
 		}
 	}
-	loadOk = false;
+	loadOkdxp = false;
+}
+
+static void loadCar()
+{
+	std::thread t1(LoadWmmt5CarData);
+	t1.detach();
 }
 
 static int ReturnTrue()
@@ -902,7 +962,7 @@ static int ReturnTrue()
 	return 1;
 }
 
-void GenerateDongleData(bool isTerminal)
+void GenerateDongleDataDxp(bool isTerminal)
 {
 	memset(hasp_buffer, 0, 0xD40);
 	hasp_buffer[0] = 0x01;
@@ -921,30 +981,34 @@ void GenerateDongleData(bool isTerminal)
 	hasp_buffer[0x2D] = 0x6B;
 	hasp_buffer[0x2E] = 0x40;
 	hasp_buffer[0x2F] = 0x87;
+
 	if(isTerminal)
 	{
-		memcpy(hasp_buffer + 0xD00, "272211990002", 12);
-		hasp_buffer[0xD3E] = 0x63;
-		hasp_buffer[0xD3F] = 0x9C;
+		memcpy(hasp_buffer + 0xD00, "278311042069", 12); //272211990002
+		hasp_buffer[0xD3E] = 0x6B;
+		hasp_buffer[0xD3F] = 0x94;
 	}
 	else
 	{
-		memcpy(hasp_buffer + 0xD00, "272213990002", 12);
-		hasp_buffer[0xD3E] = 0x65;
-		hasp_buffer[0xD3F] = 0x9A;
+		memcpy(hasp_buffer + 0xD00, "278313042069", 12); //272213990002
+		hasp_buffer[0xD3E] = 0x6D;
+		hasp_buffer[0xD3F] = 0x92;
 	}
 }
 
-char customName[256];
+
+char customNamedxp[256];
 
 
-static DWORD WINAPI SpamCustomName(LPVOID)
+static DWORD WINAPI SpamcustomNamedxp(LPVOID)
 {
 	while (true)
 	{
+		
 		Sleep(50);
-		void *value = (void *)(imageBase + 0x194C230);
-		memcpy(value, customName, strlen(customName) + 1);
+		void *value = (void *)(imageBasedxplus + 0x1F846F0);
+		memcpy(value, customNamedxp, strlen(customNamedxp) + 1);
+		
 	}
 }
 
@@ -965,35 +1029,35 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 
 	sockaddr_in bindAddr = { 0 };
 	bindAddr.sin_family = AF_INET;
-	bindAddr.sin_addr.s_addr = inet_addr(ipaddr);
+	bindAddr.sin_addr.s_addr = inet_addr(ipaddrdxplus);
 	bindAddr.sin_port = htons(50765);
 	bind(sock, (sockaddr*)&bindAddr, sizeof(bindAddr));
 	
 
 	ip_mreq mreq;
 	mreq.imr_multiaddr.s_addr = inet_addr("225.0.0.1");
-	mreq.imr_interface.s_addr = inet_addr(ipaddr);
+	mreq.imr_interface.s_addr = inet_addr(ipaddrdxplus);
 
 	setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq));
 
 	const uint8_t* byteSequences_Free[] = {
-		terminalPackage1_Free,
-		terminalPackage2_Free,
-		terminalPackage3_Free,
-		terminalPackage4_Free,
-		terminalPackage5_Free,
-		terminalPackage6_Free,
+		dxpterminalPackage1_Free,
+		dxpterminalPackage2_Free,
+		dxpterminalPackage3_Free,
+		dxpterminalPackage4_Free,
+		dxpterminalPackage5_Free,
+		dxpterminalPackage6_Free,
 	};
 
 	const size_t byteSizes_Free[] = {
-		sizeof(terminalPackage1_Free),
-		sizeof(terminalPackage2_Free),
-		sizeof(terminalPackage3_Free),
-		sizeof(terminalPackage4_Free),
-		sizeof(terminalPackage5_Free),
-		sizeof(terminalPackage6_Free),
+		sizeof(dxpterminalPackage1_Free),
+		sizeof(dxpterminalPackage2_Free),
+		sizeof(dxpterminalPackage3_Free),
+		sizeof(dxpterminalPackage4_Free),
+		sizeof(dxpterminalPackage5_Free),
+		sizeof(dxpterminalPackage6_Free),
 	};
-
+	/*
 	const uint8_t* byteSequences_Event2P[] = {
 		terminalPackage1_Event2P,
 		terminalPackage2_Event2P,
@@ -1047,17 +1111,18 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 		sizeof(terminalPackage5_Coin),
 		sizeof(terminalPackage6_Coin),
 	};
-
+	*/
 	sockaddr_in toAddr = { 0 };
 	toAddr.sin_family = AF_INET;
 	toAddr.sin_addr.s_addr = inet_addr("225.0.0.1");
 	toAddr.sin_port = htons(50765);
 	
-
+	/*
 	isFreePlay = ToBool(config["General"]["FreePlay"]);
 	isEventMode2P = ToBool(config["TerminalEmuConfig"]["2P Event Mode"]);
 	isEventMode4P = ToBool(config["TerminalEmuConfig"]["4P Event Mode"]);
-
+	*/
+	/*
 	if (isFreePlay)
 	{
 		if (isEventMode2P) {
@@ -1087,9 +1152,16 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 	{
 		sendto(sock, (const char*)byteSequences_Coin[i], byteSizes_Coin[i], 0, (sockaddr*)&toAddr, sizeof(toAddr));
 		Sleep(8);
+	}*/
+
+	while (true) for (int i = 0; i < _countof(byteSequences_Free); i++)
+	{
+		sendto(sock, (const char*)byteSequences_Free[i], byteSizes_Free[i], 0, (sockaddr*)&toAddr, sizeof(toAddr));
+		Sleep(8);
 	}
 }
 
+/*
 extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
@@ -1106,10 +1178,10 @@ DWORD WINAPI Wmmt5FfbCollector(void* ctx)
 		*ffbOffset4 = *(DWORD *)(imageBase + 0x196F194);
 		Sleep(10);
 	}
-}
+}*/
 
 static InitFunction Wmmt5Func([]()
-{
+{/*
 	FILE* fileF = _wfopen(L"Fsetting.lua.gz", L"r");
 	if (fileF == NULL)
 	{
@@ -1132,7 +1204,7 @@ static InitFunction Wmmt5Func([]()
 	else
 	{
 		fclose(fileG);
-	}
+	}*/
 
 
 	bool isTerminal = false;
@@ -1145,35 +1217,34 @@ static InitFunction Wmmt5Func([]()
 	if (!networkip.empty())
 	{
 		//strcpy(ipaddr, networkip.c_str());
-		ipaddr = networkip.c_str();
+		ipaddrdxplus = networkip.c_str();
 	}
 
 	hookPort = "COM3";
-	imageBase = (uintptr_t)GetModuleHandleA(0);
+	imageBasedxplus = (uintptr_t)GetModuleHandleA(0);
 	MH_Initialize();
 
 	// Hook dongle funcs
-	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_write", Hook_hasp_write, NULL);
-	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_read", Hook_hasp_read, NULL);
-	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_get_size", Hook_hasp_get_size, NULL);
-	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_decrypt", Hook_hasp_decrypt, NULL);
-	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_encrypt", Hook_hasp_encrypt, NULL);
-	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_logout", Hook_hasp_logout, NULL);
-	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_login", Hook_hasp_login, NULL);
-	MH_CreateHookApi(L"WS2_32", "bind", Hook_bind, reinterpret_cast<LPVOID*>(&pbind));
+	MH_CreateHookApi(L"hasp_windows_x64_106482.dll", "hasp_write", dxpHook_hasp_write, NULL);
+	MH_CreateHookApi(L"hasp_windows_x64_106482.dll", "hasp_read", dxpHook_hasp_read, NULL);
+	MH_CreateHookApi(L"hasp_windows_x64_106482.dll", "hasp_get_size", dxpHook_hasp_get_size, NULL);
+	MH_CreateHookApi(L"hasp_windows_x64_106482.dll", "hasp_decrypt", dxpHook_hasp_decrypt, NULL);
+	MH_CreateHookApi(L"hasp_windows_x64_106482.dll", "hasp_encrypt", dxpHook_hasp_encrypt, NULL);
+	MH_CreateHookApi(L"hasp_windows_x64_106482.dll", "hasp_logout", dxpHook_hasp_logout, NULL);
+	MH_CreateHookApi(L"hasp_windows_x64_106482.dll", "hasp_login", dxpHook_hasp_login, NULL);
 
 
 
-	GenerateDongleData(isTerminal);
+	GenerateDongleDataDxp(isTerminal);
 
-	// Patch some check
+	// Patch some check TEMP DISABLE AS WELL OVER HERE
 	// 0F 94 C0 84 C0 0F 94 C0 84 C0 75 05 45 32 E4 EB 03 41 B4 01
 	// FOUND ON 21, 10
 	// NOT WORKING 1
 	// 0F 94 C0 84 C0 0F 94 C0 84 C0 75 05 45 32 ?? EB
 	// FOUND ON 1
 	//injector::WriteMemory<uint8_t>(imageBase + 0x6286EC, 0, true); 
-	injector::WriteMemory<uint8_t>(hook::get_pattern("0F 94 C0 84 C0 0F 94 C0 84 C0 75 05 45 32 ? EB", 0x13), 0, true);
+	injector::WriteMemory<uint8_t>(hook::get_pattern("85 C9 0F 94 C0 84 C0 0F 94 C0 84 C0 75 ? 40 32 F6 EB ?", 0x15), 0, true); //patches out dongle error2 (doomer)
 
 	// Patch some jnz
 	// 83 C0 FD 83 F8 01 0F 87 B4 00 00 00 83 BF D0 06 00 00 3C 73 29 48 8D 8D 60 06 00 00
@@ -1182,14 +1253,15 @@ static InitFunction Wmmt5Func([]()
 	// 83 C0 FD 83 F8 01 0F 87 B4 00 00 00
 	// FOUND ON 1
 	//injector::MakeNOP(imageBase + 0x628AE0, 6);
-	injector::MakeNOP(hook::get_pattern("83 C0 FD 83 F8 01 0F 87 B4 00 00 00", 6), 6);
+	//THIS injector::MakeNOP(hook::get_pattern("83 C0 FD 83 F8 01 0F 87 B4 00 00 00", 6), 6);
+	injector::MakeNOP(hook::get_pattern("83 C0 FD 83 F8 01 76 ? 49 8D ? ? ? ? 00 00"), 6);
 
 	// Patch some shit
 	// 83 FA 04 0F 8C 1E 01 00 00 4C 89 44 24 18 4C 89 4C 24 20
 	// FOUND ON 21, 10, 1
 	// NOT FOUND:
 	//injector::WriteMemory<uint8_t>(imageBase + 0x7B9882, 0, true);
-	injector::WriteMemory<uint8_t>(hook::get_pattern("83 FA 04 0F 8C 1E 01 00 00 4C 89 44 24 18 4C 89 4C 24 20", 2), 0, true);
+	//THIS injector::WriteMemory<uint8_t>(hook::get_pattern("83 FA 04 0F 8C 1E 01 00 00 4C 89 44 24 18 4C 89 4C 24 20", 2), 0, true);
 		
 	// Skip weird camera init that stucks entire pc on certain brands. TESTED ONLY ON 05!!!!
 	if (ToBool(config["General"]["WhiteScreenFix"]))
@@ -1201,33 +1273,35 @@ static InitFunction Wmmt5Func([]()
 	// 45 33 C0 BA 65 09 00 00 48 8D 4D B0 E8 ?? ?? ?? ?? 48 8B 08
 	// FOUND ON 21, 10, 1
 	//injector::MakeNOP(imageBase + 0x7DADED, 5);
-	injector::MakeNOP(hook::get_pattern("45 33 C0 BA 65 09 00 00 48 8D 4D B0 E8 ? ? ? ? 48 8B 08", 12), 5);
+	//THIS injector::MakeNOP(hook::get_pattern("45 33 C0 BA 65 09 00 00 48 8D 4D B0 E8 ? ? ? ? 48 8B 08", 12), 5);
 
 	{
-		// 199AE18 TIME OFFSET RVA
+		// 199AE18 TIME OFFSET RVA temp disable ALL JNZ PATCH
 
 		auto location = hook::get_pattern<char>("41 3B C7 74 0E 48 8D 8F B8 00 00 00 BA F6 01 00 00 EB 6E 48 8D 8F A0 00 00 00");
 		// Patch some jnz
 		// 41 3B C7 74 0E 48 8D 8F B8 00 00 00 BA F6 01 00 00 EB 6E 48 8D 8F A0 00 00 00
 		// FOUND ON 21, 10, 1
 		//injector::WriteMemory<uint8_t>(imageBase + 0x943F52, 0xEB, true);
-		injector::WriteMemory<uint8_t>(location + 3, 0xEB, true);
+		injector::WriteMemory<uint8_t>(location + 3, 0xEB, true); //patches content router (doomer)
 
 		// Skip some jnz
 		//injector::MakeNOP(imageBase + 0x943F71, 2);
-		injector::MakeNOP(location + 0x22, 2);
+		injector::MakeNOP(location + 0x22, 2); //patches ip addr error again (doomer)
 
 		// Skip some jnz
 		//injector::MakeNOP(imageBase + 0x943F82, 2);
-		injector::MakeNOP(location + 0x33, 2);
+		injector::MakeNOP(location + 0x33, 2); //patches ip aaddr error(doomer)
 	}
 
 	// Skip DebugBreak on MFStartup fail
 	// 48 83 EC 28 33 D2 B9 70 00 02 00 E8 ?? ?? ?? ?? 85 C0 79 06
 	// FOUND on 21, 1
 	{
+		/*
 		auto location = hook::get_pattern<char>("48 83 EC 28 33 D2 B9 70 00 02 00 E8 ? ? ? ? 85 C0 79 06");
 		injector::WriteMemory<uint8_t>(location + 0x12, 0xEB, true);
+		*/
 	}
 	//safeJMP(hook::get_pattern(V("48 83 EC 28 33 D2 B9 70 00 02 00 E8 ? ? ? ? 85 C0 79 06")), ReturnTrue);
 
@@ -1238,13 +1312,15 @@ static InitFunction Wmmt5Func([]()
 		// FOUND ON 21, 10, 1
 		// NOT FOUND:
 		//safeJMP(imageBase + 0x7BE440, ReturnTrue);
-		safeJMP(hook::get_pattern("0F B6 41 05 2C 30 3C 09 77 04 0F BE C0 C3 83 C8 FF C3"), ReturnTrue);
+		//safeJMP(hook::get_pattern("0F B6 41 05 2C 30 3C 09 77 04 0F BE C0 C3 83 C8 FF C3"), ReturnTrue);
+		//safeJMP(imageBase + 0x89D420, ReturnTrue);
 
 		// Patch some func to 1
 		// 40 53 48 83 EC 20 48 83 39 00 48 8B D9 75 28 48 8D ?? ?? ?? ?? 00 48 8D ?? ?? ?? ?? 00 41 B8 ?? ?? 00 00 FF 15 ?? ?? ?? ?? 4C 8B 1B 41 0F B6 43 78
 		// FOUND ON 21, 10, 1
-		//safeJMP(imageBase + 0x7CF8D0, ReturnTrue);
-		safeJMP(hook::get_pattern("40 53 48 83 EC 20 48 83 39 00 48 8B D9 75 28 48 8D ? ? ? ? 00 48 8D ? ? ? ? 00 41 B8 ? ? 00 00 FF 15 ? ? ? ? 4C 8B 1B 41 0F B6 43 78"), ReturnTrue);
+		//safeJMP(imageBase + 0x7CF8D0, ReturnTrue); 
+		//safeJMP(hook::get_pattern("40 53 48 83 EC 20 48 83 39 00 48 8B D9 75 11 48 8B 0D C2"), ReturnTrue);
+		//safeJMP(imageBase + 0x8B5190, ReturnTrue); 
 	}
 	else
 	{
@@ -1254,12 +1330,18 @@ static InitFunction Wmmt5Func([]()
 		//injector::MakeNOP(imageBase + 0x91E1AE, 6);
 		//injector::MakeNOP(imageBase + 0x91E1B7, 2);
 		//injector::MakeNOP(imageBase + 0x91E1BD, 2);
+		
 		{
-			auto location = hook::get_pattern<char>("48 8B 18 48 3B D8 0F 84 88 00 00 00 39 7B 1C 74 60 80 7B 31 00 75 4F 48 8B 43 10 80 78 31 00");
-			injector::MakeNOP(location + 6, 6); // 6
+		
+			/*
+			auto location = hook::get_pattern<char>("48 8B 18 48 3B D8 0F 84 8B 00 00 00 0F 1F 80 00 00 00 00 39 73 1C 74 5C 80 7B 31 00");
+			//injector::MakeNOP(location + 6, 6); // 6
 			injector::MakeNOP(location + 0xF, 2); // 0xF
-			injector::MakeNOP(location + 0x15, 2); // 0x15
+			//injector::MakeNOP(location + 0x15, 2); // 0x15
+			*/
+			injector::MakeNOP(imageBasedxplus + 0x9F2BB3, 2);
 		}
+		
 
 		// spam thread
 		if (ToBool(config["General"]["TerminalEmulator"]))
@@ -1294,22 +1376,25 @@ static InitFunction Wmmt5Func([]()
 	if (ToBool(config["General"]["SkipMovies"]))
 	{
 		// Skip movies fuck you wmmt5
-		safeJMP(imageBase + 0x806020, ReturnTrue);
+		//safeJMP(imageBase + 0x806020, ReturnTrue);
 	}
 
-
-	std::string value = config["General"]["CustomName"];
+	std::string value = config["General"]["Custom Name"];
 	if (!value.empty())
 	{
-		memset(customName, 0, 256);
-		strcpy(customName, value.c_str());
-		CreateThread(0, 0, SpamCustomName, 0, 0, 0);
+		
+		memset(customNamedxp, 0, 256);
+		strcpy(customNamedxp, value.c_str());
+		CreateThread(0, 0, SpamcustomNamedxp, 0, 0, 0);
+		
 	}
 
 	// Save story stuff (only 05)
 	{
+
 		// skip erasing of temp card data
-		injector::WriteMemory<uint8_t>(imageBase + 0x8DEBC3, 0xEB, true);
+		//injector::WriteMemory<uint8_t>(imageBase + 0xA35CA3, 0xEB, true);
+		/*
 		// Skip erasing of temp card
 		safeJMP(imageBase + 0x54DCE1, LoadGameData);
 		safeJMP(imageBase + 0x5612F0, ReturnTrue);
@@ -1348,10 +1433,32 @@ static InitFunction Wmmt5Func([]()
 		injector::WriteMemory<WORD>(imageBase + 0x308550 + 4, 0x90C0, true);
 
 		CreateThread(0, 0, Wmmt5FfbCollector, 0, 0, 0);
+		*/
+
+		//load car trigger
+		safeJMP(imageBasedxplus + 0x72AB90, loadCar);
+
+		//save car trigger
+		//injector::WriteMemory<uintptr_t>(imageBase + 0x376F80 + 2, (uintptr_t)SaveGameData, true);
+		//safeJMP(imageBase + 0x376F76, SaveGameData);
+
+		
+		injector::MakeNOP(imageBasedxplus + 0x376F76, 0x12);
+		injector::WriteMemory<WORD>(imageBasedxplus + 0x376F76, 0xB848, true);
+		injector::WriteMemory<uintptr_t>(imageBasedxplus + 0x376F76 + 2, (uintptr_t)SaveGameData, true);
+		injector::WriteMemory<DWORD>(imageBasedxplus + 0x376F80, 0x3348D0FF, true);
+		injector::WriteMemory<WORD>(imageBasedxplus + 0x376F80 + 4, 0x90C0, true);
+
+		//prevents startup saving
+		//injector::MakeNOP(imageBase + 0x6B908C, 0x0D);
+		//safeJMP(imageBase + 0x6B908C, SaveOk);
+		injector::WriteMemory<WORD>(imageBasedxplus + 0x6B909A, 0xB848, true);
+		injector::WriteMemory<uintptr_t>(imageBasedxplus + 0x6B909A + 2, (uintptr_t)SaveOk, true);
+		injector::WriteMemory<DWORD>(imageBasedxplus + 0x6B90A4, 0x9090D0FF, true);
 	}
 
 	MH_EnableHook(MH_ALL_HOOKS);
 
-}, GameID::WMMT5);
+}, GameID::WMMT5DXPlus);
 #endif
 #pragma optimize("", on)

@@ -45,6 +45,14 @@ int Compare(const std::string& str1, const std::string& str2, bool case_sensitiv
 	return (str1.length() < str2.length() ? -1 : 1);
 }
 
+BOOL FileExists(char* szPath)
+{
+	DWORD dwAttrib = GetFileAttributesA(szPath);
+
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+		!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
 bool ToBool(const std::string& s)
 {
 	if (s.empty())
