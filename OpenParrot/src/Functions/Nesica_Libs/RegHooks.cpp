@@ -8,8 +8,16 @@ DWORD IOErrorCoin = 0;
 DWORD IOErrorCredit = 0;
 DWORD EventModeEnable = 0;
 DWORD SystemType = 0;
+DWORD GameKind = 0;
+DWORD EventNextTime = 0;
+DWORD ConditionTime = 0;
+DWORD TrafficCount = 0;
+DWORD LogLevel = 0;
+DWORD NewsPath = 0;
+DWORD EventPath = 0;
+DWORD LogPath = 0;
 
-DWORD FillDwordInformation(const char *setting, const char *subkey, DWORD defaultValue)
+DWORD FillDwordInformation(const char* setting, const char* subkey, DWORD defaultValue)
 {
 	if (strcmp(config[setting][subkey].c_str(), "1") == 0)
 		return 1;
@@ -104,9 +112,9 @@ LSTATUS __stdcall RegCreateKeyExWWrap(
 	LPDWORD                     lpdwDisposition
 )
 {
-	if(hKey == HKEY_LOCAL_MACHINE)
+	if (hKey == HKEY_LOCAL_MACHINE)
 	{
-		if(wcsicmp(lpSubKey, L"SOFTWARE\\TAITO\\NESiCAxLive") == 0)
+		if (wcsicmp(lpSubKey, L"SOFTWARE\\TAITO\\NESiCAxLive") == 0)
 		{
 			*phkResult = (HKEY)0x8101;
 			return ERROR_SUCCESS;
@@ -128,15 +136,15 @@ void PromptError(DWORD errorCode, int errorType)
 	memset(tempBuf, 0, 256);
 	switch (errorType)
 	{
-		case 0:
-			sprintf(tempBuf, "Game sent NESiCA GameResult error code to %08X to launcher!", errorCode);
-			break;
-		case 1:
-			sprintf(tempBuf, "Game sent NESiCA IOErrorCoin error code to %08X to launcher!", errorCode);
-			break;
-		case 2:
-			sprintf(tempBuf, "Game sent NESiCA IOErrorCredit error code to %08X to launcher!", errorCode);
-			break;
+	case 0:
+		sprintf(tempBuf, "Game sent NESiCA GameResult error code to %08X to launcher!", errorCode);
+		break;
+	case 1:
+		sprintf(tempBuf, "Game sent NESiCA IOErrorCoin error code to %08X to launcher!", errorCode);
+		break;
+	case 2:
+		sprintf(tempBuf, "Game sent NESiCA IOErrorCredit error code to %08X to launcher!", errorCode);
+		break;
 	}
 	MessageBoxA(0, tempBuf, "NESiCA ERROR!", 0);
 }
@@ -146,7 +154,7 @@ LSTATUS __stdcall RegSetValueExAWrap(
 	LPCSTR     lpValueName,
 	DWORD      Reserved,
 	DWORD      dwType,
-	CONST BYTE *lpData,
+	CONST BYTE* lpData,
 	DWORD      cbData
 )
 {
@@ -155,7 +163,7 @@ LSTATUS __stdcall RegSetValueExAWrap(
 	{
 		if (stricmp(lpValueName, "GameResult") == 0)
 		{
-			GameResult = *(DWORD *)lpData;
+			GameResult = *(DWORD*)lpData;
 			if (GameResult != 0)
 			{
 				PromptError(GameResult, 0);
@@ -163,7 +171,7 @@ LSTATUS __stdcall RegSetValueExAWrap(
 		}
 		else if (stricmp(lpValueName, "IOErrorCoin") == 0)
 		{
-			IOErrorCoin = *(DWORD *)lpData;;
+			IOErrorCoin = *(DWORD*)lpData;;
 			if (IOErrorCoin != 0)
 			{
 				PromptError(IOErrorCoin, 1);
@@ -171,7 +179,7 @@ LSTATUS __stdcall RegSetValueExAWrap(
 		}
 		else if (stricmp(lpValueName, "IOErrorCredit") == 0)
 		{
-			IOErrorCredit = *(DWORD *)lpData;;
+			IOErrorCredit = *(DWORD*)lpData;;
 			if (IOErrorCredit != 0)
 			{
 				PromptError(IOErrorCredit, 2);
@@ -203,33 +211,33 @@ LSTATUS __stdcall RegSetValueExWWrap(
 	LPCWSTR     lpValueName,
 	DWORD      Reserved,
 	DWORD      dwType,
-	CONST BYTE *lpData,
+	CONST BYTE* lpData,
 	DWORD      cbData
 )
 {
 	// These are for the NESiCA Launcher and no need to handle them in any way!
-	if(hKey == (HKEY)0x8101)
+	if (hKey == (HKEY)0x8101)
 	{
 		if (wcsicmp(lpValueName, L"GameResult") == 0)
 		{
-			GameResult = *(DWORD *)lpData;
-			if(GameResult != 0)
+			GameResult = *(DWORD*)lpData;
+			if (GameResult != 0)
 			{
 				PromptError(GameResult, 0);
 			}
 		}
-		else if(wcsicmp(lpValueName, L"IOErrorCoin") == 0)
+		else if (wcsicmp(lpValueName, L"IOErrorCoin") == 0)
 		{
-			IOErrorCoin = *(DWORD *)lpData;;
-			if(IOErrorCoin != 0)
+			IOErrorCoin = *(DWORD*)lpData;;
+			if (IOErrorCoin != 0)
 			{
 				PromptError(IOErrorCoin, 1);
 			}
 		}
 		else if (wcsicmp(lpValueName, L"IOErrorCredit") == 0)
 		{
-			IOErrorCredit = *(DWORD *)lpData;;
-			if(IOErrorCredit != 0)
+			IOErrorCredit = *(DWORD*)lpData;;
+			if (IOErrorCredit != 0)
 			{
 				PromptError(IOErrorCredit, 2);
 			}
@@ -246,7 +254,7 @@ LSTATUS __stdcall RegSetValueExWWrap(
 		return ERROR_SUCCESS;
 	}
 
-	if(hKey == (HKEY)0x8102)
+	if (hKey == (HKEY)0x8102)
 	{
 		MessageBoxA(0, "RegSetValueExW for TYPEX, Please contact devs!", "Error unhandled registry change", 0);
 		return ERROR_FILE_NOT_FOUND;
@@ -320,7 +328,7 @@ LSTATUS __stdcall RegQueryValueExAWrap(
 		}
 		else if (stricmp(lpValueName, "Country") == 0) // REG_DWORD
 		{
-			*(DWORD *)lpData = FillDwordInformation("TYPEX", "Country", 1); // UNK
+			*(DWORD*)lpData = FillDwordInformation("TYPEX", "Country", 1); // UNK
 			*lpcbData = 1;
 		}
 		else
@@ -381,8 +389,64 @@ LSTATUS __stdcall RegQueryValueExAWrap(
 		}
 		else if (stricmp(lpValueName, "SystemType") == 0) // REG_DWORD
 		{
-			*lpData = FillDwordInformation("NESiCA", "SystemType", SystemType);; // UNK
+			*lpData = FillDwordInformation("NESiCA", "SystemType", SystemType); // UNK
 			*lpcbData = 4;
+		}
+		else if (stricmp(lpValueName, "ConditionTime") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "ConditionTime", 300); // UNK
+			*lpcbData = 4;
+		}
+		else if (stricmp(lpValueName, "EventNextTime") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "EventNextTime", 900); // UNK
+			*lpcbData = 4;
+		}
+		else if (stricmp(lpValueName, "EventPath") == 0) // REG_SZ
+		{
+			// TODO
+			return ERROR_FILE_NOT_FOUND;
+		}
+		else if (stricmp(lpValueName, "GameKind") == 0) // REG_DWORD
+		{
+			// TODO: ADD EACH AND EVERY SINGLE TYPE X GAMEKIND HERE!
+			*lpData = FillDwordInformation("NESiCA", "GameKind", 1234); // UNK
+			*lpcbData = 4;
+		}
+		else if (stricmp(lpValueName, "LogLevel") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "LogLevel", 0); // UNK
+			*lpcbData = 4;
+		}
+		else if (stricmp(lpValueName, "LogPath") == 0) // REG_SZ
+		{
+			// TODO
+			return ERROR_FILE_NOT_FOUND;
+		}
+		else if (stricmp(lpValueName, "NewsPath") == 0) // REG_SZ
+		{
+			// TODO
+			return ERROR_FILE_NOT_FOUND;
+		}
+		else if (stricmp(lpValueName, "TrafficCount") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "TrafficCount", 2); // UNK
+			*lpcbData = 4;
+		}
+		else if (stricmp(lpValueName, "UpdateStep") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "UpdateStep", 0); // UNK
+			*lpcbData = 4;
+		}
+		else if (stricmp(lpValueName, "Country") == 0) // REG_DWORD
+		{
+			*(DWORD*)lpData = FillDwordInformation("NESiCA", "Country", 1); // UNK
+			*lpcbData = 1;
+		}
+		else if (stricmp(lpValueName, "AppVer") == 0) // REG_DWORD
+		{
+			*(DWORD*)lpData = FillDwordInformation("NESiCA", "AppVer", 1); // UNK
+			*lpcbData = 1;
 		}
 		else
 		{
@@ -460,7 +524,7 @@ LSTATUS __stdcall RegQueryValueExWWrap(
 		}
 		else if (wcsicmp(lpValueName, L"Country") == 0) // REG_DWORD
 		{
-			*(DWORD *)lpData = FillDwordInformation("TYPEX", "Country", 0); // UNK
+			*(DWORD*)lpData = FillDwordInformation("TYPEX", "Country", 0); // UNK
 			*lpcbData = 4;
 		}
 		else
@@ -472,14 +536,14 @@ LSTATUS __stdcall RegQueryValueExWWrap(
 	}
 
 	// SOFTWARE\\TAITO\\NESiCAxLive
-	if(hKey == (HKEY)0x8101)
+	if (hKey == (HKEY)0x8101)
 	{
 		if (lpData == nullptr)
 		{
 			*lpcbData = 4;
 			return ERROR_MORE_DATA;
 		}
-		if(wcsicmp(lpValueName, L"CoinCredit") == 0) // REG_DWORD
+		if (wcsicmp(lpValueName, L"CoinCredit") == 0) // REG_DWORD
 		{
 			*lpData = FillDwordInformation("NESiCA", "CoinCredit", 0); // 0 = FREE PLAY
 			*lpcbData = 4;
@@ -524,6 +588,62 @@ LSTATUS __stdcall RegQueryValueExWWrap(
 			*lpData = FillDwordInformation("NESiCA", "SystemType", SystemType);; // UNK
 			*lpcbData = 4;
 		}
+		else if (wcsicmp(lpValueName, L"ConditionTime") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "ConditionTime", 300); // UNK
+			*lpcbData = 4;
+		}
+		else if (wcsicmp(lpValueName, L"EventNextTime") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "EventNextTime", 900); // UNK
+			*lpcbData = 4;
+		}
+		else if (wcsicmp(lpValueName, L"EventPath") == 0) // REG_SZ
+		{
+			// TODO
+			return ERROR_FILE_NOT_FOUND;
+		}
+		else if (wcsicmp(lpValueName, L"GameKind") == 0) // REG_DWORD
+		{
+			// TODO: ADD EACH AND EVERY SINGLE TYPE X GAMEKIND HERE!
+			*lpData = FillDwordInformation("NESiCA", "GameKind", 1234); // UNK
+			*lpcbData = 4;
+		}
+		else if (wcsicmp(lpValueName, L"LogLevel") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "LogLevel", 0); // UNK
+			*lpcbData = 4;
+		}
+		else if (wcsicmp(lpValueName, L"LogPath") == 0) // REG_SZ
+		{
+			// TODO
+			return ERROR_FILE_NOT_FOUND;
+		}
+		else if (wcsicmp(lpValueName, L"NewsPath") == 0) // REG_SZ
+		{
+			// TODO
+			return ERROR_FILE_NOT_FOUND;
+		}
+		else if (wcsicmp(lpValueName, L"TrafficCount") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "TrafficCount", 2); // UNK
+			*lpcbData = 4;
+		}
+		else if (wcsicmp(lpValueName, L"UpdateStep") == 0) // REG_DWORD
+		{
+			*lpData = FillDwordInformation("NESiCA", "UpdateStep", 0); // UNK
+			*lpcbData = 4;
+		}
+		else if (wcsicmp(lpValueName, L"Country") == 0) // REG_DWORD
+		{
+			*(DWORD*)lpData = FillDwordInformation("NESiCA", "Country", 1); // UNK
+			*lpcbData = 4;
+		}
+		else if (wcsicmp(lpValueName, L"AppVer") == 0) // REG_DWORD
+		{
+			*(DWORD*)lpData = FillDwordInformation("NESiCA", "Appver", 1); // UNK
+			*lpcbData = 4;
+		}
 		else
 		{
 			MessageBoxA(0, "UNKNOWN REG QUERY FROM SOFTWARE\\TAITO\\NESiCAxLive, contact devs!", "Error", 0);
@@ -547,7 +667,7 @@ LSTATUS __stdcall RegCloseKeyWrap(
 }
 
 void init_RegHooks()
-{
+{ 
 	// ASCII
 	iatHook("advapi32.dll", RegCreateKeyExAWrap, "RegCreateKeyExA");
 	iatHook("advapi32.dll", RegOpenKeyExAWrap, "RegOpenKeyExA");

@@ -6,6 +6,9 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
+static const char* EnterYourName = ("ENTER YOUR NAME!");
+static const char* HighScoreName = ("PLAYER BEST TIMES");
+
 typedef unsigned int U32;
 typedef unsigned char U8;
 
@@ -13,10 +16,18 @@ DWORD BaseAddress10 = 0x00400000;
 HWND hWndRT10 = 0;
 
 static bool button1pressed = false;
+static bool button1pressed2 = false;
 static bool button2pressed = false;
 static bool button3pressed = false;
 static bool button4pressed = false;
+static bool button5pressed = false;
+static bool button6pressed = false;
 static bool STARTpressed = false;
+static bool STARTpressed2 = false;
+static bool NameChoosing = false;
+static bool NameViewButton = false;
+static int ViewCount;
+static int View2Count;
 
 // controls
 extern int* ffbOffset;
@@ -39,11 +50,48 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 
 	while (true)
 	{
-
 		// ESCAPE QUITS GAME 
 		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
 		{
 			exit(0);
+		}
+
+		// FIX FOR NAME CHOOSING
+		if (strcmp((char*)0x3CB4F8 + BaseAddress10, EnterYourName) == 0 || strcmp((char*)0x3CB4FE + BaseAddress10, HighScoreName) == 0 || strcmp((char*)0x3CB4FF + BaseAddress10, HighScoreName) == 0)
+			NameChoosing = true;
+		else
+			NameChoosing = false;
+
+		BYTE ViewName = *(BYTE*)(0x398CB8 + BaseAddress10);
+
+		if (NameChoosing && NameViewButton)
+		{
+			if (ViewName)
+			{
+				++ViewCount;
+				if (ViewCount == 2)
+				{
+					injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true);
+					ViewCount = 0;
+				}
+
+			}
+			else
+				if (ViewCount > 0)
+					ViewCount = 0;
+		}
+
+		if (*ffbOffset & 0x200)
+		{
+			if (!NameChoosing && !ViewName)
+			{
+				++View2Count;
+				if (View2Count == 2)
+				{
+					injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true);
+					View2Count = 0;
+				}
+			}
 		}
 
 		// REAL NUMERIC KEYPAD
@@ -87,6 +135,15 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 0, true);
 				STARTpressed = true;
 			}
+			else
+			{
+				if (NameChoosing && !STARTpressed2)
+				{
+					injector::WriteMemory<INT32>((0x398CB0 + BaseAddress10), 0, true);
+					injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 1, true);
+					STARTpressed2 = true;
+				}
+			}
 		}
 		else
 		{
@@ -95,6 +152,7 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				injector::WriteMemory<INT32>((0x398CB0 + BaseAddress10), 0, true);
 				injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 1, true);
 				STARTpressed = false;
+				STARTpressed2 = false;
 			}
 		}
 
@@ -107,6 +165,15 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 0, true);
 				button1pressed = true;
 			}
+			else
+			{
+				if (NameChoosing && !button1pressed2)
+				{
+					injector::WriteMemory<INT32>((0x398CB0 + BaseAddress10), 0, true);
+					injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 1, true);
+					button1pressed2 = true;
+				}
+			}
 		}
 		else
 		{
@@ -115,6 +182,7 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				injector::WriteMemory<INT32>((0x398CB0 + BaseAddress10), 0, true);
 				injector::WriteMemory<INT32>((0x398CB4 + BaseAddress10), 1, true);
 				button1pressed = false;
+				button1pressed2 = false;
 			}
 		}
 		
@@ -124,13 +192,18 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button2pressed == false)
 			{
-			//	injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true);
 				injector::WriteMemory<INT32>((0x398CBC + BaseAddress10), 1, true);
 				button2pressed = true;
 
 				if (0 != ptr)
 				{
 					injector::WriteMemory<INT32>((ptr + 0x840), 1, true);
+				}
+
+				if (NameChoosing && !NameViewButton)
+				{
+					NameViewButton = true;
+					injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true);
 				}
 			}
 			else if (button2pressed == true)
@@ -142,7 +215,6 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button2pressed == true)
 			{
-			//	injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true);
 				injector::WriteMemory<INT32>((0x398CBC + BaseAddress10), 0, true);
 				button2pressed = false;
 
@@ -150,6 +222,14 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 				{
 					injector::WriteMemory<INT32>((ptr + 0x840), 0, true);
 				}
+
+				if (NameViewButton)
+				{
+					NameViewButton = false;
+				}
+
+				if (!NameChoosing && ViewName)
+					injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true);
 			}
 		}
 
@@ -175,7 +255,6 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button4pressed == false)
 			{
-				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 1, true); // MENU COUNTDOWN HACK
 				keybd_event(0x2D, MapVirtualKey(0x2D, MAPVK_VK_TO_VSC), 0, 0);
 				button4pressed = true;
 			}
@@ -184,9 +263,42 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 		{
 			if (button4pressed == true)
 			{
-				injector::WriteMemory<INT32>((0x398CB8 + BaseAddress10), 0, true); // MENU COUNTDOWN HACK
 				keybd_event(0x2D, MapVirtualKey(0x2D, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
 				button4pressed = false;
+			}
+		}
+		// BUTTON 5/ VOL/MENU UP
+		if (*ffbOffset & 0x10)
+		{
+			if (button5pressed == false)
+			{
+				keybd_event(0x21, MapVirtualKey(0x21, MAPVK_VK_TO_VSC), 0, 0);
+				button5pressed = true;
+			}
+		}
+		else
+		{
+			if (button5pressed == true)
+			{
+				keybd_event(0x21, MapVirtualKey(0x21, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				button5pressed = false;
+			}
+		}
+		// BUTTON 6/ VOL/MENU DOWN
+		if (*ffbOffset & 0x20)
+		{
+			if (button6pressed == false)
+			{
+				keybd_event(0x22, MapVirtualKey(0x22, MAPVK_VK_TO_VSC), 0, 0);
+				button6pressed = true;
+			}
+		}
+		else
+		{
+			if (button6pressed == true)
+			{
+				keybd_event(0x22, MapVirtualKey(0x22, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
+				button6pressed = false;
 			}
 		}
 
@@ -272,9 +384,9 @@ static InitFunction H2OverdriveFunc([]()
 		injector::WriteMemoryRaw((0x146E68 + BaseAddress10), "\x6A\x2E", 2, true);
 		//SERVICE REMAP to INSERT
 		injector::WriteMemoryRaw((0x146EB2 + BaseAddress10), "\x6A\x2D", 2, true);
-		//VOL+- REMAP to UP/DOWN
-		injector::WriteMemoryRaw((0x146F03 + BaseAddress10), "\x6A\x26", 2, true);
-		injector::WriteMemoryRaw((0x146F54 + BaseAddress10), "\x6A\x28", 2, true);
+		//VOL+- REMAP to Page Up/Down
+		injector::WriteMemoryRaw((0x146F03 + BaseAddress10), "\x6A\x21", 2, true);
+		injector::WriteMemoryRaw((0x146F54 + BaseAddress10), "\x6A\x22", 2, true);
 		//ENABLE KEYPAD
 		injector::WriteMemoryRaw((0x186302 + BaseAddress10), "\xEB", 1, true);
 		//KEYPAD HACK
@@ -288,6 +400,36 @@ static InitFunction H2OverdriveFunc([]()
 			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART10, (void**)&original_CreateWindowExA10);
 			MH_EnableHook(MH_ALL_HOOKS);
 		}
+
+		if (ToBool(config["Network"]["Enable"]))
+		{
+			injector::MakeNOP(0xF78AE + BaseAddress10, 6); // Stop game writing to cabinet id values
+
+			int PC1 = FetchDwordInformation("Network", "Cabinet 1 IP X.X.X.???", 256);
+			int PC2 = FetchDwordInformation("Network", "Cabinet 2 IP X.X.X.???", 256);
+			int PC3 = FetchDwordInformation("Network", "Cabinet 3 IP X.X.X.???", 256);
+			int PC4 = FetchDwordInformation("Network", "Cabinet 4 IP X.X.X.???", 256);
+			int PC5 = FetchDwordInformation("Network", "Cabinet 5 IP X.X.X.???", 256);
+			int PC6 = FetchDwordInformation("Network", "Cabinet 6 IP X.X.X.???", 256);
+			int PC7 = FetchDwordInformation("Network", "Cabinet 7 IP X.X.X.???", 256);
+			int PC8 = FetchDwordInformation("Network", "Cabinet 8 IP X.X.X.???", 256);
+
+			for (int i = 0; i < 255; i++) {
+				injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + i, 0x00, true);
+			}
+
+			if (PC1 > 0 && PC1 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC1, 0x01, true);
+			if (PC2 > 0 && PC2 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC2, 0x02, true);
+			if (PC3 > 0 && PC3 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC3, 0x03, true);
+			if (PC4 > 0 && PC4 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC4, 0x04, true);
+			if (PC5 > 0 && PC5 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC5, 0x05, true);
+			if (PC6 > 0 && PC6 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC6, 0x06, true);
+			if (PC7 > 0 && PC7 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC7, 0x07, true);
+			if (PC8 > 0 && PC8 < 256) injector::WriteMemory<BYTE>((0x329728 + BaseAddress10) + PC8, 0x08, true);
+		}
+
+		injector::MakeNOP(0x1457F3 + BaseAddress10, 5); // Stop game adding certain ips if user has specific adapter
+		injector::MakeNOP(0x1457FB + BaseAddress10, 5); // Stop game adding certain ips if user has specific adapter
 
 		CreateThread(NULL, 0, InputRT10, NULL, 0, NULL);
 

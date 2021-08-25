@@ -114,6 +114,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 {
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
+		if (getenv("TP_DIRECTHOOK") != nullptr)
+		{
+			RunMain();
+			return TRUE;
+		}
 #ifdef DEVMODE
 		RunMain();
 #else

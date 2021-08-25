@@ -241,8 +241,9 @@ extern linb::ini config;
 
 static InitFunction initFunc([]()
 {
-	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::Tekken7Update00)
+	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26 || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::Tekken7Update00 || GameDetect::currentGame == GameID::SFV)
 		return;
+
 	if (ToBool(config["General"]["Windowed"]))
 	{
 		InitDXGIWindowHook();
