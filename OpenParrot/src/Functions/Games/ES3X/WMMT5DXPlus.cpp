@@ -483,7 +483,7 @@ unsigned char saveDatadxp[0x2000];
 //	return 1;
 //}
 
-unsigned __stdcall forceFT(void* pArguments)
+static DWORD WINAPI forceFT(void* pArguments)
 {
 	while (true) {
 		Sleep(16);
@@ -902,7 +902,7 @@ static void LoadWmmt5CarData()
 	}
 	if (ToBool(config["Tune"]["Force Full Tune"]))
 	{
-		_beginthreadex(0, 0, &forceFT, 0, 0, 0);
+		CreateThread(0, 0, forceFT, 0, 0, 0);
 	}
 
 	memset(carFileNamedxp, 0, 0xFF);
