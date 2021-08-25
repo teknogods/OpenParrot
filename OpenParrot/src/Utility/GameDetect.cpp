@@ -450,12 +450,6 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::WMMT5, "WMMT5");
 			break;
 		}
-		// PATCHES 10-21
-		if (*(uint32_t*)(moduleBase + 0x2F00) == 0x084AFF48)
-		{
-			SetGameId(GameID::WMMT5, "WMMT5");
-			break;
-		}
 #endif
 		// Craft CRC detection without virtual address
 		memcpy(newCrc, GetModuleHandle(nullptr), 0x400);
@@ -482,6 +476,19 @@ void GameDetect::DetectCurrentGame()
 
 				break;
 			}
+			// PATCHES 10-21 & 5DX+
+			if (*(uint32_t*)(moduleBase + 0x2F00) == 0x084AFF48)
+			{
+				if (newCrcResult == 0x1BB6F051)
+				{
+					SetGameId(GameID::WMMT5DXPlus, "WMMT5DX+");
+				}
+				else {
+					SetGameId(GameID::WMMT5, "WMMT5 Update 10-21");
+				}
+				break;
+			}
+			
 		}
 #endif
 		switch (newCrcResult)

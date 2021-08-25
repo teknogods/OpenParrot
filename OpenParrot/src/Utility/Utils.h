@@ -20,6 +20,8 @@ inline void safeJMP(injector::memory_pointer_tr at, injector::memory_pointer_raw
 	}
 }
 
+BOOL FileExists(char* szPath);
+
 uint32_t GetCRC32(const void* pData, int length);
 
 DWORD crc32buf(unsigned char *buf, size_t len);
