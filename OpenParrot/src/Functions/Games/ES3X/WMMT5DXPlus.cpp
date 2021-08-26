@@ -1448,6 +1448,9 @@ static InitFunction Wmmt5Func([]()
 		CreateThread(0, 0, Wmmt5FfbCollector, 0, 0, 0);
 		*/
 
+		// Enable all print
+		injector::MakeNOP(imageBasedxplus + 0x898BD3, 6);
+
 		//load car trigger
 		safeJMP(imageBasedxplus + 0x72AB90, loadCar);
 
