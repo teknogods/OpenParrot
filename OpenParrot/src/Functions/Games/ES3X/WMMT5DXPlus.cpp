@@ -409,6 +409,8 @@ unsigned int dxpHook_hasp_write(int hasp_handle, int hasp_fileid, unsigned int o
 
 
 unsigned char saveDatadxp[0x2000];
+unsigned char mileDatadxp[0x08];
+
 // BASE: 0x24E0 
 // Campaing honor data: 2998, save 0xB8
 // Story Mode Honor data: 25F0, save 0x98
@@ -527,6 +529,38 @@ char carFileNamedxp[0xFF];
 bool loadOkdxp = false;
 bool customCardxp = false;
 
+static void saveMileagedxp()
+{
+	
+	//Mileage Write to "GAME/mileage.dat"
+	auto mileageLocation = (uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x280);
+	//try this maybe, casting to int probably not right/not gonna work
+	FILE* tempFile = fopen("mileage.dat", "wb");
+	fwrite(mileageLocation, 1, sizeof(mileageLocation), tempFile);
+	fclose(tempFile);
+}
+
+static void LoadMileagedxp()
+{
+	
+	memset(mileDatadxp, 0, 0x08);
+	FILE* miles = fopen("mileage.dat", "rb");
+	if (miles)
+	{
+		fseek(miles, 0, SEEK_END);
+		int mileSize = ftell(miles);
+		if (mileSize == 0x08)
+		{
+			fseek(miles, 0, SEEK_SET);
+			fread(mileDatadxp, mileSize, 1, miles);
+			uintptr_t mileMemory = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+			memcpy((void*)(mileMemory + 0x280), mileDatadxp + 0x00, 0x04);
+			fclose(miles);
+		}
+	}
+}
+
+
 static int SaveGameData()
 {
 	if (!saveOk)
@@ -558,6 +592,8 @@ static int SaveGameData()
 	FILE* file = fopen(carFileNamedxp, "wb");
 	fwrite(carDatadxp, 1, 0xFF, file);
 	fclose(file);
+
+	saveMileagedxp();
 
 	saveOk = false;
 	return 1;
@@ -862,6 +898,8 @@ static void LoadWmmt5CarData()
 	memset(carDatadxp, 0, 0xFF);
 	memset(carFileNamedxp, 0, 0xFF);
 	CreateDirectoryA("OpenParrot_Cars", nullptr);
+
+	LoadMileagedxp();
 
 	// check for custom car
 	sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\custom.car");
