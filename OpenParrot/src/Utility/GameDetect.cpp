@@ -616,6 +616,12 @@ void GameDetect::DetectCurrentGame()
 		case 0x79fa2f58: // Umihara KawaseFresh!ForAC
 			SetGameId(GameID::Umifresh, "Umihara KawaseFresh! For AC");
 			break;
+		case 0x1ff0b15b: // Rolling Gunner 2.0
+			SetGameId(GameID::RollingGunner20, "Rolling Gunner 2.0");
+			break;
+		case 0x3c367b7b: // Rolling Gunner 2.1
+			SetGameId(GameID::RollingGunner21, "Rolling Gunner 2.1");
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:

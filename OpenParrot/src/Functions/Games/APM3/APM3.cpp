@@ -388,12 +388,14 @@ DWORD_PTR CALLPLEB NetworkProperty_getAddressValue()
 	return NetworkProperty_getAddressValueReturnValue;
 }
 
-DWORD_PTR CALLPLEB System_getAppRootPath()
+static char* gameDir = ".\\";
+
+char *CALLPLEB System_getAppRootPath()
 {
 #ifdef _LOGAPM3
 	info(true, "System_getAppRootPath");
 #endif
-	return System_getAppRootPathReturnValue;
+	return gameDir;
 }
 
 struct StandardSerialID
@@ -1020,4 +1022,32 @@ static InitFunction initFuncUmifresh02([]()
 		injector::WriteMemory<BYTE>(mainModuleBase + 0x1806BF, 0xEB, true); // Skip some credit check idfk
 
 	}, GameID::Umifresh);
+
+static int __stdcall ValidateDongle(int somearg)
+{
+	return 0;
+}
+
+static InitFunction initFuncRollingGunner20([]()
+	{
+		HookAPM3();
+		wcscpy(APM3GameId, L"SDGW");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+		// I am crazy and not care about serial check
+		injector::MakeJMP(mainModuleBase + 0xB6290, ValidateDongle);
+
+	}, GameID::RollingGunner20);
+static InitFunction initFuncRollingGunner21([]()
+	{
+		HookAPM3();
+		wcscpy(APM3GameId, L"SDGW");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+		// I am crazy and not care about serial check
+		injector::MakeJMP(mainModuleBase + 0xB6140, ValidateDongle);
+
+	}, GameID::RollingGunner21);
 #endif

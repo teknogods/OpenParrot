@@ -114,5 +114,7 @@ enum class GameID
 	Doa6Test,
 	WMMT5DXPlus,
 	GGS,
-	Umifresh
+	Umifresh,
+	RollingGunner20,
+	RollingGunner21
 };
