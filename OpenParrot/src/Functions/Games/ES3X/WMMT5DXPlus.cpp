@@ -483,6 +483,15 @@ unsigned char saveDatadxp[0x2000];
 //	return 1;
 //}
 
+//set system date patch by pockywitch
+typedef bool (WINAPI* SETSYSTEMTIME)(SYSTEMTIME* in);
+SETSYSTEMTIME pSetSystemTime = NULL;
+
+bool WINAPI Hook_SetSystemTime(SYSTEMTIME* in)
+{
+	return TRUE;
+}
+
 static DWORD WINAPI forceFT(void* pArguments)
 {
 	while (true) {
@@ -1237,6 +1246,10 @@ static InitFunction Wmmt5Func([]()
 
 	GenerateDongleDataDxp(isTerminal);
 
+
+	//prevents game from setting time, thanks pockywitch!
+	MH_CreateHookApi(L"KERNEL32", "SetSystemTime", Hook_SetSystemTime, reinterpret_cast<LPVOID*>(&pSetSystemTime));
+
 	// Patch some check TEMP DISABLE AS WELL OVER HERE
 	// 0F 94 C0 84 C0 0F 94 C0 84 C0 75 05 45 32 E4 EB 03 41 B4 01
 	// FOUND ON 21, 10
@@ -1455,6 +1468,8 @@ static InitFunction Wmmt5Func([]()
 		injector::WriteMemory<WORD>(imageBasedxplus + 0x6B909A, 0xB848, true);
 		injector::WriteMemory<uintptr_t>(imageBasedxplus + 0x6B909A + 2, (uintptr_t)SaveOk, true);
 		injector::WriteMemory<DWORD>(imageBasedxplus + 0x6B90A4, 0x9090D0FF, true);
+
+
 	}
 
 	MH_EnableHook(MH_ALL_HOOKS);
