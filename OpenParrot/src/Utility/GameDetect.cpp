@@ -697,6 +697,7 @@ void GameDetect::DetectCurrentGame()
 			break;
 		case 0xd0a6afbd: // GGS
 			SetGameId(GameID::GGS, "Guilty Gear Strive");
+			break;
 #endif
 		default:
 #ifdef _DEBUG
