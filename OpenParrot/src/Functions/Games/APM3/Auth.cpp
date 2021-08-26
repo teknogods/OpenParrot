@@ -1,7 +1,6 @@
 #include <Utility/InitFunction.h>
 #include <StdInc.h>
 #include <thread>
-#ifdef _M_AMD64
 #include "Functions\Global.h"
 #include "Auth.h"
 
@@ -12,8 +11,8 @@ wchar_t LocationName[64];
 wchar_t LinkServerName[64];
 wchar_t ServerName[64];
 
-
-__int64 __fastcall AllnetAccounting_beginPlay(unsigned int a1)
+#define _LOGAPM3AUTH 1
+DWORD_PTR CALLPLEB AllnetAccounting_beginPlay(unsigned int a1)
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAccounting_beginPlay");
@@ -21,7 +20,7 @@ __int64 __fastcall AllnetAccounting_beginPlay(unsigned int a1)
 	return AllnetAccounting_beginPlayReturnValue;
 }
 
-__int64 __fastcall AllnetAccounting_endPlay(int a1, int a2, int a3)
+DWORD_PTR CALLPLEB AllnetAccounting_endPlay(int a1, int a2, int a3)
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAccounting_endPlay");
@@ -29,7 +28,7 @@ __int64 __fastcall AllnetAccounting_endPlay(int a1, int a2, int a3)
 	return AllnetAccounting_endPlayReturnValue;
 }
 
-wchar_t* AllnetAuth_getAbaasGsServerName()
+wchar_t* CALLPLEB AllnetAuth_getAbaasGsServerName()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getAbaasGsServerName");
@@ -37,7 +36,7 @@ wchar_t* AllnetAuth_getAbaasGsServerName()
 	return ServerName;
 }
 
-wchar_t* AllnetAuth_getAbaasLinkServerName()
+wchar_t* CALLPLEB AllnetAuth_getAbaasLinkServerName()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getAbaasLinkServerName");
@@ -47,7 +46,7 @@ wchar_t* AllnetAuth_getAbaasLinkServerName()
 
 char countryCode[4] = "JPN";
 
-char *AllnetAuth_getCountryCode()
+char * CALLPLEB AllnetAuth_getCountryCode()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getCountryCode");
@@ -55,7 +54,7 @@ char *AllnetAuth_getCountryCode()
 	return countryCode;
 }
 
-unsigned int AllnetAuth_getLocationId()
+unsigned int CALLPLEB AllnetAuth_getLocationId()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getLocationId");
@@ -63,7 +62,7 @@ unsigned int AllnetAuth_getLocationId()
 	return AllnetAuth_getLocationIdReturnValue;
 }
 
-wchar_t* AllnetAuth_getLocationName()
+wchar_t* CALLPLEB AllnetAuth_getLocationName()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getLocationName");
@@ -71,7 +70,7 @@ wchar_t* AllnetAuth_getLocationName()
 	return LocationName;
 }
 
-wchar_t* __fastcall AllnetAuth_getLocationNickname(int index)
+wchar_t* CALLPLEB AllnetAuth_getLocationNickname(int index)
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getLocationNickname");
@@ -79,7 +78,7 @@ wchar_t* __fastcall AllnetAuth_getLocationNickname(int index)
 	return LocationNickName;
 }
 
-int AllnetAuth_getLocationNicknamePartCount()
+int CALLPLEB AllnetAuth_getLocationNicknamePartCount()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getLocationNicknamePartCount");
@@ -87,7 +86,7 @@ int AllnetAuth_getLocationNicknamePartCount()
 	return AllnetAuth_getLocationNicknamePartCountReturnValue;
 }
 
-int AllnetAuth_getRegionCode()
+int CALLPLEB AllnetAuth_getRegionCode()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getRegionCode");
@@ -95,7 +94,7 @@ int AllnetAuth_getRegionCode()
 	return AllnetAuth_getRegionCodeReturnValue;
 }
 
-wchar_t* __fastcall AllnetAuth_getRegionName(int index)
+wchar_t* CALLPLEB AllnetAuth_getRegionName(int index)
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getRegionName");
@@ -103,7 +102,7 @@ wchar_t* __fastcall AllnetAuth_getRegionName(int index)
 	return RegionName;
 }
 
-int AllnetAuth_getRegionNamePartCount()
+int CALLPLEB AllnetAuth_getRegionNamePartCount()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getRegionNamePartCount");
@@ -111,7 +110,7 @@ int AllnetAuth_getRegionNamePartCount()
 	return AllnetAuth_getRegionNamePartCountReturnValue;
 }
 
-bool AllnetAuth_isDevelop()
+bool CALLPLEB AllnetAuth_isDevelop()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_isDevelop");
@@ -119,11 +118,10 @@ bool AllnetAuth_isDevelop()
 	return AllnetAuth_isDevelopReturnValue;
 }
 
-bool AllnetAuth_isGood()
+bool CALLPLEB AllnetAuth_isGood()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_isGood");
 #endif
 	return true;
 }
-#endif

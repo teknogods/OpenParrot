@@ -1,11 +1,10 @@
 #include <Utility/InitFunction.h>
 #include <StdInc.h>
 #include <thread>
-#ifdef _M_AMD64
 #include "Functions\Global.h"
 #include "Sequence.h"
-
-bool __fastcall Sequence_beginPlay(SequenceAccountingBegin beginPlay, unsigned int uid, SEQUENCE_PLAY_ERROR_ID* errorID, unsigned long count)
+#define _LOGAPM3SEQUENCE 1
+bool CALLPLEB Sequence_beginPlay(SequenceAccountingBegin beginPlay, unsigned int uid, SEQUENCE_PLAY_ERROR_ID* errorID, unsigned long count)
 {
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_beginPlay");
@@ -13,7 +12,7 @@ bool __fastcall Sequence_beginPlay(SequenceAccountingBegin beginPlay, unsigned i
 	return Sequence_beginPlayReturnValue;
 }
 
-bool Sequence_clearBackup()
+bool CALLPLEB Sequence_clearBackup()
 {
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_clearBackup");
@@ -21,7 +20,7 @@ bool Sequence_clearBackup()
 	return Sequence_clearBackupReturnValue;
 }
 
-bool __fastcall Sequence_continuePlay(SequenceAccountingBegin beginPlay, SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorId, unsigned long count)
+bool CALLPLEB Sequence_continuePlay(SequenceAccountingBegin beginPlay, SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorId, unsigned long count)
 {
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_continuePlay");
@@ -29,7 +28,7 @@ bool __fastcall Sequence_continuePlay(SequenceAccountingBegin beginPlay, Sequenc
 	return Sequence_continuePlayReturnValue;
 }
 
-bool __fastcall Sequence_endPlay(SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorID)
+bool CALLPLEB Sequence_endPlay(SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorID)
 {
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_endPlay");
@@ -37,7 +36,7 @@ bool __fastcall Sequence_endPlay(SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ER
 	return Sequence_endPlayReturnValue;
 }
 
-SequenceBookkeeping* Sequence_getBookkeeping()
+SequenceBookkeeping* CALLPLEB Sequence_getBookkeeping()
 {
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_getBookkeeping");
@@ -51,7 +50,7 @@ SequenceBookkeeping* Sequence_getBookkeeping()
 	return _sequenceBookkeeping;
 }
 
-unsigned int Sequence_getPlayingAimeId()
+unsigned int CALLPLEB Sequence_getPlayingAimeId()
 {
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_getPlayingAimeId");
@@ -59,7 +58,7 @@ unsigned int Sequence_getPlayingAimeId()
 	return Sequence_getPlayingAimeIdReturnValue;
 }
 
-bool Sequence_isAccountingPlaying()
+bool CALLPLEB Sequence_isAccountingPlaying()
 {
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_isAccountingPlaying");
@@ -67,7 +66,7 @@ bool Sequence_isAccountingPlaying()
 	return Sequence_isAccountingPlayingReturnValue;
 }
 
-bool Sequence_isPlaying()
+bool CALLPLEB Sequence_isPlaying()
 {
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_isPlaying");
@@ -75,11 +74,10 @@ bool Sequence_isPlaying()
 	return Sequence_isPlayingReturnValue;
 }
 
-bool Sequence_isTest()
+bool CALLPLEB Sequence_isTest()
 {
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_isTest");
 #endif
 	return Sequence_isTestReturnValue;
 }
-#endif

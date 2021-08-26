@@ -1,16 +1,15 @@
 #include <Utility/InitFunction.h>
 #include <StdInc.h>
 #include <thread>
-#ifdef _M_AMD64
 #include "Functions\Global.h"
 #include "Backup.h"
-
+#define _LOGAPM3BACKUP 1
 char* BackupSaveFileName = "save";
 char fileBuffer[256];
 BackupRecord* internal_Records;
 unsigned int internal_recordCount;
 
-BackupRecordStatus __fastcall Backup_getRecordStatus(__int64 recordIndex)
+BackupRecordStatus CALLPLEB Backup_getRecordStatus(DWORD_PTR recordIndex)
 {
 #ifdef _LOGAPM3BACKUP
 	info(true, "Backup_getRecordStatus %llx", recordIndex);
@@ -18,7 +17,7 @@ BackupRecordStatus __fastcall Backup_getRecordStatus(__int64 recordIndex)
 	return BackupRecordStatus::BackupRecordStatus_Valid;
 }
 
-bool Backup_isSetupSucceeded()
+bool CALLPLEB Backup_isSetupSucceeded()
 {
 #ifdef _LOGAPM3BACKUP
 	info(true, "Backup_isSetupSucceeded");
@@ -26,7 +25,7 @@ bool Backup_isSetupSucceeded()
 	return Backup_isSetupSucceededReturnValue;
 }
 
-bool __fastcall Backup_saveRecord(unsigned long recordIndex)
+bool CALLPLEB Backup_saveRecord(unsigned long recordIndex)
 {
 #ifdef _LOGAPM3BACKUP
 	info(true, "Backup_saveRecord recordIndex: %llx", recordIndex);
@@ -42,7 +41,7 @@ bool __fastcall Backup_saveRecord(unsigned long recordIndex)
 	return Backup_saveRecordReturnValue;
 }
 
-__int64 __fastcall Backup_saveRecordByAddress(__int64 recordAddress)
+DWORD_PTR CALLPLEB Backup_saveRecordByAddress(DWORD_PTR recordAddress)
 {
 #ifdef _LOGAPM3BACKUP
 	info(true, "Backup_saveRecordByAddress %llx", recordAddress);
@@ -54,7 +53,7 @@ __int64 __fastcall Backup_saveRecordByAddress(__int64 recordAddress)
 
 
 //__int64 __fastcall Backup_setupRecords(__int128* a1, unsigned int a2)
-bool __fastcall Backup_setupRecords(BackupRecord* records, unsigned int recordCount)
+bool CALLPLEB Backup_setupRecords(BackupRecord* records, unsigned int recordCount)
 {
 	for (int i = 0; i < recordCount; i++)
 	{
@@ -86,4 +85,3 @@ bool __fastcall Backup_setupRecords(BackupRecord* records, unsigned int recordCo
 	}
 	return true;
 }
-#endif

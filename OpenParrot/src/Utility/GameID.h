@@ -113,5 +113,6 @@ enum class GameID
 	Doa6FM14,
 	Doa6Test,
 	WMMT5DXPlus,
-	GGS
+	GGS,
+	Umifresh
 };

@@ -1,4 +1,9 @@
-#ifdef _M_AMD64
+#pragma once
+#ifdef _M_IX86
+#define CALLPLEB __stdcall
+#else
+#define CALLPLEB __fastcall
+#endif
 struct SequenceAccountingBegin
 {
 	bool AccountingBeginValid;
@@ -59,14 +64,12 @@ static bool Sequence_isPlayingReturnValue = false;
 
 static bool Sequence_isTestReturnValue = 0;
 
-bool Sequence_isTest();
-bool Sequence_isPlaying();
-bool Sequence_isAccountingPlaying();
-unsigned int Sequence_getPlayingAimeId();
-SequenceBookkeeping* Sequence_getBookkeeping();
-bool __fastcall Sequence_endPlay(SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorID);
-bool __fastcall Sequence_continuePlay(SequenceAccountingBegin beginPlay, SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorId, unsigned long count);
-bool Sequence_clearBackup();
-bool __fastcall Sequence_beginPlay(SequenceAccountingBegin beginPlay, unsigned int uid, SEQUENCE_PLAY_ERROR_ID* errorID, unsigned long count);
-
-#endif
+bool CALLPLEB Sequence_isTest();
+bool CALLPLEB Sequence_isPlaying();
+bool CALLPLEB Sequence_isAccountingPlaying();
+unsigned int CALLPLEB Sequence_getPlayingAimeId();
+SequenceBookkeeping* CALLPLEB Sequence_getBookkeeping();
+bool CALLPLEB Sequence_endPlay(SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorID);
+bool CALLPLEB Sequence_continuePlay(SequenceAccountingBegin beginPlay, SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorId, unsigned long count);
+bool CALLPLEB Sequence_clearBackup();
+bool CALLPLEB Sequence_beginPlay(SequenceAccountingBegin beginPlay, unsigned int uid, SEQUENCE_PLAY_ERROR_ID* errorID, unsigned long count);

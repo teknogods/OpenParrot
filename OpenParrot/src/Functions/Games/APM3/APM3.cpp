@@ -1,7 +1,6 @@
 #include <Utility/InitFunction.h>
 #include <StdInc.h>
 #include <thread>
-#ifdef _M_AMD64
 #include "Functions\Global.h"
 #include "APM3.h"
 #include "Aime.h"
@@ -9,9 +8,16 @@
 #include "Auth.h"
 #include "Sequence.h"
 
-static uint8_t g_APM3IOValues[256];
+// TO MAXIMIZE COMPATBILITY IN FUTURE, FEEL FREE TO USE JUST __fastcall
+#ifdef _M_IX86
+#define CALLPLEB __stdcall
+#else
+#define CALLPLEB __fastcall
+#endif
 
-bool __fastcall ApmSystemSetting_getAdvertizeSound(bool *enable)
+static uint8_t g_APM3IOValues[256];
+#define _LOGAPM3 1
+bool CALLPLEB ApmSystemSetting_getAdvertizeSound(bool *enable)
 {
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getAdvertizeSound");
@@ -20,7 +26,7 @@ bool __fastcall ApmSystemSetting_getAdvertizeSound(bool *enable)
 	return ApmSystemSetting_getAdvertizeSoundReturnValue;
 }
 
-bool __fastcall ApmSystemSetting_getClosingTimes(__int64 *closingTimes)
+bool CALLPLEB ApmSystemSetting_getClosingTimes(DWORD_PTR*closingTimes)
 {
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getClosingTimes");
@@ -29,7 +35,7 @@ bool __fastcall ApmSystemSetting_getClosingTimes(__int64 *closingTimes)
 	return ApmSystemSetting_getClosingTimesReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getEmoneySetting(__int64 a1)
+char CALLPLEB ApmSystemSetting_getEmoneySetting(DWORD_PTR a1)
 {
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getEmoneySetting");
@@ -37,7 +43,7 @@ char __fastcall ApmSystemSetting_getEmoneySetting(__int64 a1)
 	return ApmSystemSetting_getEmoneySettingReturnValue;
 }
 
-bool __fastcall ApmSystemSetting_getFixedTitle(bool *enable)
+bool CALLPLEB ApmSystemSetting_getFixedTitle(bool *enable)
 {
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getFixedTitle");
@@ -46,7 +52,7 @@ bool __fastcall ApmSystemSetting_getFixedTitle(bool *enable)
 	return ApmSystemSetting_getFixedTitleReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getGamePadSetting(WORD* a1)
+char CALLPLEB ApmSystemSetting_getGamePadSetting(WORD* a1)
 {
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getGamePadSetting");
@@ -60,7 +66,7 @@ struct MatchingGroup
 	char number[1];
 };
 
-bool __fastcall ApmSystemSetting_getMatchingGroup(MatchingGroup* matchingGroup)
+bool CALLPLEB ApmSystemSetting_getMatchingGroup(MatchingGroup* matchingGroup)
 {
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getMatchingGroup");
@@ -68,7 +74,7 @@ bool __fastcall ApmSystemSetting_getMatchingGroup(MatchingGroup* matchingGroup)
 	return ApmSystemSetting_getMatchingGroupReturnValue;
 }
 
-bool __fastcall ApmSystemSetting_getTimeToClosingTime(unsigned int* seconds)
+bool CALLPLEB ApmSystemSetting_getTimeToClosingTime(unsigned int* seconds)
 {
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getTimeToClosingTime");
@@ -77,7 +83,7 @@ bool __fastcall ApmSystemSetting_getTimeToClosingTime(unsigned int* seconds)
 	return ApmSystemSetting_getTimeToClosingTimeReturnValue;
 }
 
-char __fastcall ApmSystemSetting_getUiSetting(__int64 a1)
+char CALLPLEB ApmSystemSetting_getUiSetting(DWORD_PTR a1)
 {
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getUiSetting");
@@ -85,14 +91,14 @@ char __fastcall ApmSystemSetting_getUiSetting(__int64 a1)
 	return ApmSystemSetting_getUiSettingReturnValue;
 }
 
-void Core_execute()
+void CALLPLEB Core_execute()
 {
 #ifdef _LOGAPM3
 	info(true, "Core_execute");
 #endif
 }
 
-bool __fastcall Core_exitGame(bool isTest)
+bool CALLPLEB Core_exitGame(bool isTest)
 {
 #ifdef _LOGAPM3
 	info(true, "Core_exitGame");
@@ -100,7 +106,7 @@ bool __fastcall Core_exitGame(bool isTest)
 	return Core_exitGameReturnValue;
 }
 
-__int64 Core_hookException()
+DWORD_PTR CALLPLEB Core_hookException()
 {
 #ifdef _LOGAPM3
 	info(true, "Core_hookException");
@@ -108,7 +114,7 @@ __int64 Core_hookException()
 	return Core_hookExceptionReturnValue;
 }
 
-bool Core_isExitNeeded()
+bool CALLPLEB Core_isExitNeeded()
 {
 #ifdef _LOGAPM3
 	info(true, "Core_isExitNeeded");
@@ -116,14 +122,14 @@ bool Core_isExitNeeded()
 	return Core_isExitNeededReturnValue;
 }
 
-void Core_resetCount()
+void CALLPLEB Core_resetCount()
 {
 #ifdef _LOGAPM3
 	info(true, "Core_resetCount");
 #endif
 }
 
-__int64 Core_resetException()
+DWORD_PTR CALLPLEB Core_resetException()
 {
 #ifdef _LOGAPM3
 	info(true, "Core_resetException");
@@ -131,7 +137,7 @@ __int64 Core_resetException()
 	return Core_resetExceptionReturnValue;
 }
 
-__int64 Credit_getAddableCoin()
+DWORD_PTR CALLPLEB Credit_getAddableCoin()
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_getAddableCoin");
@@ -139,7 +145,7 @@ __int64 Credit_getAddableCoin()
 	return Credit_getAddableCoinReturnValue;
 }
 
-__int64 Credit_getCoinMultipliers()
+DWORD_PTR CALLPLEB Credit_getCoinMultipliers()
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_getCoinMultipliers");
@@ -147,7 +153,7 @@ __int64 Credit_getCoinMultipliers()
 	return Credit_getCoinMultipliersReturnValue;
 }
 
-__int64 Credit_getCoinToCredit()
+DWORD_PTR CALLPLEB Credit_getCoinToCredit()
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_getCoinToCredit");
@@ -155,7 +161,7 @@ __int64 Credit_getCoinToCredit()
 	return Credit_getCoinToCreditReturnValue;
 }
 
-__int64 Credit_getCredit()
+DWORD_PTR CALLPLEB Credit_getCredit()
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_getCredit");
@@ -163,7 +169,7 @@ __int64 Credit_getCredit()
 	return Credit_getCreditReturnValue;
 }
 
-__int64 Credit_getRemain()
+DWORD_PTR CALLPLEB Credit_getRemain()
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_getRemain");
@@ -171,7 +177,7 @@ __int64 Credit_getRemain()
 	return Credit_getRemainReturnValue;
 }
 
-__int64 Credit_isFreePlay()
+DWORD_PTR CALLPLEB Credit_isFreePlay()
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_isFreePlay");
@@ -179,7 +185,7 @@ __int64 Credit_isFreePlay()
 	return Credit_isFreePlayReturnValue;
 }
 
-__int64 __fastcall Credit_isGameCostEnough(__int64 a1)
+DWORD_PTR CALLPLEB Credit_isGameCostEnough(DWORD_PTR a1)
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_isGameCostEnough");
@@ -187,7 +193,7 @@ __int64 __fastcall Credit_isGameCostEnough(__int64 a1)
 	return Credit_isGameCostEnoughReturnValue; // 1
 }
 
-__int64 Credit_isZero()
+DWORD_PTR Credit_isZero()
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_isZero");
@@ -195,7 +201,7 @@ __int64 Credit_isZero()
 	return Credit_isZeroReturnValue;
 }
 
-__int64 __fastcall Credit_payGameCost(__int64 a1)
+DWORD_PTR CALLPLEB Credit_payGameCost(DWORD_PTR a1)
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_payGameCost");
@@ -203,7 +209,7 @@ __int64 __fastcall Credit_payGameCost(__int64 a1)
 	return Credit_payGameCostReturnValue;
 }
 
-__int64 Credit_resetCoinInHook()
+DWORD_PTR CALLPLEB Credit_resetCoinInHook()
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_resetCoinInHook");
@@ -212,7 +218,7 @@ __int64 Credit_resetCoinInHook()
 	return Credit_resetCoinInHookReturnValue;
 }
 
-__int64 Credit_setCoinInHook()
+DWORD_PTR CALLPLEB Credit_setCoinInHook(int a1)
 {
 #ifdef _LOGAPM3
 	info(true, "Credit_setCoinInHook");
@@ -232,14 +238,14 @@ wchar_t* Credit_toString()
 	return lol;
 }
 
-void Emoney_close()
+void CALLPLEB Emoney_close()
 {
 #ifdef _LOGAPM3
 	info(true, "Emoney_close");
 #endif
 }
 
-__int64 Emoney_isOpenMainWindow()
+DWORD_PTR CALLPLEB Emoney_isOpenMainWindow()
 {
 #ifdef _LOGAPM3
 	info(true, "Emoney_isOpenMainWindow");
@@ -247,7 +253,7 @@ __int64 Emoney_isOpenMainWindow()
 	return Emoney_isOpenMainWindowReturnValue;
 }
 
-char Emoney_launch()
+char CALLPLEB Emoney_launch()
 {
 #ifdef _LOGAPM3
 	info(true, "Emoney_launch");
@@ -255,21 +261,21 @@ char Emoney_launch()
 	return Emoney_launchReturnValue;
 }
 
-void __fastcall Emoney_setSoundHook(__int64 a1)
+void CALLPLEB Emoney_setSoundHook(DWORD_PTR a1)
 {
 #ifdef _LOGAPM3
 	info(true, "Emoney_setSoundHook");
 #endif
 }
 
-void __fastcall Emoney_update(BYTE* a1)
+void CALLPLEB Emoney_update(BYTE* a1)
 {
 #ifdef _LOGAPM3
 	info(true, "Emoney_update");
 #endif
 }
 
-__int64 Error_isOccurred()
+DWORD_PTR CALLPLEB Error_isOccurred()
 {
 #ifdef _LOGAPM3
 	info(true, "Error_isOccurred");
@@ -277,7 +283,7 @@ __int64 Error_isOccurred()
 	return Error_isOccurredReturnValue;
 }
 
-__int64 Error_setDeviceLost()
+DWORD_PTR CALLPLEB Error_setDeviceLost()
 {
 #ifdef _LOGAPM3
 	info(true, "Error_setDeviceLost");
@@ -292,7 +298,7 @@ struct GamepadInfo
 	char name[260];
 };
 
-GamepadInfo* Input_getGamepadInfo()
+GamepadInfo* CALLPLEB Input_getGamepadInfo()
 {
 #ifdef _LOGAPM3
 	info(true, "Input_getGamepadInfo");
@@ -310,7 +316,7 @@ GamepadInfo* Input_getGamepadInfo()
 	return _gamePad;
 }
 
-char __fastcall Input_isFlipNow(unsigned int a1)
+char CALLPLEB Input_isFlipNow(unsigned int a1)
 {
 #ifdef _LOGAPM3
 	info(true, "Input_isFlipNow");
@@ -318,7 +324,7 @@ char __fastcall Input_isFlipNow(unsigned int a1)
 	return Input_isFlipNowReturnValue;
 }
 
-__int64 Input_isGamepadDetect()
+DWORD_PTR CALLPLEB Input_isGamepadDetect()
 {
 #ifdef _LOGAPM3
 	info(true, "Input_isGamepadDetect");
@@ -326,7 +332,7 @@ __int64 Input_isGamepadDetect()
 	return Input_isGamepadDetectReturnValue;
 }
 
-char __fastcall Input_isOffNow(unsigned int a1)
+char CALLPLEB Input_isOffNow(unsigned int a1)
 {
 #ifdef _LOGAPM3
 	info(true, "Input_isOffNow");
@@ -334,7 +340,7 @@ char __fastcall Input_isOffNow(unsigned int a1)
 	return Input_isOffNowReturnValue;
 }
 
-int __fastcall Input_isOn(unsigned int buttonId)
+int CALLPLEB Input_isOn(unsigned int buttonId)
 {
 #ifdef _LOGAPM3
 	info(true, "Input_isOn id: %u", buttonId);
@@ -342,7 +348,7 @@ int __fastcall Input_isOn(unsigned int buttonId)
 	return g_APM3IOValues[buttonId];
 }
 
-char __fastcall Input_isOnNow(unsigned int buttonId)
+char CALLPLEB Input_isOnNow(unsigned int buttonId)
 {
 #ifdef _LOGAPM3
 	info(true, "Input_isOnNow id: %u", buttonId);
@@ -350,7 +356,7 @@ char __fastcall Input_isOnNow(unsigned int buttonId)
 	return g_APM3IOValues[buttonId];
 }
 
-__int64 Input_isOpenPewviewWindow()
+DWORD_PTR CALLPLEB Input_isOpenPewviewWindow()
 {
 #ifdef _LOGAPM3
 	info(true, "Input_isOpenPewviewWindow");
@@ -358,7 +364,7 @@ __int64 Input_isOpenPewviewWindow()
 	return Input_isOpenPewviewWindowReturnValue;
 }
 
-char __fastcall Input_setGamepadConfig(__int64 a1)
+char CALLPLEB Input_setGamepadConfig(DWORD_PTR a1)
 {
 #ifdef _LOGAPM3
 	info(true, "Input_setGamepadConfig");
@@ -366,7 +372,7 @@ char __fastcall Input_setGamepadConfig(__int64 a1)
 	return Input_setGamepadConfigReturnValue;
 }
 
-char* NetworkProperty_getAddressString()
+char* CALLPLEB NetworkProperty_getAddressString()
 {
 #ifdef _DEBUG
 	info(true, "NetworkProperty_getAddressString");
@@ -374,7 +380,7 @@ char* NetworkProperty_getAddressString()
 	return NetworkProperty_getAddressStringReturnValue;
 }
 
-__int64 NetworkProperty_getAddressValue()
+DWORD_PTR CALLPLEB NetworkProperty_getAddressValue()
 {
 #ifdef _DEBUG
 	info(true, "NetworkProperty_getAddressValue");
@@ -382,7 +388,7 @@ __int64 NetworkProperty_getAddressValue()
 	return NetworkProperty_getAddressValueReturnValue;
 }
 
-__int64 System_getAppRootPath()
+DWORD_PTR CALLPLEB System_getAppRootPath()
 {
 #ifdef _LOGAPM3
 	info(true, "System_getAppRootPath");
@@ -484,7 +490,7 @@ SystemRegionCode System_getRegionCode()
 	return SystemRegionCode::Japan;
 }
 
-__int64 System_getResolution()
+DWORD_PTR System_getResolution()
 {
 #ifdef _LOGAPM3
 	info(true, "System_getResolution");
@@ -492,7 +498,7 @@ __int64 System_getResolution()
 	return System_getResolutionReturnValue;
 }
 
-__int64 System_isDevelop()
+DWORD_PTR System_isDevelop()
 {
 #ifdef _LOGAPM3
 	info(true, "System_isDevelop");
@@ -500,7 +506,7 @@ __int64 System_isDevelop()
 	return System_isDevelopReturnValue;
 }
 
-char __fastcall apmGamepadConfig(__int64 a1)
+char CALLPLEB apmGamepadConfig(DWORD_PTR a1)
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadConfig");
@@ -508,7 +514,7 @@ char __fastcall apmGamepadConfig(__int64 a1)
 	return apmGamepadConfigReturnValue;
 }
 
-char __fastcall apmGamepadGetApmInput(DWORD* a1)
+char CALLPLEB apmGamepadGetApmInput(DWORD* a1)
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadGetApmInput");
@@ -517,16 +523,16 @@ char __fastcall apmGamepadGetApmInput(DWORD* a1)
 }
 
 //__int128* apmGamepadGetConfig()
-__int64* apmGamepadGetConfig()
+DWORD_PTR* apmGamepadGetConfig()
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadGetConfig");
 #endif
-	static __int64 dumb = 0;
+	static DWORD_PTR dumb = 0;
 	return &dumb;
 }
 
-char __fastcall apmGamepadGetDeviceCaps(__int64 a1)
+char CALLPLEB apmGamepadGetDeviceCaps(DWORD_PTR a1)
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadGetDeviceCaps");
@@ -534,8 +540,8 @@ char __fastcall apmGamepadGetDeviceCaps(__int64 a1)
 	return apmGamepadGetDeviceCapsReturnValue;
 }
 
-//errno_t __fastcall apmGamepadGetInfo(__int64 a1)
-__int64 __fastcall apmGamepadGetInfo(__int64 a1)
+//errno_t CALLPLEB apmGamepadGetInfo(__int64 a1)
+DWORD_PTR CALLPLEB apmGamepadGetInfo(DWORD_PTR a1)
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadGetInfo");
@@ -543,8 +549,8 @@ __int64 __fastcall apmGamepadGetInfo(__int64 a1)
 	return apmGamepadGetInfoReturnValue;
 }
 
-//char __fastcall apmGamepadGetRawInput(_QWORD* a1)
-char __fastcall apmGamepadGetRawInput(__int64* a1)
+//char CALLPLEB apmGamepadGetRawInput(_QWORD* a1)
+char CALLPLEB apmGamepadGetRawInput(DWORD_PTR* a1)
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadGetRawInput");
@@ -552,7 +558,7 @@ char __fastcall apmGamepadGetRawInput(__int64* a1)
 	return apmGamepadGetRawInputReturnValue;
 }
 
-__int64 apmGamepadInitConfig()
+DWORD_PTR CALLPLEB apmGamepadInitConfig()
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadInitConfig");
@@ -560,7 +566,7 @@ __int64 apmGamepadInitConfig()
 	return apmGamepadInitConfigReturnValue;
 }
 
-char apmGamepadIsDetected()
+char CALLPLEB apmGamepadIsDetected()
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadIsDetected");
@@ -568,7 +574,7 @@ char apmGamepadIsDetected()
 	return apmGamepadIsDetectedReturnValue;
 }
 
-__int64 apmGamepadIsXInputDevice()
+DWORD_PTR CALLPLEB apmGamepadIsXInputDevice()
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadIsXInputDevice");
@@ -576,7 +582,7 @@ __int64 apmGamepadIsXInputDevice()
 	return apmGamepadIsXInputDeviceReturnValue;
 }
 
-int apmGamepadUpdate()
+int CALLPLEB apmGamepadUpdate()
 {
 #ifdef _LOGAPM3
 	info(true, "apmGamepadUpdate");
@@ -594,112 +600,224 @@ static void HookAPM3()
 	Credit_isGameCostEnoughReturnValue = 1;
 
 	MH_Initialize();
-	MH_CreateHookApi(L"apm.dll", "Aime_acceptConfirm", Aime_acceptConfirm, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_cancel", Aime_cancel, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_getAccessCode", Aime_getAccessCode, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_getAimeId", Aime_getAimeId, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_getConfirm", Aime_getConfirm, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_getErrorCategory", Aime_getErrorCategory, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_hasConfirm", Aime_hasConfirm, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_hasError", Aime_hasError, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_hasResult", Aime_hasResult, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_isBusy", Aime_isBusy, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_isDBAlive", Aime_isDBAlive, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_isMobile", Aime_isMobile, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_isReaderDetected", Aime_isReaderDetected, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_sendLog", Aime_sendLog, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_setLedError", Aime_setLedError, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_setLedSuccess", Aime_setLedSuccess, NULL);
-	MH_CreateHookApi(L"apm.dll", "Aime_start", Aime_start, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAccounting_beginPlay", AllnetAccounting_beginPlay, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAccounting_endPlay", AllnetAccounting_endPlay, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getAbaasGsServerName", AllnetAuth_getAbaasGsServerName, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getAbaasLinkServerName", AllnetAuth_getAbaasLinkServerName, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getCountryCode", AllnetAuth_getCountryCode, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getLocationId", AllnetAuth_getLocationId, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getLocationName", AllnetAuth_getLocationName, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getLocationNickname", AllnetAuth_getLocationNickname, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getLocationNicknamePartCount", AllnetAuth_getLocationNicknamePartCount, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getRegionCode", AllnetAuth_getRegionCode, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getRegionName", AllnetAuth_getRegionName, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_getRegionNamePartCount", AllnetAuth_getRegionNamePartCount, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_isDevelop", AllnetAuth_isDevelop, NULL);
-	MH_CreateHookApi(L"apm.dll", "AllnetAuth_isGood", AllnetAuth_isGood, NULL);
-	MH_CreateHookApi(L"apm.dll", "ApmSystemSetting_getAdvertizeSound", ApmSystemSetting_getAdvertizeSound, NULL);
-	MH_CreateHookApi(L"apm.dll", "ApmSystemSetting_getClosingTimes", ApmSystemSetting_getClosingTimes, NULL);
-	MH_CreateHookApi(L"apm.dll", "ApmSystemSetting_getEmoneySetting", ApmSystemSetting_getEmoneySetting, NULL);
-	MH_CreateHookApi(L"apm.dll", "ApmSystemSetting_getFixedTitle", ApmSystemSetting_getFixedTitle, NULL);
-	MH_CreateHookApi(L"apm.dll", "ApmSystemSetting_getGamePadSetting", ApmSystemSetting_getGamePadSetting, NULL);
-	MH_CreateHookApi(L"apm.dll", "ApmSystemSetting_getMatchingGroup", ApmSystemSetting_getMatchingGroup, NULL);
-	MH_CreateHookApi(L"apm.dll", "ApmSystemSetting_getTimeToClosingTime", ApmSystemSetting_getTimeToClosingTime, NULL);
-	MH_CreateHookApi(L"apm.dll", "ApmSystemSetting_getUiSetting", ApmSystemSetting_getUiSetting, NULL);
-	MH_CreateHookApi(L"apm.dll", "Backup_getRecordStatus", Backup_getRecordStatus, NULL);
-	MH_CreateHookApi(L"apm.dll", "Backup_isSetupSucceeded", Backup_isSetupSucceeded, NULL);
-	MH_CreateHookApi(L"apm.dll", "Backup_saveRecord", Backup_saveRecord, NULL);
-	MH_CreateHookApi(L"apm.dll", "Backup_saveRecordByAddress", Backup_saveRecordByAddress, NULL);
-	MH_CreateHookApi(L"apm.dll", "Backup_setupRecords", Backup_setupRecords, NULL);
-	MH_CreateHookApi(L"apm.dll", "Core_execute", Core_execute, NULL);
-	MH_CreateHookApi(L"apm.dll", "Core_exitGame", Core_exitGame, NULL);
-	MH_CreateHookApi(L"apm.dll", "Core_hookException", Core_hookException, NULL);
-	MH_CreateHookApi(L"apm.dll", "Core_isExitNeeded", Core_isExitNeeded, NULL);
-	MH_CreateHookApi(L"apm.dll", "Core_resetCount", Core_resetCount, NULL);
-	MH_CreateHookApi(L"apm.dll", "Core_resetException", Core_resetException, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_getAddableCoin", Credit_getAddableCoin, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_getCoinMultipliers", Credit_getCoinMultipliers, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_getCoinToCredit", Credit_getCoinToCredit, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_getCredit", Credit_getCredit, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_getRemain", Credit_getRemain, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_isFreePlay", Credit_isFreePlay, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_isGameCostEnough", Credit_isGameCostEnough, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_isZero", Credit_isZero, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_payGameCost", Credit_payGameCost, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_resetCoinInHook", Credit_resetCoinInHook, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_setCoinInHook", Credit_setCoinInHook, NULL);
-	MH_CreateHookApi(L"apm.dll", "Credit_toString", Credit_toString, NULL);
-	MH_CreateHookApi(L"apm.dll", "Emoney_close", Emoney_close, NULL);
-	MH_CreateHookApi(L"apm.dll", "Emoney_isOpenMainWindow", Emoney_isOpenMainWindow, NULL);
-	MH_CreateHookApi(L"apm.dll", "Emoney_launch", Emoney_launch, NULL);
-	MH_CreateHookApi(L"apm.dll", "Emoney_setSoundHook", Emoney_setSoundHook, NULL);
-	MH_CreateHookApi(L"apm.dll", "Emoney_update", Emoney_update, NULL);
-	MH_CreateHookApi(L"apm.dll", "Error_isOccurred", Error_isOccurred, NULL);
-	MH_CreateHookApi(L"apm.dll", "Error_setDeviceLost", Error_setDeviceLost, NULL);
-	MH_CreateHookApi(L"apm.dll", "Input_getGamepadInfo", Input_getGamepadInfo, NULL);
-	MH_CreateHookApi(L"apm.dll", "Input_isFlipNow", Input_isFlipNow, NULL);
-	MH_CreateHookApi(L"apm.dll", "Input_isGamepadDetect", Input_isGamepadDetect, NULL);
-	MH_CreateHookApi(L"apm.dll", "Input_isOffNow", Input_isOffNow, NULL);
-	MH_CreateHookApi(L"apm.dll", "Input_isOn", Input_isOn, NULL);
-	MH_CreateHookApi(L"apm.dll", "Input_isOnNow", Input_isOnNow, NULL);
-	MH_CreateHookApi(L"apm.dll", "Input_isOpenPewviewWindow", Input_isOpenPewviewWindow, NULL);
-	MH_CreateHookApi(L"apm.dll", "Input_setGamepadConfig", Input_setGamepadConfig, NULL);
-	MH_CreateHookApi(L"apm.dll", "NetworkProperty_getAddressString", NetworkProperty_getAddressString, NULL);
-	MH_CreateHookApi(L"apm.dll", "NetworkProperty_getAddressValue", NetworkProperty_getAddressValue, NULL);
-	MH_CreateHookApi(L"apm.dll", "Sequence_beginPlay", Sequence_beginPlay, NULL);
-	MH_CreateHookApi(L"apm.dll", "Sequence_clearBackup", Sequence_clearBackup, NULL);
-	MH_CreateHookApi(L"apm.dll", "Sequence_continuePlay", Sequence_continuePlay, NULL);
-	MH_CreateHookApi(L"apm.dll", "Sequence_endPlay", Sequence_endPlay, NULL);
-	MH_CreateHookApi(L"apm.dll", "Sequence_getBookkeeping", Sequence_getBookkeeping, NULL);
-	MH_CreateHookApi(L"apm.dll", "Sequence_getPlayingAimeId", Sequence_getPlayingAimeId, NULL);
-	MH_CreateHookApi(L"apm.dll", "Sequence_isAccountingPlaying", Sequence_isAccountingPlaying, NULL);
-	MH_CreateHookApi(L"apm.dll", "Sequence_isPlaying", Sequence_isPlaying, NULL);
-	MH_CreateHookApi(L"apm.dll", "Sequence_isTest", Sequence_isTest, NULL);
-	MH_CreateHookApi(L"apm.dll", "System_getAppRootPath", System_getAppRootPath, NULL);
-	MH_CreateHookApi(L"apm.dll", "System_getBoardId", System_getBoardId, NULL);
-	MH_CreateHookApi(L"apm.dll", "System_getGameId", System_getGameId, NULL);
-	MH_CreateHookApi(L"apm.dll", "System_getGameVersion", System_getGameVersion, NULL);
-	MH_CreateHookApi(L"apm.dll", "System_getKeychipId", System_getKeychipId, NULL);
-	MH_CreateHookApi(L"apm.dll", "System_getRegionCode", System_getRegionCode, NULL);
-	MH_CreateHookApi(L"apm.dll", "System_getResolution", System_getResolution, NULL);
-	MH_CreateHookApi(L"apm.dll", "System_isDevelop", System_isDevelop, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadConfig", apmGamepadConfig, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadGetApmInput", apmGamepadGetApmInput, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadGetConfig", apmGamepadGetConfig, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadGetDeviceCaps", apmGamepadGetDeviceCaps, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadGetInfo", apmGamepadGetInfo, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadGetRawInput", apmGamepadGetRawInput, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadInitConfig", apmGamepadInitConfig, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadIsDetected", apmGamepadIsDetected, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadIsXInputDevice", apmGamepadIsXInputDevice, NULL);
-	MH_CreateHookApi(L"apm.dll", "apmGamepadUpdate", apmGamepadUpdate, NULL);
+#ifdef _M_AMD64
+	LPCWSTR dllName = L"apm.dll";
+	MH_CreateHookApi(dllName, "Aime_acceptConfirm", Aime_acceptConfirm, NULL);
+	MH_CreateHookApi(dllName, "Aime_cancel", Aime_cancel, NULL);
+	MH_CreateHookApi(dllName, "Aime_getAccessCode", Aime_getAccessCode, NULL);
+	MH_CreateHookApi(dllName, "Aime_getAimeId", Aime_getAimeId, NULL);
+	MH_CreateHookApi(dllName, "Aime_getConfirm", Aime_getConfirm, NULL);
+	MH_CreateHookApi(dllName, "Aime_getErrorCategory", Aime_getErrorCategory, NULL);
+	MH_CreateHookApi(dllName, "Aime_hasConfirm", Aime_hasConfirm, NULL);
+	MH_CreateHookApi(dllName, "Aime_hasError", Aime_hasError, NULL);
+	MH_CreateHookApi(dllName, "Aime_hasResult", Aime_hasResult, NULL);
+	MH_CreateHookApi(dllName, "Aime_isBusy", Aime_isBusy, NULL);
+	MH_CreateHookApi(dllName, "Aime_isDBAlive", Aime_isDBAlive, NULL);
+	MH_CreateHookApi(dllName, "Aime_isMobile", Aime_isMobile, NULL);
+	MH_CreateHookApi(dllName, "Aime_isReaderDetected", Aime_isReaderDetected, NULL);
+	MH_CreateHookApi(dllName, "Aime_sendLog", Aime_sendLog, NULL);
+	MH_CreateHookApi(dllName, "Aime_setLedError", Aime_setLedError, NULL);
+	MH_CreateHookApi(dllName, "Aime_setLedSuccess", Aime_setLedSuccess, NULL);
+	MH_CreateHookApi(dllName, "Aime_start", Aime_start, NULL);
+	MH_CreateHookApi(dllName, "AllnetAccounting_beginPlay", AllnetAccounting_beginPlay, NULL);
+	MH_CreateHookApi(dllName, "AllnetAccounting_endPlay", AllnetAccounting_endPlay, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getAbaasGsServerName", AllnetAuth_getAbaasGsServerName, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getAbaasLinkServerName", AllnetAuth_getAbaasLinkServerName, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getCountryCode", AllnetAuth_getCountryCode, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getLocationId", AllnetAuth_getLocationId, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getLocationName", AllnetAuth_getLocationName, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getLocationNickname", AllnetAuth_getLocationNickname, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getLocationNicknamePartCount", AllnetAuth_getLocationNicknamePartCount, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getRegionCode", AllnetAuth_getRegionCode, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getRegionName", AllnetAuth_getRegionName, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_getRegionNamePartCount", AllnetAuth_getRegionNamePartCount, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_isDevelop", AllnetAuth_isDevelop, NULL);
+	MH_CreateHookApi(dllName, "AllnetAuth_isGood", AllnetAuth_isGood, NULL);
+	MH_CreateHookApi(dllName, "ApmSystemSetting_getAdvertizeSound", ApmSystemSetting_getAdvertizeSound, NULL);
+	MH_CreateHookApi(dllName, "ApmSystemSetting_getClosingTimes", ApmSystemSetting_getClosingTimes, NULL);
+	MH_CreateHookApi(dllName, "ApmSystemSetting_getEmoneySetting", ApmSystemSetting_getEmoneySetting, NULL);
+	MH_CreateHookApi(dllName, "ApmSystemSetting_getFixedTitle", ApmSystemSetting_getFixedTitle, NULL);
+	MH_CreateHookApi(dllName, "ApmSystemSetting_getGamePadSetting", ApmSystemSetting_getGamePadSetting, NULL);
+	MH_CreateHookApi(dllName, "ApmSystemSetting_getMatchingGroup", ApmSystemSetting_getMatchingGroup, NULL);
+	MH_CreateHookApi(dllName, "ApmSystemSetting_getTimeToClosingTime", ApmSystemSetting_getTimeToClosingTime, NULL);
+	MH_CreateHookApi(dllName, "ApmSystemSetting_getUiSetting", ApmSystemSetting_getUiSetting, NULL);
+	MH_CreateHookApi(dllName, "Backup_getRecordStatus", Backup_getRecordStatus, NULL);
+	MH_CreateHookApi(dllName, "Backup_isSetupSucceeded", Backup_isSetupSucceeded, NULL);
+	MH_CreateHookApi(dllName, "Backup_saveRecord", Backup_saveRecord, NULL);
+	MH_CreateHookApi(dllName, "Backup_saveRecordByAddress", Backup_saveRecordByAddress, NULL);
+	MH_CreateHookApi(dllName, "Backup_setupRecords", Backup_setupRecords, NULL);
+	MH_CreateHookApi(dllName, "Core_execute", Core_execute, NULL);
+	MH_CreateHookApi(dllName, "Core_exitGame", Core_exitGame, NULL);
+	MH_CreateHookApi(dllName, "Core_hookException", Core_hookException, NULL);
+	MH_CreateHookApi(dllName, "Core_isExitNeeded", Core_isExitNeeded, NULL);
+	MH_CreateHookApi(dllName, "Core_resetCount", Core_resetCount, NULL);
+	MH_CreateHookApi(dllName, "Core_resetException", Core_resetException, NULL);
+	MH_CreateHookApi(dllName, "Credit_getAddableCoin", Credit_getAddableCoin, NULL);
+	MH_CreateHookApi(dllName, "Credit_getCoinMultipliers", Credit_getCoinMultipliers, NULL);
+	MH_CreateHookApi(dllName, "Credit_getCoinToCredit", Credit_getCoinToCredit, NULL);
+	MH_CreateHookApi(dllName, "Credit_getCredit", Credit_getCredit, NULL);
+	MH_CreateHookApi(dllName, "Credit_getRemain", Credit_getRemain, NULL);
+	MH_CreateHookApi(dllName, "Credit_isFreePlay", Credit_isFreePlay, NULL);
+	MH_CreateHookApi(dllName, "Credit_isGameCostEnough", Credit_isGameCostEnough, NULL);
+	MH_CreateHookApi(dllName, "Credit_isZero", Credit_isZero, NULL);
+	MH_CreateHookApi(dllName, "Credit_payGameCost", Credit_payGameCost, NULL);
+	MH_CreateHookApi(dllName, "Credit_resetCoinInHook", Credit_resetCoinInHook, NULL);
+	MH_CreateHookApi(dllName, "Credit_setCoinInHook", Credit_setCoinInHook, NULL);
+	MH_CreateHookApi(dllName, "Credit_toString", Credit_toString, NULL);
+	MH_CreateHookApi(dllName, "Emoney_close", Emoney_close, NULL);
+	MH_CreateHookApi(dllName, "Emoney_isOpenMainWindow", Emoney_isOpenMainWindow, NULL);
+	MH_CreateHookApi(dllName, "Emoney_launch", Emoney_launch, NULL);
+	MH_CreateHookApi(dllName, "Emoney_setSoundHook", Emoney_setSoundHook, NULL);
+	MH_CreateHookApi(dllName, "Emoney_update", Emoney_update, NULL);
+	MH_CreateHookApi(dllName, "Error_isOccurred", Error_isOccurred, NULL);
+	MH_CreateHookApi(dllName, "Error_setDeviceLost", Error_setDeviceLost, NULL);
+	MH_CreateHookApi(dllName, "Input_getGamepadInfo", Input_getGamepadInfo, NULL);
+	MH_CreateHookApi(dllName, "Input_isFlipNow", Input_isFlipNow, NULL);
+	MH_CreateHookApi(dllName, "Input_isGamepadDetect", Input_isGamepadDetect, NULL);
+	MH_CreateHookApi(dllName, "Input_isOffNow", Input_isOffNow, NULL);
+	MH_CreateHookApi(dllName, "Input_isOn", Input_isOn, NULL);
+	MH_CreateHookApi(dllName, "Input_isOnNow", Input_isOnNow, NULL);
+	MH_CreateHookApi(dllName, "Input_isOpenPewviewWindow", Input_isOpenPewviewWindow, NULL);
+	MH_CreateHookApi(dllName, "Input_setGamepadConfig", Input_setGamepadConfig, NULL);
+	MH_CreateHookApi(dllName, "NetworkProperty_getAddressString", NetworkProperty_getAddressString, NULL);
+	MH_CreateHookApi(dllName, "NetworkProperty_getAddressValue", NetworkProperty_getAddressValue, NULL);
+	MH_CreateHookApi(dllName, "Sequence_beginPlay", Sequence_beginPlay, NULL);
+	MH_CreateHookApi(dllName, "Sequence_clearBackup", Sequence_clearBackup, NULL);
+	MH_CreateHookApi(dllName, "Sequence_continuePlay", Sequence_continuePlay, NULL);
+	MH_CreateHookApi(dllName, "Sequence_endPlay", Sequence_endPlay, NULL);
+	MH_CreateHookApi(dllName, "Sequence_getBookkeeping", Sequence_getBookkeeping, NULL);
+	MH_CreateHookApi(dllName, "Sequence_getPlayingAimeId", Sequence_getPlayingAimeId, NULL);
+	MH_CreateHookApi(dllName, "Sequence_isAccountingPlaying", Sequence_isAccountingPlaying, NULL);
+	MH_CreateHookApi(dllName, "Sequence_isPlaying", Sequence_isPlaying, NULL);
+	MH_CreateHookApi(dllName, "Sequence_isTest", Sequence_isTest, NULL);
+	MH_CreateHookApi(dllName, "System_getAppRootPath", System_getAppRootPath, NULL);
+	MH_CreateHookApi(dllName, "System_getBoardId", System_getBoardId, NULL);
+	MH_CreateHookApi(dllName, "System_getGameId", System_getGameId, NULL);
+	MH_CreateHookApi(dllName, "System_getGameVersion", System_getGameVersion, NULL);
+	MH_CreateHookApi(dllName, "System_getKeychipId", System_getKeychipId, NULL);
+	MH_CreateHookApi(dllName, "System_getRegionCode", System_getRegionCode, NULL);
+	MH_CreateHookApi(dllName, "System_getResolution", System_getResolution, NULL);
+	MH_CreateHookApi(dllName, "System_isDevelop", System_isDevelop, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadConfig", apmGamepadConfig, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadGetApmInput", apmGamepadGetApmInput, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadGetConfig", apmGamepadGetConfig, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadGetDeviceCaps", apmGamepadGetDeviceCaps, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadGetInfo", apmGamepadGetInfo, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadGetRawInput", apmGamepadGetRawInput, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadInitConfig", apmGamepadInitConfig, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadIsDetected", apmGamepadIsDetected, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadIsXInputDevice", apmGamepadIsXInputDevice, NULL);
+	MH_CreateHookApi(dllName, "apmGamepadUpdate", apmGamepadUpdate, NULL);
+#else
+LPCWSTR dllName = L"apm_x86.dll";
+MH_CreateHookApi(dllName, "_Aime_acceptConfirm@0", Aime_acceptConfirm, NULL);
+MH_CreateHookApi(dllName, "_Aime_cancel@0", Aime_cancel, NULL);
+MH_CreateHookApi(dllName, "_Aime_getAccessCode@4", Aime_getAccessCode, NULL);
+MH_CreateHookApi(dllName, "_Aime_getAimeId@4", Aime_getAimeId, NULL);
+MH_CreateHookApi(dllName, "_Aime_getConfirm@0", Aime_getConfirm, NULL);
+MH_CreateHookApi(dllName, "_Aime_getErrorCategory@0", Aime_getErrorCategory, NULL);
+MH_CreateHookApi(dllName, "_Aime_hasConfirm@0", Aime_hasConfirm, NULL);
+MH_CreateHookApi(dllName, "_Aime_hasError@0", Aime_hasError, NULL);
+MH_CreateHookApi(dllName, "_Aime_hasResult@0", Aime_hasResult, NULL);
+MH_CreateHookApi(dllName, "_Aime_isBusy@0", Aime_isBusy, NULL);
+MH_CreateHookApi(dllName, "_Aime_isDBAlive@0", Aime_isDBAlive, NULL);
+MH_CreateHookApi(dllName, "_Aime_isMobile@0", Aime_isMobile, NULL);
+MH_CreateHookApi(dllName, "_Aime_isReaderDetected@0", Aime_isReaderDetected, NULL);
+MH_CreateHookApi(dllName, "_Aime_sendLog@12", Aime_sendLog, NULL);
+MH_CreateHookApi(dllName, "_Aime_setLedError@0", Aime_setLedError, NULL);
+MH_CreateHookApi(dllName, "_Aime_setLedSuccess@0", Aime_setLedSuccess, NULL);
+MH_CreateHookApi(dllName, "_Aime_start@0", Aime_start, NULL);
+MH_CreateHookApi(dllName, "_AllnetAccounting_beginPlay@4", AllnetAccounting_beginPlay, NULL);
+MH_CreateHookApi(dllName, "_AllnetAccounting_endPlay@12", AllnetAccounting_endPlay, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getAbaasGsServerName@0", AllnetAuth_getAbaasGsServerName, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getAbaasLinkServerName@0", AllnetAuth_getAbaasLinkServerName, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getCountryCode@0", AllnetAuth_getCountryCode, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getLocationId@0", AllnetAuth_getLocationId, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getLocationName@0", AllnetAuth_getLocationName, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getLocationNickname@4", AllnetAuth_getLocationNickname, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getLocationNicknamePartCount@0", AllnetAuth_getLocationNicknamePartCount, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getRegionCode@0", AllnetAuth_getRegionCode, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getRegionName@4", AllnetAuth_getRegionName, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_getRegionNamePartCount@0", AllnetAuth_getRegionNamePartCount, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_isDevelop@0", AllnetAuth_isDevelop, NULL);
+MH_CreateHookApi(dllName, "_AllnetAuth_isGood@0", AllnetAuth_isGood, NULL);
+MH_CreateHookApi(dllName, "_ApmSystemSetting_getAdvertizeSound@4", ApmSystemSetting_getAdvertizeSound, NULL);
+MH_CreateHookApi(dllName, "_ApmSystemSetting_getClosingTimes@4", ApmSystemSetting_getClosingTimes, NULL);
+MH_CreateHookApi(dllName, "_ApmSystemSetting_getEmoneySetting@4", ApmSystemSetting_getEmoneySetting, NULL);
+MH_CreateHookApi(dllName, "_ApmSystemSetting_getFixedTitle@4", ApmSystemSetting_getFixedTitle, NULL);
+MH_CreateHookApi(dllName, "_ApmSystemSetting_getGamePadSetting@4", ApmSystemSetting_getGamePadSetting, NULL);
+MH_CreateHookApi(dllName, "_ApmSystemSetting_getMatchingGroup@4", ApmSystemSetting_getMatchingGroup, NULL);
+MH_CreateHookApi(dllName, "_ApmSystemSetting_getTimeToClosingTime@4", ApmSystemSetting_getTimeToClosingTime, NULL);
+MH_CreateHookApi(dllName, "_ApmSystemSetting_getUiSetting@4", ApmSystemSetting_getUiSetting, NULL);
+MH_CreateHookApi(dllName, "_Backup_getRecordStatus@4", Backup_getRecordStatus, NULL);
+MH_CreateHookApi(dllName, "_Backup_isSetupSucceeded@0", Backup_isSetupSucceeded, NULL);
+MH_CreateHookApi(dllName, "_Backup_saveRecord@4", Backup_saveRecord, NULL);
+MH_CreateHookApi(dllName, "_Backup_saveRecordByAddress@4", Backup_saveRecordByAddress, NULL);
+MH_CreateHookApi(dllName, "_Backup_setupRecords@8", Backup_setupRecords, NULL);
+MH_CreateHookApi(dllName, "_Core_execute@0", Core_execute, NULL);
+MH_CreateHookApi(dllName, "_Core_exitGame@4", Core_exitGame, NULL);
+MH_CreateHookApi(dllName, "_Core_hookException@0", Core_hookException, NULL);
+MH_CreateHookApi(dllName, "_Core_isExitNeeded@0", Core_isExitNeeded, NULL);
+MH_CreateHookApi(dllName, "_Core_resetCount@0", Core_resetCount, NULL);
+MH_CreateHookApi(dllName, "_Core_resetException@0", Core_resetException, NULL);
+MH_CreateHookApi(dllName, "_Credit_getAddableCoin@0", Credit_getAddableCoin, NULL);
+MH_CreateHookApi(dllName, "_Credit_getCoinMultipliers@0", Credit_getCoinMultipliers, NULL);
+MH_CreateHookApi(dllName, "_Credit_getCoinToCredit@0", Credit_getCoinToCredit, NULL);
+MH_CreateHookApi(dllName, "_Credit_getCredit@0", Credit_getCredit, NULL);
+MH_CreateHookApi(dllName, "_Credit_getRemain@0", Credit_getRemain, NULL);
+MH_CreateHookApi(dllName, "_Credit_isFreePlay@0", Credit_isFreePlay, NULL);
+MH_CreateHookApi(dllName, "_Credit_isGameCostEnough@4", Credit_isGameCostEnough, NULL);
+MH_CreateHookApi(dllName, "_Credit_isZero@0", Credit_isZero, NULL);
+MH_CreateHookApi(dllName, "_Credit_payGameCost@4", Credit_payGameCost, NULL);
+MH_CreateHookApi(dllName, "_Credit_resetCoinInHook@0", Credit_resetCoinInHook, NULL);
+MH_CreateHookApi(dllName, "_Credit_setCoinInHook@4", Credit_setCoinInHook, NULL);
+MH_CreateHookApi(dllName, "_Credit_toString@0", Credit_toString, NULL);
+MH_CreateHookApi(dllName, "_Emoney_close@0", Emoney_close, NULL);
+MH_CreateHookApi(dllName, "_Emoney_isOpenMainWindow@0", Emoney_isOpenMainWindow, NULL);
+MH_CreateHookApi(dllName, "_Emoney_launch@0", Emoney_launch, NULL);
+MH_CreateHookApi(dllName, "_Emoney_setSoundHook@4", Emoney_setSoundHook, NULL);
+MH_CreateHookApi(dllName, "_Emoney_update@4", Emoney_update, NULL);
+MH_CreateHookApi(dllName, "_Error_isOccurred@0", Error_isOccurred, NULL);
+MH_CreateHookApi(dllName, "_Error_setDeviceLost@0", Error_setDeviceLost, NULL);
+MH_CreateHookApi(dllName, "_Input_getGamepadInfo@0", Input_getGamepadInfo, NULL);
+MH_CreateHookApi(dllName, "_Input_isFlipNow@4", Input_isFlipNow, NULL);
+MH_CreateHookApi(dllName, "_Input_isGamepadDetect@0", Input_isGamepadDetect, NULL);
+MH_CreateHookApi(dllName, "_Input_isOffNow@4", Input_isOffNow, NULL);
+MH_CreateHookApi(dllName, "_Input_isOn@4", Input_isOn, NULL);
+MH_CreateHookApi(dllName, "_Input_isOnNow@4", Input_isOnNow, NULL);
+MH_CreateHookApi(dllName, "_Input_isOpenPewviewWindow@0", Input_isOpenPewviewWindow, NULL);
+MH_CreateHookApi(dllName, "_Input_setGamepadConfig@4", Input_setGamepadConfig, NULL);
+MH_CreateHookApi(dllName, "_NetworkProperty_getAddressString@0", NetworkProperty_getAddressString, NULL);
+MH_CreateHookApi(dllName, "_NetworkProperty_getAddressValue@0", NetworkProperty_getAddressValue, NULL);
+MH_CreateHookApi(dllName, "_Sequence_beginPlay@20", Sequence_beginPlay, NULL);
+MH_CreateHookApi(dllName, "_Sequence_clearBackup@0", Sequence_clearBackup, NULL);
+MH_CreateHookApi(dllName, "_Sequence_continuePlay@28", Sequence_continuePlay, NULL);
+MH_CreateHookApi(dllName, "_Sequence_endPlay@16", Sequence_endPlay, NULL);
+MH_CreateHookApi(dllName, "_Sequence_getBookkeeping@0", Sequence_getBookkeeping, NULL);
+MH_CreateHookApi(dllName, "_Sequence_getPlayingAimeId@0", Sequence_getPlayingAimeId, NULL);
+MH_CreateHookApi(dllName, "_Sequence_isAccountingPlaying@0", Sequence_isAccountingPlaying, NULL);
+MH_CreateHookApi(dllName, "_Sequence_isPlaying@0", Sequence_isPlaying, NULL);
+MH_CreateHookApi(dllName, "_Sequence_isTest@0", Sequence_isTest, NULL);
+MH_CreateHookApi(dllName, "_System_getAppRootPath@0", System_getAppRootPath, NULL);
+MH_CreateHookApi(dllName, "_System_getBoardId@0", System_getBoardId, NULL);
+MH_CreateHookApi(dllName, "_System_getGameId@0", System_getGameId, NULL);
+MH_CreateHookApi(dllName, "_System_getGameVersion@0", System_getGameVersion, NULL);
+MH_CreateHookApi(dllName, "_System_getKeychipId@0", System_getKeychipId, NULL);
+MH_CreateHookApi(dllName, "_System_getRegionCode@0", System_getRegionCode, NULL);
+MH_CreateHookApi(dllName, "_System_getResolution@0", System_getResolution, NULL);
+MH_CreateHookApi(dllName, "_System_isDevelop@0", System_isDevelop, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadConfig@20", apmGamepadConfig, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadGetApmInput@4", apmGamepadGetApmInput, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadGetConfig@0", apmGamepadGetConfig, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadGetDeviceCaps@4", apmGamepadGetDeviceCaps, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadGetInfo@4", apmGamepadGetInfo, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadGetRawInput@4", apmGamepadGetRawInput, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadInitConfig@0", apmGamepadInitConfig, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadIsDetected@0", apmGamepadIsDetected, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadIsXInputDevice@0", apmGamepadIsXInputDevice, NULL);
+MH_CreateHookApi(dllName, "_apmGamepadUpdate@0", apmGamepadUpdate, NULL);
+#endif
+
 	MH_EnableHook(MH_ALL_HOOKS);
 
 	memset(g_APM3IOValues, 0, 256);
@@ -722,15 +840,6 @@ static void HookAPM3()
 		}, nullptr, 0, nullptr);
 }
 
-static InitFunction initFuncTapping([]()
-{
-	HookAPM3();
-	wcscpy(APM3GameId, L"SDFJ");
-
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
-
-}, GameID::TappingSkillTest);
-
 void __fastcall printPengo(const char* format, ...)
 {
 	__try
@@ -752,6 +861,18 @@ void __fastcall printPengo(const char* format, ...)
 
 	}
 }
+
+
+#ifdef _M_AMD64
+
+static InitFunction initFuncTapping([]()
+	{
+		HookAPM3();
+		wcscpy(APM3GameId, L"SDFJ");
+
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	}, GameID::TappingSkillTest);
 
 static InitFunction initFunc([]()
 {
@@ -874,4 +995,29 @@ static InitFunction initDoa6TestFunc([]()
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	}, GameID::Doa6Test);
+#else
+static InitFunction initFuncUmifresh02([]()
+	{
+		auto d = LoadLibraryA("apm_x86.dll");
+		if (d == nullptr)
+		{
+			MessageBoxA(0, "Cannot load apm_x86.dll!", "Error", 0);
+			ExitProcess(0);
+		}
+
+		HookAPM3();
+		wcscpy(APM3GameId, L"SDGU");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+
+		// Windowed
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			injector::WriteMemory<BYTE>(mainModuleBase + 0x1D8FC4, 0xEB, true);
+		}
+
+		injector::WriteMemory<BYTE>(mainModuleBase + 0x1806BF, 0xEB, true); // Skip some credit check idfk
+
+	}, GameID::Umifresh);
 #endif

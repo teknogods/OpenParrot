@@ -613,6 +613,9 @@ void GameDetect::DetectCurrentGame()
 			NesicaKey = NesicaKey::BlazBlueCentralFiction;
 			isNesica = true;
 			break;
+		case 0x79fa2f58: // Umihara KawaseFresh!ForAC
+			SetGameId(GameID::Umifresh, "Umihara KawaseFresh! For AC");
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:

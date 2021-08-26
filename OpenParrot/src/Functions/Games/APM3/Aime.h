@@ -1,6 +1,11 @@
-#ifdef _M_AMD64
-bool Aime_acceptConfirm();
-bool Aime_cancel();
+#pragma once
+#ifdef _M_IX86
+#define CALLPLEB __stdcall
+#else
+#define CALLPLEB __fastcall
+#endif
+bool CALLPLEB Aime_acceptConfirm();
+bool CALLPLEB Aime_cancel();
 struct AccessCode
 {
 	const int DigitCount = 20;
@@ -10,8 +15,8 @@ struct AccessCode
 	char valueStr[41];
 };
 
-bool __fastcall Aime_getAccessCode(AccessCode* accessCode);
-bool __fastcall Aime_getAimeId(unsigned int* uid);
+bool CALLPLEB Aime_getAccessCode(AccessCode* accessCode);
+bool CALLPLEB Aime_getAimeId(unsigned int* uid);
 enum class AIME_CONFIRM
 {
 	NoneDB,
@@ -19,7 +24,7 @@ enum class AIME_CONFIRM
 	AimeDB,
 };
 
-AIME_CONFIRM Aime_getConfirm();
+AIME_CONFIRM CALLPLEB Aime_getConfirm();
 
 enum class AIME_ERROR_CATEGORY
 {
@@ -30,21 +35,21 @@ enum class AIME_ERROR_CATEGORY
 	UNKNOWN,
 };
 
-AIME_ERROR_CATEGORY Aime_getErrorCategory();
+AIME_ERROR_CATEGORY CALLPLEB Aime_getErrorCategory();
 
-bool Aime_hasConfirm();
+bool CALLPLEB Aime_hasConfirm();
 
-bool Aime_hasError();
+bool CALLPLEB Aime_hasError();
 
-bool Aime_hasResult();
+bool CALLPLEB Aime_hasResult();
 
-bool Aime_isBusy();
+bool CALLPLEB Aime_isBusy();
 
-bool Aime_isDBAlive();
+bool CALLPLEB Aime_isDBAlive();
 
-bool Aime_isMobile();
+bool CALLPLEB Aime_isMobile();
 
-bool Aime_isReaderDetected();
+bool CALLPLEB Aime_isReaderDetected();
 
 enum class AIME_LOG_STATUS
 {
@@ -53,12 +58,10 @@ enum class AIME_LOG_STATUS
 	END,
 };
 
-bool __fastcall Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, unsigned __int64 count);
+bool CALLPLEB Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, DWORD_PTR count);
 
-bool Aime_setLedError();
+bool CALLPLEB Aime_setLedError();
 
-bool Aime_setLedSuccess();
+bool CALLPLEB Aime_setLedSuccess();
 
-bool Aime_start();
-
-#endif
+bool CALLPLEB Aime_start();

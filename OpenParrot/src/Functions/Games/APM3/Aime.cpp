@@ -1,11 +1,10 @@
 #include <Utility/InitFunction.h>
 #include <StdInc.h>
 #include <thread>
-#ifdef _M_AMD64
 #include "Functions\Global.h"
 #include "Aime.h"
-	
-bool Aime_acceptConfirm()
+#define _LOGAPM3AIME 1
+bool CALLPLEB Aime_acceptConfirm()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_acceptConfirm");
@@ -13,7 +12,7 @@ bool Aime_acceptConfirm()
 	return 0;
 }
 
-bool Aime_cancel()
+bool CALLPLEB Aime_cancel()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_cancel");
@@ -22,7 +21,7 @@ bool Aime_cancel()
 	return 0;
 }
 
-bool __fastcall Aime_getAccessCode(AccessCode *accessCode)
+bool CALLPLEB Aime_getAccessCode(AccessCode *accessCode)
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_getAccessCode");
@@ -30,7 +29,7 @@ bool __fastcall Aime_getAccessCode(AccessCode *accessCode)
 	return 0;
 }
 
-bool __fastcall Aime_getAimeId(unsigned int* uid)
+bool CALLPLEB Aime_getAimeId(unsigned int* uid)
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_getAimeId");
@@ -39,7 +38,7 @@ bool __fastcall Aime_getAimeId(unsigned int* uid)
 }
 
 
-AIME_CONFIRM Aime_getConfirm()
+AIME_CONFIRM CALLPLEB Aime_getConfirm()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_getConfirm");
@@ -48,7 +47,7 @@ AIME_CONFIRM Aime_getConfirm()
 }
 
 
-AIME_ERROR_CATEGORY Aime_getErrorCategory()
+AIME_ERROR_CATEGORY CALLPLEB Aime_getErrorCategory()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_getErrorCategory");
@@ -56,7 +55,7 @@ AIME_ERROR_CATEGORY Aime_getErrorCategory()
 	return AIME_ERROR_CATEGORY::NONE;
 }
 
-bool Aime_hasConfirm()
+bool CALLPLEB Aime_hasConfirm()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_hasConfirm");
@@ -64,7 +63,7 @@ bool Aime_hasConfirm()
 	return false;
 }
 
-bool Aime_hasError()
+bool CALLPLEB Aime_hasError()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_hasError");
@@ -72,7 +71,7 @@ bool Aime_hasError()
 	return false;
 }
 
-bool Aime_hasResult()
+bool CALLPLEB Aime_hasResult()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_hasResult");
@@ -80,7 +79,7 @@ bool Aime_hasResult()
 	return false;
 }
 
-bool Aime_isBusy()
+bool CALLPLEB Aime_isBusy()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_isBusy");
@@ -88,7 +87,7 @@ bool Aime_isBusy()
 	return false;
 }
 
-bool Aime_isDBAlive()
+bool CALLPLEB Aime_isDBAlive()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_isDBAlive");
@@ -96,7 +95,7 @@ bool Aime_isDBAlive()
 	return true;
 }
 
-bool Aime_isMobile()
+bool CALLPLEB Aime_isMobile()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_isMobile");
@@ -104,7 +103,7 @@ bool Aime_isMobile()
 	return false;
 }
 
-bool Aime_isReaderDetected()
+bool CALLPLEB Aime_isReaderDetected()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_isReaderDetected");
@@ -112,7 +111,7 @@ bool Aime_isReaderDetected()
 	return true;
 }
 
-bool __fastcall Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, unsigned __int64 count)
+bool CALLPLEB Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, DWORD_PTR count)
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_sendLog");
@@ -120,7 +119,7 @@ bool __fastcall Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, unsigned 
 	return true;
 }
 
-bool Aime_setLedError()
+bool CALLPLEB Aime_setLedError()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_setLedError");
@@ -128,7 +127,7 @@ bool Aime_setLedError()
 	return true;
 }
 
-bool Aime_setLedSuccess()
+bool CALLPLEB Aime_setLedSuccess()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_setLedSuccess");
@@ -136,11 +135,10 @@ bool Aime_setLedSuccess()
 	return true;
 }
 
-bool Aime_start()
+bool CALLPLEB Aime_start()
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_start");
 #endif
 	return true;
 }
-#endif

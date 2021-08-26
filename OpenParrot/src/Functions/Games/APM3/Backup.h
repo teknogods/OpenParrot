@@ -1,5 +1,9 @@
-#ifdef _M_AMD64
 #pragma once
+#ifdef _M_IX86
+#define CALLPLEB __stdcall
+#else
+#define CALLPLEB __fastcall
+#endif
 extern char* BackupSaveFileName;
 extern char fileBuffer[256];
 
@@ -22,16 +26,14 @@ enum class BackupRecordStatus
 
 static bool Backup_isSetupSucceededReturnValue = true;
 
-static __int64 Backup_saveRecordReturnValue = 0;
+static DWORD_PTR Backup_saveRecordReturnValue = 0;
 
-static __int64 Backup_saveRecordByAddressReturnValue = 0;
+static DWORD_PTR Backup_saveRecordByAddressReturnValue = 0;
 
-static __int64 Backup_setupRecordsReturnValue = 0;
+static DWORD_PTR Backup_setupRecordsReturnValue = 0;
 
-BackupRecordStatus __fastcall Backup_getRecordStatus(__int64 recordIndex);
-bool Backup_isSetupSucceeded();
-bool __fastcall Backup_saveRecord(unsigned long recordIndex);
-__int64 __fastcall Backup_saveRecordByAddress(__int64 recordAddress);
-bool __fastcall Backup_setupRecords(BackupRecord* records, unsigned int recordCount);
-
-#endif
+BackupRecordStatus CALLPLEB Backup_getRecordStatus(DWORD_PTR recordIndex);
+bool CALLPLEB Backup_isSetupSucceeded();
+bool CALLPLEB Backup_saveRecord(unsigned long recordIndex);
+DWORD_PTR CALLPLEB Backup_saveRecordByAddress(DWORD_PTR recordAddress);
+bool CALLPLEB Backup_setupRecords(BackupRecord* records, unsigned int recordCount);
