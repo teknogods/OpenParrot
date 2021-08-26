@@ -1424,7 +1424,7 @@ static InitFunction Wmmt5Func([]()
 		//safeJMP(imageBase + 0x806020, ReturnTrue);
 	}
 
-	std::string value = config["General"]["Custom Name"];
+	std::string value = config["General"]["CustomName"];
 	if (!value.empty())
 	{
 		
