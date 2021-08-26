@@ -852,6 +852,14 @@ static InitFunction initDoa6FM14Func([]()
 
 	}, GameID::Doa6FM14);
 
+static InitFunction initGGSFunc([]()
+	{
+		HookAPM3();
+		wcscpy(APM3GameId, L"SDGM");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	}, GameID::GGS);
+
 
 static InitFunction initDoa6TestFunc([]()
 	{

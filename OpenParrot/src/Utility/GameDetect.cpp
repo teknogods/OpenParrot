@@ -695,6 +695,8 @@ void GameDetect::DetectCurrentGame()
 		case 0x0e285533: // FM13 Test
 			SetGameId(GameID::Doa6Test, "Dead or Alive 6 Test Generic");
 			break;
+		case 0xd0a6afbd: // GGS
+			SetGameId(GameID::GGS, "Guilty Gear Strive");
 #endif
 		default:
 #ifdef _DEBUG
