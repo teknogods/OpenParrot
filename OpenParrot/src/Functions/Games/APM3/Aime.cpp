@@ -3,7 +3,7 @@
 #include <thread>
 #include "Functions\Global.h"
 #include "Aime.h"
-#define _LOGAPM3AIME 0
+//#define _LOGAPM3AIME 1
 bool CALLPLEB Aime_acceptConfirm()
 {
 #ifdef _LOGAPM3AIME
