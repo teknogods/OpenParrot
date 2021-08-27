@@ -835,7 +835,7 @@ static void LoadWmmt5CarData()
 				memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
 				memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 8);
 				memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
-				//				memcpy((void *)(carSaveLocation + 0x70), carData + 0x70, 8);
+				memcpy((void *)(carSaveLocation + 0x7C), carData + 0x7C, 1); //should add neons
 				memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 8);
 				memcpy((void *)(carSaveLocation + 0x88), carData + 0x88, 8);
 				memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
@@ -879,7 +879,7 @@ static void LoadWmmt5CarData()
 				memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
 				memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 8);
 				memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
-//				memcpy((void *)(carSaveLocation + 0x70), carData + 0x70, 8);
+				memcpy((void *)(carSaveLocation + 0x7C), carData + 0x7C, 1); //should add neons
 				memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 8);
 				memcpy((void *)(carSaveLocation + 0x88), carData + 0x88, 8);
 				memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
