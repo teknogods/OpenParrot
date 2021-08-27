@@ -3,7 +3,7 @@
 #include <thread>
 #include "Functions\Global.h"
 #include "Sequence.h"
-#define _LOGAPM3SEQUENCE 1
+//#define _LOGAPM3SEQUENCE 1
 bool CALLPLEB Sequence_beginPlay(SequenceAccountingBegin beginPlay, unsigned int uid, SEQUENCE_PLAY_ERROR_ID* errorID, unsigned long count)
 {
 #ifdef _LOGAPM3SEQUENCE
