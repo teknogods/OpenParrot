@@ -1050,4 +1050,17 @@ static InitFunction initFuncRollingGunner21([]()
 		injector::MakeJMP(mainModuleBase + 0xB6140, ValidateDongle);
 
 	}, GameID::RollingGunner21);
+
+static InitFunction initFuncAleste([]()
+	{
+		HookAPM3();
+		wcscpy(APM3GameId, L"SDHB");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+		// I am crazy and not care about serial check
+		injector::MakeJMP(mainModuleBase + 0x13B900, ValidateDongle);		
+
+	}, GameID::Aleste);
+
 #endif

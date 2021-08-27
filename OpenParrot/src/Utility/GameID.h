@@ -116,5 +116,6 @@ enum class GameID
 	GGS,
 	Umifresh,
 	RollingGunner20,
-	RollingGunner21
+	RollingGunner21,
+	Aleste
 };

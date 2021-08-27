@@ -622,6 +622,9 @@ void GameDetect::DetectCurrentGame()
 		case 0x3c367b7b: // Rolling Gunner 2.1
 			SetGameId(GameID::RollingGunner21, "Rolling Gunner 2.1");
 			break;
+		case 0xfcf9c9ce: // ALESTE
+			SetGameId(GameID::Aleste, "ALESTE");
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
