@@ -31,6 +31,10 @@ void info(bool unused, const char* format, ...)
 
 	OutputDebugStringA(buffer);
 }
+#else
+void info(bool unused, const char* format, ...)
+{
+}
 #endif
 int strcmp(const char* str1, const char* str2, bool csensitive)
 {
