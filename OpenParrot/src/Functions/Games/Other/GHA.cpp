@@ -1,4 +1,5 @@
-﻿#include <StdInc.h>
+﻿#if __has_include(<atlstr.h>)
+#include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #include "Functions/GlobalRegHooks.h"
@@ -512,3 +513,4 @@ static InitFunction GHAFunc([]()
 	}
 
 }, GameID::GHA);
+#endif

@@ -1,4 +1,5 @@
-﻿#include <StdInc.h>
+﻿#if __has_include(<atlstr.h>)
+#include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #include "Utility\Hooking.Patterns.h"
@@ -1072,3 +1073,4 @@ static InitFunction DirtyDrivinFunc([]()
 	}, GameID::DirtyDrivin);
 #endif
 #pragma optimize("", on)
+#endif

@@ -85,10 +85,12 @@ DWORD WINAPI XInputGetState
 		{
 			gamepadState.wButtons = *ffbOffset;
 		}
+#if __has_include(<atlstr.h>)
 		else if (GameDetect::currentGame == GameID::GHA)
 		{
 			GHAInputs();
 		}
+#endif
 		else if (GameDetect::currentGame == GameID::JLeague)
 		{
 			gamepadState.wButtons = 0;

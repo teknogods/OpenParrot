@@ -1,4 +1,5 @@
-﻿#include <StdInc.h>
+﻿#if __has_include(<atlstr.h>)
+#include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #include "Utility\Hooking.Patterns.h"
@@ -207,4 +208,5 @@ static InitFunction JLeagueFunc([]()
 	}
 
 }, GameID::JLeague);
+#endif
 #endif

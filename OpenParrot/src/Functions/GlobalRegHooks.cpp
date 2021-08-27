@@ -5,7 +5,9 @@
 #include <objbase.h>
 #include "Utility/GameDetect.h"
 #include <string>
+#if __has_include(<atlstr.h>)
 #include <atlstr.h>
+#endif
 #include <windows.h>
 
 LSTATUS(__stdcall *orig_RegOpenKeyExA)(
@@ -188,6 +190,7 @@ LSTATUS __stdcall RegQueryValueExWGlobalWrap(
 	LPDWORD                           lpcbData
 )
 {
+#if __has_include(<atlstr.h>)
 	if (GameDetect::currentGame == GameID::GHA)
 	{
 		if (_wcsicmp(lpValueName, L"Language") == 0)
@@ -210,6 +213,7 @@ LSTATUS __stdcall RegQueryValueExWGlobalWrap(
 			return ERROR_SUCCESS;
 		}
 	}
+#endif
 
 	return orig_RegQueryValueExW(hKey, lpValueName, lpReserved, lpType, lpData, lpcbData);
 }

@@ -42,7 +42,7 @@ int LoadHookDLL(char *dllLocation, DWORD_PTR address)
 	Sleep(1000);
 	if (!RunTo(addy + addyOffset, 0, addy))
 	{
-		printf("Failed to Load DLL!");
+		printf("Failed to Load DLL: %s\n", dllLocation);
 		return 0;
 	}
 #ifdef _M_IX86
@@ -51,7 +51,7 @@ int LoadHookDLL(char *dllLocation, DWORD_PTR address)
 	if (mycontext.Rax == 0)
 #endif
 	{
-		printf("Failed to Load DLL!");
+		printf("Failed to Load DLL: %s\n", dllLocation);
 		return 0;
 	}
 	GetThreadContext(pi.hThread, &mycontext);
@@ -66,7 +66,7 @@ int LoadHookDLL(char *dllLocation, DWORD_PTR address)
 	Sleep(100);
 	//WriteProcessMemory(pi.hProcess, (LPVOID)OEP, backbuf, 256, 0);
 	Sleep(100);
-	printf("DLL Loaded!\n");// %08x\n", mycontext.Eax);
+	printf("DLL Loaded! %s\n", dllLocation);// %08x\n", mycontext.Eax);
 	return 1;
 }
 int RunTo(DWORD_PTR Address, DWORD Mode, DWORD_PTR Eip)
@@ -121,7 +121,7 @@ DWORD GetVal(HKEY hKey, LPCTSTR lpValue)
 	if (nError == ERROR_FILE_NOT_FOUND)
 		data = 0; // The value will be created and set to data next time SetVal() is called.
 	else if (nError)
-		printf("Error: Could not get registry value %s", lpValue);
+		printf("Error: Could not get registry value %s\n", lpValue);
 
 	return data;
 }
@@ -130,11 +130,11 @@ int main(int argc, char *argv[])
 {
 	if (argc == 1 || argc > 4)
 	{
-		printf("Please use the following format: ");
+		printf("Please use the following format:\n");
 #if _M_IX86
-		printf("OpenParrotLoader.exe <DLL> c:\\games\\id6\\id6.exe <param>");
+		printf("OpenParrotLoader.exe <DLL> <EXE> <param>\n");
 #else
-		printf("OpenParrotLoader64.exe <DLL> c:\\games\\id6\\id6.exe <param>");
+		printf("OpenParrotLoader64.exe <DLL> <EXE> <param>\n");
 #endif		
 		return 0;
 	}
@@ -162,14 +162,14 @@ int main(int argc, char *argv[])
 
 	if (hFind == INVALID_HANDLE_VALUE)
 	{
-		printf("Unable to find %s", argv[2]);
+		printf("Unable to find %s\n", argv[2]);
 		_getch();
 		return 0;
 	}
 
 	if (hFind2 == INVALID_HANDLE_VALUE)
 	{
-		printf("Unable to find %s", szDir2);
+		printf("Unable to find %s\n", szDir2);
 		_getch();
 		return 0;
 	}
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 			&pi)             // Pointer to PROCESS_INFORMATION structure.
 			)
 		{
-			printf("Failed to load process!");
+			printf("Failed to load process!\n");
 			_getch();
 			return 1;
 		}
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
 			&pi)             // Pointer to PROCESS_INFORMATION structure.
 			)
 		{
-			printf("Failed to load process!");
+			printf("Failed to load process!\n");
 			_getch();
 			return 1;
 		}
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 
 	if (!NT_SUCCESS(NtQueryInformationProcess(pi.hProcess, ProcessBasicInformation, &pbi, pbiSize, &pbiSize)))
 	{
-		printf("Failed to get process information!");
+		printf("Failed to get process information!\n");
 		_getch();
 		return 1;
 	}
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
 
 	if (read != sizeof(DWORD_PTR))
 	{
-		printf("Failed to get process environment!");
+		printf("Failed to get process environment!\n");
 		_getch();
 		return 1;
 	}
