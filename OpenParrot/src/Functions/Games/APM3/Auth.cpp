@@ -11,7 +11,7 @@ wchar_t LocationName[64];
 wchar_t LinkServerName[64];
 wchar_t ServerName[64];
 
-#define _LOGAPM3AUTH 1
+//#define _LOGAPM3AUTH 1
 DWORD_PTR CALLPLEB AllnetAccounting_beginPlay(unsigned int a1)
 {
 #ifdef _LOGAPM3AUTH
