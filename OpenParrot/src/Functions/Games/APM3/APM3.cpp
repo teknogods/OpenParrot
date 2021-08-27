@@ -592,13 +592,17 @@ int CALLPLEB apmGamepadUpdate()
 	return apmGamepadUpdateReturnValue;
 }
 
-static void HookAPM3()
+static void HookAPM3(wchar_t* id)
 {
+	// TODO: read from config?
 	wcscpy(ServerName, L"localhost");
 	wcscpy(LinkServerName, L"localhost");
 	wcscpy(LocationNickName, L"Flatty");
 	wcscpy(LocationName, L"Flatearth");
 	wcscpy(RegionName, L"Santaland");
+
+	wcscpy(APM3GameId, id);
+
 	Credit_isGameCostEnoughReturnValue = 1;
 
 	MH_Initialize();
@@ -869,17 +873,15 @@ void __fastcall printPengo(const char* format, ...)
 
 static InitFunction initFuncTapping([]()
 	{
-		HookAPM3();
-		wcscpy(APM3GameId, L"SDFJ");
+		HookAPM3(L"SDFJ");
 
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	}, GameID::TappingSkillTest);
 
-static InitFunction initFunc([]()
+static InitFunction initFuncPengoe510([]()
 {
-	HookAPM3();
-	wcscpy(APM3GameId, L"SDFH");
+	HookAPM3(L"SDFH");
 
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
@@ -897,8 +899,7 @@ static InitFunction initFunc([]()
 
 static InitFunction initFuncPengoe511([]()
 {
-	HookAPM3();
-	wcscpy(APM3GameId, L"SDFH");
+	HookAPM3(L"SDFH");
 
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
@@ -909,10 +910,9 @@ static InitFunction initFuncPengoe511([]()
 
 }, GameID::Pengoe511);
 
-static InitFunction initTestFunc([]()
+static InitFunction initPengoe5TestFunc([]()
 {
-	HookAPM3();
-	wcscpy(APM3GameId, L"SDFH");
+	HookAPM3(L"SDFH");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	// Skip joysticks
@@ -926,8 +926,7 @@ static InitFunction initTestFunc([]()
 
 static InitFunction initVF5Func([]()
 {
-	HookAPM3();
-	wcscpy(APM3GameId, L"SDHF");
+	HookAPM3(L"SDHF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	BackupSaveFileName = ".\\vf5fs\\save";
@@ -936,8 +935,7 @@ static InitFunction initVF5Func([]()
 
 static InitFunction initVF5TestFunc([]()
 {
-	HookAPM3();
-	wcscpy(APM3GameId, L"SDHF");
+	HookAPM3(L"SDHF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	if (strstr(GetCommandLineA(), "-tptest") != NULL)
@@ -953,32 +951,28 @@ static InitFunction initGoonyaFunc([]()
 		MessageBoxA(0, "Cannot load apm.dll!", "Error", 0);
 		ExitProcess(0);
 	}
-	HookAPM3();
-	wcscpy(APM3GameId, L"SDGX");
+	HookAPM3(L"SDGX");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::GoonyaFighter);
 
 static InitFunction initPuyoFunc([]()
 {
-	HookAPM3();
-	wcscpy(APM3GameId, L"SDFF");
+	HookAPM3(L"SDFF");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 }, GameID::PuyoPuyoEsports);
 
 static InitFunction initDoa6FM14Func([]()
 	{
-		HookAPM3();
-		wcscpy(APM3GameId, L"SDFM");
+		HookAPM3(L"SDFM");
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	}, GameID::Doa6FM14);
 
 static InitFunction initGGSFunc([]()
 	{
-		HookAPM3();
-		wcscpy(APM3GameId, L"SDGM");
+		HookAPM3(L"SDGM");
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	}, GameID::GGS);
@@ -992,8 +986,7 @@ static InitFunction initDoa6TestFunc([]()
 			MessageBoxA(0, "Cannot load apm.dll!", "Error", 0);
 			ExitProcess(0);
 		}
-		HookAPM3();
-		wcscpy(APM3GameId, L"SDFM");
+		HookAPM3(L"SDFM");
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	}, GameID::Doa6Test);
@@ -1007,8 +1000,7 @@ static InitFunction initFuncUmifresh02([]()
 			ExitProcess(0);
 		}
 
-		HookAPM3();
-		wcscpy(APM3GameId, L"SDGU");
+		HookAPM3(L"SDGU");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
@@ -1032,8 +1024,7 @@ static InitFunction initFuncUmifresh01([]()
 			ExitProcess(0);
 		}
 
-		HookAPM3();
-		wcscpy(APM3GameId, L"SDGU");
+		HookAPM3(L"SDGU");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
@@ -1055,8 +1046,7 @@ static int __stdcall ValidateDongle(int somearg)
 
 static InitFunction initFuncRollingGunner20([]()
 	{
-		HookAPM3();
-		wcscpy(APM3GameId, L"SDGW");
+		HookAPM3(L"SDGW");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
@@ -1066,8 +1056,7 @@ static InitFunction initFuncRollingGunner20([]()
 	}, GameID::RollingGunner20);
 static InitFunction initFuncRollingGunner21([]()
 	{
-		HookAPM3();
-		wcscpy(APM3GameId, L"SDGW");
+		HookAPM3(L"SDGW");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
@@ -1078,8 +1067,7 @@ static InitFunction initFuncRollingGunner21([]()
 
 static InitFunction initFuncAleste([]()
 	{
-		HookAPM3();
-		wcscpy(APM3GameId, L"SDHB");
+		HookAPM3(L"SDHB");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
