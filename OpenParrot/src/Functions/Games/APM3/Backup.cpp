@@ -3,7 +3,7 @@
 #include <thread>
 #include "Functions\Global.h"
 #include "Backup.h"
-#define _LOGAPM3BACKUP 1
+//#define _LOGAPM3BACKUP 1
 char* BackupSaveFileName = "save";
 char fileBuffer[256];
 BackupRecord* internal_Records;
