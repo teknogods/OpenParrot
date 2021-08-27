@@ -608,6 +608,13 @@ static void HookAPM3(wchar_t* id)
 	MH_Initialize();
 #ifdef _M_AMD64
 	LPCWSTR dllName = L"apm.dll";
+	auto apm = LoadLibrary(dllName);
+	if (apm == nullptr)
+	{
+		MessageBoxA(0, "Cannot load apm.dll!", "Error", 0);
+		ExitProcess(0);
+	}
+
 	MH_CreateHookApi(dllName, "Aime_acceptConfirm", Aime_acceptConfirm, NULL);
 	MH_CreateHookApi(dllName, "Aime_cancel", Aime_cancel, NULL);
 	MH_CreateHookApi(dllName, "Aime_getAccessCode", Aime_getAccessCode, NULL);
@@ -716,6 +723,13 @@ static void HookAPM3(wchar_t* id)
 	MH_CreateHookApi(dllName, "apmGamepadUpdate", apmGamepadUpdate, NULL);
 #else
 LPCWSTR dllName = L"apm_x86.dll";
+auto apm = LoadLibrary(dllName);
+if (apm == nullptr)
+{
+	MessageBoxA(0, "Cannot load apm_x86.dll!", "Error", 0);
+	ExitProcess(0);
+}
+
 MH_CreateHookApi(dllName, "_Aime_acceptConfirm@0", Aime_acceptConfirm, NULL);
 MH_CreateHookApi(dllName, "_Aime_cancel@0", Aime_cancel, NULL);
 MH_CreateHookApi(dllName, "_Aime_getAccessCode@4", Aime_getAccessCode, NULL);
@@ -945,12 +959,6 @@ static InitFunction initVF5TestFunc([]()
 
 static InitFunction initGoonyaFunc([]()
 {
-	auto d = LoadLibraryA("apm.dll");
-	if (d == nullptr)
-	{
-		MessageBoxA(0, "Cannot load apm.dll!", "Error", 0);
-		ExitProcess(0);
-	}
 	HookAPM3(L"SDGX");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
@@ -980,12 +988,6 @@ static InitFunction initGGSFunc([]()
 
 static InitFunction initDoa6TestFunc([]()
 	{
-		auto d = LoadLibraryA("apm.dll");
-		if (d == nullptr)
-		{
-			MessageBoxA(0, "Cannot load apm.dll!", "Error", 0);
-			ExitProcess(0);
-		}
 		HookAPM3(L"SDFM");
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
@@ -993,17 +995,9 @@ static InitFunction initDoa6TestFunc([]()
 #else
 static InitFunction initFuncUmifresh02([]()
 	{
-		auto d = LoadLibraryA("apm_x86.dll");
-		if (d == nullptr)
-		{
-			MessageBoxA(0, "Cannot load apm_x86.dll!", "Error", 0);
-			ExitProcess(0);
-		}
-
 		HookAPM3(L"SDGU");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
-
 
 		// Windowed
 		if (ToBool(config["General"]["Windowed"]))
@@ -1017,13 +1011,6 @@ static InitFunction initFuncUmifresh02([]()
 
 static InitFunction initFuncUmifresh01([]()
 	{
-		auto d = LoadLibraryA("apm_x86.dll");
-		if (d == nullptr)
-		{
-			MessageBoxA(0, "Cannot load apm_x86.dll!", "Error", 0);
-			ExitProcess(0);
-		}
-
 		HookAPM3(L"SDGU");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
