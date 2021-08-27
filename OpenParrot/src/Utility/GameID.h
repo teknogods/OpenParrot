@@ -117,5 +117,6 @@ enum class GameID
 	Umifresh,
 	RollingGunner20,
 	RollingGunner21,
-	Aleste
+	Aleste,
+	Umifresh01
 };

@@ -614,7 +614,10 @@ void GameDetect::DetectCurrentGame()
 			isNesica = true;
 			break;
 		case 0x79fa2f58: // Umihara KawaseFresh!ForAC
-			SetGameId(GameID::Umifresh, "Umihara KawaseFresh! For AC");
+			SetGameId(GameID::Umifresh, "Umihara KawaseFresh! For AC Update 01");
+			break;
+		case 0xd230e1e3: // Umihara KawaseFresh!ForAC
+			SetGameId(GameID::Umifresh01, "Umihara KawaseFresh! For AC Base Version");
 			break;
 		case 0x1ff0b15b: // Rolling Gunner 2.0
 			SetGameId(GameID::RollingGunner20, "Rolling Gunner 2.0");

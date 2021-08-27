@@ -1023,6 +1023,31 @@ static InitFunction initFuncUmifresh02([]()
 
 	}, GameID::Umifresh);
 
+static InitFunction initFuncUmifresh01([]()
+	{
+		auto d = LoadLibraryA("apm_x86.dll");
+		if (d == nullptr)
+		{
+			MessageBoxA(0, "Cannot load apm_x86.dll!", "Error", 0);
+			ExitProcess(0);
+		}
+
+		HookAPM3();
+		wcscpy(APM3GameId, L"SDGU");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+
+		// Windowed
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			injector::WriteMemory<BYTE>(mainModuleBase + 0x1D8144, 0xEB, true);
+		}
+
+		injector::WriteMemory<BYTE>(mainModuleBase + 0x18025F, 0xEB, true); // Skip some credit check idfk
+
+	}, GameID::Umifresh01);
+
 static int __stdcall ValidateDongle(int somearg)
 {
 	return 0;
