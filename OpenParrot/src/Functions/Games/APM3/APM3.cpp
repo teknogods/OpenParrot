@@ -16,7 +16,7 @@
 #endif
 
 static uint8_t g_APM3IOValues[256];
-#define _LOGAPM3 1
+//#define _LOGAPM3 1
 bool CALLPLEB ApmSystemSetting_getAdvertizeSound(bool *enable)
 {
 #ifdef _LOGAPM3
