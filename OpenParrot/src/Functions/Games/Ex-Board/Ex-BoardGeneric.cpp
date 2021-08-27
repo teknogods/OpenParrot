@@ -311,7 +311,7 @@ BOOL WINAPI CloseHandleWrapExBoard(
 		reset_addressedExBoard();
 		return TRUE;
 	}
-	CloseHandle(hObject);
+	return CloseHandle(hObject);
 }
 
 int __stdcall GetKeyLicenseWrap(void)
