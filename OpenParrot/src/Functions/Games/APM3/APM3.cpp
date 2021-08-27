@@ -388,9 +388,9 @@ DWORD_PTR CALLPLEB NetworkProperty_getAddressValue()
 	return NetworkProperty_getAddressValueReturnValue;
 }
 
-static char* gameDir = ".\\";
+static wchar_t* gameDir = L".\\";
 
-char *CALLPLEB System_getAppRootPath()
+wchar_t *CALLPLEB System_getAppRootPath()
 {
 #ifdef _LOGAPM3
 	info(true, "System_getAppRootPath");
