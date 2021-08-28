@@ -425,8 +425,8 @@ SerialID* System_getBoardId()
 	if (_serialId == nullptr)
 	{
 		_serialId = (SerialID*)malloc(sizeof(SerialID));
-		wcscpy(_serialId->ID.Value, L"IAMGODBEAVER");
-		wcscpy(_serialId->ShortId.Value, L"IAMGODBEAVER");
+		memcpy(_serialId->ID.Value, L"A69E-01A88888888", 32);
+		memcpy(_serialId->ShortId.Value, L"A69E01A8888", 24);
 	}
 	return _serialId;
 }
@@ -470,8 +470,8 @@ SerialID* System_getKeychipId()
 	if (_serialId == nullptr)
 	{
 		_serialId = (SerialID*)malloc(sizeof(SerialID));
-		wcscpy(_serialId->ID.Value, L"IAMGODBEAVER");
-		wcscpy(_serialId->ShortId.Value, L"IAMGODBEAVER");
+		memcpy(_serialId->ID.Value, L"A69E-01A88888888", 32);
+		memcpy(_serialId->ShortId.Value, L"A69E01A8888", 24);
 	}
 	return _serialId;
 }
@@ -1026,19 +1026,11 @@ static InitFunction initFuncUmifresh01([]()
 
 	}, GameID::Umifresh01);
 
-static int __stdcall ValidateDongle(int somearg)
-{
-	return 0;
-}
-
 static InitFunction initFuncRollingGunner20([]()
 	{
 		HookAPM3(L"SDGW");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
-
-		// I am crazy and not care about serial check
-		injector::MakeJMP(mainModuleBase + 0xB6290, ValidateDongle);
 
 	}, GameID::RollingGunner20);
 static InitFunction initFuncRollingGunner21([]()
@@ -1047,19 +1039,13 @@ static InitFunction initFuncRollingGunner21([]()
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-		// I am crazy and not care about serial check
-		injector::MakeJMP(mainModuleBase + 0xB6140, ValidateDongle);
-
 	}, GameID::RollingGunner21);
 
 static InitFunction initFuncAleste([]()
 	{
 		HookAPM3(L"SDHB");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
-
-		// I am crazy and not care about serial check
-		injector::MakeJMP(mainModuleBase + 0x13B900, ValidateDongle);		
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);	
 
 	}, GameID::Aleste);
 
