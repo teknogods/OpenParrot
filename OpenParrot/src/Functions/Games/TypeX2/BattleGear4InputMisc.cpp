@@ -28,6 +28,9 @@ static bool init;
 static bool MenuHack;
 static bool MenuHackDelay;
 static bool TestMode;
+static bool StopPausing;
+static bool init2;
+bool BG4EnableTracks;
 
 static DWORD imageBase;
 
@@ -37,11 +40,40 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
+static void BG4General(Helpers* helpers)
+{
+	if (!init2)
+	{
+		UINT8 WaitForAttract = helpers->ReadByte(0x42D964, true);
+
+		if (WaitForAttract)
+		{
+			init2 = true;
+
+			if (BG4EnableTracks)
+				helpers->WriteIntPtr(0x4165C0, 0x3FFFFFFF, true);
+		}
+	}
+
+	UINT8 ScreenVal = helpers->ReadByte(0x4E3668, true);
+
+	if (ScreenVal == 0x08)
+	{
+		if (!StopPausing)
+			StopPausing = true;
+	}
+
+	if (StopPausing)
+		helpers->WriteByte(0x42D29C, 0x01, true);
+}
+
 void BG4ManualHack(Helpers* helpers) //Hack to allow us to select Manual	
 {	
 	INT_PTR MenuTimerBase = helpers->ReadIntPtr(0x4C2924, true);
 	INT_PTR MenuTimerBaseA = helpers->ReadIntPtr(MenuTimerBase + 0x08, false);
 	INT_PTR MenuTime = helpers->ReadIntPtr(MenuTimerBaseA + 0x45C, false);
+
+	BG4General(0);
 
 	if (MenuTime == 0x1194)
 	{
@@ -131,6 +163,7 @@ void BG4ProInputs(Helpers* helpers)
 		}
 	}
 
+	BG4General(0);
 	BG4ProManualHack(0);
 	
 	UINT8 KeyInput = helpers->ReadByte(0x42E296, true);

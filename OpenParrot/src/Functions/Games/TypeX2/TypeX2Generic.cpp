@@ -16,6 +16,7 @@ extern void BG4ManualHack(Helpers* helpers);
 extern void BG4ProInputs(Helpers* helpers);
 extern void KOFSkyStageInputs(Helpers* helpers);
 static bool ProMode;
+extern bool BG4EnableTracks;
 
 void AddCommOverride(HANDLE hFile);
 
@@ -523,6 +524,8 @@ static InitFunction initFunction([]()
 			{
 				injector::MakeRET(0x5F21B0, 4);
 			}
+
+			BG4EnableTracks = (ToBool(config["General"]["Enable All Tracks"]));
 
 			ProMode = (ToBool(config["General"]["Professional Edition Enable"]));
 
