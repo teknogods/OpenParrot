@@ -23,7 +23,7 @@ bool CALLPLEB ApmSystemSetting_getAdvertizeSound(bool *enable)
 	info(true, "ApmSystemSetting_getAdvertizeSound");
 #endif
 	*enable = true;
-	return ApmSystemSetting_getAdvertizeSoundReturnValue;
+	return true;
 }
 
 bool CALLPLEB ApmSystemSetting_getClosingTimes(DWORD_PTR*closingTimes)

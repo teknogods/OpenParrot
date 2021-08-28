@@ -25,7 +25,7 @@ bool CALLPLEB Sequence_continuePlay(SequenceAccountingBegin beginPlay, SequenceA
 #ifdef _LOGAPM3SEQUENCE
 	info(true, "Sequence_continuePlay");
 #endif
-	return Sequence_continuePlayReturnValue;
+	return true;
 }
 
 bool CALLPLEB Sequence_endPlay(SequenceAccountingEnd endPlay, SEQUENCE_PLAY_ERROR_ID* errorID)
