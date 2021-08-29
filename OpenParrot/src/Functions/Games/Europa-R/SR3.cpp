@@ -105,6 +105,9 @@ static InitFunction sr3Func([]()
 	injector::WriteMemory<BYTE>(0x588755, 0xEB, true); // width
 	injector::WriteMemory<BYTE>(0x588762, 0xEB, true); // height
 
+	//Stop game pausing when click off window
+	injector::MakeNOP(0x5588BB, 6);
+
 	MH_Initialize();
 
 	if (ToBool(config["General"]["Windowed"]))
