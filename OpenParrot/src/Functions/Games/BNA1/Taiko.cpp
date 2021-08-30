@@ -29,7 +29,7 @@ static HWND WINAPI CreateWindowExWHook(DWORD dwExStyle, LPCWSTR lpClassName, LPC
 			Y = 0;
 		}
 
-		lpWindowName = L"OpenParrot - Taiko no Tatsujin Nijiiro";
+		lpWindowName = L"OpenParrot - Taiko no Tatsujin Nijiiro Ver";
 	}
 
 	return CreateWindowExWOri(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
