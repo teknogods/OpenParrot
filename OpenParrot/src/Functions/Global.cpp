@@ -296,7 +296,7 @@ DWORD FetchDwordInformation(const char* setting, const char* subkey, DWORD defau
 {
 	try
 	{
-		int value = atol(config[setting][subkey].c_str());
+		DWORD value = (DWORD)atol(config[setting][subkey].c_str());
 
 		if (value == NULL)
 			return defaultValue;

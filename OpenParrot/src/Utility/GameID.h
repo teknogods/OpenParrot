@@ -120,5 +120,6 @@ enum class GameID
 	RollingGunner20,
 	RollingGunner21,
 	Aleste,
-	Umifresh01
+	Umifresh01,
+	Taiko
 };

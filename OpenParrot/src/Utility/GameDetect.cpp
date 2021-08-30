@@ -631,8 +631,8 @@ void GameDetect::DetectCurrentGame()
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
-		  SetGameId(GameID::SFV, "SFV");
-		  break;				  
+			SetGameId(GameID::SFV, "SFV");
+			break;				  
 		case 0x80ebd207:
 			SetGameId(GameID::Theatrhythm, "Theatrhythm");
 			break;
@@ -712,6 +712,9 @@ void GameDetect::DetectCurrentGame()
 			break;
 		case 0xd0a6afbd: // GGS
 			SetGameId(GameID::GGS, "Guilty Gear Strive");
+			break;
+		case 0x72F9B475:
+			SetGameId(GameID::Taiko, "Taiko no Tatsujin Nijiiro");
 			break;
 #endif
 		default:

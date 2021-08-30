@@ -5,12 +5,51 @@
 #ifdef _M_AMD64
 #include "Utility/InitFunction.h"
 #pragma optimize("", off)
-#include "d3d11.h"
+
+#include "dxgi1_2.h"
+#include "dxgi1_3.h"
+#include "dxgi1_4.h"
+#include "dxgi1_5.h"
 #include "dxgi1_6.h"
+#include "d3d11.h"
+#pragma comment(lib, "d3d11.lib")
+#include "d3d12.h"
+#pragma comment(lib, "d3d12.lib")
+
 #include "Utility/GameDetect.h"
+#include "Global.h"
+#include "FpsLimiter.h"
+#include <intrin.h>
 
-HRESULT(WINAPI* g_origCreateDXGIFactory)(REFIID, void**);
+// Local variables
+static bool Windowed = false;
+static bool FpsLimiterEnable = false;
+static bool DisableVSync = false;
 
+// Prototypes
+static HRESULT(STDMETHODCALLTYPE* g_oldSetFullscreenState)(IDXGISwapChain* This, BOOL Fullscreen, IDXGIOutput* pTarget);
+static HRESULT(STDMETHODCALLTYPE* g_oldCreateSwapChain)(IDXGIFactory* This, IUnknown* pDevice, DXGI_SWAP_CHAIN_DESC* pDesc, IDXGISwapChain** ppSwapChain);
+static HRESULT(STDMETHODCALLTYPE* g_oldSetFullscreenState1)(IDXGISwapChain1* This, BOOL Fullscreen, IDXGIOutput* pTarget);
+static HRESULT(STDMETHODCALLTYPE* g_oldCreateSwapChainForHwnd)(IDXGIFactory2* This, IUnknown* pDevice, HWND hWnd, const DXGI_SWAP_CHAIN_DESC1* pDesc, const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc, IDXGIOutput* pRestrictToOutput, IDXGISwapChain1** ppSwapChain);
+static HRESULT(STDMETHODCALLTYPE* g_oldPresentWrap)(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+static HRESULT(STDMETHODCALLTYPE* g_oldPresent1Wrap)(IDXGISwapChain1* pSwapChain, UINT SyncInterval, UINT Flags);
+static HRESULT(STDMETHODCALLTYPE* g_oldCreateSwapChain2)(IDXGIFactory2* This, IUnknown* pDevice, DXGI_SWAP_CHAIN_DESC* pDesc, IDXGISwapChain** ppSwapChain);
+static HRESULT(WINAPI* g_origCreateDXGIFactory2)(UINT Flags, REFIID riid, void** ppFactory);
+static HRESULT(WINAPI* g_origCreateDXGIFactory)(REFIID, void**);
+static HRESULT(WINAPI* g_origD3D11CreateDeviceAndSwapChain)(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, const D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels, UINT SDKVersion, /*const*/ DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, IDXGISwapChain** ppSwapChain, ID3D11Device** ppDevice, D3D_FEATURE_LEVEL* pFeatureLevel, ID3D11DeviceContext** ppImmediateContext);
+
+static HRESULT STDMETHODCALLTYPE SetFullscreenStateWrap(IDXGISwapChain* This, BOOL Fullscreen, IDXGIOutput* pTarget);
+static HRESULT STDMETHODCALLTYPE CreateSwapChainWrap(IDXGIFactory* This, IUnknown* pDevice, DXGI_SWAP_CHAIN_DESC* pDesc, IDXGISwapChain** ppSwapChain);
+static HRESULT STDMETHODCALLTYPE SetFullscreenState1Wrap(IDXGISwapChain1* This, BOOL Fullscreen, IDXGIOutput* pTarget);
+static HRESULT STDMETHODCALLTYPE CreateSwapChainForHwndWrap(IDXGIFactory2* This, IUnknown* pDevice, HWND hWnd, const DXGI_SWAP_CHAIN_DESC1* pDesc, const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc, IDXGIOutput* pRestrictToOutput, IDXGISwapChain1** ppSwapChain);
+static HRESULT STDMETHODCALLTYPE PresentWrap(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+static HRESULT STDMETHODCALLTYPE Present1Wrap(IDXGISwapChain1* pSwapChain, UINT SyncInterval, UINT Flags);
+static HRESULT STDMETHODCALLTYPE CreateSwapChain2Wrap(IDXGIFactory2* This, IUnknown* pDevice, DXGI_SWAP_CHAIN_DESC* pDesc, IDXGISwapChain** ppSwapChain);
+static HRESULT WINAPI CreateDXGIFactory2Wrap(UINT Flags, REFIID riid, void** ppFactory);
+static HRESULT WINAPI CreateDXGIFactoryWrap(REFIID riid, _COM_Outptr_ void** ppFactory);
+static HRESULT WINAPI D3D11CreateDeviceAndSwapChainWrap(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, const D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels, UINT SDKVersion, /*const*/ DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, IDXGISwapChain** ppSwapChain, ID3D11Device** ppDevice, D3D_FEATURE_LEVEL* pFeatureLevel, ID3D11DeviceContext** ppImmediateContext);
+
+// Functions
 template<typename T>
 inline T HookVtableFunction(T* functionPtr, T target)
 {
@@ -25,109 +64,143 @@ inline T HookVtableFunction(T* functionPtr, T target)
 	return old;
 }
 
-HRESULT(WINAPI* g_oldCreateSwapChain)(
-	IDXGIFactory * This,
-	/* [annotation][in] */
-	_In_  IUnknown *pDevice,
-	/* [annotation][in] */
-	_In_  DXGI_SWAP_CHAIN_DESC *pDesc,
-	/* [annotation][out] */
-	_COM_Outptr_  IDXGISwapChain **ppSwapChain);
-
-HRESULT(STDMETHODCALLTYPE *g_oldSetFullscreenState)(
-	IDXGISwapChain * This,
-	/* [in] */ BOOL Fullscreen,
-	/* [annotation][in] */
-	_In_opt_  IDXGIOutput *pTarget);
-
-HRESULT STDMETHODCALLTYPE SetFullscreenStateWrap(
-	IDXGISwapChain * This,
-	/* [in] */ BOOL Fullscreen,
-	/* [annotation][in] */
-	_In_opt_  IDXGIOutput *pTarget)
+static HRESULT STDMETHODCALLTYPE SetFullscreenStateWrap(IDXGISwapChain* This, BOOL Fullscreen, IDXGIOutput* pTarget)
 {
 	return S_OK;
 }
 
-HRESULT WINAPI CreateSwapChainWrap(
-	IDXGIFactory * This,
-	/* [annotation][in] */
-	_In_  IUnknown *pDevice,
-	/* [annotation][in] */
-	_In_  DXGI_SWAP_CHAIN_DESC *pDesc,
-	/* [annotation][out] */
-	_COM_Outptr_  IDXGISwapChain **ppSwapChain)
+static HRESULT STDMETHODCALLTYPE CreateSwapChainWrap(IDXGIFactory* This, IUnknown* pDevice, DXGI_SWAP_CHAIN_DESC* pDesc, IDXGISwapChain** ppSwapChain)
 {
-	pDesc->Windowed = TRUE;
+	if (Windowed)
+		pDesc->Windowed = TRUE;
 
 	HRESULT hr = g_oldCreateSwapChain(This, pDevice, pDesc, ppSwapChain);
 
 	if (*ppSwapChain)
 	{
-		auto old = HookVtableFunction(&(*ppSwapChain)->lpVtbl->SetFullscreenState, SetFullscreenStateWrap);
-		g_oldSetFullscreenState = (old) ? old : g_oldSetFullscreenState;
+		if (Windowed)
+		{
+			auto old1 = HookVtableFunction(&(*ppSwapChain)->lpVtbl->SetFullscreenState, SetFullscreenStateWrap);
+			g_oldSetFullscreenState = (old1) ? old1 : g_oldSetFullscreenState;
+		}
+
+		if (FpsLimiterEnable || DisableVSync)
+		{
+			auto old2 = HookVtableFunction(&(*ppSwapChain)->lpVtbl->Present, PresentWrap);
+			g_oldPresentWrap = (old2) ? old2 : g_oldPresentWrap;
+		}
 	}
 
 	return hr;
 }
 
-HRESULT(STDMETHODCALLTYPE *g_oldSetFullscreenState1)(
-	IDXGISwapChain1 * This,
-	/* [in] */ BOOL Fullscreen,
-	/* [annotation][in] */
-	_In_opt_  IDXGIOutput *pTarget);
-
-HRESULT STDMETHODCALLTYPE SetFullscreenState1Wrap(
-	IDXGISwapChain1 * This,
-	/* [in] */ BOOL Fullscreen,
-	/* [annotation][in] */
-	_In_opt_  IDXGIOutput *pTarget)
+static HRESULT STDMETHODCALLTYPE SetFullscreenState1Wrap(IDXGISwapChain1* This, BOOL Fullscreen, IDXGIOutput* pTarget)
 {
 	return S_OK;
 }
 
-HRESULT(STDMETHODCALLTYPE *g_oldCreateSwapChainForHwnd)(
-	IDXGIFactory2 * This,
-	/* [annotation][in] */
-	_In_  IUnknown *pDevice,
-	/* [annotation][in] */
-	_In_  HWND hWnd,
-	/* [annotation][in] */
-	_In_  const DXGI_SWAP_CHAIN_DESC1 *pDesc,
-	/* [annotation][in] */
-	_In_opt_  const DXGI_SWAP_CHAIN_FULLSCREEN_DESC *pFullscreenDesc,
-	/* [annotation][in] */
-	_In_opt_  IDXGIOutput *pRestrictToOutput,
-	/* [annotation][out] */
-	_COM_Outptr_  IDXGISwapChain1 **ppSwapChain);
-
-HRESULT STDMETHODCALLTYPE CreateSwapChainForHwndWrap(
-	IDXGIFactory2 * This,
-	/* [annotation][in] */
-	_In_  IUnknown *pDevice,
-	/* [annotation][in] */
-	_In_  HWND hWnd,
-	/* [annotation][in] */
-	_In_  const DXGI_SWAP_CHAIN_DESC1 *pDesc,
-	/* [annotation][in] */
-	_In_opt_  const DXGI_SWAP_CHAIN_FULLSCREEN_DESC *pFullscreenDesc,
-	/* [annotation][in] */
-	_In_opt_  IDXGIOutput *pRestrictToOutput,
-	/* [annotation][out] */
-	_COM_Outptr_  IDXGISwapChain1 **ppSwapChain)
+static HRESULT STDMETHODCALLTYPE CreateSwapChainForHwndWrap(IDXGIFactory2* This, IUnknown* pDevice, HWND hWnd, const DXGI_SWAP_CHAIN_DESC1* pDesc, const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc, IDXGIOutput* pRestrictToOutput, IDXGISwapChain1** ppSwapChain)
 {
 	HRESULT hr = g_oldCreateSwapChainForHwnd(This, pDevice, hWnd, pDesc, NULL, pRestrictToOutput, ppSwapChain);
 
 	if (*ppSwapChain)
 	{
-		auto old = HookVtableFunction(&(*ppSwapChain)->lpVtbl->SetFullscreenState, SetFullscreenState1Wrap);
-		g_oldSetFullscreenState1 = (old) ? old : g_oldSetFullscreenState1;
+		if (Windowed)
+		{
+			auto old = HookVtableFunction(&(*ppSwapChain)->lpVtbl->SetFullscreenState, SetFullscreenState1Wrap);
+			g_oldSetFullscreenState1 = (old) ? old : g_oldSetFullscreenState1;
+		}
+
+		if (FpsLimiterEnable || DisableVSync)
+		{
+			auto old2 = HookVtableFunction(&(*ppSwapChain)->lpVtbl->Present, Present1Wrap);
+			g_oldPresent1Wrap = (old2) ? old2 : g_oldPresent1Wrap;
+		}
 	}
 
 	return hr;
 }
 
-HRESULT WINAPI CreateDXGIFactoryWrap(REFIID riid, _COM_Outptr_ void **ppFactory)
+static HRESULT STDMETHODCALLTYPE PresentWrap(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+{
+	if (DisableVSync)
+		SyncInterval = 0;
+
+	if (FpsLimiterEnable)
+		FpsLimiter();
+
+	return g_oldPresentWrap(pSwapChain, SyncInterval, Flags);
+}
+
+static HRESULT STDMETHODCALLTYPE Present1Wrap(IDXGISwapChain1* pSwapChain, UINT SyncInterval, UINT Flags)
+{
+	if (DisableVSync)
+		SyncInterval = 0;
+
+	if (FpsLimiterEnable)
+		FpsLimiter();
+
+	return g_oldPresent1Wrap(pSwapChain, SyncInterval, Flags);
+}
+
+static HRESULT STDMETHODCALLTYPE CreateSwapChain2Wrap(IDXGIFactory2* This, IUnknown* pDevice, DXGI_SWAP_CHAIN_DESC* pDesc, IDXGISwapChain** ppSwapChain)
+{
+	if (Windowed)
+		pDesc->Windowed = TRUE;
+
+	HRESULT hr = g_oldCreateSwapChain2(This, pDevice, pDesc, ppSwapChain);
+
+	if (*ppSwapChain)
+	{
+		if (Windowed)
+		{
+			auto old1 = HookVtableFunction(&(*ppSwapChain)->lpVtbl->SetFullscreenState, SetFullscreenStateWrap);
+			g_oldSetFullscreenState = (old1) ? old1 : g_oldSetFullscreenState;
+		}
+
+		if (FpsLimiterEnable || DisableVSync)
+		{
+			auto old2 = HookVtableFunction(&(*ppSwapChain)->lpVtbl->Present, PresentWrap);
+			g_oldPresentWrap = (old2) ? old2 : g_oldPresentWrap;
+		}
+	}
+
+	return hr;
+}
+
+static HRESULT WINAPI CreateDXGIFactory2Wrap(UINT Flags, REFIID riid, void** ppFactory)
+{
+	HRESULT hr = g_origCreateDXGIFactory2(Flags, riid, ppFactory);
+
+	if (SUCCEEDED(hr))
+	{
+		int factoryType = 0;
+
+		if (IsEqualIID(riid, IID_IDXGIFactory1))
+			factoryType = 1;
+		else if (IsEqualIID(riid, IID_IDXGIFactory2))
+			factoryType = 2;
+		else if (IsEqualIID(riid, IID_IDXGIFactory3))
+			factoryType = 3;
+		else if (IsEqualIID(riid, IID_IDXGIFactory4))
+			factoryType = 4;
+		else if (IsEqualIID(riid, IID_IDXGIFactory5))
+			factoryType = 5;
+		else if (IsEqualIID(riid, IID_IDXGIFactory6))
+			factoryType = 6;
+		else if (IsEqualIID(riid, IID_IDXGIFactory7))
+			factoryType = 7;
+
+		IDXGIFactory2* factory = (IDXGIFactory2*)*ppFactory;
+
+		auto old = HookVtableFunction(&factory->lpVtbl->CreateSwapChain, CreateSwapChain2Wrap);
+		g_oldCreateSwapChain2 = (old) ? old : g_oldCreateSwapChain2;
+	}
+
+	return hr;
+}
+
+static HRESULT WINAPI CreateDXGIFactoryWrap(REFIID riid, _COM_Outptr_ void** ppFactory)
 {
 	HRESULT hr = g_origCreateDXGIFactory(riid, ppFactory);
 
@@ -136,29 +209,19 @@ HRESULT WINAPI CreateDXGIFactoryWrap(REFIID riid, _COM_Outptr_ void **ppFactory)
 		int factoryType = 0;
 
 		if (IsEqualIID(riid, IID_IDXGIFactory1))
-		{
 			factoryType = 1;
-		}
 		else if (IsEqualIID(riid, IID_IDXGIFactory2))
-		{
 			factoryType = 2;
-		}
-		else if (IsEqualIID(riid, IID_IDXGIFactory2))
-		{
-			factoryType = 2;
-		}
 		else if (IsEqualIID(riid, IID_IDXGIFactory3))
-		{
 			factoryType = 3;
-		}
 		else if (IsEqualIID(riid, IID_IDXGIFactory4))
-		{
 			factoryType = 4;
-		}
 		else if (IsEqualIID(riid, IID_IDXGIFactory5))
-		{
 			factoryType = 5;
-		}
+		else if (IsEqualIID(riid, IID_IDXGIFactory6))
+			factoryType = 6;
+		else if (IsEqualIID(riid, IID_IDXGIFactory7))
+			factoryType = 7;
 
 		if (factoryType >= 0)
 		{
@@ -180,60 +243,37 @@ HRESULT WINAPI CreateDXGIFactoryWrap(REFIID riid, _COM_Outptr_ void **ppFactory)
 	return hr;
 }
 
-static HRESULT (WINAPI* g_origD3D11CreateDeviceAndSwapChain)(
-	_In_opt_        IDXGIAdapter         *pAdapter,
-	D3D_DRIVER_TYPE      DriverType,
-	HMODULE              Software,
-	UINT                 Flags,
-	_In_opt_  const D3D_FEATURE_LEVEL    *pFeatureLevels,
-	UINT                 FeatureLevels,
-	UINT                 SDKVersion,
-	_In_opt_  const DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-	_Out_opt_       IDXGISwapChain       **ppSwapChain,
-	_Out_opt_       ID3D11Device         **ppDevice,
-	_Out_opt_       D3D_FEATURE_LEVEL    *pFeatureLevel,
-	_Out_opt_       ID3D11DeviceContext  **ppImmediateContext
-);
-
-static HRESULT WINAPI D3D11CreateDeviceAndSwapChainWrap(
-	_In_opt_        IDXGIAdapter         *pAdapter,
-	D3D_DRIVER_TYPE      DriverType,
-	HMODULE              Software,
-	UINT                 Flags,
-	_In_opt_  const D3D_FEATURE_LEVEL    *pFeatureLevels,
-	UINT                 FeatureLevels,
-	UINT                 SDKVersion,
-	_In_opt_  /*const*/ DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-	_Out_opt_       IDXGISwapChain       **ppSwapChain,
-	_Out_opt_       ID3D11Device         **ppDevice,
-	_Out_opt_       D3D_FEATURE_LEVEL    *pFeatureLevel,
-	_Out_opt_       ID3D11DeviceContext  **ppImmediateContext
-)
+static HRESULT WINAPI D3D11CreateDeviceAndSwapChainWrap(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, const D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels, UINT SDKVersion, /*const*/ DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, IDXGISwapChain** ppSwapChain, ID3D11Device** ppDevice, D3D_FEATURE_LEVEL* pFeatureLevel, ID3D11DeviceContext** ppImmediateContext)
 {
-	pSwapChainDesc->Windowed = TRUE;
+	if (Windowed)
+		pSwapChainDesc->Windowed = TRUE;
 
 	HRESULT hr = g_origD3D11CreateDeviceAndSwapChain(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, pSwapChainDesc, ppSwapChain, ppDevice, pFeatureLevel, ppImmediateContext);
 
 	if (ppSwapChain)
 	{
-		auto old = HookVtableFunction(&(*ppSwapChain)->lpVtbl->SetFullscreenState, SetFullscreenStateWrap);
-		g_oldSetFullscreenState = (old) ? old : g_oldSetFullscreenState;
+		if (Windowed)
+		{
+			auto old1 = HookVtableFunction(&(*ppSwapChain)->lpVtbl->SetFullscreenState, SetFullscreenStateWrap);
+			g_oldSetFullscreenState = (old1) ? old1 : g_oldSetFullscreenState;
+		}
+
+		if (FpsLimiterEnable)
+		{
+			auto old2 = HookVtableFunction(&(*ppSwapChain)->lpVtbl->Present, PresentWrap);
+			g_oldPresentWrap = (old2) ? old2 : g_oldPresentWrap;
+		}
 	}
 
 	return hr;
 }
 
-void InitDXGIWindowHook()
+static void InitDXGIWindowHook()
 {
 	MH_Initialize();
-	MH_CreateHookApi(L"dxgi.dll",
-		"CreateDXGIFactory",
-		CreateDXGIFactoryWrap,
-		(void**)&g_origCreateDXGIFactory);
-
-	MH_CreateHookApi(L"d3d11.dll",
-		"D3D11CreateDeviceAndSwapChain",		D3D11CreateDeviceAndSwapChainWrap,
-		(void**)&g_origD3D11CreateDeviceAndSwapChain);
+	MH_CreateHookApi(L"dxgi.dll", "CreateDXGIFactory", CreateDXGIFactoryWrap, (void**)&g_origCreateDXGIFactory);
+	MH_CreateHookApi(L"dxgi.dll", "CreateDXGIFactory2", CreateDXGIFactory2Wrap, (void**)&g_origCreateDXGIFactory2);
+	MH_CreateHookApi(L"d3d11.dll", "D3D11CreateDeviceAndSwapChain", D3D11CreateDeviceAndSwapChainWrap, (void**)&g_origD3D11CreateDeviceAndSwapChain);
 	MH_EnableHook(MH_ALL_HOOKS);
 }
 
@@ -244,9 +284,25 @@ static InitFunction initFunc([]()
 	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26 || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::Tekken7Update00 || GameDetect::currentGame == GameID::SFV)
 		return;
 
-	if (ToBool(config["General"]["Windowed"]))
+	// Make local variables for speed
+	Windowed = ToBool(config["General"]["Windowed"]);
+
+	// Old boolean based limit of 60 fps (keep this for backward compatibility)
+	if (ToBool(config["General"]["Framelimiter"]))
 	{
-		InitDXGIWindowHook();
+		FpsLimiterEnable = true;
+		FpsLimiterSet(60.0f);
 	}
+	// New configurable fps limit
+	else if (ToBool(config["General"]["FpsLimitEnable"]))
+	{
+		FpsLimiterEnable = true;
+		FpsLimiterSet((float)FetchDwordInformation("General", "FpsLimit", 60));
+	}
+
+	DisableVSync = ToBool(config["General"]["DisableVSync"]);
+
+	if (Windowed || FpsLimiterEnable || DisableVSync)
+		InitDXGIWindowHook();
 });
 #endif

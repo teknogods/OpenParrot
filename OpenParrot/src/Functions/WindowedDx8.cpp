@@ -4,14 +4,28 @@
 #pragma optimize("", off)
 #include "dx8/d3d8.h"
 #include "Utility/GameDetect.h"
+#include "Global.h"
+#include "FpsLimiter.h"
 
-static bool swShaderHack = false;
-//static bool windowed = false;
+// Local variables
+static bool Windowed = false;
+static bool FpsLimiterEnable = false;
+static bool SoftwareShaderHack = false;
 
-IDirect3D8*(WINAPI* g_origDirect3DCreate8)(UINT SDKVersion);
+// Prototypes
+static HRESULT(WINAPI* g_oldPresent)(IDirect3DDevice8* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
+static HRESULT(WINAPI* g_oldReset)(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresentationParameters);
+static HRESULT(WINAPI* g_oldCreateDevice)(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface);
+static IDirect3D8* (WINAPI* g_origDirect3DCreate8)(UINT SDKVersion);
 
+static HRESULT WINAPI PresentWrap(IDirect3DDevice8* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
+static HRESULT WINAPI ResetWrap(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresentationParameters);
+static HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface);
+static IDirect3D8* WINAPI Direct3DCreate8Wrap(UINT SDKVersion);
+
+// Functions
 template<typename T>
-T HookVtableFunction(T* functionPtr, T target)
+inline T HookVtableFunction(T* functionPtr, T target)
 {
 	if (*functionPtr == target)
 	{
@@ -24,77 +38,17 @@ T HookVtableFunction(T* functionPtr, T target)
 	return old;
 }
 
-static HRESULT(WINAPI* g_oldPresent)(IDirect3DDevice8* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
-
-HRESULT WINAPI PresentWrap(IDirect3DDevice8* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
+static HRESULT WINAPI PresentWrap(IDirect3DDevice8* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
-	if (ToBool(config["General"]["Framelimiter"]))
-	{
-		// https://github.com/ThirteenAG/d3d9-wrapper/blob/master/source/d3d9.cpp
-		float fFPSLimit = 60.0;
-		static LARGE_INTEGER PerformanceCount1;
-		static LARGE_INTEGER PerformanceCount2;
-		static bool bOnce1 = false;
-		static double targetFrameTime = 1000.0 / fFPSLimit;
-		static double t = 0.0;
-		static DWORD i = 0;
+	if (FpsLimiterEnable)
+		FpsLimiter();
 
-		if (!bOnce1)
-		{
-			bOnce1 = true;
-			QueryPerformanceCounter(&PerformanceCount1);
-			PerformanceCount1.QuadPart = PerformanceCount1.QuadPart >> i;
-		}
-
-		while (true)
-		{
-			QueryPerformanceCounter(&PerformanceCount2);
-			if (t == 0.0)
-			{
-				LARGE_INTEGER PerformanceCount3;
-				static bool bOnce2 = false;
-
-				if (!bOnce2)
-				{
-					bOnce2 = true;
-					QueryPerformanceFrequency(&PerformanceCount3);
-					i = 0;
-					t = 1000.0 / (double)PerformanceCount3.QuadPart;
-					auto v = t * 2147483648.0;
-					if (60000.0 > v)
-					{
-						while (true)
-						{
-							++i;
-							v *= 2.0;
-							t *= 2.0;
-							if (60000.0 <= v)
-								break;
-						}
-					}
-				}
-				SleepEx(0, 1);
-				break;
-			}
-
-			if (((double)((PerformanceCount2.QuadPart >> i) - PerformanceCount1.QuadPart) * t) >= targetFrameTime)
-				break;
-
-			SleepEx(0, 1);
-		}
-		QueryPerformanceCounter(&PerformanceCount2);
-		PerformanceCount1.QuadPart = PerformanceCount2.QuadPart >> i;
-		return g_oldPresent(self, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-	}
-	else
-		return g_oldPresent(self, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+	return g_oldPresent(self, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
-static HRESULT(WINAPI* g_oldReset)(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresentationParameters);
-
-HRESULT WINAPI ResetWrap(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresentationParameters)
+static HRESULT WINAPI ResetWrap(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	if (ToBool(config["General"]["Windowed"]))
+	if (Windowed)
 	{
 		pPresentationParameters->Windowed = TRUE;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
@@ -108,11 +62,9 @@ HRESULT WINAPI ResetWrap(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresent
 	return g_oldReset(self, pPresentationParameters);
 }
 
-static HRESULT(WINAPI* g_oldCreateDevice)(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface);
-
-HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface)
+static HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface)
 {
-	if (ToBool(config["General"]["Windowed"]))
+	if (Windowed)
 	{
 		pPresentationParameters->Windowed = TRUE;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
@@ -122,34 +74,41 @@ HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE Devic
 		pPresentationParameters->Flags = 0;
 		pPresentationParameters->FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 	}
-	if (swShaderHack)
+
+	if (SoftwareShaderHack)
 		BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
 	HRESULT hr = g_oldCreateDevice(self, Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
 
 	if (*ppReturnedDeviceInterface)
 	{
-		auto old = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->Reset, ResetWrap);
-		g_oldReset = (old) ? old : g_oldReset;
+		if (Windowed)
+		{
+			auto old = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->Reset, ResetWrap);
+			g_oldReset = (old) ? old : g_oldReset;
+		}
 
-		auto old2 = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->Present, PresentWrap);
-		g_oldPresent = (old2) ? old2 : g_oldPresent;
+		if (FpsLimiterEnable)
+		{
+			auto old2 = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->Present, PresentWrap);
+			g_oldPresent = (old2) ? old2 : g_oldPresent;
+		}
 	}
 
 	return hr;
 }
 
-IDirect3D8* WINAPI Direct3DCreate8Wrap(UINT SDKVersion)
+static IDirect3D8* WINAPI Direct3DCreate8Wrap(UINT SDKVersion)
 {
-	auto d3d8 = g_origDirect3DCreate8(SDKVersion);
-	
-	auto old = HookVtableFunction(&d3d8->lpVtbl->CreateDevice, CreateDeviceWrap);
+	auto d3d9 = g_origDirect3DCreate8(SDKVersion);
+
+	auto old = HookVtableFunction(&d3d9->lpVtbl->CreateDevice, CreateDeviceWrap);
 	g_oldCreateDevice = (old) ? old : g_oldCreateDevice;
 
-	return d3d8;
+	return d3d9;
 }
 
-void InitD3D8WindowHook()
+static void InitD3D8WindowHook()
 {
 	MH_Initialize();
 	MH_CreateHookApi(L"d3d8.dll", "Direct3DCreate8", Direct3DCreate8Wrap, (void**)&g_origDirect3DCreate8);
@@ -166,15 +125,26 @@ static InitFunction initFunc([]()
 		return;
 	if (GameDetect::currentGame == GameID::TER)
 		return;
-	if (GameDetect::currentGame == GameID::SnoCross)
+
+	// Make local variables for speed
+	Windowed = ToBool(config["General"]["Windowed"]);
+
+	// Old boolean based limit of 60 fps (keep this for backward compatibility)
+	if (ToBool(config["General"]["Framelimiter"]))
 	{
-		swShaderHack = ToBool(config["General"]["SoftwareVertexShaders"]);
-		if (swShaderHack)
-			InitD3D8WindowHook();
+		FpsLimiterEnable = true;
+		FpsLimiterSet(60.0f);
 	}
-	if (ToBool(config["General"]["Windowed"]) || ToBool(config["General"]["Framelimiter"]))
+	// New configurable fps limit
+	else if (ToBool(config["General"]["FpsLimitEnable"]))
 	{
+		FpsLimiterEnable = true;
+		FpsLimiterSet((float)FetchDwordInformation("General", "FpsLimit", 60));
+	}
+
+	SoftwareShaderHack = ToBool(config["General"]["SoftwareVertexShaders"]);
+
+	if (Windowed || FpsLimiterEnable || SoftwareShaderHack)
 		InitD3D8WindowHook();
-	}
 });
 #pragma optimize("", on)
