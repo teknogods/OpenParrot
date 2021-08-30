@@ -2,6 +2,7 @@
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #include "Utility\Hooking.Patterns.h"
+#include <Xinput.h>
 
 #ifdef _M_AMD64
 
@@ -379,6 +380,25 @@ static __int64 __fastcall nbamUsbFinderGetSerialNumber(int a1, __int64 a2)
 	return 1;
 }
 
+// XInputs hooks to disable built in XInput screwing up our input emu
+static DWORD XInputGetStateHook(DWORD dwUserIndex, XINPUT_STATE* pState)
+{
+	//info(true, "XInputGetStateHook");
+	return ERROR_DEVICE_NOT_CONNECTED;
+}
+
+static DWORD XInputSetStateHook(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
+{
+	//info(true, "XInputSetStateHook");
+	return ERROR_DEVICE_NOT_CONNECTED;
+}
+
+static DWORD XInputGetCapabilitiesHook(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES* pCapabilities)
+{
+	//info(true, "XInputGetCapabilitiesHook");
+	return ERROR_DEVICE_NOT_CONNECTED;
+}
+
 static InitFunction TaikoFunc([]()
 {
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
@@ -484,6 +504,10 @@ static InitFunction TaikoFunc([]()
 	MH_CreateHookApi(L"nbamUsbFinder.dll", "nbamUsbFinderInitialize", nbamUsbFinderInitialize, NULL);
 	MH_CreateHookApi(L"nbamUsbFinder.dll", "nbamUsbFinderRelease", nbamUsbFinderRelease, NULL);
 	MH_CreateHookApi(L"nbamUsbFinder.dll", "nbamUsbFinderGetSerialNumber", nbamUsbFinderGetSerialNumber, NULL);
+
+	MH_CreateHookApi(L"xinput9_1_0.dll", "XInputGetState", XInputGetStateHook, NULL);
+	MH_CreateHookApi(L"xinput9_1_0.dll", "XInputSetState", XInputSetStateHook, NULL);
+	MH_CreateHookApi(L"xinput9_1_0.dll", "XInputGetCapabilities", XInputGetCapabilitiesHook, NULL);
 
 	MH_EnableHook(MH_ALL_HOOKS);
 }, GameID::Taiko);
