@@ -433,7 +433,7 @@ static InitFunction TaikoFunc([]()
 		injector::WriteMemory<DWORD>(imageBase + 0x224B32, resHeight, true);
 	}
 
-	// Fixes by the Taiko community (thanks Swigz and Samyuu!)
+	// Fixes by the Taiko community (thanks Swigz, Samyuu and Mon!)
 	if (ToBool(config["General"]["FixAnimationsEnable"]))
 	{
 		DWORD aniFps = FetchDwordInformation("General", "FixAnimationsFps", 120);
@@ -447,6 +447,11 @@ static InitFunction TaikoFunc([]()
 	if (ToBool(config["General"]["UnlockAllSongs"]))
 	{
 		injector::WriteMemoryRaw(imageBase + 0x1F6B78, "\xB0\x01", 2, true); // 32 C0 (XOR AL, AL) -> B0 01 (MOV AL, 1)
+	}
+
+	if (ToBool(config["General"]["SharedAudioMode"]))
+	{
+		injector::WriteMemory<BYTE>(imageBase + 0x552177, 0xEB, true); // 74 (JZ) -> EB (JMP)
 	}
 
 	// Hooks
