@@ -708,8 +708,8 @@ void GameDetect::DetectCurrentGame()
 		case 0x9c7bb2e1: // Ver 11 TEST
 			SetGameId(GameID::TappingSkillTest, "Tapping Skill Test Generic");
 			break;
-		case 0x2FF02A2E: // FM17
-		case 0x24DCF694: // FM16
+		case 0x24DCF694: // FM17
+		case 0x2FF02A2E: // FM16
 		case 0x0bad58c2: // FM14
 		case 0x65753fe4: // FM13
 		case 0xd7028acd: // FM12
