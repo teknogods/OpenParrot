@@ -971,12 +971,12 @@ static InitFunction initPuyoFunc([]()
 
 }, GameID::PuyoPuyoEsports);
 
-static InitFunction initDoa6FM14Func([]()
+static InitFunction initDoa6FM17Func([]()
 	{
 		HookAPM3(L"SDFM");
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::Doa6FM14);
+	}, GameID::Doa6FM17);
 
 static InitFunction initGGSFunc([]()
 	{
@@ -1026,20 +1026,13 @@ static InitFunction initFuncUmifresh01([]()
 
 	}, GameID::Umifresh01);
 
-static InitFunction initFuncRollingGunner20([]()
+static InitFunction initFuncRollingGunner([]()
 	{
 		HookAPM3(L"SDGW");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-	}, GameID::RollingGunner20);
-static InitFunction initFuncRollingGunner21([]()
-	{
-		HookAPM3(L"SDGW");
-
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
-
-	}, GameID::RollingGunner21);
+	}, GameID::RollingGunner);
 
 static InitFunction initFuncAleste([]()
 	{

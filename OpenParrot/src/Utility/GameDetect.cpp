@@ -620,13 +620,9 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::Umifresh01, "Umihara KawaseFresh! For AC Base Version");
 			break;
 		case 0x1ff0b15b: // Rolling Gunner 2.0
-			SetGameId(GameID::RollingGunner20, "Rolling Gunner 2.0");
-			break;
 		case 0x3c367b7b: // Rolling Gunner 2.1
-			SetGameId(GameID::RollingGunner21, "Rolling Gunner 2.1");
-			break;
 		case 0x2699ef3b: // Rolling Gunner 2.3
-			SetGameId(GameID::RollingGunner23, "Rolling Gunner 2.3");
+			SetGameId(GameID::RollingGunner, "Rolling Gunner");
 			break;
 		case 0xfcf9c9ce: // ALESTE
 		case 0xd8efb80e: // ALESTE Ver 11
@@ -684,12 +680,6 @@ void GameDetect::DetectCurrentGame()
 		case 0x3f67d5b2:
 			SetGameId(GameID::Pengoe511, "Pengoe511");
 			break;
-		case 0x70f84d80: // Ver 12 TEST
-			SetGameId(GameID::Pengoe512_Test, "Pengoe512_Test");
-			break;
-		case 0x4d5a6510: // ver 12
-			SetGameId(GameID::Pengoe512, "Pengoe512");
-			break;
 		case 0x6fc27eed: // Original
 			SetGameId(GameID::VF5Esports, "VF5Esports");
 			break;
@@ -715,7 +705,7 @@ void GameDetect::DetectCurrentGame()
 		case 0xd7028acd: // FM12
 		case 0xf9df097f: // FM11
 		case 0x03577d43: // FM10
-			SetGameId(GameID::Doa6FM14, "Dead or Alive 6 Generic");
+			SetGameId(GameID::Doa6FM17, "Dead or Alive 6 Generic");
 			break;
 		case 0x94aababc: // FM14 Test
 		case 0x4286c538: // FM12 Test
