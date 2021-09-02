@@ -625,7 +625,11 @@ void GameDetect::DetectCurrentGame()
 		case 0x3c367b7b: // Rolling Gunner 2.1
 			SetGameId(GameID::RollingGunner21, "Rolling Gunner 2.1");
 			break;
+		case 0x2699ef3b: // Rolling Gunner 2.3
+			SetGameId(GameID::RollingGunner23, "Rolling Gunner 2.3");
+			break;
 		case 0xfcf9c9ce: // ALESTE
+		case 0xd8efb80e: // ALESTE Ver 11
 			SetGameId(GameID::Aleste, "ALESTE");
 			break;
 #endif
@@ -680,6 +684,12 @@ void GameDetect::DetectCurrentGame()
 		case 0x3f67d5b2:
 			SetGameId(GameID::Pengoe511, "Pengoe511");
 			break;
+		case 0x70f84d80: // Ver 12 TEST
+			SetGameId(GameID::Pengoe512_Test, "Pengoe512_Test");
+			break;
+		case 0x4d5a6510: // ver 12
+			SetGameId(GameID::Pengoe512, "Pengoe512");
+			break;
 		case 0x6fc27eed: // Original
 			SetGameId(GameID::VF5Esports, "VF5Esports");
 			break;
@@ -698,6 +708,8 @@ void GameDetect::DetectCurrentGame()
 		case 0x9c7bb2e1: // Ver 11 TEST
 			SetGameId(GameID::TappingSkillTest, "Tapping Skill Test Generic");
 			break;
+		case 0x2FF02A2E: // FM17
+		case 0x24DCF694: // FM16
 		case 0x0bad58c2: // FM14
 		case 0x65753fe4: // FM13
 		case 0xd7028acd: // FM12
