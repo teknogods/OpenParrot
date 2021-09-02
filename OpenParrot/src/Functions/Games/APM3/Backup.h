@@ -9,12 +9,9 @@ extern char fileBuffer[256];
 
 struct BackupRecord
 {
-	void* Address;
+	void *Address;
 	unsigned long Size;
 };
-
-extern BackupRecord* internal_Records;
-extern unsigned int internal_recordCount;
 
 enum class BackupRecordStatus
 {

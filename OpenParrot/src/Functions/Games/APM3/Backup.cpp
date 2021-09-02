@@ -6,8 +6,10 @@
 //#define _LOGAPM3BACKUP 1
 char* BackupSaveFileName = "save";
 char fileBuffer[256];
-BackupRecord* internal_Records;
 unsigned int internal_recordCount;
+
+// Prefill some memory for save pointers, only 2-3 are used typically. Can be made dynamic, but this is for testing and seeing live data rn.
+static auto backups = new BackupRecord[64];
 
 BackupRecordStatus CALLPLEB Backup_getRecordStatus(DWORD_PTR recordIndex)
 {
@@ -35,7 +37,7 @@ bool CALLPLEB Backup_saveRecord(unsigned long recordIndex)
 	auto file = fopen(fileBuffer, "wb+");
 	if (file)
 	{
-		fwrite(internal_Records[recordIndex].Address, 1, internal_Records[recordIndex].Size, file);
+		fwrite(backups[recordIndex].Address, 1, backups[recordIndex].Size, file);
 		fclose(file);
 	}
 	return Backup_saveRecordReturnValue;
@@ -49,19 +51,22 @@ DWORD_PTR CALLPLEB Backup_saveRecordByAddress(DWORD_PTR recordAddress)
 	return Backup_saveRecordByAddressReturnValue;
 }
 
-
-
-
 //__int64 __fastcall Backup_setupRecords(__int128* a1, unsigned int a2)
 bool CALLPLEB Backup_setupRecords(BackupRecord* records, unsigned int recordCount)
 {
 	for (int i = 0; i < recordCount; i++)
 	{
+		backups[i].Address = records[i].Address;
+		backups[i].Size = records[i].Size;
+	}
+
+	internal_recordCount = recordCount;
+
+	for (int i = 0; i < recordCount; i++)
+	{
 		memset(fileBuffer, 0, sizeof(fileBuffer));
 		sprintf(fileBuffer, "%s%02d.bin", BackupSaveFileName, i);
 		FILE* fsave = fopen(fileBuffer, "r");
-		internal_Records = records;
-		internal_recordCount = recordCount;
 		if (fsave != NULL)
 		{
 #ifdef _LOGAPM3BACKUP
