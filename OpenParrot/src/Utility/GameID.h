@@ -122,5 +122,6 @@ enum class GameID
 	RollingGunner,
 	Aleste,
 	Umifresh01,
-	Taiko
+	Taiko,
+	WMMT5DX
 };

@@ -483,6 +483,10 @@ void GameDetect::DetectCurrentGame()
 				{
 					SetGameId(GameID::WMMT5DXPlus, "WMMT5DX+");
 				}
+				else if (newCrcResult == 0xDD61E0BA)
+				{
+					SetGameId(GameID::WMMT5DX, "WMMT5DX");
+				}
 				else {
 					SetGameId(GameID::WMMT5, "WMMT5 Update 10-21");
 				}
