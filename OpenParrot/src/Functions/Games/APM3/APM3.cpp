@@ -985,7 +985,6 @@ static InitFunction initGGSFunc([]()
 
 	}, GameID::GGS);
 
-
 static InitFunction initDoa6TestFunc([]()
 	{
 		HookAPM3(L"SDFM");
