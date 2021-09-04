@@ -21,7 +21,7 @@ bool CALLPLEB Aime_cancel()
 	return 0;
 }
 
-bool CALLPLEB Aime_getAccessCode(AccessCode *accessCode)
+bool CALLPLEB Aime_getAccessCode(AccessCode* accessCode)
 {
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_getAccessCode");

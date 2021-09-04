@@ -6,7 +6,7 @@ extern char fileBuffer[256];
 
 struct BackupRecord
 {
-	void *Address;
+	void* Address;
 	unsigned long Size;
 };
 

@@ -56,7 +56,7 @@ wchar_t* CALLPLEB AllnetAuth_getAbaasLinkServerName()
 
 char countryCode[4] = "JPN";
 
-char * CALLPLEB AllnetAuth_getCountryCode()
+char* CALLPLEB AllnetAuth_getCountryCode()
 {
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_getCountryCode");

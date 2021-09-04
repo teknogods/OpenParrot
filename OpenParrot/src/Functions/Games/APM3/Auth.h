@@ -28,7 +28,7 @@ int CALLPLEB AllnetAuth_getLocationNicknamePartCount();
 wchar_t* CALLPLEB AllnetAuth_getLocationNickname(int index);
 wchar_t* CALLPLEB AllnetAuth_getLocationName();
 unsigned int CALLPLEB AllnetAuth_getLocationId();
-char * CALLPLEB AllnetAuth_getCountryCode();
+char* CALLPLEB AllnetAuth_getCountryCode();
 wchar_t* CALLPLEB AllnetAuth_getAbaasLinkServerName();
 wchar_t* CALLPLEB AllnetAuth_getAbaasGsServerName();
 DWORD_PTR CALLPLEB AllnetAccounting_endPlay(int a1, int a2, int a3);
