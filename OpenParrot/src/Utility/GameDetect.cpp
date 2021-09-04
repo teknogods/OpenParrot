@@ -685,9 +685,13 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::Pengoe511, "Pengoe511");
 			break;
 		case 0x6fc27eed: // Original
+		case 0x52dab0ac: // Ver 11
+		case 0x3333dca7: // Ver 12
 			SetGameId(GameID::VF5Esports, "VF5Esports");
 			break;
 		case 0x3b3fc3ab: // TEST MENU VF5E
+		case 0xa8ec7e47: // Ver 11
+		case 0x82267ec8: // Ver 12
 			SetGameId(GameID::VF5EsportsTest, "VF5EsportsTest");
 			break;
 		case 0x1ab0f981:
