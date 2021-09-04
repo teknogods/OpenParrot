@@ -8,7 +8,7 @@
 bool Sequence_beginPlayReturnValue = true;
 bool Sequence_clearBackupReturnValue = false;
 bool Sequence_continuePlayReturnValue = true;
-bool Sequence_endPlayReturnValue = false;
+bool Sequence_endPlayReturnValue = true;
 unsigned int Sequence_getPlayingAimeIdReturnValue = 0;
 bool Sequence_isAccountingPlayingReturnValue = false;
 bool Sequence_isPlayingReturnValue = false;
