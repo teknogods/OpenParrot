@@ -3,13 +3,19 @@
 #include <thread>
 #include "Functions\Global.h"
 #include "Backup.h"
-//#define _LOGAPM3BACKUP 1
+
 char* BackupSaveFileName = "save";
 char fileBuffer[256];
 unsigned int internal_recordCount;
 
 // Prefill some memory for save pointers, only 2-3 are used typically. Can be made dynamic, but this is for testing and seeing live data rn.
 static auto backups = new BackupRecord[64];
+
+// Define default return values here
+bool Backup_isSetupSucceededReturnValue = true;
+DWORD_PTR Backup_saveRecordReturnValue = 0;
+DWORD_PTR Backup_saveRecordByAddressReturnValue = 0;
+DWORD_PTR Backup_setupRecordsReturnValue = 0;
 
 BackupRecordStatus CALLPLEB Backup_getRecordStatus(DWORD_PTR recordIndex)
 {

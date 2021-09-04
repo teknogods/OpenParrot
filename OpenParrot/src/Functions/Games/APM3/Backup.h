@@ -1,9 +1,6 @@
 #pragma once
-#ifdef _M_IX86
-#define CALLPLEB __stdcall
-#else
-#define CALLPLEB __fastcall
-#endif
+#include "APM3.h"
+
 extern char* BackupSaveFileName;
 extern char fileBuffer[256];
 
@@ -21,13 +18,11 @@ enum class BackupRecordStatus
 	BackupRecordStatus_BrokenData = 2,
 };
 
-static bool Backup_isSetupSucceededReturnValue = true;
-
-static DWORD_PTR Backup_saveRecordReturnValue = 0;
-
-static DWORD_PTR Backup_saveRecordByAddressReturnValue = 0;
-
-static DWORD_PTR Backup_setupRecordsReturnValue = 0;
+// Make return values global
+extern bool Backup_isSetupSucceededReturnValue;
+extern DWORD_PTR Backup_saveRecordReturnValue;
+extern DWORD_PTR Backup_saveRecordByAddressReturnValue;
+extern DWORD_PTR Backup_setupRecordsReturnValue;
 
 BackupRecordStatus CALLPLEB Backup_getRecordStatus(DWORD_PTR recordIndex);
 bool CALLPLEB Backup_isSetupSucceeded();

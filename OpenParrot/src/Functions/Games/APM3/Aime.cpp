@@ -3,7 +3,7 @@
 #include <thread>
 #include "Functions\Global.h"
 #include "Aime.h"
-//#define _LOGAPM3AIME 1
+
 bool CALLPLEB Aime_acceptConfirm()
 {
 #ifdef _LOGAPM3AIME
@@ -37,7 +37,6 @@ bool CALLPLEB Aime_getAimeId(unsigned int* uid)
 	return 0;
 }
 
-
 AIME_CONFIRM CALLPLEB Aime_getConfirm()
 {
 #ifdef _LOGAPM3AIME
@@ -45,7 +44,6 @@ AIME_CONFIRM CALLPLEB Aime_getConfirm()
 #endif
 	return AIME_CONFIRM::AimeDB;
 }
-
 
 AIME_ERROR_CATEGORY CALLPLEB Aime_getErrorCategory()
 {

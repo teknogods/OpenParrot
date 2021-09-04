@@ -1,11 +1,9 @@
 #pragma once
-#ifdef _M_IX86
-#define CALLPLEB __stdcall
-#else
-#define CALLPLEB __fastcall
-#endif
+#include "APM3.h"
+
 bool CALLPLEB Aime_acceptConfirm();
 bool CALLPLEB Aime_cancel();
+
 struct AccessCode
 {
 	const int DigitCount = 20;
@@ -17,6 +15,7 @@ struct AccessCode
 
 bool CALLPLEB Aime_getAccessCode(AccessCode* accessCode);
 bool CALLPLEB Aime_getAimeId(unsigned int* uid);
+
 enum class AIME_CONFIRM
 {
 	NoneDB,
@@ -36,19 +35,12 @@ enum class AIME_ERROR_CATEGORY
 };
 
 AIME_ERROR_CATEGORY CALLPLEB Aime_getErrorCategory();
-
 bool CALLPLEB Aime_hasConfirm();
-
 bool CALLPLEB Aime_hasError();
-
 bool CALLPLEB Aime_hasResult();
-
 bool CALLPLEB Aime_isBusy();
-
 bool CALLPLEB Aime_isDBAlive();
-
 bool CALLPLEB Aime_isMobile();
-
 bool CALLPLEB Aime_isReaderDetected();
 
 enum class AIME_LOG_STATUS
@@ -59,9 +51,6 @@ enum class AIME_LOG_STATUS
 };
 
 bool CALLPLEB Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, DWORD_PTR count);
-
 bool CALLPLEB Aime_setLedError();
-
 bool CALLPLEB Aime_setLedSuccess();
-
 bool CALLPLEB Aime_start();

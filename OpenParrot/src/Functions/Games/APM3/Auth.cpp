@@ -11,7 +11,17 @@ wchar_t LocationName[64];
 wchar_t LinkServerName[64];
 wchar_t ServerName[64];
 
-//#define _LOGAPM3AUTH 1
+// Define default return values here
+DWORD_PTR AllnetAccounting_beginPlayReturnValue = 0;
+DWORD_PTR AllnetAccounting_endPlayReturnValue = 0;
+DWORD_PTR AllnetAuth_getCountryCodeReturnValue = 0;
+DWORD_PTR AllnetAuth_getLocationIdReturnValue = 0;
+int AllnetAuth_getLocationNicknamePartCountReturnValue = 0;
+DWORD_PTR AllnetAuth_getRegionCodeReturnValue = 0;
+int AllnetAuth_getRegionNamePartCountReturnValue = 0;
+bool AllnetAuth_isDevelopReturnValue = false;
+bool AllnetAuth_isGoodReturnValue = false;
+
 DWORD_PTR CALLPLEB AllnetAccounting_beginPlay(unsigned int a1)
 {
 #ifdef _LOGAPM3AUTH

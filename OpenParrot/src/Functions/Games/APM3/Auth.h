@@ -1,9 +1,5 @@
 #pragma once
-#ifdef _M_IX86
-#define CALLPLEB __stdcall
-#else
-#define CALLPLEB __fastcall
-#endif
+#include "APM3.h"
 
 extern wchar_t APM3GameId[10];
 extern wchar_t RegionName[64];
@@ -12,23 +8,16 @@ extern wchar_t LocationName[64];
 extern wchar_t LinkServerName[64];
 extern wchar_t ServerName[64];
 
-static DWORD_PTR AllnetAccounting_beginPlayReturnValue = 0;
-
-static DWORD_PTR AllnetAccounting_endPlayReturnValue = 0;
-
-static DWORD_PTR AllnetAuth_getCountryCodeReturnValue = 0;
-
-static DWORD_PTR AllnetAuth_getLocationIdReturnValue = 0;
-
-static int AllnetAuth_getLocationNicknamePartCountReturnValue = 0;
-
-static DWORD_PTR AllnetAuth_getRegionCodeReturnValue = 0;
-
-static int AllnetAuth_getRegionNamePartCountReturnValue = 0;
-
-static bool AllnetAuth_isDevelopReturnValue = false;
-
-static bool AllnetAuth_isGoodReturnValue = false;
+// Make return values global
+extern DWORD_PTR AllnetAccounting_beginPlayReturnValue;
+extern DWORD_PTR AllnetAccounting_endPlayReturnValue;
+extern DWORD_PTR AllnetAuth_getCountryCodeReturnValue;
+extern DWORD_PTR AllnetAuth_getLocationIdReturnValue;
+extern int AllnetAuth_getLocationNicknamePartCountReturnValue;
+extern DWORD_PTR AllnetAuth_getRegionCodeReturnValue;
+extern int AllnetAuth_getRegionNamePartCountReturnValue;
+extern bool AllnetAuth_isDevelopReturnValue;
+extern bool AllnetAuth_isGoodReturnValue;
 
 bool CALLPLEB AllnetAuth_isGood();
 bool CALLPLEB AllnetAuth_isDevelop();

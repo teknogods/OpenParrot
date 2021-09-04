@@ -1,9 +1,6 @@
 #pragma once
-#ifdef _M_IX86
-#define CALLPLEB __stdcall
-#else
-#define CALLPLEB __fastcall
-#endif
+#include "APM3.h"
+
 struct SequenceAccountingBegin
 {
 	bool AccountingBeginValid;
@@ -27,7 +24,6 @@ enum class SEQUENCE_PLAY_ERROR_ID
 	ACCOUNTING_END,
 };
 
-
 struct SequenceTimeHistogramItem
 {
 	unsigned int TimeRangeMin;
@@ -48,21 +44,15 @@ struct SequenceBookkeeping
 	SequenceTimeHistogramItem TimeHistogram[32];
 };
 
-static bool Sequence_beginPlayReturnValue = true;
-
-static bool Sequence_clearBackupReturnValue = false;
-
-static bool Sequence_continuePlayReturnValue = 0;
-
-static bool Sequence_endPlayReturnValue = false;
-
-static unsigned int Sequence_getPlayingAimeIdReturnValue = 0;
-
-static bool Sequence_isAccountingPlayingReturnValue = false;
-
-static bool Sequence_isPlayingReturnValue = false;
-
-static bool Sequence_isTestReturnValue = 0;
+// Make return values global
+extern bool Sequence_beginPlayReturnValue;
+extern bool Sequence_clearBackupReturnValue;
+extern bool Sequence_continuePlayReturnValue;
+extern bool Sequence_endPlayReturnValue;
+extern unsigned int Sequence_getPlayingAimeIdReturnValue;
+extern bool Sequence_isAccountingPlayingReturnValue;
+extern bool Sequence_isPlayingReturnValue;
+extern bool Sequence_isTestReturnValue;
 
 bool CALLPLEB Sequence_isTest();
 bool CALLPLEB Sequence_isPlaying();
