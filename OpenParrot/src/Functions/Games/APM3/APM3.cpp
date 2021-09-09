@@ -7,6 +7,7 @@
 #include "Backup.h"
 #include "Auth.h"
 #include "Sequence.h"
+#include <Utility/Hooking.Patterns.h>
 
 // Define default return values here
 static DWORD_PTR System_getResolutionReturnValue = 0;
@@ -638,8 +639,8 @@ int CALLPLEB apmGamepadUpdate()
 static void HookAPM3(wchar_t* id)
 {
 	// TODO: read from config?
-	wcscpy(ServerName, L"localhost");
-	wcscpy(LinkServerName, L"localhost");
+    wcscpy(ServerName, L"localhost");
+    wcscpy(LinkServerName, L"localhost");
 	wcscpy(LocationNickName, L"Flatty");
 	wcscpy(LocationName, L"Flatearth");
 	wcscpy(RegionName, L"Santaland");
@@ -925,8 +926,18 @@ void __fastcall printPengo(const char* format, ...)
 	}
 }
 
+BYTE compressionOn = 0;
+BYTE encryptionOn = 0;
 
 #ifdef _M_AMD64
+
+// am::abaas::link::HttpData::setOption
+
+void __fastcall setOption_x64(void* me, char a2, char a3)
+{
+	*((BYTE*)me + 0x21) = compressionOn;
+	*((BYTE*)me + 0x22) = encryptionOn;
+}
 
 static InitFunction initFuncTapping([]()
 	{
@@ -946,6 +957,10 @@ static InitFunction initFuncPengoe510([]()
 		//MH_CreateHook((void*)(mainModuleBase + 0x1944B0), (void *)printPengo, NULL);
 		MH_EnableHook(MH_ALL_HOOKS);
 
+		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+#ifdef _DEBUG
+		safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
+#endif
 		/// PATTERNS BELOW
 		// Skip joysticks
 		injector::MakeRET(mainModuleBase + 0x15C5B0);
@@ -960,6 +975,10 @@ static InitFunction initFuncPengoe511([]()
 
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
+		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+#ifdef _DEBUG
+		safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
+#endif
 		// Skip joysticks
 		injector::MakeRET(mainModuleBase + 0x16A7C0); // CC 48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40
 		// Skip keyboard
@@ -1026,6 +1045,10 @@ static InitFunction initGGSFunc([]()
 		HookAPM3(L"SDGM");
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
+		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+#ifdef _DEBUG
+		safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
+#endif
 	}, GameID::GGS);
 
 static InitFunction initDoa6TestFunc([]()
@@ -1035,6 +1058,19 @@ static InitFunction initDoa6TestFunc([]()
 
 	}, GameID::Doa6Test);
 #else
+
+void __declspec(naked) setOption_x86()
+{
+	__asm
+	{
+		mov al, compressionOn
+		mov byte ptr ds : [ecx + 0x15] , al
+		mov al, encryptionOn
+		mov byte ptr ds : [ecx + 0x16] , al
+		ret 0x8
+	}
+}
+
 static InitFunction initFuncUmifresh02([]()
 	{
 		HookAPM3(L"SDGU");
@@ -1081,7 +1117,18 @@ static InitFunction initFuncAleste([]()
 		HookAPM3(L"SDHB");
 
 		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
-
+#ifdef _DEBUG
+		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+		safeJMP(hook::get_pattern("55 8B EC 8A 45 08 88 41 15"), setOption_x86);
+#endif
 	}, GameID::Aleste);
+
+static InitFunction initFuncAleste11([]()
+	{
+		HookAPM3(L"SDHB");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	}, GameID::Aleste11);
 
 #endif

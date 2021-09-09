@@ -629,8 +629,10 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::RollingGunner, "Rolling Gunner");
 			break;
 		case 0xfcf9c9ce: // ALESTE
-		case 0xd8efb80e: // ALESTE Ver 11
 			SetGameId(GameID::Aleste, "ALESTE");
+			break;
+		case 0xd8efb80e: // ALESTE Ver 11
+			SetGameId(GameID::Aleste11, "ALESTE Ver 11");
 			break;
 #endif
 #ifdef _AMD64_
@@ -695,6 +697,7 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::VF5EsportsTest, "VF5EsportsTest");
 			break;
 		case 0x1ab0f981:
+		case 0x671c46b5:
 			SetGameId(GameID::GoonyaFighter, "GoonyaFighter");
 			break;
 		case 0x8c30fa5a:
