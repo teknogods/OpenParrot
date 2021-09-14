@@ -44,6 +44,8 @@ static void Citizen_PatternSaveHint(uint64_t hash, uintptr_t hint)
 		modPath += "\\";
 	}
 
+	hint -= (uintptr_t)GetModuleHandle(NULL);
+
 	std::string hintsFile = modPath + "hints.dat";
 
 	FILE* hints = fopen(hintsFile.c_str(), "ab");
@@ -313,6 +315,7 @@ namespace hook
 
 		std::string hintsFile = modPath + "hints.dat";
 		FILE* hints = fopen(hintsFile.c_str(), "rb");
+		bool deleteHints = false;
 
 		if (hints)
 		{
@@ -324,10 +327,22 @@ namespace hook
 				fread(&hash, 1, sizeof(hash), hints);
 				fread(&hint, 1, sizeof(hint), hints);
 
-				hook::pattern::hint(hash, hint);
+				if (hint < 0xFFFFFFFF)
+				{
+					hook::pattern::hint(hash, (uintptr_t)GetModuleHandle(NULL) + hint);
+				}
+				else
+				{
+					deleteHints = true;
+				}
 			}
 
 			fclose(hints);
+		}
+
+		if (deleteHints)
+		{
+			remove(hintsFile.c_str());
 		}
 	}
 
