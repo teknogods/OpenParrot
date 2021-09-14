@@ -4,10 +4,30 @@
 #include "Utility/GameDetect.h"
 #include "Utility/Hooking.Patterns.h"
 #include <shlwapi.h>
+#include <Windows.h>
+#include <TlHelp32.h>
+#include "mmeapi.h"
 
 #pragma comment(lib,"shlwapi.lib")
+#pragma comment(lib,"Winmm.lib")
 
 #pragma optimize("", off)
+
+static DWORD dwVolume;
+static DWORD ProcessID;
+static HANDLE snHandle;
+static BOOL rvBool;
+static THREADENTRY32 te32 = { 0 };
+static bool DisableGhosting;
+static bool SuspendInit;
+static bool SuspendPressedOn;
+static bool SuspendPressedOff;
+static char SuspendBuf[MAX_PATH];
+static char PauseKeyChar[256];
+static char ExitKeyChar[256];
+static int PauseKeyValue;
+static int ExitKeyValue;
+
 void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 {
 	__try
@@ -42,32 +62,155 @@ std::wstring utf8_decode(const std::string &str)
 	return wstrTo;
 }
 
-DWORD WINAPI QuitGameThread(__in  LPVOID lpParameter)
+static void QuitGame()
+{
+	if (GameDetect::currentGame == GameID::Daytona3)
+	{
+		system("taskkill /f /im InpWrapper.exe");
+	}
+
+	if ((GameDetect::currentGame == GameID::StarWarsEs3X) || (GameDetect::currentGame == GameID::StarWarsJapEs3X) || (GameDetect::currentGame == GameID::StarWarsEs3XLauncher) || (GameDetect::currentGame == GameID::StarWarsJapEs3XLauncher))
+	{
+		system("taskkill /f /im RSLauncher.exe");
+		system("taskkill /f /im SWArcGame-Win64-Shipping.exe");
+	}
+
+	TerminateProcess(GetCurrentProcess(), 0);
+}
+
+static BOOL SuspendProcess(DWORD ProcessId, bool Suspend)
+{
+	snHandle = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+	if (snHandle == INVALID_HANDLE_VALUE)
+		return (false);
+
+	te32.dwSize = sizeof(THREADENTRY32);
+	if (Thread32First(snHandle, &te32))
+	{
+		do
+		{
+			if (te32.th32OwnerProcessID == ProcessId)
+			{
+				HANDLE hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, te32.th32ThreadID);
+
+				if (!Suspend)
+				{
+					ResumeThread(hThread);
+				}
+				else
+				{
+					SuspendThread(hThread);
+
+					while (true)
+					{
+						if (!DisableGhosting)
+						{
+							DisableGhosting = true;
+							DisableProcessWindowsGhosting();
+						}
+#ifndef _DEBUG
+						if (GetAsyncKeyState(ExitKeyValue))
+						{
+							waveOutSetVolume(NULL, dwVolume);
+							QuitGame();
+						}
+#endif
+						if (GetAsyncKeyState(PauseKeyValue))
+						{
+							if (SuspendPressedOff)
+							{
+								SuspendPressedOff = false;
+								waveOutSetVolume(NULL, dwVolume);
+								SuspendProcess(ProcessID, false);
+								break;
+							}
+						}
+						else
+						{
+							if (SuspendPressedOn)
+								SuspendPressedOff = true;
+						}
+						Sleep(64);
+					}
+				}
+				CloseHandle(hThread);
+			}
+		} 
+		while (Thread32Next(snHandle, &te32));
+		rvBool = TRUE;
+	}
+	else
+		rvBool = FALSE;
+
+	CloseHandle(snHandle);
+	return (rvBool);
+}
+
+static DWORD MyGetProcessId(LPCTSTR ProcessName)
+{
+	PROCESSENTRY32 pt;
+	HANDLE hsnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	pt.dwSize = sizeof(PROCESSENTRY32);
+	if (Process32First(hsnap, &pt)) {
+		do {
+			if (!lstrcmpi(pt.szExeFile, ProcessName)) {
+				CloseHandle(hsnap);
+				return pt.th32ProcessID;
+			}
+		} while (Process32Next(hsnap, &pt));
+	}
+	CloseHandle(hsnap);
+	return 0;
+}
+
+static std::string getFileName(std::string path)
+{
+	std::string filename = path;
+	const size_t last_slash_idx = filename.find_last_of("\\/");
+	if (std::string::npos != last_slash_idx) {
+		filename.erase(0, last_slash_idx + 1);
+	}
+	const size_t period_idx = filename.rfind('.');
+
+	return filename;
+}
+
+DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 {
 	while (true)
 	{
-		if (GetAsyncKeyState(VK_ESCAPE))
-		{
 #ifndef _DEBUG
-			if (GameDetect::currentGame == GameID::Daytona3)
-			{
-				system("taskkill /f /im InpWrapper.exe");
-			}
-			if ((GameDetect::currentGame == GameID::StarWarsEs3X) || (GameDetect::currentGame == GameID::StarWarsJapEs3X) || (GameDetect::currentGame == GameID::StarWarsEs3XLauncher) || (GameDetect::currentGame == GameID::StarWarsJapEs3XLauncher))
-			{
-				system("taskkill /f /im RSLauncher.exe");
-				system("taskkill /f /im SWArcGame-Win64-Shipping.exe");
-			}
-			if (blaster)
-			{
-				FreeLibrary(blaster);
-			}
-			TerminateProcess(GetCurrentProcess(), 0);						
+		if (GetAsyncKeyState(ExitKeyValue))
+			QuitGame();
 #endif
-			//ExitProcess(0);
+		if (!SuspendInit)
+		{
+			SuspendInit = true;
+			GetModuleFileNameA(NULL, SuspendBuf, MAX_PATH);
+
+			std::string ExeName = getFileName(SuspendBuf);
+			std::basic_string<TCHAR> converted(ExeName.begin(), ExeName.end());
+			const TCHAR* tchar = converted.c_str();
+
+			ProcessID = MyGetProcessId(tchar);
 		}
 
-		Sleep(300);
+		if (GetAsyncKeyState(PauseKeyValue))
+		{
+			if (!SuspendPressedOn)
+			{
+				SuspendPressedOn = true;
+				if (waveOutGetVolume(NULL, &dwVolume) == MMSYSERR_NOERROR)
+					waveOutSetVolume(NULL, 0);
+				SuspendProcess(ProcessID, true);
+			}
+		}
+		else
+		{
+			if (SuspendPressedOn)
+				SuspendPressedOn = false;
+		}
+		Sleep(64);
 	}
 }
 	
@@ -314,7 +457,20 @@ DWORD FetchDwordInformation(const char* setting, const char* subkey, DWORD defau
 static InitFunction globalFunc([]()
 {
 	hook::pattern::InitializeHints();
-	CreateThread(NULL, 0, QuitGameThread, NULL, 0, NULL);
+	
+	GetPrivateProfileStringA("GlobalHotkeys", "PauseKey", "", PauseKeyChar, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("GlobalHotkeys", "ExitKey", "", ExitKeyChar, 256, ".\\teknoparrot.ini");
+
+	std::string PauseKeyStr = PauseKeyChar;
+	if (PauseKeyStr.find('0x') != std::string::npos)
+		PauseKeyValue = stoi(PauseKeyStr, 0, 16);
+
+	std::string ExitKeyStr = ExitKeyChar;
+	if (ExitKeyStr.find('0x') != std::string::npos)
+		ExitKeyValue = stoi(ExitKeyStr, 0, 16);
+
+	CreateThread(NULL, 0, GlobalGameThread, NULL, 0, NULL);
+
 	if (ToBool(config["General"]["Enable Outputs"]))
 	{
 		blaster = LoadLibraryA("OutputBlaster.dll");
