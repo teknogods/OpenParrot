@@ -5,6 +5,7 @@
 #include "Utility/Hooking.Patterns.h"
 #include <shlwapi.h>
 #include <Windows.h>
+#include "Utility/Helper.h"
 #include <TlHelp32.h>
 #include "mmeapi.h"
 
@@ -27,6 +28,8 @@ static char PauseKeyChar[256];
 static char ExitKeyChar[256];
 static int PauseKeyValue;
 static int ExitKeyValue;
+extern bool PauseGameFixInit;
+extern void PauseGameFixes(Helpers* helpers);
 
 void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 {
@@ -108,6 +111,8 @@ static BOOL SuspendProcess(DWORD ProcessId, bool Suspend)
 							DisableGhosting = true;
 							DisableProcessWindowsGhosting();
 						}
+
+						PauseGameFixes(0);
 #ifndef _DEBUG
 						if (GetAsyncKeyState(ExitKeyValue))
 						{
@@ -120,6 +125,7 @@ static BOOL SuspendProcess(DWORD ProcessId, bool Suspend)
 							if (SuspendPressedOff)
 							{
 								SuspendPressedOff = false;
+								PauseGameFixInit = false;
 								waveOutSetVolume(NULL, dwVolume);
 								SuspendProcess(ProcessID, false);
 								break;
@@ -130,7 +136,7 @@ static BOOL SuspendProcess(DWORD ProcessId, bool Suspend)
 							if (SuspendPressedOn)
 								SuspendPressedOff = true;
 						}
-						Sleep(64);
+						Sleep(16);
 					}
 				}
 				CloseHandle(hThread);
