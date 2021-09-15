@@ -28,8 +28,9 @@ static char PauseKeyChar[256];
 static char ExitKeyChar[256];
 static int PauseKeyValue;
 static int ExitKeyValue;
-extern bool PauseGameFixInit;
+
 extern void PauseGameFixes(Helpers* helpers);
+extern void ResetPauseGameFixes(Helpers* helpers);
 
 void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 {
@@ -125,7 +126,7 @@ static BOOL SuspendProcess(DWORD ProcessId, bool Suspend)
 							if (SuspendPressedOff)
 							{
 								SuspendPressedOff = false;
-								PauseGameFixInit = false;
+								ResetPauseGameFixes(0);
 								waveOutSetVolume(NULL, dwVolume);
 								SuspendProcess(ProcessID, false);
 								break;
