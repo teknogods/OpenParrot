@@ -4,11 +4,15 @@
 #include "Functions/Global.h"
 #include "Utility/Helper.h"
 
+bool PauseEnabled;
 static bool PauseGameFixInit;
 static DWORD TimerValue;
 
 void PauseGameFixes(Helpers* helpers)
 {
+	if (!PauseEnabled)
+		PauseEnabled = true;
+
 	if (GameDetect::currentGame == GameID::SR3)
 	{
 		if (!PauseGameFixInit)
@@ -25,6 +29,8 @@ void PauseGameFixes(Helpers* helpers)
 
 void ResetPauseGameFixes(Helpers* helpers)
 {
+	PauseEnabled = false;
+
 	if (GameDetect::currentGame == GameID::SR3)
 		PauseGameFixInit = false;
 
