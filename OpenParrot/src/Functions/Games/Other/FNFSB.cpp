@@ -104,12 +104,6 @@ DWORD WINAPI InputRT4(LPVOID lpParam)
 
 	while (true)
 	{
-		// ESCAPE QUITS GAME 
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-		{
-			exit(0);
-		}
-
 		// buttons see bitwise values in TPui//RawThrills.cs
 		// START 
 		if (*ffbOffset & 0x08)

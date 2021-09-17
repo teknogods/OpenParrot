@@ -52,22 +52,6 @@ BOOL(__stdcall *original_SetCursorPosRT6)(int X, int Y);
 BOOL(__stdcall *original_SetWindowTextWRT6)(HWND hWnd, LPCWSTR lpString);
 BOOL(__stdcall *original_XInputGetStateGHA)(DWORD dwUserIndex, XINPUT_STATE* pState);
 
-DWORD WINAPI InputRT6(LPVOID lpParam)
-{
-	while (true)
-	{
-		// ESCAPE QUITS GAME 
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-		{
-			WinExec("taskkill /f /im GHA.exe", SW_HIDE);
-		}
-		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//info(true, "test values *ffbOffset3=0x%02X / *ffbOffset4=0x%02X ", *ffbOffset3, *ffbOffset4);
-		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	}
-	return 0;
-}
-
 DWORD WINAPI WindowRT6(LPVOID lpParam)
 {
 	while (true)
@@ -493,8 +477,6 @@ static InitFunction GHAFunc([]()
 		CopyFileA(s24.c_str(), s22.c_str(), FALSE);
 		Sleep(100);
 	}
-
-	CreateThread(NULL, 0, InputRT6, NULL, 0, NULL);
 
 	MH_Initialize();
 	MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT6, (void**)&original_SetWindowPos6);

@@ -857,20 +857,6 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
-		// ESCAPE QUITS GAME
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-		{
-			HWND hWndTMP = GetForegroundWindow();
-			if (hWndRT9 == 0)
-			{
-				hWndRT9 = FindWindowW(NULL, TEXT("Dirty Drivin'"));
-			}
-			if (hWndTMP == hWndRT9)
-			{
-				exit(0);
-			}
-		}
-
 		if (!ToBool(config["General"]["Free Play"]))
 		{
 			CoinInput(0);

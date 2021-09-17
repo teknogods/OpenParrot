@@ -50,12 +50,6 @@ DWORD WINAPI InputRT10(LPVOID lpParam)
 
 	while (true)
 	{
-		// ESCAPE QUITS GAME 
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-		{
-			exit(0);
-		}
-
 		// FIX FOR NAME CHOOSING
 		if (strcmp((char*)0x3CB4F8 + BaseAddress10, EnterYourName) == 0 || strcmp((char*)0x3CB4FE + BaseAddress10, HighScoreName) == 0 || strcmp((char*)0x3CB4FF + BaseAddress10, HighScoreName) == 0)
 			NameChoosing = true;

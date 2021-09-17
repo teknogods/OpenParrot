@@ -69,9 +69,10 @@ std::wstring utf8_decode(const std::string &str)
 static void QuitGame()
 {
 	if (GameDetect::currentGame == GameID::Daytona3)
-	{
 		system("taskkill /f /im InpWrapper.exe");
-	}
+
+	if (GameDetect::currentGame == GameID::GHA)
+		system("taskkill /f /im GHA.exe"); // is this necessary?
 
 	if ((GameDetect::currentGame == GameID::StarWarsEs3X) || (GameDetect::currentGame == GameID::StarWarsJapEs3X) || (GameDetect::currentGame == GameID::StarWarsEs3XLauncher) || (GameDetect::currentGame == GameID::StarWarsJapEs3XLauncher))
 	{

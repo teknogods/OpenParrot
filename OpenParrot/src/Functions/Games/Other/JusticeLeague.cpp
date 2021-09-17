@@ -47,20 +47,6 @@ DWORD WINAPI InputRT8(LPVOID lpParam)
 
 	while (true)
 	{
-		// ESCAPE QUITS GAME 
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-		{
-			HWND hWndTMP = GetForegroundWindow();
-			if (hWndRT8 == 0)
-			{
-				hWndRT8 = FindWindowA(NULL, "Justice League");
-			}
-			if (hWndTMP == hWndRT8)
-			{
-				exit(0);
-			}
-		}
-
 		// regular buttons are emulated by XINPUTEMU
 		// TEST
 		if (*ffbOffset & 0x01)

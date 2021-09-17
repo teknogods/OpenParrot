@@ -57,20 +57,6 @@ DWORD WINAPI InputRT5(LPVOID lpParam)
 
 	while (true)
 	{
-		// ESCAPE QUITS GAME 
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-		{
-			HWND hWndTMP = GetForegroundWindow();
-			if (hWndRT5 == 0)
-			{
-				hWndRT5 = FindWindowA(NULL, "FNF SuperBikes 2");
-			}
-			if (hWndTMP == hWndRT5)
-			{
-				exit(0);
-			}
-		}
-
 		if (GetAsyncKeyState(VK_NUMPAD1) & 0x0001)
 		{
 			if (NUMpressed1 == false)

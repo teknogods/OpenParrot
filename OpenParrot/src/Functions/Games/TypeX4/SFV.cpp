@@ -269,16 +269,6 @@ __int64 UIO_AMIC_Update(__int64 a1)
 //	auto result = g_origUIO_AMIC_Update(a1);
 //	info(true, "UIO_AMIC_Update result: %08X", result);
 
-	// ESCAPE QUITS GAME  
-	if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-	{
-		HWND hWndTmp = GetForegroundWindow();
-		if ((hWndTmp == FindWindowA(NULL, "StreetFighterV")))
-		{
-			exit(0);
-		}
-	}
-
 	BYTE ButtonStateByte1 = 0;
 	BYTE ButtonStateByte2 = 0;
 	BYTE ButtonStateByte3 = 7;
