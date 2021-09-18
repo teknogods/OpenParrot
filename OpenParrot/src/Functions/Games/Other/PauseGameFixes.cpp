@@ -25,6 +25,12 @@ void PauseGameFixes(Helpers* helpers)
 
 	if (GameDetect::currentGame == GameID::DirtyDrivin)
 		helpers->WriteByte(0x99D894, 0x01, false);
+
+	if (GameDetect::currentGame == GameID::H2Overdrive)
+	{
+		helpers->WriteByte(0x1F86D, 0x00, true);
+		helpers->WriteByte(0x1F870, 0x00, true);
+	}
 }
 
 void ResetPauseGameFixes(Helpers* helpers)
@@ -36,4 +42,10 @@ void ResetPauseGameFixes(Helpers* helpers)
 
 	if (GameDetect::currentGame == GameID::DirtyDrivin)
 		helpers->WriteByte(0x99D894, 0x00, false);
+
+	if (GameDetect::currentGame == GameID::H2Overdrive)
+	{
+		helpers->WriteByte(0x1F86D, 0x01, true);
+		helpers->WriteByte(0x1F870, 0x01, true);
+	}
 }
