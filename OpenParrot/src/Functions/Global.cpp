@@ -13,6 +13,8 @@
 
 #pragma optimize("", off)
 
+static DWORD xdbg;
+static HWND g_HWND = NULL;
 static DWORD ProcessID;
 static bool DisableGhosting;
 static bool EnableSuspend;
@@ -155,13 +157,22 @@ static std::string getFileName(std::string path)
 	return filename;
 }
 
+static BOOL CALLBACK EnumWindowsProcMy(HWND hwnd, LPARAM lParam)
+{
+	DWORD lpdwProcessId;
+	GetWindowThreadProcessId(hwnd, &lpdwProcessId);
+	if (lpdwProcessId == lParam)
+	{
+		g_HWND = hwnd;
+		return FALSE;
+	}
+	return TRUE;
+}
+
 DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 {
 	while (true)
 	{
-		if (GetAsyncKeyState(ExitKeyValue))
-			QuitGame();
-
 		if (!SuspendInit)
 		{
 			SuspendInit = true;
@@ -172,6 +183,22 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 			const TCHAR* tchar = converted.c_str();
 
 			ProcessID = MyGetProcessId(tchar);
+		}
+
+		if (GetAsyncKeyState(ExitKeyValue))
+		{
+#ifdef _DEBUG
+#if _M_IX86
+			xdbg = MyGetProcessId(L"x32dbg.exe");
+#else
+			xdbg = MyGetProcessId(L"x64dbg.exe");
+#endif
+			EnumWindows(EnumWindowsProcMy, xdbg);
+#endif
+			if (g_HWND == NULL)
+				QuitGame();
+			else
+				g_HWND = NULL;
 		}
 
 		if (GetAsyncKeyState(PauseKeyValue))
