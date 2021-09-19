@@ -7,22 +7,19 @@
 #include <Windows.h>
 #include "Utility/Helper.h"
 #include <TlHelp32.h>
-#include "mmeapi.h"
 
 #pragma comment(lib,"shlwapi.lib")
 #pragma comment(lib,"Winmm.lib")
 
 #pragma optimize("", off)
 
-static DWORD dwVolume;
 static DWORD ProcessID;
-static HANDLE snHandle;
-static BOOL rvBool;
-static THREADENTRY32 te32 = { 0 };
 static bool DisableGhosting;
+static bool EnableSuspend;
+static bool PausePressed;
+static bool ResumeSuspend;
 static bool SuspendInit;
 static bool SuspendPressedOn;
-static bool SuspendPressedOff;
 static char SuspendBuf[MAX_PATH];
 static char PauseKeyChar[256];
 static char ExitKeyChar[256];
@@ -83,75 +80,50 @@ static void QuitGame()
 	TerminateProcess(GetCurrentProcess(), 0);
 }
 
-static BOOL SuspendProcess(DWORD ProcessId, bool Suspend)
+static void SuspendThreads(DWORD ProcessId, DWORD ThreadId, bool Suspend)
 {
-	snHandle = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-	if (snHandle == INVALID_HANDLE_VALUE)
-		return (false);
-
-	te32.dwSize = sizeof(THREADENTRY32);
-	if (Thread32First(snHandle, &te32))
+	HANDLE hThread = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+	if (hThread != INVALID_HANDLE_VALUE)
 	{
-		do
+		THREADENTRY32 te;
+		te.dwSize = sizeof(te);
+		if (Thread32First(hThread, &te))
 		{
-			if (te32.th32OwnerProcessID == ProcessId)
+			do
 			{
-				HANDLE hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, te32.th32ThreadID);
-
-				if (!Suspend)
+				if (te.dwSize >= FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(te.th32OwnerProcessID))
 				{
-					ResumeThread(hThread);
-				}
-				else
-				{
-					SuspendThread(hThread);
-
-					while (true)
+					if (te.th32ThreadID != ThreadId && te.th32OwnerProcessID == ProcessId)
 					{
-						if (!DisableGhosting)
+						HANDLE thread = ::OpenThread(THREAD_ALL_ACCESS, FALSE, te.th32ThreadID);
+						if (thread != NULL)
 						{
-							DisableGhosting = true;
-							DisableProcessWindowsGhosting();
-						}
+							if (Suspend)
+							SuspendThread(thread);
+							else
+							ResumeThread(thread);
 
-						PauseGameFixes(0);
-#ifndef _DEBUG
-						if (GetAsyncKeyState(ExitKeyValue))
-						{
-							waveOutSetVolume(NULL, dwVolume);
-							QuitGame();
+							CloseHandle(thread);
 						}
-#endif
-						if (GetAsyncKeyState(PauseKeyValue))
-						{
-							if (SuspendPressedOff)
-							{
-								SuspendPressedOff = false;
-								ResetPauseGameFixes(0);
-								waveOutSetVolume(NULL, dwVolume);
-								SuspendProcess(ProcessID, false);
-								break;
-							}
-						}
-						else
-						{
-							if (SuspendPressedOn)
-								SuspendPressedOff = true;
-						}
-						Sleep(16);
 					}
 				}
-				CloseHandle(hThread);
-			}
-		} 
-		while (Thread32Next(snHandle, &te32));
-		rvBool = TRUE;
-	}
-	else
-		rvBool = FALSE;
+				te.dwSize = sizeof(te);
+			} while (Thread32Next(hThread, &te));
+		}
+		CloseHandle(hThread);
 
-	CloseHandle(snHandle);
-	return (rvBool);
+		if (Suspend)
+		{
+			EnableSuspend = true;
+			ResumeSuspend = false;
+		}
+		else
+		{
+			EnableSuspend = false;
+			ResumeSuspend = true;
+			ResetPauseGameFixes(0);
+		}
+	}
 }
 
 static DWORD MyGetProcessId(LPCTSTR ProcessName)
@@ -187,10 +159,9 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 {
 	while (true)
 	{
-#ifndef _DEBUG
 		if (GetAsyncKeyState(ExitKeyValue))
 			QuitGame();
-#endif
+
 		if (!SuspendInit)
 		{
 			SuspendInit = true;
@@ -208,9 +179,18 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 			if (!SuspendPressedOn)
 			{
 				SuspendPressedOn = true;
-				if (waveOutGetVolume(NULL, &dwVolume) == MMSYSERR_NOERROR)
-					waveOutSetVolume(NULL, 0);
-				SuspendProcess(ProcessID, true);
+
+				if (!DisableGhosting)
+				{
+					DisableGhosting = true;
+					DisableProcessWindowsGhosting();
+				}
+
+				if (!EnableSuspend)
+					PausePressed = true;
+
+				if (EnableSuspend)
+					PausePressed = false;
 			}
 		}
 		else
@@ -218,7 +198,17 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 			if (SuspendPressedOn)
 				SuspendPressedOn = false;
 		}
-		Sleep(64);
+
+		if (PausePressed && !EnableSuspend)
+			SuspendThreads(ProcessID, GetCurrentThreadId(), true);
+
+		if (!PausePressed && EnableSuspend && !ResumeSuspend)
+			SuspendThreads(ProcessID, GetCurrentThreadId(), false);
+
+		if (EnableSuspend)
+			PauseGameFixes(0);
+
+		Sleep(16);
 	}
 }
 	

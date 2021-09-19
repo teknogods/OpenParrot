@@ -46,7 +46,6 @@ static bool MenuHackStopWriting = false;
 static bool CoinPressed = false;
 static bool NameEntryHack;
 static BYTE GameState;
-extern bool PauseEnabled;
 
 // controls
 extern int* ffbOffset;
@@ -733,7 +732,7 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 {
 	int deltaTimer = 16;
 
-	while (!PauseEnabled)
+	while (true)
 	{
 		GameState = *(BYTE*)(0x570190 + BaseAddress9);
 		BYTE Chosen = *(BYTE*)(0x5705E8 + BaseAddress9);
@@ -957,9 +956,6 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 
 		Sleep(deltaTimer);
 	}
-
-	Sleep(deltaTimer);
-	InputRT9(0);
 
 	return 0;
 }
