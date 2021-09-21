@@ -20,7 +20,6 @@ static bool DisableGhosting;
 static bool EnableSuspend;
 static bool PausePressed;
 static bool ResumeSuspend;
-static bool SuspendInit;
 static bool SuspendPressedOn;
 static char SuspendBuf[MAX_PATH];
 static char PauseKeyChar[256];
@@ -173,18 +172,6 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 {
 	while (true)
 	{
-		if (!SuspendInit)
-		{
-			SuspendInit = true;
-			GetModuleFileNameA(NULL, SuspendBuf, MAX_PATH);
-
-			std::string ExeName = getFileName(SuspendBuf);
-			std::basic_string<TCHAR> converted(ExeName.begin(), ExeName.end());
-			const TCHAR* tchar = converted.c_str();
-
-			ProcessID = MyGetProcessId(tchar);
-		}
-
 		if (GetAsyncKeyState(ExitKeyValue))
 		{
 #ifdef _DEBUG
@@ -493,6 +480,15 @@ static InitFunction globalFunc([]()
 	std::string ExitKeyStr = ExitKeyChar;
 	if (ExitKeyStr.find('0x') != std::string::npos)
 		ExitKeyValue = stoi(ExitKeyStr, 0, 16);
+
+	SuspendInit = true;
+	GetModuleFileNameA(NULL, SuspendBuf, MAX_PATH);
+
+	std::string ExeName = getFileName(SuspendBuf);
+	std::basic_string<TCHAR> converted(ExeName.begin(), ExeName.end());
+	const TCHAR* tchar = converted.c_str();
+
+	ProcessID = MyGetProcessId(tchar);
 
 	CreateThread(NULL, 0, GlobalGameThread, NULL, 0, NULL);
 
