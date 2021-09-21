@@ -481,7 +481,6 @@ static InitFunction globalFunc([]()
 	if (ExitKeyStr.find('0x') != std::string::npos)
 		ExitKeyValue = stoi(ExitKeyStr, 0, 16);
 
-	SuspendInit = true;
 	GetModuleFileNameA(NULL, SuspendBuf, MAX_PATH);
 
 	std::string ExeName = getFileName(SuspendBuf);
