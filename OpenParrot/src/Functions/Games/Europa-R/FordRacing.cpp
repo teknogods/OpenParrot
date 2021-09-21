@@ -63,12 +63,6 @@ DWORD WINAPI FordFocus(LPVOID lpParam)
 		{
 			ShowWindow(hWndFORD, SW_MINIMIZE);
 		}
-		// ESCAPE QUITS GAME
-		if (0 != GetAsyncKeyState(VK_ESCAPE))
-		{
-			exit(0);
-		}
-
 	}
 }
 
