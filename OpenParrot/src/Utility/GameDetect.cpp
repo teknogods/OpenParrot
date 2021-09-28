@@ -634,6 +634,9 @@ void GameDetect::DetectCurrentGame()
 		case 0xd8efb80e: // ALESTE Ver 11
 			SetGameId(GameID::Aleste11, "ALESTE Ver 11");
 			break;
+		case 0xd426de40: // Cotton Rock n Roll A
+			SetGameId(GameID::CottonRocknRollA, "Cotton Rock n Roll A");
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:

@@ -124,5 +124,6 @@ enum class GameID
 	Umifresh01,
 	Taiko,
 	WMMT5DX,
-	Aleste11
+	Aleste11,
+	CottonRocknRollA
 };

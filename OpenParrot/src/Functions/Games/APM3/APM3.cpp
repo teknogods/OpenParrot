@@ -1131,4 +1131,21 @@ static InitFunction initFuncAleste11([]()
 
 	}, GameID::Aleste11);
 
+static InitFunction initFuncCottonRocknRollA([]()
+	{
+		HookAPM3(L"SDHW");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+		LoadLibraryA(".\\\dll\\x86\\libcurl.dll");
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			injector::WriteMemory<BYTE>(mainModuleBase + 0x2A3C1E, 0xEB, true); // Windowed
+		}
+
+		injector::WriteMemory<BYTE>(mainModuleBase + 0x25036F, 0xEB, true); // Skip some credit check idfk
+
+	}, GameID::CottonRocknRollA);
+
 #endif
