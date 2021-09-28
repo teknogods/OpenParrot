@@ -125,5 +125,6 @@ enum class GameID
 	Taiko,
 	WMMT5DX,
 	Aleste11,
-	CottonRocknRollA
+	CottonRocknRollA,
+	CottonRocknRollATest
 };

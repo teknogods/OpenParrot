@@ -1051,6 +1051,16 @@ static InitFunction initGGSFunc([]()
 #endif
 	}, GameID::GGS);
 
+static InitFunction initFuncCottonRocknRollATest([]()
+	{
+		HookAPM3(L"SDHW");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+		LoadLibraryA(".\\\dll\\x64\\libcurl.dll");
+
+	}, GameID::CottonRocknRollATest);
+
 static InitFunction initDoa6TestFunc([]()
 	{
 		HookAPM3(L"SDFM");

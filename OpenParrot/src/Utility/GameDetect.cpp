@@ -732,6 +732,9 @@ void GameDetect::DetectCurrentGame()
 		case 0x72F9B475:
 			SetGameId(GameID::Taiko, "Taiko no Tatsujin Nijiiro");
 			break;
+		case 0xd9557fd6:
+			SetGameId(GameID::CottonRocknRollATest, "Cotton Rock n Roll A Test Menu");
+			break;
 #endif
 		default:
 #ifdef _DEBUG
