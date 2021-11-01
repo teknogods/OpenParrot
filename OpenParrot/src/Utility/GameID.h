@@ -126,5 +126,7 @@ enum class GameID
 	WMMT5DX,
 	Aleste11,
 	CottonRocknRollA,
-	CottonRocknRollATest
+	CottonRocknRollATest,
+	NosferatuLilinor,
+	Kasiori
 };

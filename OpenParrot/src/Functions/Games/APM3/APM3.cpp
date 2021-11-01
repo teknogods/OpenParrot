@@ -536,12 +536,14 @@ SystemRegionCode System_getRegionCode()
 	return SystemRegionCode::Japan;
 }
 
-DWORD_PTR System_getResolution()
+DWORD_PTR resolution = 0;
+
+DWORD_PTR *System_getResolution()
 {
 #ifdef _LOGAPM3
 	info(true, "System_getResolution");
 #endif
-	return System_getResolutionReturnValue;
+	return &resolution;
 }
 
 DWORD_PTR System_isDevelop()
@@ -1067,6 +1069,22 @@ static InitFunction initDoa6TestFunc([]()
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
 	}, GameID::Doa6Test);
+
+static InitFunction initNosferatuLilinorTestFunc([]()
+	{
+		HookAPM3(L"SDHP");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	}, GameID::NosferatuLilinor);
+
+static InitFunction initKasioriTestFunc([]()
+	{
+		HookAPM3(L"SDHV");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	}, GameID::Kasiori);
+
+
 #else
 
 void __declspec(naked) setOption_x86()

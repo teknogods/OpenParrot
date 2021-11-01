@@ -735,6 +735,12 @@ void GameDetect::DetectCurrentGame()
 		case 0xd9557fd6:
 			SetGameId(GameID::CottonRocknRollATest, "Cotton Rock n Roll A Test Menu");
 			break;
+		case 0x6dfc8f9a:
+			SetGameId(GameID::NosferatuLilinor, "Nosferatu Lilinor");
+			break;
+		case 0x5451ddfd:
+			SetGameId(GameID::NosferatuLilinor, "Kasiori");
+			break;
 #endif
 		default:
 #ifdef _DEBUG
