@@ -739,7 +739,7 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::NosferatuLilinor, "Nosferatu Lilinor");
 			break;
 		case 0x5451ddfd:
-			SetGameId(GameID::NosferatuLilinor, "Kasiori");
+			SetGameId(GameID::Kasiori, "Kasiori");
 			break;
 #endif
 		default:

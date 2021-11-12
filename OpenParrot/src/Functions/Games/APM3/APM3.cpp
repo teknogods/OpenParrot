@@ -342,12 +342,14 @@ struct GamepadInfo
 	char name[260];
 };
 
+static GamepadInfo* _gamePad;
+
 GamepadInfo* CALLPLEB Input_getGamepadInfo()
 {
 #ifdef _LOGAPM3
 	info(true, "Input_getGamepadInfo");
 #endif
-	static GamepadInfo* _gamePad;
+
 	if (_gamePad == nullptr)
 	{
 		_gamePad = (GamepadInfo*)malloc(sizeof(GamepadInfo));
@@ -408,12 +410,13 @@ DWORD_PTR CALLPLEB Input_isOpenPewviewWindow()
 	return Input_isOpenPewviewWindowReturnValue;
 }
 
-char CALLPLEB Input_setGamepadConfig(DWORD_PTR a1)
+GamepadInfo* CALLPLEB Input_setGamepadConfig(GamepadInfo *gamepadInfo)
 {
 #ifdef _LOGAPM3
 	info(true, "Input_setGamepadConfig");
 #endif
-	return Input_setGamepadConfigReturnValue;
+
+	return 0;
 }
 
 char* CALLPLEB NetworkProperty_getAddressString()
@@ -1077,8 +1080,26 @@ static InitFunction initNosferatuLilinorTestFunc([]()
 
 	}, GameID::NosferatuLilinor);
 
+HMODULE(WINAPI* g_origLoadLibraryW)(
+	LPCWSTR lpRootPathName
+	);
+
+HMODULE LoadLibraryWHook(LPCWSTR lpLibFileName)
+{
+
+	if (wcscmp(L"X:/lib/apm.dll", lpLibFileName) == 0)
+	{
+		return g_origLoadLibraryW(L"apm.dll");
+	}
+	return g_origLoadLibraryW(lpLibFileName);
+}
+
 static InitFunction initKasioriTestFunc([]()
 	{
+		// voce pode copiar meu trabalho jajajajajajajaja
+		MH_Initialize();
+		MH_CreateHookApi(L"kernel32.dll", "LoadLibraryW", LoadLibraryWHook, (void**)&g_origLoadLibraryW);
+		MH_EnableHook(MH_ALL_HOOKS);
 		HookAPM3(L"SDHV");
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
