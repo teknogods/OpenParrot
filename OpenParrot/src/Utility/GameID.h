@@ -130,5 +130,6 @@ enum class GameID
 	NosferatuLilinor,
 	Kasiori,
 	GGXRd,
-	BlazBlueCrossTagBattle
+	BlazBlueCrossTagBattle,
+	DengekiBunkoFC
 };

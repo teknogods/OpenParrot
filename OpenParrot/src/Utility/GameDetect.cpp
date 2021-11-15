@@ -647,6 +647,10 @@ void GameDetect::DetectCurrentGame()
 		case 0xb1cb5260:
 			SetGameId(GameID::BlazBlueCrossTagBattle, "BLAZBLUE CROSS TAG BATTLE");
 			break;
+		case 0x4ce7fa35:
+		case 0xcf741456: // Update 1
+			SetGameId(GameID::DengekiBunkoFC, "Dengeki Bunko: Fighting Climax");
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:

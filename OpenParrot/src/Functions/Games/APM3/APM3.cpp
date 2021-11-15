@@ -1215,4 +1215,12 @@ static InitFunction initFuncBlazBlueCrossTagBattle([]()
 
 	}, GameID::BlazBlueCrossTagBattle);
 
+static InitFunction initFuncDengekiBunkoFC([]()
+	{
+		HookAPM3(L"SDGC");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	}, GameID::DengekiBunkoFC);
+
 #endif
