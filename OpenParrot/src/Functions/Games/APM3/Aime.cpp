@@ -4,6 +4,8 @@
 #include "Functions\Global.h"
 #include "Aime.h"
 
+bool Aime_isDBAliveReturnValue = true;
+
 bool CALLPLEB Aime_acceptConfirm()
 {
 #ifdef _LOGAPM3AIME

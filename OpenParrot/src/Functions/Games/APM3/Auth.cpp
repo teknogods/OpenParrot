@@ -16,11 +16,11 @@ DWORD_PTR AllnetAccounting_beginPlayReturnValue = 0;
 DWORD_PTR AllnetAccounting_endPlayReturnValue = 0;
 DWORD_PTR AllnetAuth_getCountryCodeReturnValue = 0;
 DWORD_PTR AllnetAuth_getLocationIdReturnValue = 0;
-int AllnetAuth_getLocationNicknamePartCountReturnValue = 0;
+int AllnetAuth_getLocationNicknamePartCountReturnValue = 1;
 DWORD_PTR AllnetAuth_getRegionCodeReturnValue = 0;
 int AllnetAuth_getRegionNamePartCountReturnValue = 0;
 bool AllnetAuth_isDevelopReturnValue = false;
-bool AllnetAuth_isGoodReturnValue = false;
+bool AllnetAuth_isGoodReturnValue = true;
 
 DWORD_PTR CALLPLEB AllnetAccounting_beginPlay(unsigned int a1)
 {
@@ -133,5 +133,5 @@ bool CALLPLEB AllnetAuth_isGood()
 #ifdef _LOGAPM3AUTH
 	info(true, "AllnetAuth_isGood");
 #endif
-	return true;
+	return AllnetAuth_isGoodReturnValue;
 }

@@ -128,5 +128,7 @@ enum class GameID
 	CottonRocknRollA,
 	CottonRocknRollATest,
 	NosferatuLilinor,
-	Kasiori
+	Kasiori,
+	GGXRd,
+	BlazBlueCrossTagBattle
 };

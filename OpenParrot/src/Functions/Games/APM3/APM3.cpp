@@ -1180,6 +1180,14 @@ static InitFunction initFuncAleste11([]()
 
 	}, GameID::Aleste11);
 
+static InitFunction initFuncGGXRd([]()
+	{
+		HookAPM3(L"SDFB");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	}, GameID::GGXRd);
+
 static InitFunction initFuncCottonRocknRollA([]()
 	{
 		HookAPM3(L"SDHW");
@@ -1196,5 +1204,15 @@ static InitFunction initFuncCottonRocknRollA([]()
 		injector::WriteMemory<BYTE>(mainModuleBase + 0x25036F, 0xEB, true); // Skip some credit check idfk
 
 	}, GameID::CottonRocknRollA);
+
+static InitFunction initFuncBlazBlueCrossTagBattle([]()
+	{
+		HookAPM3(L"SDFU");
+
+		Credit_getCreditReturnValue = 3;
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	}, GameID::BlazBlueCrossTagBattle);
 
 #endif

@@ -637,6 +637,16 @@ void GameDetect::DetectCurrentGame()
 		case 0xd426de40: // Cotton Rock n Roll A
 			SetGameId(GameID::CottonRocknRollA, "Cotton Rock n Roll A");
 			break;
+		case 0xed8af9f8: // Guilty Gear Xrd REV APM3 Edition
+			SetGameId(GameID::GGXRd, "Guilty Gear Xrd REV APM3 Edition");
+			break;
+		case 0x817d4c50:
+		case 0x5883e93d:
+		case 0x4471e6a0:
+		case 0x5bc0c88b:
+		case 0xb1cb5260:
+			SetGameId(GameID::BlazBlueCrossTagBattle, "BLAZBLUE CROSS TAG BATTLE");
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:

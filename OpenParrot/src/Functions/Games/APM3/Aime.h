@@ -54,3 +54,5 @@ bool CALLPLEB Aime_sendLog(unsigned int uid, AIME_LOG_STATUS status, DWORD_PTR c
 bool CALLPLEB Aime_setLedError();
 bool CALLPLEB Aime_setLedSuccess();
 bool CALLPLEB Aime_start();
+
+extern bool Aime_isDBAliveReturnValue;
