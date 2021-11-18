@@ -1223,4 +1223,12 @@ static InitFunction initFuncDengekiBunkoFC([]()
 
 	}, GameID::DengekiBunkoFC);
 
+static InitFunction initFuncBladeStrangesAPM3([]()
+	{
+		HookAPM3(L"SDFD");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	}, GameID::BladeStrangesAPM3);
+
 #endif

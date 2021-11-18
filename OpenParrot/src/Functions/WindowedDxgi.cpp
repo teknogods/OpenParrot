@@ -2,7 +2,6 @@
 #define D3D11_NO_HELPERS
 #define INITGUID
 #include <StdInc.h>
-#ifdef _M_AMD64
 #include "Utility/InitFunction.h"
 #pragma optimize("", off)
 
@@ -284,6 +283,11 @@ static InitFunction initFunc([]()
 	if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26 || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::Tekken7Update00 || GameDetect::currentGame == GameID::SFV)
 		return;
 
+#ifndef _M_AMD64
+	// Hook only Daytona on x86 for now
+	if (GameDetect::currentGame != GameID::Daytona3)
+		return;
+#endif
 	// Make local variables for speed
 	Windowed = ToBool(config["General"]["Windowed"]);
 
@@ -305,4 +309,3 @@ static InitFunction initFunc([]()
 	if (Windowed || FpsLimiterEnable || DisableVSync)
 		InitDXGIWindowHook();
 });
-#endif

@@ -651,6 +651,9 @@ void GameDetect::DetectCurrentGame()
 		case 0xcf741456: // Update 1
 			SetGameId(GameID::DengekiBunkoFC, "Dengeki Bunko: Fighting Climax");
 			break;
+		case 0xd8dd1127:
+			SetGameId(GameID::BladeStrangesAPM3, "Blade Strangers APM3");
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:

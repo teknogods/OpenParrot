@@ -339,6 +339,10 @@ static InitFunction Daytona3Func([]()
 		{
 			SetCursorPos(20000, 20000);
 		}
+		else
+		{
+			injector::MakeNOP(0x004DBB62, 8);
+		}
 
 		std::string FFBDeadzoneString = config["General"]["FFB Deadzone Percent"];
 		int FFBDeadzone = std::stoi(FFBDeadzoneString);

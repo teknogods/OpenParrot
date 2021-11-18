@@ -131,5 +131,6 @@ enum class GameID
 	Kasiori,
 	GGXRd,
 	BlazBlueCrossTagBattle,
-	DengekiBunkoFC
+	DengekiBunkoFC,
+	BladeStrangesAPM3
 };
