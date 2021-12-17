@@ -20,14 +20,11 @@ uint32_t GetCRC32(const void* pData, int length)
 void info(bool unused, const char* format, ...)
 {
 	va_list args;
-	char buffer[1024];
+	char buffer[1024] = "[OpenParrot] ";
 
 	va_start(args, format);
-	int len = _vsnprintf(buffer, sizeof(buffer), format, args);
+	int len = _vsnprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), format, args);
 	va_end(args);
-
-	buffer[len] = '\n';
-	buffer[len + 1] = '\0';
 
 	OutputDebugStringA(buffer);
 }

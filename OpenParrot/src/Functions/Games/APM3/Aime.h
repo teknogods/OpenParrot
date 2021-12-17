@@ -6,9 +6,9 @@ bool CALLPLEB Aime_cancel();
 
 struct AccessCode
 {
-	const int DigitCount = 20;
-	const int Size = 10;
-	const int StrSize = 41;
+	int DigitCount = 20;
+	int Size = 10;
+	int StrSize = 41;
 	char values[10];
 	char valueStr[41];
 };

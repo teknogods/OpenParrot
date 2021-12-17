@@ -28,7 +28,13 @@ bool CALLPLEB Aime_getAccessCode(AccessCode* accessCode)
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_getAccessCode");
 #endif
-	return 0;
+	accessCode->DigitCount = 20;
+	accessCode->Size = 10;
+	char hex[] = "11112222333344445555";
+	memcpy(accessCode->valueStr, hex, strlen(hex));
+	accessCode->StrSize = strlen(accessCode->valueStr);
+	memset(accessCode->values, 0, sizeof(accessCode->values));
+	return true;
 }
 
 bool CALLPLEB Aime_getAimeId(unsigned int* uid)
@@ -36,6 +42,7 @@ bool CALLPLEB Aime_getAimeId(unsigned int* uid)
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_getAimeId");
 #endif
+	*uid = 1337;
 	return 0;
 }
 
@@ -76,7 +83,7 @@ bool CALLPLEB Aime_hasResult()
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_hasResult");
 #endif
-	return false;
+	return true;
 }
 
 bool CALLPLEB Aime_isBusy()

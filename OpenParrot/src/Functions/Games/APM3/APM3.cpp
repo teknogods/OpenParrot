@@ -123,7 +123,7 @@ bool CALLPLEB ApmSystemSetting_getTimeToClosingTime(unsigned int* seconds)
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getTimeToClosingTime");
 #endif
-	*seconds = 0;
+	*seconds = 10000000;
 	return ApmSystemSetting_getTimeToClosingTimeReturnValue;
 }
 
@@ -1028,6 +1028,27 @@ static InitFunction initGoonyaFunc([]()
 	{
 		HookAPM3(L"SDGX");
 		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+		auto mod = LoadLibraryA(".\\Goonya Fighter_Data\\Plugins\\abaasgs.dll");
+		if (mod == nullptr)
+		{
+			MessageBoxA(0, "Cannot load abaasgs.dll!", "Error", 0);
+			ExitProcess(0);
+		}
+
+		auto hookLoc = (__int64)mod + 0x9A20;
+		safeJMP(hookLoc, setOption_x64);
+
+		auto mod2 = LoadLibraryA(".\\Goonya Fighter_Data\\Plugins\\abaaslink.dll");
+		if (mod2 == nullptr)
+		{
+			MessageBoxA(0, "Cannot load abaaslink.dll!", "Error", 0);
+			ExitProcess(0);
+		}
+
+		auto hookLoc2 = (__int64)mod2 + 0x46FD0;
+		safeJMP(hookLoc2, setOption_x64);
+
+		// 88 51 21 44 88 41 22 C3
 
 	}, GameID::GoonyaFighter);
 
