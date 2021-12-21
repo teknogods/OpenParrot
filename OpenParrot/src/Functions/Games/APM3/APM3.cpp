@@ -991,6 +991,24 @@ static InitFunction initFuncPengoe511([]()
 
 	}, GameID::Pengoe511);
 
+static InitFunction initFuncPengoe512([]()
+	{
+		HookAPM3(L"SDFH");
+
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+#ifdef _DEBUG
+		safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
+#endif
+		// Skip joysticks
+		injector::MakeRET(mainModuleBase + 0x16DFF0); // Pattern changed, too lazy to check.
+
+		// Skip keyboard
+		injector::MakeRET(mainModuleBase + 0x16E5D0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
+
+	}, GameID::Pengoe512);
+
 static InitFunction initPengoe5TestFunc([]()
 	{
 		HookAPM3(L"SDFH");

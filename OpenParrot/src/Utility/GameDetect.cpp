@@ -706,6 +706,9 @@ void GameDetect::DetectCurrentGame()
 		case 0x3f67d5b2:
 			SetGameId(GameID::Pengoe511, "Pengoe511");
 			break;
+		case 0x4d5a6510:
+			SetGameId(GameID::Pengoe512, "Pengoe512");
+			break;
 		case 0x6fc27eed: // Original
 		case 0x52dab0ac: // Ver 11
 		case 0x3333dca7: // Ver 12

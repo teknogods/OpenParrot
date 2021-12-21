@@ -132,5 +132,6 @@ enum class GameID
 	GGXRd,
 	BlazBlueCrossTagBattle,
 	DengekiBunkoFC,
-	BladeStrangesAPM3
+	BladeStrangesAPM3,
+	Pengoe512,
 };
