@@ -635,6 +635,7 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::Aleste11, "ALESTE Ver 11");
 			break;
 		case 0xd426de40: // Cotton Rock n Roll A
+		case 0x1eedb670: // Cotton Rock n Roll A v1.2
 			SetGameId(GameID::CottonRocknRollA, "Cotton Rock n Roll A");
 			break;
 		case 0xed8af9f8: // Guilty Gear Xrd REV APM3 Edition
@@ -712,11 +713,15 @@ void GameDetect::DetectCurrentGame()
 		case 0x6fc27eed: // Original
 		case 0x52dab0ac: // Ver 11
 		case 0x3333dca7: // Ver 12
+		case 0x1a689a7c: // Ver 13
+		case 0xd4ac1af3: // ver 14
 			SetGameId(GameID::VF5Esports, "VF5Esports");
 			break;
 		case 0x3b3fc3ab: // TEST MENU VF5E
 		case 0xa8ec7e47: // Ver 11
 		case 0x82267ec8: // Ver 12
+		case 0x151d5334: // Ver 13
+		case 0xe28bf9d2: // ver 14
 			SetGameId(GameID::VF5EsportsTest, "VF5EsportsTest");
 			break;
 		case 0x1ab0f981:
