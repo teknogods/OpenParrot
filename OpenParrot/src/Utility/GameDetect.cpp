@@ -635,7 +635,7 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::Aleste11, "ALESTE Ver 11");
 			break;
 		case 0xd426de40: // Cotton Rock n Roll A
-		case 0x1eedb670: // Cotton Rock n Roll A v1.2
+		//case 0x1eedb670: // Cotton Rock n Roll A v1.2 (needs new patches)
 			SetGameId(GameID::CottonRocknRollA, "Cotton Rock n Roll A");
 			break;
 		case 0xed8af9f8: // Guilty Gear Xrd REV APM3 Edition
