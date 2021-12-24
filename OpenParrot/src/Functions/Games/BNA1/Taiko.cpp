@@ -75,28 +75,44 @@ static __int64 __fastcall bnusio_DecService(int a1, unsigned __int16 a2)
 	return 0;
 }
 
+// Return a random value to simulate the arcade drum
+uint16_t rand16(void) {
+	uint16_t r = 0;
+	int random;
+	int max_value = 20000; // ~ 90 in I/O test menu
+	int min_value = 10000; // ~ 50 in I/O test menu
+
+	random = rand() % max_value + min_value;
+	r = (unsigned)random;
+
+	return r;
+}
+
 static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 {
 	//info(true, "bnusio_GetAnalogIn a1: %u", a1);
 
 	uint16_t rv = 0;
+	uint16_t rvSim = 0;
+
+	rvSim = rand16();
 
 	if (a1 == 0 && (bool)(*ffbOffset & 0x40))        // Player 1 Drum Rim Left
-		rv = 0xFFFF;
+		rv = rvSim;
 	else if (a1 == 1 && (bool)(*ffbOffset & 0x80))   // Player 1 Drum Center Left
-		rv = 0xFFFF;
+		rv = rvSim;
 	else if (a1 == 2 && (bool)(*ffbOffset & 0x100))  // Player 1 Drum Center Right
-		rv = 0xFFFF;
+		rv = rvSim;
 	else if (a1 == 3 && (bool)(*ffbOffset & 0x200))  // Player 1 Drum Rim Right
-		rv = 0xFFFF;
+		rv = rvSim;
 	else if (a1 == 4 && (bool)(*ffbOffset & 0x400))  // Player 2 Drum Rim Left
-		rv = 0xFFFF;
+		rv = rvSim;
 	else if (a1 == 5 && (bool)(*ffbOffset & 0x800))  // Player 2 Drum Center Left
-		rv = 0xFFFF;
+		rv = rvSim;
 	else if (a1 == 6 && (bool)(*ffbOffset & 0x1000)) // Player 2 Drum Center Right
-		rv = 0xFFFF;
+		rv = rvSim;
 	else if (a1 == 7 && (bool)(*ffbOffset & 0x2000)) // Player 2 Drum Rim Right
-		rv = 0xFFFF;
+		rv = rvSim;
 
 	return rv;
 }
