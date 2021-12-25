@@ -752,6 +752,8 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::Doa6Test, "Dead or Alive 6 Test Generic");
 			break;
 		case 0xd0a6afbd: // GGS
+		case 0x79727b3b: // GGS 1.1
+		case 0x4fade723: // GGS 1.2
 			SetGameId(GameID::GGS, "Guilty Gear Strive");
 			break;
 		case 0x72F9B475:
