@@ -120,7 +120,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	}
 
 	// Player 1 Drum Center Left
-	if (a1 == 1) {
+	else if (a1 == 1) {
 		bool currentBtn = (bool)(*ffbOffset & 0x80);
 
 		if (currentBtn && btnP1CenterL != currentBtn) {
@@ -131,7 +131,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	}
 
 	// Player 1 Drum Center Right
-	if (a1 == 2) {
+	else if (a1 == 2) {
 		bool currentBtn = (bool)(*ffbOffset & 0x100);
 
 		if (currentBtn && btnP1CenterR != currentBtn) {
@@ -142,7 +142,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	}
 
 	// Player 1 Drum Rim Right
-	if (a1 == 3) {
+	else if (a1 == 3) {
 		bool currentBtn = (bool)(*ffbOffset & 0x200);
 
 		if (currentBtn && btnP1RimR != currentBtn) {
@@ -153,7 +153,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	}
 
 	// Player 2 Drum Rim Left
-	if (a1 == 4) {
+	else if (a1 == 4) {
 		bool currentBtn = (bool)(*ffbOffset & 0x400);
 
 		if (currentBtn && btnP2RimL != currentBtn) {
@@ -164,7 +164,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	}
 
 	// Player 2 Drum Center Left
-	if (a1 == 5) {
+	else if (a1 == 5) {
 		bool currentBtn = (bool)(*ffbOffset & 0x800);
 
 		if (currentBtn && btnP2CenterL != currentBtn) {
@@ -175,7 +175,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	}
 
 	// Player 2 Drum Center Right
-	if (a1 == 6) {
+	else if (a1 == 6) {
 		bool currentBtn = (bool)(*ffbOffset & 0x1000);
 
 		if (currentBtn && btnP2CenterR != currentBtn) {
@@ -186,7 +186,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	}
 
 	// Player 2 Drum Rim Right
-	if (a1 == 7) {
+	else if (a1 == 7) {
 		bool currentBtn = (bool)(*ffbOffset & 0x2000);
 
 		if (currentBtn && btnP2RimR != currentBtn) {
