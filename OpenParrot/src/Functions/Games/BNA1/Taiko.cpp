@@ -87,7 +87,7 @@ static __int64 __fastcall bnusio_DecService(int a1, unsigned __int16 a2)
 }
 
 // Return a random value to simulate the arcade drum
-uint16_t rand16(void) {
+static uint16_t rand16(void) {
 	uint16_t r = 0;
 	int random;
 	int max_value = 20000; // ~ 90 in I/O test menu
