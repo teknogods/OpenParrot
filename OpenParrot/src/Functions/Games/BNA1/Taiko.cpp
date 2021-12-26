@@ -91,7 +91,7 @@ static uint16_t rand16(void) {
 	uint16_t r = 0;
 	int random;
 	int max_value = 20000; // ~ 90 in I/O test menu
-	int min_value = 10000; // ~ 50 in I/O test menu
+	int min_value = 10000; // ~ 30 in I/O test menu
 
 	random = rand() % max_value + min_value;
 	r = (unsigned)random;
