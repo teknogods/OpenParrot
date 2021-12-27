@@ -9,6 +9,17 @@
 static bool btnTestToggle = false;
 static bool btnTestLast = false;
 static bool btnCoinLast = false;
+
+static bool btnP1RimR = false;
+static bool btnP1CenterR = false;
+static bool btnP1CenterL= false;
+static bool btnP1RimL = false;
+
+static bool btnP2RimR = false;
+static bool btnP2CenterR = false;
+static bool btnP2CenterL = false;
+static bool btnP2RimL = false;
+
 static uint16_t coinCount = 0;
 extern int* ffbOffset;
 
@@ -76,11 +87,11 @@ static __int64 __fastcall bnusio_DecService(int a1, unsigned __int16 a2)
 }
 
 // Return a random value to simulate the arcade drum
-uint16_t rand16(void) {
+static uint16_t rand16(void) {
 	uint16_t r = 0;
 	int random;
 	int max_value = 20000; // ~ 90 in I/O test menu
-	int min_value = 10000; // ~ 50 in I/O test menu
+	int min_value = 10000; // ~ 30 in I/O test menu
 
 	random = rand() % max_value + min_value;
 	r = (unsigned)random;
@@ -93,27 +104,87 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	//info(true, "bnusio_GetAnalogIn a1: %u", a1);
 
 	uint16_t rv = 0;
-	uint16_t rvSim = 0;
 
-	rvSim = rand16();
+	// Player 1 Drum Rim Left
+	if (a1 == 0) {
+		bool currentBtn = (bool)(*ffbOffset & 0x40);
 
-	if (a1 == 0 && (bool)(*ffbOffset & 0x40))        // Player 1 Drum Rim Left
-		rv = rvSim;
-	else if (a1 == 1 && (bool)(*ffbOffset & 0x80))   // Player 1 Drum Center Left
-		rv = rvSim;
-	else if (a1 == 2 && (bool)(*ffbOffset & 0x100))  // Player 1 Drum Center Right
-		rv = rvSim;
-	else if (a1 == 3 && (bool)(*ffbOffset & 0x200))  // Player 1 Drum Rim Right
-		rv = rvSim;
-	else if (a1 == 4 && (bool)(*ffbOffset & 0x400))  // Player 2 Drum Rim Left
-		rv = rvSim;
-	else if (a1 == 5 && (bool)(*ffbOffset & 0x800))  // Player 2 Drum Center Left
-		rv = rvSim;
-	else if (a1 == 6 && (bool)(*ffbOffset & 0x1000)) // Player 2 Drum Center Right
-		rv = rvSim;
-	else if (a1 == 7 && (bool)(*ffbOffset & 0x2000)) // Player 2 Drum Rim Right
-		rv = rvSim;
+		if (currentBtn && btnP1RimL != currentBtn) 
+			rv = rand16();
+		
+		btnP1RimL = currentBtn;
+	}
 
+	// Player 1 Drum Center Left
+	else if (a1 == 1) {
+		bool currentBtn = (bool)(*ffbOffset & 0x80);
+
+		if (currentBtn && btnP1CenterL != currentBtn) 
+			rv = rand16();
+		
+		btnP1CenterL = currentBtn;
+	}
+
+	// Player 1 Drum Center Right
+	else if (a1 == 2) {
+		bool currentBtn = (bool)(*ffbOffset & 0x100);
+
+		if (currentBtn && btnP1CenterR != currentBtn) 
+			rv = rand16();
+
+		btnP1CenterR = currentBtn;
+	}
+
+	// Player 1 Drum Rim Right
+	else if (a1 == 3) {
+		bool currentBtn = (bool)(*ffbOffset & 0x200);
+
+		if (currentBtn && btnP1RimR != currentBtn) 
+			rv = rand16();
+
+		btnP1RimR = currentBtn;
+	}
+
+	// Player 2 Drum Rim Left
+	else if (a1 == 4) {
+		bool currentBtn = (bool)(*ffbOffset & 0x400);
+
+		if (currentBtn && btnP2RimL != currentBtn) 
+			rv = rand16();
+
+		btnP2RimL = currentBtn;
+	}
+
+	// Player 2 Drum Center Left
+	else if (a1 == 5) {
+		bool currentBtn = (bool)(*ffbOffset & 0x800);
+
+		if (currentBtn && btnP2CenterL != currentBtn) 
+			rv = rand16();
+
+		btnP2CenterL = currentBtn;
+	}
+
+	// Player 2 Drum Center Right
+	else if (a1 == 6) {
+		bool currentBtn = (bool)(*ffbOffset & 0x1000);
+
+		if (currentBtn && btnP2CenterR != currentBtn)
+			rv = rand16();
+
+		btnP2CenterR = currentBtn;
+	}
+
+	// Player 2 Drum Rim Right
+	else if (a1 == 7) {
+		bool currentBtn = (bool)(*ffbOffset & 0x2000);
+
+		if (currentBtn && btnP2RimR != currentBtn) 
+			rv = rand16();
+		
+		btnP2RimR = currentBtn;
+	}
+	
 	return rv;
 }
 
