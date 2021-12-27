@@ -104,16 +104,13 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	//info(true, "bnusio_GetAnalogIn a1: %u", a1);
 
 	uint16_t rv = 0;
-	uint16_t rvSim = 0;
-
-	rvSim = rand16();
 
 	// Player 1 Drum Rim Left
 	if (a1 == 0) {
 		bool currentBtn = (bool)(*ffbOffset & 0x40);
 
 		if (currentBtn && btnP1RimL != currentBtn) 
-			rv = rvSim;
+			rv = rand16();
 		
 		btnP1RimL = currentBtn;
 	}
@@ -123,7 +120,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 		bool currentBtn = (bool)(*ffbOffset & 0x80);
 
 		if (currentBtn && btnP1CenterL != currentBtn) 
-			rv = rvSim;
+			rv = rand16();
 		
 		btnP1CenterL = currentBtn;
 	}
@@ -133,7 +130,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 		bool currentBtn = (bool)(*ffbOffset & 0x100);
 
 		if (currentBtn && btnP1CenterR != currentBtn) 
-			rv = rvSim;
+			rv = rand16();
 
 		btnP1CenterR = currentBtn;
 	}
@@ -143,7 +140,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 		bool currentBtn = (bool)(*ffbOffset & 0x200);
 
 		if (currentBtn && btnP1RimR != currentBtn) 
-			rv = rvSim;
+			rv = rand16();
 
 		btnP1RimR = currentBtn;
 	}
@@ -153,7 +150,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 		bool currentBtn = (bool)(*ffbOffset & 0x400);
 
 		if (currentBtn && btnP2RimL != currentBtn) 
-			rv = rvSim;
+			rv = rand16();
 
 		btnP2RimL = currentBtn;
 	}
@@ -163,7 +160,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 		bool currentBtn = (bool)(*ffbOffset & 0x800);
 
 		if (currentBtn && btnP2CenterL != currentBtn) 
-			rv = rvSim;
+			rv = rand16();
 
 		btnP2CenterL = currentBtn;
 	}
@@ -173,7 +170,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 		bool currentBtn = (bool)(*ffbOffset & 0x1000);
 
 		if (currentBtn && btnP2CenterR != currentBtn)
-			rv = rvSim;
+			rv = rand16();
 
 		btnP2CenterR = currentBtn;
 	}
@@ -183,7 +180,7 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 		bool currentBtn = (bool)(*ffbOffset & 0x2000);
 
 		if (currentBtn && btnP2RimR != currentBtn) 
-			rv = rvSim;
+			rv = rand16();
 		
 		btnP2RimR = currentBtn;
 	}
