@@ -112,10 +112,9 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	if (a1 == 0) {
 		bool currentBtn = (bool)(*ffbOffset & 0x40);
 
-		if (currentBtn && btnP1RimL != currentBtn) {
+		if (currentBtn && btnP1RimL != currentBtn) 
 			rv = rvSim;
-		}
-
+		
 		btnP1RimL = currentBtn;
 	}
 
@@ -123,10 +122,9 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	else if (a1 == 1) {
 		bool currentBtn = (bool)(*ffbOffset & 0x80);
 
-		if (currentBtn && btnP1CenterL != currentBtn) {
+		if (currentBtn && btnP1CenterL != currentBtn) 
 			rv = rvSim;
-		}
-
+		
 		btnP1CenterL = currentBtn;
 	}
 
@@ -134,9 +132,8 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	else if (a1 == 2) {
 		bool currentBtn = (bool)(*ffbOffset & 0x100);
 
-		if (currentBtn && btnP1CenterR != currentBtn) {
+		if (currentBtn && btnP1CenterR != currentBtn) 
 			rv = rvSim;
-		}
 
 		btnP1CenterR = currentBtn;
 	}
@@ -145,9 +142,8 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	else if (a1 == 3) {
 		bool currentBtn = (bool)(*ffbOffset & 0x200);
 
-		if (currentBtn && btnP1RimR != currentBtn) {
+		if (currentBtn && btnP1RimR != currentBtn) 
 			rv = rvSim;
-		}
 
 		btnP1RimR = currentBtn;
 	}
@@ -156,9 +152,8 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	else if (a1 == 4) {
 		bool currentBtn = (bool)(*ffbOffset & 0x400);
 
-		if (currentBtn && btnP2RimL != currentBtn) {
+		if (currentBtn && btnP2RimL != currentBtn) 
 			rv = rvSim;
-		}
 
 		btnP2RimL = currentBtn;
 	}
@@ -167,9 +162,8 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	else if (a1 == 5) {
 		bool currentBtn = (bool)(*ffbOffset & 0x800);
 
-		if (currentBtn && btnP2CenterL != currentBtn) {
+		if (currentBtn && btnP2CenterL != currentBtn) 
 			rv = rvSim;
-		}
 
 		btnP2CenterL = currentBtn;
 	}
@@ -178,9 +172,8 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	else if (a1 == 6) {
 		bool currentBtn = (bool)(*ffbOffset & 0x1000);
 
-		if (currentBtn && btnP2CenterR != currentBtn) {
+		if (currentBtn && btnP2CenterR != currentBtn)
 			rv = rvSim;
-		}
 
 		btnP2CenterR = currentBtn;
 	}
@@ -189,10 +182,9 @@ static uint16_t __fastcall bnusio_GetAnalogIn(unsigned __int8 a1)
 	else if (a1 == 7) {
 		bool currentBtn = (bool)(*ffbOffset & 0x2000);
 
-		if (currentBtn && btnP2RimR != currentBtn) {
+		if (currentBtn && btnP2RimR != currentBtn) 
 			rv = rvSim;
-		}
-
+		
 		btnP2RimR = currentBtn;
 	}
 	
