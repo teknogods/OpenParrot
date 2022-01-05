@@ -1,9 +1,15 @@
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <windows.h>
 #include <winternl.h>
 #include <conio.h>
 #include "PE.h"
+#include <string>
+#include "Utils.h"
+#include <filesystem>
+
+#include <fcntl.h>
+#include <io.h>
 
 #pragma comment(lib, "ntdll.lib")
 #pragma optimize("", off)
@@ -12,48 +18,71 @@ PROCESS_INFORMATION pi;
 _CONTEXT mycontext;
 PEStruct FilePEFile;
 int RunTo(DWORD_PTR Address, DWORD Mode, DWORD_PTR Eip);
-DWORD_PTR MyLoadLibraryA = 0;
 #pragma comment (lib, "Advapi32.lib")
-int LoadHookDLL(char *dllLocation, DWORD_PTR address)
-{
-	MyLoadLibraryA = (DWORD_PTR)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
-	DWORD_PTR addy = (DWORD_PTR)VirtualAllocEx(pi.hProcess, 0, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-	//printf("addy: %08X", addy);
-	DWORD_PTR OEP = address;
-	DWORD_PTR TextLocation = addy + 0x30;
-	DWORD_PTR CallLoadLibraryA = MyLoadLibraryA - (addy + 10);
-#ifdef _M_IX86
-	DWORD addyOffset = 10;
-	//ReadProcessMemory(pi.hProcess, (LPVOID)OEP, backbuf, 256, 0);
-	WriteProcessMemory(pi.hProcess, (LPVOID)addy, "\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xEB\xFE", 0x0C, 0);
-	WriteProcessMemory(pi.hProcess, (LPVOID)(addy + 1), &TextLocation, 4, 0);
-	WriteProcessMemory(pi.hProcess, (LPVOID)(addy + 6), &CallLoadLibraryA, 4, 0);
-	//printf("%s\n", dllLocation);
-	WriteProcessMemory(pi.hProcess, (LPVOID)TextLocation, dllLocation, strlen(dllLocation)+1, 0);
+
+#if _M_IX86
+char* LoaderExe = "OpenParrotLoader.exe";
 #else
-	DWORD addyOffset = 30;
-	WriteProcessMemory(pi.hProcess, (LPVOID)addy, "\x48\x83\xEC\x28\x48\xB9\x00\x00\x00\x00\x00\x00\x00\x00\x48\xB8\x11\x11\x11\x11\x01\x00\x00\x00\xFF\xD0\x48\x83\xC4\x28\xEB\xFE", 32, 0);
-	WriteProcessMemory(pi.hProcess, (LPVOID)(addy + 6), &TextLocation, 8, 0);
-	WriteProcessMemory(pi.hProcess, (LPVOID)(addy + 16), &MyLoadLibraryA, 8, 0);
-	//printf("%s\n", dllLocation);
-	WriteProcessMemory(pi.hProcess, (LPVOID)TextLocation, dllLocation, strlen(dllLocation) + 1, 0);
+char* LoaderExe = "OpenParrotLoader64.exe";
 #endif
-	GetThreadContext(pi.hThread, &mycontext);
-	Sleep(1000);
-	if (!RunTo(addy + addyOffset, 0, addy))
+
+int LoadHookDLL(const wchar_t* dllLocation, DWORD_PTR address)
+{
+	HMODULE kernel32Handle = GetModuleHandle(L"kernel32.dll");
+
+	if (kernel32Handle == NULL)
 	{
-		printf("Failed to Load DLL: %s\n", dllLocation);
+		wprintf(L"Failed to Load DLL! (Error 1)\n");
 		return 0;
 	}
+
+	DWORD_PTR MyLoadLibraryW = (DWORD_PTR)GetProcAddress(kernel32Handle, "LoadLibraryW");
+	DWORD_PTR addy = (DWORD_PTR)VirtualAllocEx(pi.hProcess, 0, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+
+	if (addy == NULL)
+	{
+		wprintf(L"Failed to Load DLL! (Error 2)\n");
+		return 0;
+	}
+
+	DWORD_PTR OEP = address;
+	DWORD_PTR TextLocation = addy + 0x30;
+	DWORD_PTR CallLoadLibraryW = MyLoadLibraryW - (addy + 10);
+#ifdef _M_IX86
+	DWORD addyOffset = 10;
+
+	WriteProcessMemory(pi.hProcess, (LPVOID)addy, "\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xEB\xFE", 0x0C, 0);
+	WriteProcessMemory(pi.hProcess, (LPVOID)(addy + 1), &TextLocation, 4, 0);
+	WriteProcessMemory(pi.hProcess, (LPVOID)(addy + 6), &CallLoadLibraryW, 4, 0);
+	WriteProcessMemory(pi.hProcess, (LPVOID)TextLocation, dllLocation, GetByteSizeOfWchar(dllLocation), 0);
+#else
+	DWORD addyOffset = 30;
+
+	WriteProcessMemory(pi.hProcess, (LPVOID)addy, "\x48\x83\xEC\x28\x48\xB9\x00\x00\x00\x00\x00\x00\x00\x00\x48\xB8\x11\x11\x11\x11\x01\x00\x00\x00\xFF\xD0\x48\x83\xC4\x28\xEB\xFE", 32, 0);
+	WriteProcessMemory(pi.hProcess, (LPVOID)(addy + 6), &TextLocation, 8, 0);
+	WriteProcessMemory(pi.hProcess, (LPVOID)(addy + 16), &MyLoadLibraryW, 8, 0);
+	WriteProcessMemory(pi.hProcess, (LPVOID)TextLocation, dllLocation, GetByteSizeOfWchar(dllLocation) + 1, 0);
+#endif
+
+	GetThreadContext(pi.hThread, &mycontext);
+	Sleep(1000);
+
+	if (!RunTo(addy + addyOffset, 0, addy))
+	{
+		wprintf(L"Failed to Load DLL! (Error 3)\n");
+		return 0;
+	}
+
 #ifdef _M_IX86
 	if (mycontext.Eax == 0)
 #elif defined(_M_AMD64)
 	if (mycontext.Rax == 0)
 #endif
 	{
-		printf("Failed to Load DLL: %s\n", dllLocation);
+		wprintf(L"Failed to Load DLL! (Error 4)\n");
 		return 0;
 	}
+
 	GetThreadContext(pi.hThread, &mycontext);
 	Sleep(100);
 #ifdef _M_IX86
@@ -63,15 +92,12 @@ int LoadHookDLL(char *dllLocation, DWORD_PTR address)
 #endif
 	Sleep(100);
 	SetThreadContext(pi.hThread, &mycontext);
-	Sleep(100);
-	//WriteProcessMemory(pi.hProcess, (LPVOID)OEP, backbuf, 256, 0);
-	Sleep(100);
-	printf("DLL Loaded! %s\n", dllLocation);// %08x\n", mycontext.Eax);
+
 	return 1;
 }
 int RunTo(DWORD_PTR Address, DWORD Mode, DWORD_PTR Eip)
 {
-	char tempbuf[4];
+	char tempbuf[4] = { 0 };
 	if (Eip != 0)
 	{
 		GetThreadContext(pi.hThread, &mycontext);
@@ -100,118 +126,123 @@ int RunTo(DWORD_PTR Address, DWORD Mode, DWORD_PTR Eip)
 	WriteProcessMemory(pi.hProcess, (LPVOID)Address, tempbuf, 4, 0);
 	return 1;
 }
-void lowercase(char string[])
+
+int wmain(int argc, wchar_t* argv[])
 {
-	int  i = 0;
+	// Set stdout to wide chars, as a result you can only use wprintf!
+	(void)_setmode(_fileno(stdout), _O_U16TEXT);
 
-	while (string[i])
-	{
-		string[i] = tolower(string[i]);
-		i++;
-	}
+	wprintf(L"  _______   _                _____                     _   \n");
+	wprintf(L" |__   __| | |              |  __ \\                   | |  \n");
+	wprintf(L"    | | ___| | ___ __   ___ | |__) |_ _ _ __ _ __ ___ | |_ \n");
+	wprintf(L"    | |/ _ \\ |/ / '_ \\ / _ \\|  ___/ _` | '__| '__/ _ \\| __|\n");
+	wprintf(L"    | |  __/   <| | | | (_) | |  | (_| | |  | | | (_) | |_ \n");
+	wprintf(L"    |_|\\___|_|\\_\\_| |_|\\___/|_|   \\__,_|_|  |_|  \\___/ \\__|\n\n");
 
-	return;
-}
-
-DWORD GetVal(HKEY hKey, LPCTSTR lpValue)
-{
-	DWORD data;		DWORD size = sizeof(data);	DWORD type = REG_DWORD;
-	LONG nError = RegQueryValueEx(hKey, lpValue, NULL, &type, (LPBYTE)&data, &size);
-
-	if (nError == ERROR_FILE_NOT_FOUND)
-		data = 0; // The value will be created and set to data next time SetVal() is called.
-	else if (nError)
-		printf("Error: Could not get registry value %s\n", lpValue);
-
-	return data;
-}
-
-int main(int argc, char *argv[])
-{
 	if (argc == 1 || argc > 4)
 	{
-		printf("Please use the following format:\n");
+		wprintf(L"Please use the following format:\n");
 #if _M_IX86
-		printf("OpenParrotLoader.exe <DLL> <EXE> <param>\n");
+		wprintf(L"OpenParrotLoader.exe <DLL> <EXE> <param>\n");
 #else
-		printf("OpenParrotLoader64.exe <DLL> <EXE> <param>\n");
-#endif		
+		wprintf(L"OpenParrotLoader64.exe <DLL> <EXE> <param>\n");
+#endif
+		(void)_getch();
 		return 0;
 	}
 
-	char dirBuf[256];
-	strcpy(dirBuf, argv[2]);
-	char *p = strrchr(dirBuf, '\\');
-	if (p) p[0] = 0;
+	// Parse paths
+	std::filesystem::path loaderPath;
+	std::filesystem::path corePath;
+	std::filesystem::path gamePath;
 
-	WIN32_FIND_DATA filedata;
-	HANDLE hFind;
-	HANDLE hFindDll;
-	WIN32_FIND_DATA filedata2;
-	HANDLE hFind2;
-	char szDir[512];
-	char szDir2[512];
-	printf("OpenParrot Loader\n");
-	printf("http://www.teknogods.com - Modding Gurus!\n");
-	printf("Supported OS: Windows 7 x86 / x64, Windows 8 / 8.1 x86 / x64, Windows 10 x86 / x64\n");
-	printf("Code: Reaver, NTAuthority, avail and the community\n");
-	GetCurrentDirectoryA(400, szDir);
-	sprintf_s(szDir2, "%s\\%s.dll", szDir, argv[1]);
-	hFind = FindFirstFile(argv[2], &filedata);
-	hFind2 = FindFirstFile(szDir2, &filedata2);
+	loaderPath = std::filesystem::absolute(LoaderExe);
+	corePath = std::filesystem::absolute(argv[1]);
+	corePath += ".dll";
+	gamePath = argv[2];
 
-	if (hFind == INVALID_HANDLE_VALUE)
+	// Prepare wchars
+	wchar_t* loaderPathW = new wchar_t[wcslen(loaderPath.wstring().c_str()) + 1]{ 0 };
+	wcscpy(loaderPathW, loaderPath.wstring().c_str());
+
+	wchar_t* corePathW = new wchar_t[wcslen(corePath.wstring().c_str()) + 1]{ 0 };
+	wcscpy(corePathW, corePath.wstring().c_str());
+
+	wchar_t* gamePathW = new wchar_t[wcslen(gamePath.wstring().c_str()) + 1]{ 0 };
+	wcscpy(gamePathW, gamePath.wstring().c_str());
+
+	wchar_t* gameFolderW = new wchar_t[wcslen(gamePath.parent_path().wstring().c_str()) + 1]{ 0 };
+	wcscpy(gameFolderW, gamePath.parent_path().wstring().c_str());
+
+	// Print paths
+	wprintf(L"Loader: %ls (%ls)\n", loaderPathW, GetFileVersion(loaderPathW));
+	wprintf(L"Core:   %ls (%ls)\n", corePathW, GetFileVersion(corePathW));
+	wprintf(L"Game:   %ls (%ls)\n", gamePathW, GetFileVersion(gamePathW));
+
+	if (argc == 4)
+		wprintf(L"Arguments: %ls\n", argv[3]);
+
+	// Check paths
+	if (!std::filesystem::exists(corePath))
 	{
-		printf("Unable to find %s\n", argv[2]);
-		_getch();
+		wprintf(L"Unable to find core DLL!\n");
+		(void)_getch();
 		return 0;
 	}
 
-	if (hFind2 == INVALID_HANDLE_VALUE)
+	if (!std::filesystem::exists(gamePath))
 	{
-		printf("Unable to find %s\n", szDir2);
-		_getch();
+		wprintf(L"Unable to find game EXE!\n");
+		(void)_getch();
 		return 0;
 	}
 
-	FilePEFile = getPEFileInformation(argv[2]);
+	wprintf(L"\nLoading game...\n");
+
+	FilePEFile = getPEFileInformation(gamePathW);
+
+	// With arguments
 	if (argc == 4)
 	{
-		char bb[256];
-		sprintf(bb, "%s %s", argv[2], argv[3]);
-		if (!CreateProcess(NULL, // No module name (use command line). 
-			bb,			  // Command line.
+		wchar_t args[MAX_PATH];
+		swprintf(args, MAX_PATH, L"%ls", argv[3]);
+
+		if (!CreateProcess(gamePathW, // No module name (use command line). 
+			args,			  // Command line.
 			NULL,             // Process handle not inheritable. 
 			NULL,             // Thread handle not inheritable. 
 			FALSE,            // Set handle inheritance to FALSE. 
 			CREATE_SUSPENDED | CREATE_NEW_PROCESS_GROUP, // suspended creation flags. 
 			NULL,             // Use parent's environment block. 
-			dirBuf,             // Use parent's starting directory. 
+			gameFolderW,      // Use parent's starting directory. 
 			&si,              // Pointer to STARTUPINFO structure.
-			&pi)             // Pointer to PROCESS_INFORMATION structure.
+			&pi)              // Pointer to PROCESS_INFORMATION structure.
 			)
 		{
-			printf("Failed to load process!\n");
-			_getch();
+			wprintf(L"Failed to load process!\n");
+			wprintf(L"Error: %ls(0x%X)\n", GetLastErrorAsString(), GetLastError());
+			(void)_getch();
 			return 1;
 		}
 	}
+	// Without arguments
 	else if (argc == 3)
 	{
-		if (!CreateProcess(argv[2], // No module name (use command line). 
-			"",			  // Command line.
+		if (!CreateProcess(gamePathW, // No module name (use command line). 
+			L"",			  // Command line.
 			NULL,             // Process handle not inheritable. 
 			NULL,             // Thread handle not inheritable. 
 			FALSE,            // Set handle inheritance to FALSE. 
 			CREATE_SUSPENDED | CREATE_NEW_PROCESS_GROUP, // suspended creation flags. 
 			NULL,             // Use parent's environment block. 
-			dirBuf,             // Use parent's starting directory. 
+			gameFolderW,      // Use parent's starting directory. 
 			&si,              // Pointer to STARTUPINFO structure.
-			&pi)             // Pointer to PROCESS_INFORMATION structure.
+			&pi)              // Pointer to PROCESS_INFORMATION structure.
 			)
 		{
-			printf("Failed to load process!\n");
-			_getch();
+			wprintf(L"Failed to load process!\n");
+			wprintf(L"Error: %ls(0x%X)\n", GetLastErrorAsString(), GetLastError());
+			(void)_getch();
 			return 1;
 		}
 	}
@@ -219,25 +250,25 @@ int main(int argc, char *argv[])
 	mycontext.ContextFlags = 0x00010000 + 1 + 2 + 4 + 8 + 0x10;
 	GetThreadContext(pi.hThread, &mycontext);
 
-	PROCESS_BASIC_INFORMATION pbi;
+	PROCESS_BASIC_INFORMATION pbi = { 0 };
 	DWORD pbiSize = sizeof(pbi);
 
 	if (!NT_SUCCESS(NtQueryInformationProcess(pi.hProcess, ProcessBasicInformation, &pbi, pbiSize, &pbiSize)))
 	{
-		printf("Failed to get process information!\n");
-		_getch();
+		wprintf(L"Failed to get process information!\n");
+		(void)_getch();
 		return 1;
 	}
 
-	DWORD_PTR baseAddress;
+	DWORD_PTR baseAddress = 0;
 	SIZE_T read = 0;
 
 	ReadProcessMemory(pi.hProcess, (void*)((DWORD_PTR)pbi.PebBaseAddress + (sizeof(DWORD_PTR) * 2)), &baseAddress, sizeof(baseAddress), &read);
 
 	if (read != sizeof(DWORD_PTR))
 	{
-		printf("Failed to get process environment!\n");
-		_getch();
+		wprintf(L"Failed to get process environment!\n");
+		(void)_getch();
 		return 1;
 	}
 
@@ -245,19 +276,25 @@ int main(int argc, char *argv[])
 
 	if (!RunTo(baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint, 1, 0))
 	{
-		printf("Failed to run the process\n");
+		wprintf(L"Failed to run the process\n");
 		TerminateProcess(pi.hProcess, 0);
-		_getch();
+		(void)_getch();
 		return 1;
 	}
+	wprintf(L"Success!\n");
 
-	if (!LoadHookDLL(szDir2, baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint))
+	wprintf(L"Loading core...\n");
+
+	if (!LoadHookDLL(corePathW, baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint))
 	{
 		TerminateProcess(pi.hProcess, 0);
-		_getch();
+		(void)_getch();
 		return 0;
 	}
-	printf("Resuming game!\n");
+	wprintf(L"Success!\n");
+
+	wprintf(L"\nHave fun :)\n");
+
 	Sleep(2000);
 	ResumeThread(pi.hThread);
 	while (GetThreadContext(pi.hThread, &mycontext)) Sleep(2000);

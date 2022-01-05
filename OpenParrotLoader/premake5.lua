@@ -3,7 +3,7 @@ project "OpenParrotLoader"
 	language "C++"
 	kind "ConsoleApp"
 
-	characterset "MBCS"
+	characterset "Unicode"
 
 	files
 	{

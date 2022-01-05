@@ -15,4 +15,4 @@ typedef struct _PEStruct
 	DWORD					  numOfSecs;
 } PEStruct, *PPEStruct;
 
-PEStruct getPEFileInformation(char *filename);
+PEStruct getPEFileInformation(const wchar_t *filename);
