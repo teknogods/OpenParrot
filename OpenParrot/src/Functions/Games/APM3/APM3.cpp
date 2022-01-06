@@ -1270,4 +1270,20 @@ static InitFunction initFuncBladeStrangesAPM3([]()
 
 	}, GameID::BladeStrangesAPM3);
 
+static InitFunction initFuncKoihimeEnbuAPM3([]()
+	{
+		HookAPM3(L"SDFR");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	}, GameID::KoihimeEnbuAPM3);
+
+static InitFunction initFuncUnderNightAPM3([]()
+	{
+		HookAPM3(L"SDGR");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	}, GameID::UnderNightAPM3);
+
 #endif
