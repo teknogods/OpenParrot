@@ -655,6 +655,12 @@ void GameDetect::DetectCurrentGame()
 		case 0xd8dd1127:
 			SetGameId(GameID::BladeStrangesAPM3, "Blade Strangers APM3");
 			break;
+		case 0x09b498a1:
+			SetGameId(GameID::KoihimeEnbuAPM3, "Koihime Enbu V3 APM3");
+			break;
+		case 0xa74fb5ac:
+			SetGameId(GameID::UnderNightAPM3, "Under Night In Birth APM3");
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
@@ -768,6 +774,7 @@ void GameDetect::DetectCurrentGame()
 		case 0x5451ddfd:
 			SetGameId(GameID::Kasiori, "Kasiori");
 			break;
+
 #endif
 		default:
 #ifdef _DEBUG

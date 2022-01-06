@@ -134,4 +134,6 @@ enum class GameID
 	DengekiBunkoFC,
 	BladeStrangesAPM3,
 	Pengoe512,
+	KoihimeEnbuAPM3,
+	UnderNightAPM3,
 };
