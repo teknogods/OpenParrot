@@ -1,4 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <windows.h>
 #include <winternl.h>
@@ -204,11 +204,12 @@ int wmain(int argc, wchar_t* argv[])
 	// With arguments
 	if (argc == 4)
 	{
-		wchar_t args[MAX_PATH];
-		swprintf(args, MAX_PATH, L"%ls", argv[3]);
+		size_t cmdSize = wcslen(gamePathW) + wcslen(argv[3]) + 4;
+		wchar_t* cmdW = new wchar_t[cmdSize]{ 0 };
+		swprintf(cmdW, cmdSize, L"\"%ls\" %ls", gamePathW, argv[3]);
 
 		if (!CreateProcess(gamePathW, // No module name (use command line). 
-			args,			  // Command line.
+			cmdW,			  // Command line.
 			NULL,             // Process handle not inheritable. 
 			NULL,             // Thread handle not inheritable. 
 			FALSE,            // Set handle inheritance to FALSE. 
