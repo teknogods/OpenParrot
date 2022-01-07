@@ -655,10 +655,16 @@ void GameDetect::DetectCurrentGame()
 		case 0xd8dd1127:
 			SetGameId(GameID::BladeStrangesAPM3, "Blade Strangers APM3");
 			break;
-		case 0x09b498a1:
+		case 0x9d03d54b: //Koihime Enbu Base
+		case 0xb4553c6c: //Koihime Enbu Update 1
+		case 0x856d837f: //Koihime Enbu Update 2
+		case 0x60fc5dc3: //Koihime Enbu Update 3
+		case 0x09b498a1: //Koihime Enbu Update 4
+		case 0xd26a9272: //Koihime Enbu Update 5
 			SetGameId(GameID::KoihimeEnbuAPM3, "Koihime Enbu V3 APM3");
 			break;
-		case 0xa74fb5ac:
+		case 0xa74fb5ac: // Under Night Base
+		case 0x6219a5e6: // Under Night Proto
 			SetGameId(GameID::UnderNightAPM3, "Under Night In Birth APM3");
 			break;
 #endif
