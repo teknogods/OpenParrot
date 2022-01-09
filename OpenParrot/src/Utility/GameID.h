@@ -136,4 +136,5 @@ enum class GameID
 	Pengoe512,
 	KoihimeEnbuAPM3,
 	UnderNightAPM3,
+	OtushuDX,
 };
