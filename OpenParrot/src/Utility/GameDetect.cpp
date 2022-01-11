@@ -781,7 +781,7 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::Kasiori, "Kasiori");
 			break;
 		case 0x714d4700:
-			SetGameId(GameID::OtushuDX, "Otushu DX");
+			SetGameId(GameID::OtoshuDX, "Otoshu DX");
 			break;
 
 #endif
