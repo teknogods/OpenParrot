@@ -780,6 +780,9 @@ void GameDetect::DetectCurrentGame()
 		case 0x5451ddfd:
 			SetGameId(GameID::Kasiori, "Kasiori");
 			break;
+		case 0x714d4700:
+			SetGameId(GameID::OtushuDX, "Otushu DX");
+			break;
 
 #endif
 		default:

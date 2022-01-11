@@ -1144,6 +1144,13 @@ static InitFunction initKasioriTestFunc([]()
 
 	}, GameID::Kasiori);
 
+static InitFunction initOtushuDXTestFunc([]()
+	{
+		HookAPM3(L"SDGF");
+		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+
+	}, GameID::OtushuDX);
+
 
 #else
 
