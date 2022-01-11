@@ -945,187 +945,184 @@ void __fastcall setOption_x64(void* me, char a2, char a3)
 }
 
 static InitFunction initFuncTapping([]()
-	{
-		HookAPM3(L"SDFJ");
+{
+	HookAPM3(L"SDFJ");
 
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::TappingSkillTest);
+}, GameID::TappingSkillTest);
 
 static InitFunction initFuncPengoe510([]()
-	{
-		HookAPM3(L"SDFH");
+{
+	HookAPM3(L"SDFH");
 
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		MH_Initialize();
-		//MH_CreateHook((void*)(mainModuleBase + 0x1944B0), (void *)printPengo, NULL);
-		MH_EnableHook(MH_ALL_HOOKS);
+	MH_Initialize();
+	//MH_CreateHook((void*)(mainModuleBase + 0x1944B0), (void *)printPengo, NULL);
+	MH_EnableHook(MH_ALL_HOOKS);
 
-		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+	// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
 #ifdef _DEBUG
-		safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
+	safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
 #endif
-		/// PATTERNS BELOW
-		// Skip joysticks
-		injector::MakeRET(mainModuleBase + 0x15C5B0);
-		// Skip keyboard
-		injector::MakeRET(mainModuleBase + 0x15CBA0);
+	/// PATTERNS BELOW
+	// Skip joysticks
+	injector::MakeRET(mainModuleBase + 0x15C5B0);
+	// Skip keyboard
+	injector::MakeRET(mainModuleBase + 0x15CBA0);
 
-	}, GameID::Pengoe5);
+}, GameID::Pengoe5);
 
 static InitFunction initFuncPengoe511([]()
-	{
-		HookAPM3(L"SDFH");
+{
+	HookAPM3(L"SDFH");
 
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+	// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
 #ifdef _DEBUG
-		safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
+	safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
 #endif
-		// Skip joysticks
-		injector::MakeRET(mainModuleBase + 0x16A7C0); // CC 48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40
-		// Skip keyboard
-		injector::MakeRET(mainModuleBase + 0x16ADB0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
+	// Skip joysticks
+	injector::MakeRET(mainModuleBase + 0x16A7C0); // CC 48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40
+	// Skip keyboard
+	injector::MakeRET(mainModuleBase + 0x16ADB0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
 
-	}, GameID::Pengoe511);
+}, GameID::Pengoe511);
 
 static InitFunction initFuncPengoe512([]()
-	{
-		HookAPM3(L"SDFH");
+{
+	HookAPM3(L"SDFH");
 
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+	// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
 #ifdef _DEBUG
-		safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
+	safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
 #endif
-		// Skip joysticks
-		injector::MakeRET(mainModuleBase + 0x16DFF0); // Pattern changed, too lazy to check.
+	// Skip joysticks
+	injector::MakeRET(mainModuleBase + 0x16DFF0); // Pattern changed, too lazy to check.
 
-		// Skip keyboard
-		injector::MakeRET(mainModuleBase + 0x16E5D0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
+	// Skip keyboard
+	injector::MakeRET(mainModuleBase + 0x16E5D0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
 
-	}, GameID::Pengoe512);
+}, GameID::Pengoe512);
 
 static InitFunction initPengoe5TestFunc([]()
-	{
-		HookAPM3(L"SDFH");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3(L"SDFH");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		// Skip joysticks
-		injector::MakeRET(mainModuleBase + 0x158820);
-		// Skip keyboard
-		injector::MakeRET(mainModuleBase + 0x158E10);
+	// Skip joysticks
+	injector::MakeRET(mainModuleBase + 0x158820);
+	// Skip keyboard
+	injector::MakeRET(mainModuleBase + 0x158E10);
 
-		Sequence_isTestReturnValue = true;
+	Sequence_isTestReturnValue = true;
 
-	}, GameID::Pengoe5_Test);
+}, GameID::Pengoe5_Test);
 
 static InitFunction initVF5Func([]()
-	{
-		HookAPM3(L"SDHF");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3(L"SDHF");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		BackupSaveFileName = ".\\vf5fs\\save";
+	BackupSaveFileName = ".\\vf5fs\\save";
 
-	}, GameID::VF5Esports);
+}, GameID::VF5Esports);
 
 static InitFunction initVF5TestFunc([]()
-	{
-		HookAPM3(L"SDHF");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3(L"SDHF");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		if (strstr(GetCommandLineA(), "-tptest") != NULL)
-			Sequence_isTestReturnValue = true;
+	if (strstr(GetCommandLineA(), "-tptest") != NULL)
+		Sequence_isTestReturnValue = true;
 
-	}, GameID::VF5EsportsTest);
+}, GameID::VF5EsportsTest);
 
 static InitFunction initGoonyaFunc([]()
+{
+	HookAPM3(L"SDGX");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+	auto mod = LoadLibraryA(".\\Goonya Fighter_Data\\Plugins\\abaasgs.dll");
+	if (mod == nullptr)
 	{
-		HookAPM3(L"SDGX");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
-		auto mod = LoadLibraryA(".\\Goonya Fighter_Data\\Plugins\\abaasgs.dll");
-		if (mod == nullptr)
-		{
-			MessageBoxA(0, "Cannot load abaasgs.dll!", "Error", 0);
-			ExitProcess(0);
-		}
+		MessageBoxA(0, "Cannot load abaasgs.dll!", "Error", 0);
+		ExitProcess(0);
+	}
 
-		auto hookLoc = (__int64)mod + 0x9A20;
-		safeJMP(hookLoc, setOption_x64);
+	auto hookLoc = (__int64)mod + 0x9A20;
+	safeJMP(hookLoc, setOption_x64);
 
-		auto mod2 = LoadLibraryA(".\\Goonya Fighter_Data\\Plugins\\abaaslink.dll");
-		if (mod2 == nullptr)
-		{
-			MessageBoxA(0, "Cannot load abaaslink.dll!", "Error", 0);
-			ExitProcess(0);
-		}
+	auto mod2 = LoadLibraryA(".\\Goonya Fighter_Data\\Plugins\\abaaslink.dll");
+	if (mod2 == nullptr)
+	{
+		MessageBoxA(0, "Cannot load abaaslink.dll!", "Error", 0);
+		ExitProcess(0);
+	}
 
-		auto hookLoc2 = (__int64)mod2 + 0x46FD0;
-		safeJMP(hookLoc2, setOption_x64);
+	auto hookLoc2 = (__int64)mod2 + 0x46FD0;
+	safeJMP(hookLoc2, setOption_x64);
 
-		// 88 51 21 44 88 41 22 C3
+	// 88 51 21 44 88 41 22 C3
 
-	}, GameID::GoonyaFighter);
+}, GameID::GoonyaFighter);
 
 static InitFunction initPuyoFunc([]()
-	{
-		HookAPM3(L"SDFF");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3(L"SDFF");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::PuyoPuyoEsports);
+}, GameID::PuyoPuyoEsports);
 
 static InitFunction initDoa6FM17Func([]()
-	{
-		HookAPM3(L"SDFM");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3(L"SDFM");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::Doa6FM17);
+}, GameID::Doa6FM17);
 
 static InitFunction initGGSFunc([]()
-	{
-		HookAPM3(L"SDGM");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3(L"SDGM");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+	// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
 #ifdef _DEBUG
-		safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
+	safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
 #endif
-	}, GameID::GGS);
+}, GameID::GGS);
 
 static InitFunction initFuncCottonRocknRollATest([]()
-	{
-		HookAPM3(L"SDHW");
+{
+	HookAPM3(L"SDHW");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-		LoadLibraryA(".\\\dll\\x64\\libcurl.dll");
+	LoadLibraryA(".\\\dll\\x64\\libcurl.dll");
 
-	}, GameID::CottonRocknRollATest);
+}, GameID::CottonRocknRollATest);
 
 static InitFunction initDoa6TestFunc([]()
-	{
-		HookAPM3(L"SDFM");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3(L"SDFM");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::Doa6Test);
+}, GameID::Doa6Test);
 
 static InitFunction initNosferatuLilinorTestFunc([]()
-	{
-		HookAPM3(L"SDHP");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3(L"SDHP");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::NosferatuLilinor);
+}, GameID::NosferatuLilinor);
 
-HMODULE(WINAPI* g_origLoadLibraryW)(
-	LPCWSTR lpRootPathName
-	);
+HMODULE(WINAPI* g_origLoadLibraryW)(LPCWSTR lpRootPathName);
 
 HMODULE LoadLibraryWHook(LPCWSTR lpLibFileName)
 {
-
 	if (wcscmp(L"X:/lib/apm.dll", lpLibFileName) == 0)
 	{
 		return g_origLoadLibraryW(L"apm.dll");
@@ -1134,22 +1131,22 @@ HMODULE LoadLibraryWHook(LPCWSTR lpLibFileName)
 }
 
 static InitFunction initKasioriTestFunc([]()
-	{
-		// voce pode copiar meu trabalho jajajajajajajaja
-		MH_Initialize();
-		MH_CreateHookApi(L"kernel32.dll", "LoadLibraryW", LoadLibraryWHook, (void**)&g_origLoadLibraryW);
-		MH_EnableHook(MH_ALL_HOOKS);
-		HookAPM3(L"SDHV");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	// voce pode copiar meu trabalho jajajajajajajaja
+	MH_Initialize();
+	MH_CreateHookApi(L"kernel32.dll", "LoadLibraryW", LoadLibraryWHook, (void**)&g_origLoadLibraryW);
+	MH_EnableHook(MH_ALL_HOOKS);
+	HookAPM3(L"SDHV");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::Kasiori);
+}, GameID::Kasiori);
 
 static InitFunction initOtoshuDXTestFunc([]()
-	{
-		HookAPM3(L"SDGF");
-		__int64 mainModuleBase = (__int64)GetModuleHandle(0);
+{
+	HookAPM3(L"SDGF");
+	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	}, GameID::OtoshuDX);
+}, GameID::OtoshuDX);
 
 
 #else
@@ -1167,130 +1164,130 @@ void __declspec(naked) setOption_x86()
 }
 
 static InitFunction initFuncUmifresh02([]()
+{
+	HookAPM3(L"SDGU");
+
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	// Windowed
+	if (ToBool(config["General"]["Windowed"]))
 	{
-		HookAPM3(L"SDGU");
+		injector::WriteMemory<BYTE>(mainModuleBase + 0x1D8FC4, 0xEB, true);
+	}
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	injector::WriteMemory<BYTE>(mainModuleBase + 0x1806BF, 0xEB, true); // Skip some credit check idfk
 
-		// Windowed
-		if (ToBool(config["General"]["Windowed"]))
-		{
-			injector::WriteMemory<BYTE>(mainModuleBase + 0x1D8FC4, 0xEB, true);
-		}
-
-		injector::WriteMemory<BYTE>(mainModuleBase + 0x1806BF, 0xEB, true); // Skip some credit check idfk
-
-	}, GameID::Umifresh);
+}, GameID::Umifresh);
 
 static InitFunction initFuncUmifresh01([]()
+{
+	HookAPM3(L"SDGU");
+
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+
+	// Windowed
+	if (ToBool(config["General"]["Windowed"]))
 	{
-		HookAPM3(L"SDGU");
+		injector::WriteMemory<BYTE>(mainModuleBase + 0x1D8144, 0xEB, true);
+	}
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	injector::WriteMemory<BYTE>(mainModuleBase + 0x18025F, 0xEB, true); // Skip some credit check idfk
 
-
-		// Windowed
-		if (ToBool(config["General"]["Windowed"]))
-		{
-			injector::WriteMemory<BYTE>(mainModuleBase + 0x1D8144, 0xEB, true);
-		}
-
-		injector::WriteMemory<BYTE>(mainModuleBase + 0x18025F, 0xEB, true); // Skip some credit check idfk
-
-	}, GameID::Umifresh01);
+}, GameID::Umifresh01);
 
 static InitFunction initFuncRollingGunner([]()
-	{
-		HookAPM3(L"SDGW");
+{
+	HookAPM3(L"SDGW");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-	}, GameID::RollingGunner);
+}, GameID::RollingGunner);
 
 static InitFunction initFuncAleste([]()
-	{
-		HookAPM3(L"SDHB");
+{
+	HookAPM3(L"SDHB");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 #ifdef _DEBUG
-		// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
-		safeJMP(hook::get_pattern("55 8B EC 8A 45 08 88 41 15"), setOption_x86);
+	// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
+	safeJMP(hook::get_pattern("55 8B EC 8A 45 08 88 41 15"), setOption_x86);
 #endif
-	}, GameID::Aleste);
+}, GameID::Aleste);
 
 static InitFunction initFuncAleste11([]()
-	{
-		HookAPM3(L"SDHB");
+{
+	HookAPM3(L"SDHB");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-	}, GameID::Aleste11);
+}, GameID::Aleste11);
 
 static InitFunction initFuncGGXRd([]()
-	{
-		HookAPM3(L"SDFB");
+{
+	HookAPM3(L"SDFB");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-	}, GameID::GGXRd);
+}, GameID::GGXRd);
 
 static InitFunction initFuncCottonRocknRollA([]()
+{
+	HookAPM3(L"SDHW");
+
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	LoadLibraryA(".\\\dll\\x86\\libcurl.dll");
+
+	if (ToBool(config["General"]["Windowed"]))
 	{
-		HookAPM3(L"SDHW");
+		injector::WriteMemory<BYTE>(mainModuleBase + 0x2A3C1E, 0xEB, true); // Windowed
+	}
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	injector::WriteMemory<BYTE>(mainModuleBase + 0x25036F, 0xEB, true); // Skip some credit check idfk
 
-		LoadLibraryA(".\\\dll\\x86\\libcurl.dll");
-
-		if (ToBool(config["General"]["Windowed"]))
-		{
-			injector::WriteMemory<BYTE>(mainModuleBase + 0x2A3C1E, 0xEB, true); // Windowed
-		}
-
-		injector::WriteMemory<BYTE>(mainModuleBase + 0x25036F, 0xEB, true); // Skip some credit check idfk
-
-	}, GameID::CottonRocknRollA);
+}, GameID::CottonRocknRollA);
 
 static InitFunction initFuncBlazBlueCrossTagBattle([]()
-	{
-		HookAPM3(L"SDFU");
+{
+	HookAPM3(L"SDFU");
 
-		Credit_getCreditReturnValue = 3;
+	Credit_getCreditReturnValue = 3;
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-	}, GameID::BlazBlueCrossTagBattle);
+}, GameID::BlazBlueCrossTagBattle);
 
 static InitFunction initFuncDengekiBunkoFC([]()
-	{
-		HookAPM3(L"SDGC");
+{
+	HookAPM3(L"SDGC");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-	}, GameID::DengekiBunkoFC);
+}, GameID::DengekiBunkoFC);
 
 static InitFunction initFuncBladeStrangesAPM3([]()
-	{
-		HookAPM3(L"SDFD");
+{
+	HookAPM3(L"SDFD");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-	}, GameID::BladeStrangesAPM3);
+}, GameID::BladeStrangesAPM3);
 
 static InitFunction initFuncKoihimeEnbuAPM3([]()
-	{
-		HookAPM3(L"SDFR");
+{
+	HookAPM3(L"SDFR");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-	}, GameID::KoihimeEnbuAPM3);
+}, GameID::KoihimeEnbuAPM3);
 
 static InitFunction initFuncUnderNightAPM3([]()
-	{
-		HookAPM3(L"SDGR");
+{
+	HookAPM3(L"SDGR");
 
-		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-	}, GameID::UnderNightAPM3);
+}, GameID::UnderNightAPM3);
 
 #endif
