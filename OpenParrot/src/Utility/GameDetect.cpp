@@ -635,7 +635,7 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::Aleste11, "ALESTE Ver 11");
 			break;
 		case 0xd426de40: // Cotton Rock n Roll A
-		//case 0x1eedb670: // Cotton Rock n Roll A v1.2 (needs new patches)
+		case 0x1eedb670: // Cotton Rock n Roll A v1.2
 			SetGameId(GameID::CottonRocknRollA, "Cotton Rock n Roll A");
 			break;
 		case 0xed8af9f8: // Guilty Gear Xrd REV APM3 Edition
@@ -747,18 +747,18 @@ void GameDetect::DetectCurrentGame()
 		case 0x9c7bb2e1: // Ver 11 TEST
 			SetGameId(GameID::TappingSkillTest, "Tapping Skill Test Generic");
 			break;
-		case 0x2FF02A2E: // FM17
-		case 0x24DCF694: // FM16
-		case 0x0bad58c2: // FM14
-		case 0x65753fe4: // FM13
-		case 0xd7028acd: // FM12
-		case 0xf9df097f: // FM11
 		case 0x03577d43: // FM10
-			SetGameId(GameID::Doa6FM17, "Dead or Alive 6 Generic");
+		case 0xf9df097f: // FM11
+		case 0xd7028acd: // FM12
+		case 0x65753fe4: // FM13
+		case 0x0bad58c2: // FM14
+		case 0x24DCF694: // FM16
+		case 0x2FF02A2E: // FM17
+			SetGameId(GameID::Doa6, "Dead or Alive 6 Generic");
 			break;
-		case 0x94aababc: // FM14 Test
 		case 0x4286c538: // FM12 Test
 		case 0x0e285533: // FM13 Test
+		case 0x94aababc: // FM14 Test
 			SetGameId(GameID::Doa6Test, "Dead or Alive 6 Test Generic");
 			break;
 		case 0xd0a6afbd: // GGS

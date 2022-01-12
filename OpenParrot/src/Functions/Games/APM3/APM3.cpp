@@ -1046,12 +1046,12 @@ static InitFunction initPuyoFunc([]()
 
 }, GameID::PuyoPuyoEsports);
 
-static InitFunction initDoa6FM17Func([]()
+static InitFunction initDoa6Func([]()
 {
 	HookAPM3(L"SDFM");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-}, GameID::Doa6FM17);
+}, GameID::Doa6);
 
 static InitFunction initGGSFunc([]()
 {
@@ -1210,10 +1210,10 @@ static InitFunction initFuncCottonRocknRollA([]()
 
 	if (ToBool(config["General"]["Windowed"]))
 	{
-		injector::WriteMemory<BYTE>(mainModuleBase + 0x2A3C1E, 0xEB, true); // Windowed
+		injector::WriteMemory<BYTE>(hook::get_pattern("74 7A 68 DC 00 00 00"), 0xEB, true); // Windowed
 	}
 
-	injector::WriteMemory<BYTE>(mainModuleBase + 0x25036F, 0xEB, true); // Skip some credit check idfk
+	injector::WriteMemory<BYTE>(hook::get_pattern("75 47 53 8B 1D ? ? ? ?"), 0xEB, true); // Skip emoneyUI check
 
 }, GameID::CottonRocknRollA);
 
