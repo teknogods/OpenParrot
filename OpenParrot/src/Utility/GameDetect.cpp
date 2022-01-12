@@ -710,17 +710,15 @@ void GameDetect::DetectCurrentGame()
 		case 0x247B6F8C: // 07
 			SetGameId(GameID::PokkenTournament, "Pokken Tournament");
 			break;
-		case 0xcb9c4353:
-			SetGameId(GameID::Pengoe5_Test, "Pengoe5_Test");
+		case 0xcb9c4353: // Original
+		case 0x6ef07067: // Update 1
+		case 0x70f84d80: // Update 2
+			SetGameId(GameID::PengoAPM3_Test, "Pengo APM3 Test");
 			break;
-		case 0x0f98a7a2:
-			SetGameId(GameID::Pengoe5, "Pengoe5");
-			break;
-		case 0x3f67d5b2:
-			SetGameId(GameID::Pengoe511, "Pengoe511");
-			break;
-		case 0x4d5a6510:
-			SetGameId(GameID::Pengoe512, "Pengoe512");
+		case 0x0f98a7a2: // Original
+		case 0x3f67d5b2: // Update 1
+		case 0x4d5a6510: // Update 2
+			SetGameId(GameID::PengoAPM3, "Pengo APM3");
 			break;
 		case 0x6fc27eed: // Original
 		case 0x52dab0ac: // Ver 11

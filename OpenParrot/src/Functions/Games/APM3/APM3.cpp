@@ -934,6 +934,11 @@ void __fastcall printPengo(const char* format, ...)
 BYTE compressionOn = 0;
 BYTE encryptionOn = 0;
 
+static unsigned int WINAPI joyGetPosExHook()
+{
+	return 167; // JOYERR_UNPLUGGED
+}
+
 #ifdef _M_AMD64
 
 // am::abaas::link::HttpData::setOption
@@ -952,30 +957,12 @@ static InitFunction initFuncTapping([]()
 
 }, GameID::TappingSkillTest);
 
-static InitFunction initFuncPengoe510([]()
+static InitFunction initFuncPengoeAPM3([]()
 {
-	HookAPM3(L"SDFH");
-
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
-
 	MH_Initialize();
-	//MH_CreateHook((void*)(mainModuleBase + 0x1944B0), (void *)printPengo, NULL);
+	MH_CreateHookApi(L"winmm.dll", "joyGetPosEx", joyGetPosExHook, NULL);
 	MH_EnableHook(MH_ALL_HOOKS);
 
-	// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
-#ifdef _DEBUG
-	safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
-#endif
-	/// PATTERNS BELOW
-	// Skip joysticks
-	injector::MakeRET(mainModuleBase + 0x15C5B0);
-	// Skip keyboard
-	injector::MakeRET(mainModuleBase + 0x15CBA0);
-
-}, GameID::Pengoe5);
-
-static InitFunction initFuncPengoe511([]()
-{
 	HookAPM3(L"SDFH");
 
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
@@ -984,44 +971,26 @@ static InitFunction initFuncPengoe511([]()
 #ifdef _DEBUG
 	safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
 #endif
-	// Skip joysticks
-	injector::MakeRET(mainModuleBase + 0x16A7C0); // CC 48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40
-	// Skip keyboard
-	injector::MakeRET(mainModuleBase + 0x16ADB0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
-
-}, GameID::Pengoe511);
-
-static InitFunction initFuncPengoe512([]()
-{
-	HookAPM3(L"SDFH");
-
-	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
-
-	// 55 8B EC 8A 45 08 88 41 15 -> 0x140060
-#ifdef _DEBUG
-	safeJMP(hook::get_pattern("88 51 21 44 88 41 22 C3"), setOption_x64);
-#endif
-	// Skip joysticks
-	injector::MakeRET(mainModuleBase + 0x16DFF0); // Pattern changed, too lazy to check.
 
 	// Skip keyboard
-	injector::MakeRET(mainModuleBase + 0x16E5D0); // 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00
+	injector::MakeRET(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00"));
 
-}, GameID::Pengoe512);
+}, GameID::PengoAPM3);
 
-static InitFunction initPengoe5TestFunc([]()
+static InitFunction initPengoAPM3TestFunc([]()
 {
+	MH_Initialize();
+	MH_CreateHookApi(L"winmm.dll", "joyGetPosEx", joyGetPosExHook, NULL);
+	MH_EnableHook(MH_ALL_HOOKS);
+
 	HookAPM3(L"SDFH");
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 
-	// Skip joysticks
-	injector::MakeRET(mainModuleBase + 0x158820);
-	// Skip keyboard
-	injector::MakeRET(mainModuleBase + 0x158E10);
+	injector::MakeRET(hook::get_pattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00"));
 
 	Sequence_isTestReturnValue = true;
 
-}, GameID::Pengoe5_Test);
+}, GameID::PengoAPM3_Test);
 
 static InitFunction initVF5Func([]()
 {
