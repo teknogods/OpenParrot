@@ -1296,4 +1296,12 @@ static InitFunction initFuncUnderNightAPM3([]()
 
 }, GameID::UnderNightAPM3);
 
+static InitFunction initFuncUnderNightAPM3Test([]()
+{
+	HookAPM3(L"SDGR");
+
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+}, GameID::UnderNightAPM3Test);
+
 #endif

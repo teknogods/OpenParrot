@@ -129,5 +129,6 @@ enum class GameID
 	BladeStrangesAPM3Test,
 	KoihimeEnbuAPM3,
 	UnderNightAPM3,
+	UnderNightAPM3Test,
 	OtoshuDX
 };

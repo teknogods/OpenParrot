@@ -669,6 +669,10 @@ void GameDetect::DetectCurrentGame()
 		case 0x6219a5e6: // Under Night Proto
 			SetGameId(GameID::UnderNightAPM3, "Under Night In Birth APM3");
 			break;
+		case 0x89501527: // Under Night Base
+		case 0x24df738f: // Under Night Proto
+			SetGameId(GameID::UnderNightAPM3Test, "Under Night In Birth APM3 Test Menu");
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
