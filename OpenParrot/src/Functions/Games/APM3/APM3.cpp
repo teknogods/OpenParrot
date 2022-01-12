@@ -16,7 +16,7 @@ static bool ApmSystemSetting_getClosingTimesReturnValue = false;
 static char ApmSystemSetting_getEmoneySettingReturnValue = 0;
 static bool ApmSystemSetting_getFixedTitleReturnValue = false;
 static char ApmSystemSetting_getGamePadSettingReturnValue = 0;
-static bool ApmSystemSetting_getMatchingGroupReturnValue = false;
+static bool ApmSystemSetting_getMatchingGroupReturnValue = true;
 static char ApmSystemSetting_getTimeToClosingTimeReturnValue = 0;
 static char ApmSystemSetting_getUiSettingReturnValue = 0;
 static bool Core_exitGameReturnValue = false;
@@ -115,6 +115,11 @@ bool CALLPLEB ApmSystemSetting_getMatchingGroup(MatchingGroup* matchingGroup)
 #ifdef _LOGAPM3
 	info(true, "ApmSystemSetting_getMatchingGroup");
 #endif
+	MatchingGroup _matchingGroup = { 'A', 1 }; // TODO: Make this configurable, improve this
+
+	*matchingGroup->alphabet = *_matchingGroup.alphabet;
+	*matchingGroup->number = *_matchingGroup.number;
+
 	return ApmSystemSetting_getMatchingGroupReturnValue;
 }
 
@@ -1117,6 +1122,13 @@ static InitFunction initOtoshuDXTestFunc([]()
 
 }, GameID::OtoshuDX);
 
+static InitFunction initFuncBladeStrangesAPM3Test([]()
+{
+	HookAPM3(L"SDFD");
+
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+}, GameID::BladeStrangesAPM3Test);
 
 #else
 
@@ -1240,6 +1252,10 @@ static InitFunction initFuncBladeStrangesAPM3([]()
 	HookAPM3(L"SDFD");
 
 	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+	injector::WriteMemory<BYTE>(hook::get_pattern("75 47 53 8B 1D ? ? ? ?"), 0xEB, true); // Skip emoneyUI check
+
+	AllnetAuth_isGoodReturnValue = false;
 
 }, GameID::BladeStrangesAPM3);
 

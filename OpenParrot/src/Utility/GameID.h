@@ -126,6 +126,7 @@ enum class GameID
 	BlazBlueCrossTagBattle,
 	DengekiBunkoFC,
 	BladeStrangesAPM3,
+	BladeStrangesAPM3Test,
 	KoihimeEnbuAPM3,
 	UnderNightAPM3,
 	OtoshuDX

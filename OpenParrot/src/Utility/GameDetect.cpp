@@ -652,7 +652,9 @@ void GameDetect::DetectCurrentGame()
 		case 0xcf741456: // Update 1
 			SetGameId(GameID::DengekiBunkoFC, "Dengeki Bunko: Fighting Climax");
 			break;
-		case 0xd8dd1127:
+		case 0xd8dd1127: // Base
+		case 0x29028329: // Update 1
+		case 0x199af397: // Update 2
 			SetGameId(GameID::BladeStrangesAPM3, "Blade Strangers APM3");
 			break;
 		case 0x9d03d54b: //Koihime Enbu Base
@@ -780,6 +782,9 @@ void GameDetect::DetectCurrentGame()
 			break;
 		case 0x714d4700:
 			SetGameId(GameID::OtoshuDX, "Otoshu DX");
+			break;
+		case 0xb01b4eb8:
+			SetGameId(GameID::BladeStrangesAPM3Test, "Blade Strangers APM3 Test Menu");
 			break;
 
 #endif
