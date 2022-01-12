@@ -1204,6 +1204,11 @@ static InitFunction initFuncAleste11([]()
 
 }, GameID::Aleste11);
 
+BOOL WINAPI ClipCursorHook(const RECT* lpRect)
+{
+	return false;
+}
+
 static InitFunction initFuncGGXrdAPM3([]()
 {
 	HookAPM3(L"SDFB");
@@ -1212,6 +1217,19 @@ static InitFunction initFuncGGXrdAPM3([]()
 
 	if (strstr(GetCommandLineA(), "-tptest") != NULL)
 		Sequence_isTestReturnValue = true;
+
+	// force fullscreen
+	injector::MakeNOP(mainModuleBase + 0x7300F2, 2, true); // B300F2
+
+	if (ToBool(config["General"]["Windowed"]))
+	{
+		MH_Initialize();
+		MH_CreateHookApi(L"user32.dll", "LoadLibraryW", ClipCursorHook, NULL);
+		MH_EnableHook(MH_ALL_HOOKS);
+
+		// force windowed
+		injector::WriteMemory<BYTE>(mainModuleBase + 0x7300FA, 0x00, true); // B300FA
+	}
 
 }, GameID::GGXrdAPM3);
 
