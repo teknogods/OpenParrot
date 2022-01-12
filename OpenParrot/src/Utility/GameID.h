@@ -122,7 +122,7 @@ enum class GameID
 	CottonRocknRollATest,
 	NosferatuLilinor,
 	Kasiori,
-	GGXRd,
+	GGXrdAPM3,
 	BlazBlueCrossTagBattle,
 	DengekiBunkoFC,
 	BladeStrangesAPM3,

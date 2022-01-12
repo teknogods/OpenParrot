@@ -1204,13 +1204,16 @@ static InitFunction initFuncAleste11([]()
 
 }, GameID::Aleste11);
 
-static InitFunction initFuncGGXRd([]()
+static InitFunction initFuncGGXrdAPM3([]()
 {
 	HookAPM3(L"SDFB");
 
 	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
 
-}, GameID::GGXRd);
+	if (strstr(GetCommandLineA(), "-tptest") != NULL)
+		Sequence_isTestReturnValue = true;
+
+}, GameID::GGXrdAPM3);
 
 static InitFunction initFuncCottonRocknRollA([]()
 {

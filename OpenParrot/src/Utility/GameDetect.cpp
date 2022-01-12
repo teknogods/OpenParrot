@@ -639,7 +639,7 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::CottonRocknRollA, "Cotton Rock n Roll A");
 			break;
 		case 0xed8af9f8: // Guilty Gear Xrd REV APM3 Edition
-			SetGameId(GameID::GGXRd, "Guilty Gear Xrd REV APM3 Edition");
+			SetGameId(GameID::GGXrdAPM3, "Guilty Gear Xrd REV APM3 Edition");
 			break;
 		case 0x817d4c50:
 		case 0x5883e93d:
