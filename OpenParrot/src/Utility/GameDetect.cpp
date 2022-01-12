@@ -617,11 +617,9 @@ void GameDetect::DetectCurrentGame()
 			NesicaKey = NesicaKey::BlazBlueCentralFiction;
 			isNesica = true;
 			break;
-		case 0x79fa2f58: // Umihara KawaseFresh!ForAC
-			SetGameId(GameID::Umifresh, "Umihara KawaseFresh! For AC Update 01");
-			break;
-		case 0xd230e1e3: // Umihara KawaseFresh!ForAC
-			SetGameId(GameID::Umifresh01, "Umihara KawaseFresh! For AC Base Version");
+		case 0xd230e1e3: // Base
+		case 0x79fa2f58: // Update 1
+			SetGameId(GameID::Umifresh, "Umihara KawaseFresh! For AC");
 			break;
 		case 0x1ff0b15b: // Rolling Gunner 2.0
 		case 0x3c367b7b: // Rolling Gunner 2.1
@@ -744,6 +742,12 @@ void GameDetect::DetectCurrentGame()
 		case 0x671c46b5:
 			SetGameId(GameID::GoonyaFighter, "GoonyaFighter");
 			break;
+		case 0x8506f190: // Base
+		case 0x7f25027f: // GX12
+		case 0x9c4ceac0: // Patched Base
+		case 0x666f192f: // Patched GX12
+			SetGameId(GameID::GoonyaFighterTest, "GoonyaFighter Test Menu");
+			break;
 		case 0x8c30fa5a:
 			SetGameId(GameID::PuyoPuyoEsports, "PuyoPuyoEsports");
 			break;
@@ -765,6 +769,11 @@ void GameDetect::DetectCurrentGame()
 		case 0x4286c538: // FM12 Test
 		case 0x0e285533: // FM13 Test
 		case 0x94aababc: // FM14 Test
+		case 0xfc2c76c0: // actual FM14 Test?
+		case 0x537a803b: // Patched
+		case 0xde2a87cd: // Patched
+		case 0xe21c1708: // Patched
+		case 0x101834fb: // Patched
 			SetGameId(GameID::Doa6Test, "Dead or Alive 6 Test Generic");
 			break;
 		case 0xd0a6afbd: // GGS
@@ -775,7 +784,8 @@ void GameDetect::DetectCurrentGame()
 		case 0x72F9B475:
 			SetGameId(GameID::Taiko, "Taiko no Tatsujin Nijiiro");
 			break;
-		case 0xd9557fd6:
+		case 0xd9557fd6: // Base and 1.2
+		case 0x8fdfa4dd: // Patched Base and 1.2
 			SetGameId(GameID::CottonRocknRollATest, "Cotton Rock n Roll A Test Menu");
 			break;
 		case 0x6dfc8f9a:
@@ -787,10 +797,20 @@ void GameDetect::DetectCurrentGame()
 		case 0x714d4700:
 			SetGameId(GameID::OtoshuDX, "Otoshu DX");
 			break;
-		case 0xb01b4eb8:
+		case 0xc7e0776e: // Base
+		case 0xb01b4eb8: // FD12
+		case 0xbd0e4c01: // Patched Base
+		case 0xcaf575d7: // Patched FD12
 			SetGameId(GameID::BladeStrangesAPM3Test, "Blade Strangers APM3 Test Menu");
 			break;
-
+		case 0x6288037c: // Base
+		case 0xe82292da: // Patched Base
+			SetGameId(GameID::DengekiBunkoFCTest, "Dengeki Bunko Fighting Climax APM3 Test Menu");
+			break;
+		case 0xd1707347: // Base
+		case 0xc20612d0: // Patched Base
+			SetGameId(GameID::UmifreshTest, "Umihara KawaseFresh! For AC Test Menu");
+			break;
 #endif
 		default:
 #ifdef _DEBUG

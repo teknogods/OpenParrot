@@ -1044,6 +1044,14 @@ static InitFunction initGoonyaFunc([]()
 
 }, GameID::GoonyaFighter);
 
+static InitFunction initFuncGoonyaFighterTest([]()
+{
+	HookAPM3(L"SDGX");
+
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+}, GameID::GoonyaFighterTest);
+
 static InitFunction initPuyoFunc([]()
 {
 	HookAPM3(L"SDFF");
@@ -1130,6 +1138,22 @@ static InitFunction initFuncBladeStrangesAPM3Test([]()
 
 }, GameID::BladeStrangesAPM3Test);
 
+static InitFunction initFuncDengekiBunkoFCAPM3Test([]()
+{
+	HookAPM3(L"SDGC");
+
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+}, GameID::DengekiBunkoFCTest);
+
+static InitFunction initFuncUmifreshTest([]()
+{
+	HookAPM3(L"SDGU");
+
+	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+}, GameID::UmifreshTest);
+
 #else
 
 void __declspec(naked) setOption_x86()
@@ -1144,7 +1168,7 @@ void __declspec(naked) setOption_x86()
 	}
 }
 
-static InitFunction initFuncUmifresh02([]()
+static InitFunction initFuncUmifresh([]()
 {
 	HookAPM3(L"SDGU");
 
@@ -1153,29 +1177,12 @@ static InitFunction initFuncUmifresh02([]()
 	// Windowed
 	if (ToBool(config["General"]["Windowed"]))
 	{
-		injector::WriteMemory<BYTE>(mainModuleBase + 0x1D8FC4, 0xEB, true);
+		injector::WriteMemory<BYTE>(hook::get_pattern("74 7A 68 DC 00 00 00"), 0xEB, true);
 	}
 
-	injector::WriteMemory<BYTE>(mainModuleBase + 0x1806BF, 0xEB, true); // Skip some credit check idfk
+	injector::WriteMemory<BYTE>(hook::get_pattern("75 47 53 8B 1D ? ? ? ?"), 0xEB, true); // Skip emoneyUI check
 
 }, GameID::Umifresh);
-
-static InitFunction initFuncUmifresh01([]()
-{
-	HookAPM3(L"SDGU");
-
-	DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
-
-
-	// Windowed
-	if (ToBool(config["General"]["Windowed"]))
-	{
-		injector::WriteMemory<BYTE>(mainModuleBase + 0x1D8144, 0xEB, true);
-	}
-
-	injector::WriteMemory<BYTE>(mainModuleBase + 0x18025F, 0xEB, true); // Skip some credit check idfk
-
-}, GameID::Umifresh01);
 
 static InitFunction initFuncRollingGunner([]()
 {
