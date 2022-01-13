@@ -748,7 +748,8 @@ void GameDetect::DetectCurrentGame()
 		case 0x666f192f: // Patched GX12
 			SetGameId(GameID::GoonyaFighterTest, "GoonyaFighter Test Menu");
 			break;
-		case 0x8c30fa5a:
+		case 0x206214E6: // v1.00
+		case 0x8c30fa5a: // v1.01
 			SetGameId(GameID::PuyoPuyoEsports, "PuyoPuyoEsports");
 			break;
 		case 0xe000b287: // Ver 10
