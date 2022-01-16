@@ -83,7 +83,7 @@ bool CALLPLEB Aime_hasResult()
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_hasResult");
 #endif
-	return true;
+	return false;
 }
 
 bool CALLPLEB Aime_isBusy()
