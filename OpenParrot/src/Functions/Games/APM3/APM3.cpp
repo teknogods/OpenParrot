@@ -1231,7 +1231,7 @@ static InitFunction initFuncGGXrdAPM3([]()
 	if (ToBool(config["General"]["Windowed"]))
 	{
 		MH_Initialize();
-		MH_CreateHookApi(L"user32.dll", "LoadLibraryW", ClipCursorHook, NULL);
+		MH_CreateHookApi(L"user32.dll", "ClipCursor", ClipCursorHook, NULL);
 		MH_EnableHook(MH_ALL_HOOKS);
 
 		// force windowed
