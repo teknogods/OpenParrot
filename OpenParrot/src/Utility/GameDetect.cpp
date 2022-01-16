@@ -781,8 +781,11 @@ void GameDetect::DetectCurrentGame()
 		case 0x4fade723: // GGS 1.2
 			SetGameId(GameID::GGS, "Guilty Gear Strive");
 			break;
-		case 0x72F9B475:
-			SetGameId(GameID::Taiko, "Taiko no Tatsujin Nijiiro");
+		case 0x72F9B475: // 00.18
+			SetGameId(GameID::TaikoV0, "Taiko no Tatsujin Nijiiro (Version 00.18)");
+			break;
+		case 0xA12445B9:
+			SetGameId(GameID::TaikoV8, "Taiko no Tatsujin Nijiiro (Version 08.18)");
 			break;
 		case 0xd9557fd6: // Base and 1.2
 		case 0x8fdfa4dd: // Patched Base and 1.2
