@@ -1019,6 +1019,7 @@ static InitFunction initVF5TestFunc([]()
 static InitFunction initGoonyaFunc([]()
 {
 	HookAPM3(L"SDGX");
+	Aime_hasConfirmValue = true;
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 	auto mod = LoadLibraryA(".\\Goonya Fighter_Data\\Plugins\\abaasgs.dll");
 	if (mod == nullptr)

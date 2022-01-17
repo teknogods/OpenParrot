@@ -5,6 +5,7 @@
 #include "Aime.h"
 
 bool Aime_isDBAliveReturnValue = true;
+bool Aime_hasConfirmValue = false;
 
 bool CALLPLEB Aime_acceptConfirm()
 {
@@ -67,7 +68,7 @@ bool CALLPLEB Aime_hasConfirm()
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_hasConfirm");
 #endif
-	return false;
+	return Aime_hasConfirmValue;
 }
 
 bool CALLPLEB Aime_hasError()

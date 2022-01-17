@@ -56,3 +56,4 @@ bool CALLPLEB Aime_setLedSuccess();
 bool CALLPLEB Aime_start();
 
 extern bool Aime_isDBAliveReturnValue;
+extern bool Aime_hasConfirmValue;
