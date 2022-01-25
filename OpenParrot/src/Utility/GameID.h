@@ -133,5 +133,6 @@ enum class GameID
 	KoihimeEnbuAPM3,
 	UnderNightAPM3,
 	UnderNightAPM3Test,
-	OtoshuDX
+	OtoshuDX,
+	ElevatorActionDeathParade
 };

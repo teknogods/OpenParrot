@@ -671,6 +671,12 @@ void GameDetect::DetectCurrentGame()
 		case 0x24df738f: // Under Night Proto
 			SetGameId(GameID::UnderNightAPM3Test, "Under Night In Birth APM3 Test Menu");
 			break;
+#ifdef _DEBUG
+		case 0x148CC191: // Elevator Action Death Parade
+			currentGame = GameID::ElevatorActionDeathParade;
+			X2Type = X2Type::ElevatorActionDeathParade;
+			break;
+#endif
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
@@ -886,6 +892,7 @@ bool GameDetect::IsTypeX()
 	case GameID::VirtuaRLimit:
 	case GameID::MB4:
 	case GameID::BG4_Eng:
+	case GameID::ElevatorActionDeathParade:
 		return true;
 	default:
 		return false;

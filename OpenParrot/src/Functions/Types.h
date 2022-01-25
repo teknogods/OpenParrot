@@ -13,5 +13,6 @@ enum class X2Type {
 	MB4,
 	Wontertainment,
 	BG4_Eng,
-	BlazBlue
+	BlazBlue,
+	ElevatorActionDeathParade
 };
