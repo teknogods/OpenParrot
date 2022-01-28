@@ -1019,6 +1019,7 @@ static InitFunction initVF5TestFunc([]()
 static InitFunction initGoonyaFunc([]()
 {
 	HookAPM3(L"SDGX");
+	Aime_hasConfirmValue = true;
 	__int64 mainModuleBase = (__int64)GetModuleHandle(0);
 	auto mod = LoadLibraryA(".\\Goonya Fighter_Data\\Plugins\\abaasgs.dll");
 	if (mod == nullptr)
@@ -1231,7 +1232,7 @@ static InitFunction initFuncGGXrdAPM3([]()
 	if (ToBool(config["General"]["Windowed"]))
 	{
 		MH_Initialize();
-		MH_CreateHookApi(L"user32.dll", "LoadLibraryW", ClipCursorHook, NULL);
+		MH_CreateHookApi(L"user32.dll", "ClipCursor", ClipCursorHook, NULL);
 		MH_EnableHook(MH_ALL_HOOKS);
 
 		// force windowed

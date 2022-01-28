@@ -671,6 +671,12 @@ void GameDetect::DetectCurrentGame()
 		case 0x24df738f: // Under Night Proto
 			SetGameId(GameID::UnderNightAPM3Test, "Under Night In Birth APM3 Test Menu");
 			break;
+#ifdef _DEBUG
+		case 0x148CC191: // Elevator Action Death Parade
+			currentGame = GameID::ElevatorActionDeathParade;
+			X2Type = X2Type::ElevatorActionDeathParade;
+			break;
+#endif
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
@@ -748,7 +754,8 @@ void GameDetect::DetectCurrentGame()
 		case 0x666f192f: // Patched GX12
 			SetGameId(GameID::GoonyaFighterTest, "GoonyaFighter Test Menu");
 			break;
-		case 0x8c30fa5a:
+		case 0x206214E6: // v1.00
+		case 0x8c30fa5a: // v1.01
 			SetGameId(GameID::PuyoPuyoEsports, "PuyoPuyoEsports");
 			break;
 		case 0xe000b287: // Ver 10
@@ -781,8 +788,11 @@ void GameDetect::DetectCurrentGame()
 		case 0x4fade723: // GGS 1.2
 			SetGameId(GameID::GGS, "Guilty Gear Strive");
 			break;
-		case 0x72F9B475:
-			SetGameId(GameID::Taiko, "Taiko no Tatsujin Nijiiro");
+		case 0x72F9B475: // 00.18
+			SetGameId(GameID::TaikoV0, "Taiko no Tatsujin Nijiiro (Version 00.18)");
+			break;
+		case 0xA12445B9:
+			SetGameId(GameID::TaikoV8, "Taiko no Tatsujin Nijiiro (Version 08.18)");
 			break;
 		case 0xd9557fd6: // Base and 1.2
 		case 0x8fdfa4dd: // Patched Base and 1.2
@@ -882,6 +892,7 @@ bool GameDetect::IsTypeX()
 	case GameID::VirtuaRLimit:
 	case GameID::MB4:
 	case GameID::BG4_Eng:
+	case GameID::ElevatorActionDeathParade:
 		return true;
 	default:
 		return false;

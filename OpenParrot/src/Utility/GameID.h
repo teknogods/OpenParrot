@@ -116,7 +116,8 @@ enum class GameID
 	UmifreshTest,
 	RollingGunner,
 	Aleste,
-	Taiko,
+	TaikoV0,
+	TaikoV8,
 	WMMT5DX,
 	Aleste11,
 	CottonRocknRollA,
@@ -132,5 +133,6 @@ enum class GameID
 	KoihimeEnbuAPM3,
 	UnderNightAPM3,
 	UnderNightAPM3Test,
-	OtoshuDX
+	OtoshuDX,
+	ElevatorActionDeathParade
 };

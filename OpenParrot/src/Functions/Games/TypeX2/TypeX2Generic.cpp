@@ -182,7 +182,7 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 	DWORD dwFlagsAndAttributes,
 	HANDLE hTemplateFile)
 {
-	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL)
+	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL || GameDetect::X2Type == X2Type::ElevatorActionDeathParade)
 	{
 		if (strncmp(lpFileName, "COM1", 4) == 0)
 		{
@@ -1106,6 +1106,24 @@ static InitFunction initFunction([]()
 
 			// show cursor
 			injector::WriteMemory<BYTE>(imageBase + 0x1CD8, 0x01, true);
+		}
+	}
+
+	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
+	{
+		DWORD oldPageProtection = 0;
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			VirtualProtect((LPVOID)(imageBase + 0X18F270), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+			windowHooks hooks = { 0 };
+			hooks.createWindowExA = imageBase + 0X18F270;
+			init_windowHooks(&hooks);
+			VirtualProtect((LPVOID)(imageBase + 0X18F270), 4, oldPageProtection, &oldPageProtection);
+
+			// change window title
+			static const char* title = "OpenParrot - Elevator Action: Death Parade";
+			injector::WriteMemory<DWORD>(imageBase + 0x22EC, (DWORD)title, true);
 		}
 	}
 });
