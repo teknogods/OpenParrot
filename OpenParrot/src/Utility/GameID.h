@@ -120,6 +120,7 @@ enum class GameID
 	TaikoV8,
 	WMMT5DX,
 	Aleste11,
+	Aleste12,
 	CottonRocknRollA,
 	CottonRocknRollATest,
 	NosferatuLilinor,

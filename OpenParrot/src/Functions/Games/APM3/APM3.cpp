@@ -1212,6 +1212,14 @@ static InitFunction initFuncAleste11([]()
 
 }, GameID::Aleste11);
 
+static InitFunction initFuncAleste12([]()
+	{
+		HookAPM3(L"SDHB");
+
+		DWORD_PTR mainModuleBase = (DWORD_PTR)GetModuleHandle(0);
+
+}, GameID::Aleste12);
+
 BOOL WINAPI ClipCursorHook(const RECT* lpRect)
 {
 	return false;

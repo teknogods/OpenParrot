@@ -632,6 +632,9 @@ void GameDetect::DetectCurrentGame()
 		case 0xd8efb80e: // ALESTE Ver 11
 			SetGameId(GameID::Aleste11, "ALESTE Ver 11");
 			break;
+		case 0xd7597976: // ALESTE Ver 12
+			SetGameId(GameID::Aleste12, "ALESTE Ver 12");
+			break;
 		case 0xd426de40: // Cotton Rock n Roll A
 		case 0x1eedb670: // Cotton Rock n Roll A v1.2
 			SetGameId(GameID::CottonRocknRollA, "Cotton Rock n Roll A");
@@ -786,6 +789,7 @@ void GameDetect::DetectCurrentGame()
 		case 0xd0a6afbd: // GGS
 		case 0x79727b3b: // GGS 1.1
 		case 0x4fade723: // GGS 1.2
+		case 0xa3982762: // GGS 1.3
 			SetGameId(GameID::GGS, "Guilty Gear Strive");
 			break;
 		case 0x72F9B475: // 00.18
