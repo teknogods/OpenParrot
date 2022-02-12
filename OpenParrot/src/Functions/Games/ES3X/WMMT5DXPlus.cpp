@@ -1504,7 +1504,7 @@ static InitFunction Wmmt5Func([]()
 		injector::WriteMemory<uintptr_t>(imageBasedxplus + 0x6B909A + 2, (uintptr_t)SaveOk, true);
 		injector::WriteMemory<DWORD>(imageBasedxplus + 0x6B90A4, 0x9090D0FF, true);
 
-
+		//test comment
 	}
 
 	MH_EnableHook(MH_ALL_HOOKS);
