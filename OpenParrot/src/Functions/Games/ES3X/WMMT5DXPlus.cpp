@@ -519,6 +519,7 @@ static DWORD WINAPI forceFT(void* pArguments)
 
 static bool saveOk = false;
 unsigned char carDatadxp[0xFF];
+unsigned char starDatadxp[0x40]; //40 bytes for future proof
 static int SaveOk()
 {
 	saveOk = true;
@@ -538,6 +539,15 @@ static void saveMileagedxp()
 	FILE* tempFile = fopen("mileage.dat", "wb");
 	fwrite(mileageLocation, 1, sizeof(mileageLocation), tempFile);
 	fclose(tempFile);
+	
+	//star save routine
+	memset(starDatadxp, 0, 0x40);
+	uintptr_t starBase = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x110); //star pointer
+	memcpy(starDatadxp + 0x00, (void*)(starBase + 0x248), 0x2); //dumps first 2 bytes from star pointer
+	memcpy(starDatadxp + 0x04, (void*)(starBase + 0x254), 0x10); //dumps medal offsets from star pointer, 16 bytes
+	FILE* starFile = fopen("star.bin", "wb");
+	fwrite(starDatadxp, 1, sizeof(starDatadxp), tempFile);
+	fclose(starFile);
 }
 
 static void LoadMileagedxp()
@@ -558,6 +568,24 @@ static void LoadMileagedxp()
 			fclose(miles);
 		}
 	}
+
+	memset(starDatadxp, 0, 0x40);
+	FILE* starFile = fopen("star.bin", "rb");
+	if (starFile)
+	{
+		fseek(starFile, 0, SEEK_END);
+		int starSize = ftell(starFile);
+		if (starSize == 0x40)
+		{
+			fseek(starFile, 0, SEEK_SET);
+			fread(starDatadxp, starSize, 1, starFile);
+			uintptr_t starBase = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x110); //star pointer
+			memcpy((void*)(starBase + 0x248), starDatadxp + 0x00, 0x2); //dumps first 2 bytes from star pointer
+			memcpy((void*)(starBase + 0x254), starDatadxp + 0x04, 0x10); //dumps medal offsets from star pointer, 16 bytes
+			fclose(starFile);
+		}
+	}
+
 }
 
 
@@ -573,8 +601,6 @@ static int SaveGameData()
 	//new multilevel
 	uintptr_t carSaveBase = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
 
-	//memcpy(carData + 0x00, (void*)(carSaveBase + 0xAC), 0x1);
-	//memcpy(carData + 0x01, (void*)(carSaveBase + 0xB8), 0x1); //successfully dumped power and handling!
 	memcpy(carDatadxp + 0x00, (void*)(carSaveBase + 0x0), 0xFF); //dumps whole region
 
 
@@ -598,39 +624,6 @@ static int SaveGameData()
 	saveOk = false;
 	return 1;
 
-	/*
-	memset(saveData, 0, 0x2000);
-	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-	value = *(uintptr_t*)(value + 0x108);
-	memcpy(saveData, (void *)value, 0x340);
-	FILE* file = fopen("openprogress.sav", "wb");
-	fwrite(saveData, 1, 0x2000, file);
-	fclose(file);
-
-	// Car Profile saving
-	memset(carData, 0, 0xFF);
-	memset(carFileNamedxp, 0, 0xFF);
-	memcpy(carData, (void *)*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18), 0xE0);
-	CreateDirectoryA("OpenParrot_Cars", nullptr);
-	if(customCardxp)
-	{
-		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\custom.car");
-	}
-	else
-	{
-		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
-	}
-	FILE *carSave = fopen(carFileNamedxp, "wb");
-	fwrite(carData, 1, 0xE0, file);
-	fclose(carSave);
-	//SaveStoryData();
-	//SaveCampaingHonorData();
-	//SaveStoryModeNoLoseHonorData();
-	//SaveOtherHonorData();
-	//SaveCampaingHonorData2();
-	saveOk = false;
-	return 1;
-	*/
 }
 
 uintptr_t saveGameOffsetdxp;
@@ -1504,7 +1497,7 @@ static InitFunction Wmmt5Func([]()
 		injector::WriteMemory<uintptr_t>(imageBasedxplus + 0x6B909A + 2, (uintptr_t)SaveOk, true);
 		injector::WriteMemory<DWORD>(imageBasedxplus + 0x6B90A4, 0x9090D0FF, true);
 
-		//test comment
+		
 	}
 
 	MH_EnableHook(MH_ALL_HOOKS);
