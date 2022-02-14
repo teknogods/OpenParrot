@@ -789,7 +789,8 @@ void GameDetect::DetectCurrentGame()
 		case 0xd0a6afbd: // GGS
 		case 0x79727b3b: // GGS 1.1
 		case 0x4fade723: // GGS 1.2
-		case 0xa3982762: // GGS 1.3
+		case 0xa3982762: // GGS 1.3 Prototype
+		case 0xc851b571: // GGS 1.3 Update build
 			SetGameId(GameID::GGS, "Guilty Gear Strive");
 			break;
 		case 0x72F9B475: // 00.18
