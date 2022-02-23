@@ -171,6 +171,11 @@ static BOOL __stdcall SetCurrentDirectoryAWrap(LPCSTR lpPathName)
 		return SetCurrentDirectoryA((pathRoot + ""s + "\\sh").c_str());
 	}
 
+	if (!strncmp(lpPathName, "data", 4) && GameDetect::currentGame == GameID::TetrisGM3)
+	{
+		return SetCurrentDirectoryA((pathRoot + ""s + "\\data").c_str());
+	}
+
 	return SetCurrentDirectoryA((pathRoot + ""s).c_str());
 }
 
