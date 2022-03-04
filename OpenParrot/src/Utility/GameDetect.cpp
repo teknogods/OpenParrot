@@ -498,6 +498,16 @@ void GameDetect::DetectCurrentGame()
 		switch (newCrcResult)
 		{
 #ifndef _AMD64_
+		case 0xb0a6dd26: // BlazBlue Cross Tag 1.50 (runs in training mode only)
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0x06b62fab: // Million Arthur Arcana
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
 		case 0xfe7afff4:
 			currentGame = GameID::FNFSB2;
 			break;
@@ -682,6 +692,27 @@ void GameDetect::DetectCurrentGame()
 #endif
 #endif
 #ifdef _AMD64_
+		case 0x8f432019: // Samurai Spirits 2019 1.80 Nx2 AVX Cpu required i5 i7
+		case 0xf6d0c48a: // Samurai Spirits 2019 1.30 Nx2
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0xfb350cea: // Snk Heroines AC Nx2
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0x15dd2c3b: // Fightin Ex Layer Nx2
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
+		case 0x87daf3d8: // Kof XIV Nx2
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
 		case 0xf322d053:
 			SetGameId(GameID::SFV, "SFV");
 			break;				  
