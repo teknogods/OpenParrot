@@ -1350,14 +1350,14 @@ static InitFunction Wmmt5Func([]()
 		// FOUND ON 21, 10, 1
 		// NOT FOUND:
 		//safeJMP(imageBase + 0x7BE440, ReturnTrue);
-		//safeJMP(hook::get_pattern("0F B6 41 05 2C 30 3C 09 77 04 0F BE C0 C3 83 C8 FF C3"), ReturnTrue);
+		safeJMP(hook::get_pattern("0F B6 41 05 2C 30 3C 09 77 04 0F BE C0 C3 83 C8 FF C3"), ReturnTrue);
 		//safeJMP(imageBase + 0x89D420, ReturnTrue);
 
 		// Patch some func to 1
 		// 40 53 48 83 EC 20 48 83 39 00 48 8B D9 75 28 48 8D ?? ?? ?? ?? 00 48 8D ?? ?? ?? ?? 00 41 B8 ?? ?? 00 00 FF 15 ?? ?? ?? ?? 4C 8B 1B 41 0F B6 43 78
 		// FOUND ON 21, 10, 1
 		//safeJMP(imageBase + 0x7CF8D0, ReturnTrue); 
-		//safeJMP(hook::get_pattern("40 53 48 83 EC 20 48 83 39 00 48 8B D9 75 11 48 8B 0D C2"), ReturnTrue);
+		safeJMP(hook::get_pattern("8B 01 0F B6 40 78 C3 CC CC CC CC"), ReturnTrue);
 		//safeJMP(imageBase + 0x8B5190, ReturnTrue); 
 	}
 	else
