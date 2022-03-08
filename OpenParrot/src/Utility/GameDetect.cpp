@@ -479,7 +479,7 @@ void GameDetect::DetectCurrentGame()
 			// PATCHES 10-21 & 5DX+
 			if (*(uint32_t*)(moduleBase + 0x2F00) == 0x084AFF48)
 			{
-				if (newCrcResult == 0x1BB6F051)
+				if (newCrcResult == 0x1BB6F051 || newCrcResult == 0x7E61F32D)
 				{
 					SetGameId(GameID::WMMT5DXPlus, "WMMT5DX+");
 				}

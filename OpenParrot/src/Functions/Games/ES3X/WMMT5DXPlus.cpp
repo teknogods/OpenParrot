@@ -406,8 +406,6 @@ unsigned int dxpHook_hasp_write(int hasp_handle, int hasp_fileid, unsigned int o
 	return HASP_STATUS_OK;
 }
 
-
-
 unsigned char saveDatadxp[0x2000];
 unsigned char mileDatadxp[0x08];
 
@@ -515,6 +513,18 @@ static DWORD WINAPI forceFT(void* pArguments)
 	myfile << handleAddress;
 	myfile.close();
 	*/
+}
+
+static DWORD WINAPI forceFTUpdate5(void* pArguments)
+{
+	while (true) {
+		Sleep(16);
+		auto carSaveBase = (uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x02072478) + 0x268);
+		auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xAC);
+		auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xB8);
+		injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
+		injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
+	}
 }
 
 static bool saveOk = false;
@@ -944,7 +954,6 @@ static void LoadWmmt5CarData()
 	{
 		CreateThread(0, 0, forceFT, 0, 0, 0);
 	}
-
 	memset(carFileNamedxp, 0, 0xFF);
 	// Load actual car if available
 	sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
@@ -995,6 +1004,14 @@ static void loadCar()
 {
 	std::thread t1(LoadWmmt5CarData);
 	t1.detach();
+}
+
+static void loadCarUpdate5()
+{
+	if (ToBool(config["Tune"]["Force Full Tune"]))
+	{
+		CreateThread(0, 0, forceFTUpdate5, 0, 0, 0);
+	}
 }
 
 static int ReturnTrue()
@@ -1240,6 +1257,11 @@ static InitFunction Wmmt5Func([]()
 		fclose(fileG);
 	}*/
 
+	bool isUpdate5 = false;
+	if (ToBool(config["Update5"]["Enable Update5"]))
+	{
+		isUpdate5 = true;
+	}
 
 	bool isTerminal = false;
 	if (ToBool(config["General"]["TerminalMode"]))
@@ -1247,6 +1269,8 @@ static InitFunction Wmmt5Func([]()
 		isTerminal = true;
 	}
 	
+
+
 	std::string networkip = config["General"]["NetworkAdapterIP"];
 	if (!networkip.empty())
 	{
@@ -1377,7 +1401,8 @@ static InitFunction Wmmt5Func([]()
 			injector::MakeNOP(location + 0xF, 2); // 0xF
 			//injector::MakeNOP(location + 0x15, 2); // 0x15
 			*/
-			injector::MakeNOP(imageBasedxplus + 0x9F2BB3, 2);
+			//injector::MakeNOP(imageBasedxplus + 0x9F2BB3, 2); //terminal on same machine check
+			injector::MakeNOP(hook::get_pattern("74 ? 80 7B 31 00 75 ? 48 8B 43 10 80 78 31 00 75 1A 48 8B D8 48 8B 00 80 78 31 00 75 ? 48 8B D8"), 2);
 		}
 		
 
@@ -1420,11 +1445,12 @@ static InitFunction Wmmt5Func([]()
 	std::string value = config["General"]["CustomName"];
 	if (!value.empty())
 	{
-		
-		memset(customNamedxp, 0, 256);
-		strcpy(customNamedxp, value.c_str());
-		CreateThread(0, 0, SpamcustomNamedxp, 0, 0, 0);
-		
+		if (!isUpdate5)
+		{
+			memset(customNamedxp, 0, 256);
+			strcpy(customNamedxp, value.c_str());
+			CreateThread(0, 0, SpamcustomNamedxp, 0, 0, 0);
+		}
 	}
 
 	// Save story stuff (only 05)
@@ -1472,32 +1498,36 @@ static InitFunction Wmmt5Func([]()
 
 		CreateThread(0, 0, Wmmt5FfbCollector, 0, 0, 0);
 		*/
+		if (!isUpdate5)
+		{
+			// Enable all print
+			injector::MakeNOP(imageBasedxplus + 0x898BD3, 6);
 
-		// Enable all print
-		injector::MakeNOP(imageBasedxplus + 0x898BD3, 6);
+			//load car trigger
+			safeJMP(imageBasedxplus + 0x72AB90, loadCar);
 
-		//load car trigger
-		safeJMP(imageBasedxplus + 0x72AB90, loadCar);
+			//save car trigger
+			//injector::WriteMemory<uintptr_t>(imageBase + 0x376F80 + 2, (uintptr_t)SaveGameData, true);
+			//safeJMP(imageBase + 0x376F76, SaveGameData);
 
-		//save car trigger
-		//injector::WriteMemory<uintptr_t>(imageBase + 0x376F80 + 2, (uintptr_t)SaveGameData, true);
-		//safeJMP(imageBase + 0x376F76, SaveGameData);
 
-		
-		injector::MakeNOP(imageBasedxplus + 0x376F76, 0x12);
-		injector::WriteMemory<WORD>(imageBasedxplus + 0x376F76, 0xB848, true);
-		injector::WriteMemory<uintptr_t>(imageBasedxplus + 0x376F76 + 2, (uintptr_t)SaveGameData, true);
-		injector::WriteMemory<DWORD>(imageBasedxplus + 0x376F80, 0x3348D0FF, true);
-		injector::WriteMemory<WORD>(imageBasedxplus + 0x376F80 + 4, 0x90C0, true);
+			injector::MakeNOP(imageBasedxplus + 0x376F76, 0x12);
+			injector::WriteMemory<WORD>(imageBasedxplus + 0x376F76, 0xB848, true);
+			injector::WriteMemory<uintptr_t>(imageBasedxplus + 0x376F76 + 2, (uintptr_t)SaveGameData, true);
+			injector::WriteMemory<DWORD>(imageBasedxplus + 0x376F80, 0x3348D0FF, true);
+			injector::WriteMemory<WORD>(imageBasedxplus + 0x376F80 + 4, 0x90C0, true);
 
-		//prevents startup saving
-		//injector::MakeNOP(imageBase + 0x6B908C, 0x0D);
-		//safeJMP(imageBase + 0x6B908C, SaveOk);
-		injector::WriteMemory<WORD>(imageBasedxplus + 0x6B909A, 0xB848, true);
-		injector::WriteMemory<uintptr_t>(imageBasedxplus + 0x6B909A + 2, (uintptr_t)SaveOk, true);
-		injector::WriteMemory<DWORD>(imageBasedxplus + 0x6B90A4, 0x9090D0FF, true);
-
-		
+			//prevents startup saving
+			//injector::MakeNOP(imageBase + 0x6B908C, 0x0D);
+			//safeJMP(imageBase + 0x6B908C, SaveOk);
+			injector::WriteMemory<WORD>(imageBasedxplus + 0x6B909A, 0xB848, true);
+			injector::WriteMemory<uintptr_t>(imageBasedxplus + 0x6B909A + 2, (uintptr_t)SaveOk, true);
+			injector::WriteMemory<DWORD>(imageBasedxplus + 0x6B90A4, 0x9090D0FF, true);
+		}
+		else
+		{
+			safeJMP(imageBasedxplus + 0x7786B0, loadCarUpdate5);
+		}
 	}
 
 	MH_EnableHook(MH_ALL_HOOKS);
