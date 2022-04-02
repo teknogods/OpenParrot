@@ -674,6 +674,9 @@ void GameDetect::DetectCurrentGame()
 		case 0x24df738f: // Under Night Proto
 			SetGameId(GameID::UnderNightAPM3Test, "Under Night In Birth APM3 Test Menu");
 			break;
+		case 0x1B36A088: // Frenzy Express by Simply Austin
+			SetGameId(GameID::FrenzyExpress, "Frenzy Express");
+			break;
 #ifdef _DEBUG
 		case 0x148CC191: // Elevator Action Death Parade
 			currentGame = GameID::ElevatorActionDeathParade;
