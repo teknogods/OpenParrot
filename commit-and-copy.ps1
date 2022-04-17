@@ -12,7 +12,7 @@ Try
     $OpenParrot32Files = @(
         "iDmacDrv32.dll", 
         "OpenParrot.dll",
-        "OpenParrotKonamiLoader",
+        "OpenParrotKonamiLoader.exe",
         "OpenParrotLoader.exe"
     );
 
