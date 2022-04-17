@@ -19,45 +19,9 @@ static bool isFreePlay;
 static bool isEventMode2P;
 static bool isEventMode4P;
 const char *ipaddrdxplus;
-/*
-// Data for IC card, Force Feedback etc OFF.
-unsigned char settingData[408] = {
-	0x1F, 0x8B, 0x08, 0x08, 0x53, 0x6A, 0x8B, 0x5A, 0x00, 0x03, 0x46, 0x73,
-	0x65, 0x74, 0x74, 0x69, 0x6E, 0x67, 0x2E, 0x6C, 0x75, 0x61, 0x00, 0x85,
-	0x93, 0x5B, 0x6F, 0x82, 0x30, 0x14, 0xC7, 0xDF, 0xF9, 0x14, 0x7E, 0x01,
-	0x17, 0x11, 0xE7, 0xDC, 0xC3, 0x1E, 0x14, 0x65, 0x9A, 0x48, 0x66, 0x94,
-	0x68, 0xB2, 0xB7, 0x5A, 0x8E, 0xD2, 0xD8, 0x8B, 0x29, 0xED, 0x16, 0xBF,
-	0xFD, 0x5A, 0xA8, 0x50, 0xB2, 0x65, 0xF2, 0x40, 0xF8, 0xFF, 0xCE, 0x85,
-	0x73, 0x69, 0xFB, 0xFD, 0xFF, 0x9F, 0xC0, 0xBE, 0x7A, 0x25, 0x28, 0x45,
-	0xF8, 0xF9, 0x89, 0x6A, 0x14, 0x3C, 0x08, 0xE8, 0x07, 0x01, 0x8B, 0x11,
-	0x25, 0xC7, 0x25, 0xE2, 0x39, 0x85, 0x18, 0xB8, 0x02, 0xD9, 0x7B, 0xEB,
-	0x45, 0xC3, 0x97, 0xF1, 0xC4, 0x99, 0xA6, 0x18, 0x03, 0x6D, 0x2C, 0x03,
-	0x47, 0x67, 0x12, 0x5D, 0xE0, 0x17, 0x4D, 0x85, 0x12, 0xB2, 0xA1, 0xCF,
-	0x61, 0xE8, 0x78, 0x26, 0x34, 0x2E, 0xD6, 0x70, 0x52, 0x86, 0x0E, 0x07,
-	0xA3, 0x89, 0x8F, 0xB7, 0xE4, 0x5C, 0x58, 0x1E, 0x8E, 0xA2, 0x68, 0xEC,
-	0x1B, 0x32, 0x71, 0xFD, 0x0B, 0xCF, 0x84, 0x52, 0x82, 0xB5, 0x89, 0x04,
-	0xE1, 0x71, 0xA1, 0x15, 0x58, 0xDF, 0x80, 0xCD, 0xF4, 0x2D, 0x46, 0x32,
-	0x8F, 0x45, 0x69, 0x73, 0x46, 0x01, 0x7B, 0x47, 0x0C, 0x9C, 0x1A, 0x5A,
-	0x6F, 0x6E, 0x66, 0xA3, 0x3D, 0x92, 0x68, 0x4A, 0x63, 0xA1, 0x65, 0x79,
-	0x67, 0x23, 0xC3, 0x24, 0xC0, 0x86, 0xA2, 0x5B, 0x9D, 0x72, 0x83, 0x8F,
-	0xAB, 0xBC, 0x6E, 0x72, 0x85, 0x6D, 0xF2, 0xED, 0xB7, 0xAF, 0xF6, 0xC0,
-	0xF3, 0xFB, 0x10, 0xD2, 0xB3, 0x6F, 0x4F, 0x84, 0xC4, 0x90, 0x00, 0xE4,
-	0x47, 0x84, 0x2F, 0x35, 0x3A, 0x10, 0x5E, 0x4E, 0x79, 0xBE, 0x05, 0x86,
-	0xCC, 0x57, 0x9D, 0x7F, 0xF1, 0x65, 0x06, 0x96, 0x8A, 0x1C, 0x6A, 0x97,
-	0x46, 0xCE, 0x49, 0x55, 0x8F, 0x8F, 0x4C, 0xA1, 0xDC, 0xD5, 0x18, 0x53,
-	0x51, 0x42, 0x76, 0xBB, 0x82, 0x6B, 0xCC, 0xCA, 0x9D, 0xE6, 0x46, 0xBD,
-	0x8E, 0x9D, 0x4C, 0x45, 0x47, 0x66, 0x1A, 0x7C, 0x79, 0x80, 0xBC, 0x63,
-	0x2D, 0xB4, 0x2F, 0x13, 0x49, 0x7C, 0xB9, 0x43, 0xCA, 0x97, 0xF3, 0x6A,
-	0x36, 0x56, 0x56, 0x2B, 0xD9, 0x20, 0x0E, 0xB4, 0x2E, 0xD5, 0x8E, 0x7B,
-	0x2F, 0xAC, 0x08, 0x8D, 0x9A, 0x2A, 0x25, 0x11, 0x56, 0x2D, 0xF8, 0x38,
-	0x9D, 0x28, 0xE1, 0xD0, 0x76, 0x6B, 0xD2, 0xE1, 0x8B, 0xA1, 0xE6, 0xD0,
-	0xD6, 0x20, 0x23, 0x0C, 0x3E, 0x05, 0xBF, 0xB7, 0x66, 0x77, 0x6F, 0x91,
-	0xF9, 0xE3, 0xDA, 0x1D, 0x14, 0xCF, 0x69, 0x69, 0x16, 0xD7, 0x04, 0x4F,
-	0x5A, 0x9E, 0x12, 0xEE, 0xE7, 0xDC, 0x69, 0xC6, 0x40, 0x5A, 0x63, 0x27,
-	0xA0, 0x63, 0xE9, 0x86, 0x3C, 0xBC, 0x37, 0xD5, 0x4D, 0x5B, 0x7C, 0x24,
-	0x8F, 0x3D, 0x7F, 0x00, 0x10, 0x1E, 0x34, 0xD9, 0xB5, 0x03, 0x00, 0x00
-};
-*/
+
+// MUST DISABLE IC CARD, FFB MANUALLY N MT5DX+
+
 // FOR FREEPLAY
 unsigned char dxpterminalPackage1_Free[79] = {
 	0x01, 0x04, 0x4B, 0x00, 0x12, 0x14, 0x0A, 0x00, 0x10, 0x04, 0x18, 0x00,
@@ -462,7 +426,7 @@ static DWORD WINAPI forceFullTune(void* pArguments)
 // **** String Variables
 
 // Debugging event log file
-std::string logfile = "wmmt5dxp_errors.txt";
+std::string logfileDxp = "wmmt5dxp_errors.txt";
 
 // writeLog(filename: String, message: String): Int
 // Given a filename string and a message string, appends
@@ -486,29 +450,27 @@ static int writeLog(std::string filename, std::string message)
 }
 
 static bool saveOk = false;
-unsigned char carDatadxp[0xFF];
+unsigned char carDataDxp[0xFF];
 static int SaveOk()
 {
 	saveOk = true;
 	return 1;
 }
 
-char carFileNamedxp[0xFF];
-bool loadOkdxp = false;
-bool customCardxp = false;
+char carFileNameDxp[0xFF];
+bool loadOkDxp = false;
+bool customCarDxp = false;
 
-static void saveMileagedxp()
+static void saveMileage()
 {
-	
-	//Mileage Write to "GAME/mileage.dat"
 	auto mileageLocation = (uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x280);
-	//try this maybe, casting to int probably not right/not gonna work
+
 	FILE* tempFile = fopen("mileage.dat", "wb");
 	fwrite(mileageLocation, 1, sizeof(mileageLocation), tempFile);
 	fclose(tempFile);
 }
 
-static void LoadMileagedxp()
+static void LoadMileage()
 {
 	
 	memset(mileDatadxp, 0, 0x08);
@@ -533,7 +495,7 @@ static int SaveGameData()
 	if (!saveOk)
 		return 1;
 
-	writeLog(logfile, "[DEBUG] Saving game data ...\n");
+	writeLog(logfileDxp, "[DEBUG] Saving game data ...\n");
 
 	// Address where player save data starts
 	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
@@ -542,59 +504,59 @@ static int SaveGameData()
 
 	// Zero out save data binary
 	memset(saveDatadxp, 0, 0x2000);
-	writeLog(logfile, "[DEBUG] MEMSET OK\n");
+	writeLog(logfileDxp, "[DEBUG] MEMSET OK\n");
 
 	// Address where the player story data starts
 	uintptr_t storySaveBase = *(uintptr_t*)(saveDataBase + 0x108);
 
-	writeLog(logfile, "[DEBUG] VALUE OK\n");
+	writeLog(logfileDxp, "[DEBUG] VALUE OK\n");
 
 	// Copy 340 nibbles to saveDatadxp from the story save data index
 	memcpy(saveDatadxp, (void*)storySaveBase, 0x340);
-	writeLog(logfile, "[DEBUG] MEMCPY OK\n");
+	writeLog(logfileDxp, "[DEBUG] MEMCPY OK\n");
 
 	// Open the OpenProgress save file binary
 	FILE* file = fopen("openprogress.sav", "wb");
-	writeLog(logfile, "[DEBUG] FOPEN OK\n");
+	writeLog(logfileDxp, "[DEBUG] FOPEN OK\n");
 
 	// Write the full size of the saveDatadxp array
 	// (2000 nibbles) to the openprogress.sav file, 
 	// overwriting existing contents.
 	fwrite(saveDatadxp, 1, 0x2000, file);
-	writeLog(logfile, "[DEBUG] FWRITE OK\n");
+	writeLog(logfileDxp, "[DEBUG] FWRITE OK\n");
 
 	// Close the openprogress file
 	fclose(file);
-	writeLog(logfile, "[DEBUG] FCLOSE OK\n");
+	writeLog(logfileDxp, "[DEBUG] FCLOSE OK\n");
 
-	writeLog(logfile, "[DEBUG] STORY SAVE OK\n");
+	writeLog(logfileDxp, "[DEBUG] STORY SAVE OK\n");
 
 	// Car Profile saving
-	memset(carDatadxp, 0, 0xFF);
-	memset(carFileNamedxp, 0, 0xFF);
+	memset(carDataDxp, 0, 0xFF);
+	memset(carFileNameDxp, 0, 0xFF);
 
 	//new multilevel
 	uintptr_t carSaveBase = *(uintptr_t*)(saveDataBase + 0x268);
 
-	memcpy(carDatadxp + 0x00, (void*)(carSaveBase + 0x0), 0xFF); //dumps whole region
+	memcpy(carDataDxp + 0x00, (void*)(carSaveBase + 0x0), 0xFF); //dumps whole region
 
 
 	CreateDirectoryA("OpenParrot_Cars", nullptr);
 
-	if (customCardxp)
+	if (customCarDxp)
 	{
-		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\custom.car");
+		sprintf(carFileNameDxp, ".\\OpenParrot_Cars\\custom.car");
 	}
 	else
 	{
-		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
+		sprintf(carFileNameDxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
 	}
 
-	FILE* carFile = fopen(carFileNamedxp, "wb");
-	fwrite(carDatadxp, 1, 0xFF, carFile);
+	FILE* carFile = fopen(carFileNameDxp, "wb");
+	fwrite(carDataDxp, 1, 0xFF, carFile);
 	fclose(carFile);
 
-	saveMileagedxp();
+	saveMileage();
 
 	saveOk = false;
 	return 1;
@@ -664,7 +626,7 @@ static int LoadGameData()
 			memcpy((void *)(storyOffset), saveDatadxp + 0x2B8, 0x88);
 			storyOffset -= 0x2B8;
 
-			loadOkdxp = true;
+			loadOkDxp = true;
 		}
 		fclose(file);
 	}
@@ -674,24 +636,24 @@ static int LoadGameData()
 
 
 
-static void LoadWmmt5CarData()
+static void LoadWmmt5carDataDxp()
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-//	if (!loadOkdxp)
+//	if (!loadOkDxp)
 //		return;
-	customCardxp = false;
-	memset(carDatadxp, 0, 0xFF);
-	memset(carFileNamedxp, 0, 0xFF);
+	customCarDxp = false;
+	memset(carDataDxp, 0, 0xFF);
+	memset(carFileNameDxp, 0, 0xFF);
 	CreateDirectoryA("OpenParrot_Cars", nullptr);
 
-	LoadMileagedxp();
+	LoadMileage();
 
 	// check for custom car
-	sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\custom.car");
-	if (FileExists(carFileNamedxp))
+	sprintf(carFileNameDxp, ".\\OpenParrot_Cars\\custom.car");
+	if (FileExists(carFileNameDxp))
 	{
-		FILE* file = fopen(carFileNamedxp, "rb");
+		FILE* file = fopen(carFileNameDxp, "rb");
 		if (file)
 		{
 			fseek(file, 0, SEEK_END);
@@ -699,36 +661,36 @@ static void LoadWmmt5CarData()
 			if (fsize == 0xFF)
 			{
 				fseek(file, 0, SEEK_SET);
-				fread(carDatadxp, fsize, 1, file);
+				fread(carDataDxp, fsize, 1, file);
 				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
-				memcpy((void*)(carSaveLocation + 0xAC), carDatadxp + 0xAC, 0x1); //power
-				memcpy((void*)(carSaveLocation + 0xB8), carDatadxp + 0xB8, 0x1); //handling
-				memcpy((void*)(carSaveLocation + 0x28), carDatadxp + 0x28, 0x1); //region
-				memcpy((void*)(carSaveLocation + 0x34), carDatadxp + 0x34, 0x1); //carID
-				memcpy((void*)(carSaveLocation + 0x38), carDatadxp + 0x38, 0x1); //defaultColor
-				memcpy((void*)(carSaveLocation + 0x3C), carDatadxp + 0x3C, 0x1); //customColor
-				memcpy((void*)(carSaveLocation + 0x40), carDatadxp + 0x40, 0x1); //rims
-				memcpy((void*)(carSaveLocation + 0x44), carDatadxp + 0x44, 0x1); //rimColor
-				memcpy((void*)(carSaveLocation + 0x48), carDatadxp + 0x48, 0x1); //aero
-				memcpy((void*)(carSaveLocation + 0x4C), carDatadxp + 0x4C, 0x1); //hood
-				memcpy((void*)(carSaveLocation + 0x58), carDatadxp + 0x58, 0x1); //wang
-				memcpy((void*)(carSaveLocation + 0x5C), carDatadxp + 0x5C, 0x1); //mirror
-				memcpy((void*)(carSaveLocation + 0x60), carDatadxp + 0x60, 0x1); //sticker
-				memcpy((void*)(carSaveLocation + 0x64), carDatadxp + 0x64, 0x1); //stickerVariant
-				memcpy((void*)(carSaveLocation + 0x88), carDatadxp + 0x88, 0x1); //roofSticker
-				memcpy((void*)(carSaveLocation + 0x8C), carDatadxp + 0x8C, 0x1); //roofStickerVariant
-				memcpy((void*)(carSaveLocation + 0x90), carDatadxp + 0x90, 0x1); //neon
-				memcpy((void*)(carSaveLocation + 0x94), carDatadxp + 0x94, 0x1); //trunk
-				memcpy((void*)(carSaveLocation + 0x98), carDatadxp + 0x98, 0x1); //plateFrame
-				memcpy((void*)(carSaveLocation + 0xA0), carDatadxp + 0xA0, 0x4); //plateNumber
-				memcpy((void*)(carSaveLocation + 0xA4), carDatadxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
-				memcpy((void*)(carSaveLocation + 0xA8), carDatadxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
-				memcpy((void*)(carSaveLocation + 0xBC), carDatadxp + 0xBC, 0x1); //rank
-				memcpy((void*)(carSaveLocation + 0xF0), carDatadxp + 0xF0, 0x1); //title??
+				memcpy((void*)(carSaveLocation + 0xAC), carDataDxp + 0xAC, 0x1); //power
+				memcpy((void*)(carSaveLocation + 0xB8), carDataDxp + 0xB8, 0x1); //handling
+				memcpy((void*)(carSaveLocation + 0x28), carDataDxp + 0x28, 0x1); //region
+				memcpy((void*)(carSaveLocation + 0x34), carDataDxp + 0x34, 0x1); //carID
+				memcpy((void*)(carSaveLocation + 0x38), carDataDxp + 0x38, 0x1); //defaultColor
+				memcpy((void*)(carSaveLocation + 0x3C), carDataDxp + 0x3C, 0x1); //customColor
+				memcpy((void*)(carSaveLocation + 0x40), carDataDxp + 0x40, 0x1); //rims
+				memcpy((void*)(carSaveLocation + 0x44), carDataDxp + 0x44, 0x1); //rimColor
+				memcpy((void*)(carSaveLocation + 0x48), carDataDxp + 0x48, 0x1); //aero
+				memcpy((void*)(carSaveLocation + 0x4C), carDataDxp + 0x4C, 0x1); //hood
+				memcpy((void*)(carSaveLocation + 0x58), carDataDxp + 0x58, 0x1); //wang
+				memcpy((void*)(carSaveLocation + 0x5C), carDataDxp + 0x5C, 0x1); //mirror
+				memcpy((void*)(carSaveLocation + 0x60), carDataDxp + 0x60, 0x1); //sticker
+				memcpy((void*)(carSaveLocation + 0x64), carDataDxp + 0x64, 0x1); //stickerVariant
+				memcpy((void*)(carSaveLocation + 0x88), carDataDxp + 0x88, 0x1); //roofSticker
+				memcpy((void*)(carSaveLocation + 0x8C), carDataDxp + 0x8C, 0x1); //roofStickerVariant
+				memcpy((void*)(carSaveLocation + 0x90), carDataDxp + 0x90, 0x1); //neon
+				memcpy((void*)(carSaveLocation + 0x94), carDataDxp + 0x94, 0x1); //trunk
+				memcpy((void*)(carSaveLocation + 0x98), carDataDxp + 0x98, 0x1); //plateFrame
+				memcpy((void*)(carSaveLocation + 0xA0), carDataDxp + 0xA0, 0x4); //plateNumber
+				memcpy((void*)(carSaveLocation + 0xA4), carDataDxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
+				memcpy((void*)(carSaveLocation + 0xA8), carDataDxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
+				memcpy((void*)(carSaveLocation + 0xBC), carDataDxp + 0xBC, 0x1); //rank
+				memcpy((void*)(carSaveLocation + 0xF0), carDataDxp + 0xF0, 0x1); //title??
 
-				customCardxp = true;
+				customCarDxp = true;
 			}
-			loadOkdxp = false;
+			loadOkDxp = false;
 			fclose(file);
 			return;
 		}
@@ -738,12 +700,12 @@ static void LoadWmmt5CarData()
 		CreateThread(0, 0, forceFullTune, 0, 0, 0);
 	}
 
-	memset(carFileNamedxp, 0, 0xFF);
+	memset(carFileNameDxp, 0, 0xFF);
 	// Load actual car if available
-	sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
-	if(FileExists(carFileNamedxp))
+	sprintf(carFileNameDxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
+	if(FileExists(carFileNameDxp))
 	{
-		FILE* file = fopen(carFileNamedxp, "rb");
+		FILE* file = fopen(carFileNameDxp, "rb");
 		if (file)
 		{
 			fseek(file, 0, SEEK_END);
@@ -751,42 +713,42 @@ static void LoadWmmt5CarData()
 			if (fsize == 0xFF)
 			{	
 				fseek(file, 0, SEEK_SET);
-				fread(carDatadxp, fsize, 1, file);
+				fread(carDataDxp, fsize, 1, file);
 				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
-				memcpy((void*)(carSaveLocation + 0xAC), carDatadxp + 0xAC, 0x1); //power
-				memcpy((void*)(carSaveLocation + 0xB8), carDatadxp + 0xB8, 0x1); //handling
-				memcpy((void*)(carSaveLocation + 0x28), carDatadxp + 0x28, 0x1); //region
-				memcpy((void*)(carSaveLocation + 0x34), carDatadxp + 0x34, 0x1); //carID
-				memcpy((void*)(carSaveLocation + 0x38), carDatadxp + 0x38, 0x1); //defaultColor
-				memcpy((void*)(carSaveLocation + 0x3C), carDatadxp + 0x3C, 0x1); //customColor
-				memcpy((void*)(carSaveLocation + 0x40), carDatadxp + 0x40, 0x1); //rims
-				memcpy((void*)(carSaveLocation + 0x44), carDatadxp + 0x44, 0x1); //rimColor
-				memcpy((void*)(carSaveLocation + 0x48), carDatadxp + 0x48, 0x1); //aero
-				memcpy((void*)(carSaveLocation + 0x4C), carDatadxp + 0x4C, 0x1); //hood
-				memcpy((void*)(carSaveLocation + 0x58), carDatadxp + 0x58, 0x1); //wang
-				memcpy((void*)(carSaveLocation + 0x5C), carDatadxp + 0x5C, 0x1); //mirror
-				memcpy((void*)(carSaveLocation + 0x60), carDatadxp + 0x60, 0x1); //sticker
-				memcpy((void*)(carSaveLocation + 0x64), carDatadxp + 0x64, 0x1); //stickerVariant
-				memcpy((void*)(carSaveLocation + 0x88), carDatadxp + 0x88, 0x1); //roofSticker
-				memcpy((void*)(carSaveLocation + 0x8C), carDatadxp + 0x8C, 0x1); //roofStickerVariant
-				memcpy((void*)(carSaveLocation + 0x90), carDatadxp + 0x90, 0x1); //neon
-				memcpy((void*)(carSaveLocation + 0x94), carDatadxp + 0x94, 0x1); //trunk
-				memcpy((void*)(carSaveLocation + 0x98), carDatadxp + 0x98, 0x1); //plateFrame
-				memcpy((void*)(carSaveLocation + 0xA0), carDatadxp + 0xA0, 0x4); //plateNumber
-				memcpy((void*)(carSaveLocation + 0xA4), carDatadxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
-				memcpy((void*)(carSaveLocation + 0xA8), carDatadxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
-				memcpy((void*)(carSaveLocation + 0xBC), carDatadxp + 0xBC, 0x1); //rank
-				memcpy((void*)(carSaveLocation + 0xF0), carDatadxp + 0xF0, 0x1); //title??
+				memcpy((void*)(carSaveLocation + 0xAC), carDataDxp + 0xAC, 0x1); //power
+				memcpy((void*)(carSaveLocation + 0xB8), carDataDxp + 0xB8, 0x1); //handling
+				memcpy((void*)(carSaveLocation + 0x28), carDataDxp + 0x28, 0x1); //region
+				memcpy((void*)(carSaveLocation + 0x34), carDataDxp + 0x34, 0x1); //carID
+				memcpy((void*)(carSaveLocation + 0x38), carDataDxp + 0x38, 0x1); //defaultColor
+				memcpy((void*)(carSaveLocation + 0x3C), carDataDxp + 0x3C, 0x1); //customColor
+				memcpy((void*)(carSaveLocation + 0x40), carDataDxp + 0x40, 0x1); //rims
+				memcpy((void*)(carSaveLocation + 0x44), carDataDxp + 0x44, 0x1); //rimColor
+				memcpy((void*)(carSaveLocation + 0x48), carDataDxp + 0x48, 0x1); //aero
+				memcpy((void*)(carSaveLocation + 0x4C), carDataDxp + 0x4C, 0x1); //hood
+				memcpy((void*)(carSaveLocation + 0x58), carDataDxp + 0x58, 0x1); //wang
+				memcpy((void*)(carSaveLocation + 0x5C), carDataDxp + 0x5C, 0x1); //mirror
+				memcpy((void*)(carSaveLocation + 0x60), carDataDxp + 0x60, 0x1); //sticker
+				memcpy((void*)(carSaveLocation + 0x64), carDataDxp + 0x64, 0x1); //stickerVariant
+				memcpy((void*)(carSaveLocation + 0x88), carDataDxp + 0x88, 0x1); //roofSticker
+				memcpy((void*)(carSaveLocation + 0x8C), carDataDxp + 0x8C, 0x1); //roofStickerVariant
+				memcpy((void*)(carSaveLocation + 0x90), carDataDxp + 0x90, 0x1); //neon
+				memcpy((void*)(carSaveLocation + 0x94), carDataDxp + 0x94, 0x1); //trunk
+				memcpy((void*)(carSaveLocation + 0x98), carDataDxp + 0x98, 0x1); //plateFrame
+				memcpy((void*)(carSaveLocation + 0xA0), carDataDxp + 0xA0, 0x4); //plateNumber
+				memcpy((void*)(carSaveLocation + 0xA4), carDataDxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
+				memcpy((void*)(carSaveLocation + 0xA8), carDataDxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
+				memcpy((void*)(carSaveLocation + 0xBC), carDataDxp + 0xBC, 0x1); //rank
+				memcpy((void*)(carSaveLocation + 0xF0), carDataDxp + 0xF0, 0x1); //title??
 			}
 			fclose(file);
 		}
 	}
-	loadOkdxp = false;
+	loadOkDxp = false;
 }
 
 static void loadCar()
 {
-	std::thread t1(LoadWmmt5CarData);
+	std::thread t1(LoadWmmt5carDataDxp);
 	t1.detach();
 }
 
@@ -994,7 +956,7 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 // of required subprocesses.
 static InitFunction Wmmt5Func([]()
 {
-	writeLog(logfile, "[DEBUG] Starting emulation ...\n");
+	writeLog(logfileDxp, "[DEBUG] Starting emulation ...\n");
 
 	// Records if terminal mode is enabled
 	bool isTerminal = false;

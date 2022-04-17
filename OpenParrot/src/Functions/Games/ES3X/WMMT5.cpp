@@ -1,6 +1,9 @@
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
+#include <iostream>
+#include <cstdint>
+#include <fstream>
 #include "MinHook.h"
 #include <Utility/Hooking.Patterns.h>
 #include <thread>
@@ -427,79 +430,72 @@ unsigned int WINAPI Hook_bind(SOCKET s, const sockaddr *addr, int namelen) {
 
 unsigned char saveData[0x2000];
 
-// BASE: 0x24E0 
-// Campaing honor data: 2998, save 0xB8
-// Story Mode Honor data: 25F0, save 0x98
-// StoryModeNoLoseHonorData: 2C80, Copy 0,0x10, Copy 0x18,0x28 maybe 8 bytes more
-// OtherHonorData: 2A90, Copy 0x60
-// CampaignHonorData: 2698, Copy 0x48
+// forceFullTune(pArguments: void*): DWORD WINAPI
+// Function which runs in a secondary thread if the forceFullTune
+// option is selected in the compiler. If the player's car is not fully
+// tuned, it is forcibly set to max tune. If the player's car is already
+// fully tuned, it is left alone. 
+static DWORD WINAPI forceFullTune(void* pArguments)
+{
+	// Loops while the program is running
+	while (true) {
 
-//static int SaveCampaingHonorData2()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x2698;
-//	FILE* file = fopen(V("CampaignHonorData.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0x48);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
-//
-//static int SaveOtherHonorData()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x2A90;
-//	FILE* file = fopen(V("OtherHonorData.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0x60);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
-//
-//static int SaveStoryModeNoLoseHonorData()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x2C80;
-//	FILE* file = fopen(V("StoryModeNoLoseHonorData.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0x10);
-//	value += 0x18;
-//	memcpy(saveData, (void *)value, 0x28);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
-//
-//static int SaveCampaingHonorData()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x2998;
-//	FILE* file = fopen(V("campaing.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0xB8);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
-//
-//static int SaveStoryData()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x25F0;
-//	FILE* file = fopen(V("story.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0x98);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
+		// Only runs every 16th frame
+		Sleep(16);
+
+		// Get the memory addresses for the car base save, power and handling values
+	
+		auto carSaveBase = (uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
+		auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase) + 0x98);
+		auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase) + 0x9C);
+
+		// Dereference the power value from the memory address
+		auto powerValue = injector::ReadMemory<uint8_t>(powerAddress, true);
+		auto handleValue = injector::ReadMemory<uint8_t>(handleAddress, true);
+
+		// If the power and handling values do not add up to fully tuned
+		if (powerValue + handleValue < 0x20)
+		{
+			// Car is not fully tuned, force it to the default full tune
+			injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
+			injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
+		}
+
+		// Otherwise, don't do anything :)
+	}
+}
+
+// ******************************************** //
+// ************ Debug Data Logging ************ //
+// ******************************************** //
+
+// ************* Global Variables ************* //
+
+// **** String Variables
+
+// Debugging event log file
+std::string logfile = "wmmt5_errors.txt";
+
+// writeLog(filename: String, message: String): Int
+// Given a filename string and a message string, appends
+// the message to the given file.
+static int writeLog(std::string filename, std::string message)
+{
+	// Log file to write to
+	std::ofstream eventLog;
+
+	// Open the filename provided (append mode)
+	eventLog.open(filename, std::ios_base::app);
+
+	// Write the message to the file
+	eventLog << message;
+
+	// Close the log file handle
+	eventLog.close();
+
+	// Success
+	return 0;
+}
 
 static bool saveOk = false;
 unsigned char carData[0xFF];
@@ -558,118 +554,6 @@ static int SaveGameData()
 
 uintptr_t saveGameOffset;
 
-//static int LoadCampaingHonorData2()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("CampaignHonorData.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x2698;
-//			memcpy((void *)value, saveData, 0x48);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-//
-//static int LoadOtherHonorData()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("OtherHonorData.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x2A90;
-//			memcpy((void *)value, saveData, 0x60);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-//
-//static int LoadStoryModeNoLoseHonorData()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("StoryModeNoLoseHonorData.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x2C80;
-//			//memcpy((void *)value, saveData, 0x10);
-//			value += 0x18;
-//			memcpy((void *)value, saveData, 0x28);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-//
-//static int LoadCampaingHonorData()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("campaing.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x24E0;
-//			memcpy((void *)value, saveData, 0xB8);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-//
-//static int LoadStoryData()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("story.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x25F0;
-//			memcpy((void *)value, saveData, 0x98);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-
 static int LoadGameData()
 {
 	saveOk = false;
@@ -717,95 +601,10 @@ static int LoadGameData()
 			value -= 0x2B8;
 
 			loadOk = true;
-
-			//+ 0x80
-
-			//+ [0x340]
-
-			// [[[[0000000005CE5850] + 108] + 340] + 50] + 50
-			// [[[[0000000005CE5850] + 108] + 340] + 50] + 54
-			// wmn5r.exe + 1948BF8
-			//TA stuff
-
-			//[[[[magic_rva]+108]+340]+50]
-
-			//value += 0x24E0;
-			// First chunk
-			//memcpy((void *)(value + 0x16), saveData + 0x16, 0x28);
-			////
-			//memcpy((void *)(value + 0x40), saveData + 0x40, 0x18);
-			////
-			//memcpy((void *)(value + 0x60), saveData + 0x60, 0x20);
-			////
-			//memcpy((void *)(value + 0x90), saveData + 0x90, 0x28);
-			////
-			//memcpy((void *)(value + 0xC0), saveData + 0xC0, 0x10);
-			////
-			//memcpy((void *)(value + 0xD8), saveData + 0xD8, 0x28); // OK
-			////
-			//memcpy((void *)(value + 0x110), saveData + 0x110, 0x98);
-			////
-			//memcpy((void *)(value + 0x1B8), saveData + 0x1B8, 0x48);
-			////
-			//memcpy((void *)(value + 0x208), saveData + 0x208, 0x28);
-			////
-			//memcpy((void *)(value + 0x240), saveData + 0x240, 0x68);
-			////
-			//memcpy((void *)(value + 0x2B8), saveData + 0x2B8, 0x88);
-			//
-			//memcpy((void *)(value + 0x370), saveData + 0x370, 0x10);
-			////
-			//memcpy((void *)(value + 0x388), saveData + 0x388, 0x90);
-			////
-			//memcpy((void *)(value + 0x420), saveData + 0x420, 0x18);
-			////
-			//memcpy((void *)(value + 0x440), saveData + 0x440, 0x18);
-			////
-			//memcpy((void *)(value + 0x460), saveData + 0x460, 0x48);
-			////
-			//memcpy((void *)(value + 0x4B8), saveData + 0x4B8, 0xB8);
-			////
-			//memcpy((void *)(value + 0x578), saveData + 0x578, 0x08);
-			////
-			//memcpy((void *)(value + 0x5A8), saveData + 0x5A8, 0x68);
-			////
-			//memcpy((void *)(value + 0x628), saveData + 0x628, 0x48);
-			////
-			//memcpy((void *)(value + 0x688), saveData + 0x688, 0x48);
-			////
-			//memcpy((void *)(value + 0x6E8), saveData + 0x6E8, 0xA8);
-			////
-			//memcpy((void *)(value + 0x7A0), saveData + 0x7A0, 0x10);
-			////
-			//memcpy((void *)(value + 0x7B8), saveData + 0x7B8, 0x28);
-			////
-			//memcpy((void *)(value + 0x7E8), saveData + 0x7E8, 0x10);
-			////
-			////memcpy((void *)(value + 0x800), saveData + 0x800, 0x48); // Problem
-			//////
-			//memcpy((void *)(value + 0x850), saveData + 0x850, 0x08);
-			//
-			//memcpy((void *)(value + 0x860), saveData + 0x860, 0x08);
-			//////
-			//memcpy((void *)(value + 0x870), saveData + 0x870, 0x18);
-			////
-			//memcpy((void *)(value + 0x890), saveData + 0x890, 0x40);
-			////
-			//memcpy((void *)(value + 0x8E0), saveData + 0x8E0, 0x10);
-			////
-			//memcpy((void *)(value + 0x8F8), saveData + 0x8F8, 0x28);
-			////
-			//memcpy((void *)(value + 0x928), saveData + 0x928, 0x10);
-			////
-			//memcpy((void *)(value + 0x940), saveData + 0x940, 0x48); // Problem
 		}
 		fclose(file);
 	}
-	//LoadStoryData();
-	//LoadCampaingHonorData();
-	//LoadStoryModeNoLoseHonorData();
-	//LoadOtherHonorData();
-	//LoadCampaingHonorData2();
+
 	return 1;
 }
 
@@ -832,26 +631,53 @@ static void LoadWmmt5CarData()
 				fseek(file, 0, SEEK_SET);
 				fread(carData, fsize, 1, file);
 				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
-				memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
-				memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
-				memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
-				memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
-				memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 8);
-				memcpy((void *)(carSaveLocation + 0x38), carData + 0x38, 8);
-				memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 8);
-				memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
-				memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 8);
-				memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
-				memcpy((void *)(carSaveLocation + 0x7C), carData + 0x7C, 1); //should add neons
-				memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 8);
-				memcpy((void *)(carSaveLocation + 0x88), carData + 0x88, 8);
-				memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
-				memcpy((void *)(carSaveLocation + 0x98), carData + 0x98, 8);
-				memcpy((void *)(carSaveLocation + 0xA0), carData + 0xA0, 8);
-				memcpy((void *)(carSaveLocation + 0xA8), carData + 0xA8, 8);
-				memcpy((void *)(carSaveLocation + 0xB8), carData + 0xB8, 8);
-				memcpy((void *)(carSaveLocation + 0xC8), carData + 0xC8, 8);
-				memcpy((void *)(carSaveLocation + 0xD8), carData + 0xD8, 8);
+
+				memcpy((void*)(carSaveLocation + 0x98), carData + 0x98, 0x1); // Power
+				memcpy((void*)(carSaveLocation + 0x9C), carData + 0x9C, 0x1); // Handling
+				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x1); // Region
+				memcpy((void*)(carSaveLocation + 0x2C), carData + 0x2C, 0x1); // CarID
+				memcpy((void*)(carSaveLocation + 0x30), carData + 0x30, 0x1); // DefaultColor
+				memcpy((void*)(carSaveLocation + 0x34), carData + 0x34, 0x1); // CustomColor
+				memcpy((void*)(carSaveLocation + 0x38), carData + 0x38, 0x1); // Rims
+				memcpy((void*)(carSaveLocation + 0x3C), carData + 0x3C, 0x1); // RimColor
+				memcpy((void*)(carSaveLocation + 0x40), carData + 0x40, 0x1); // Aero
+				memcpy((void*)(carSaveLocation + 0x44), carData + 0x44, 0x1); // Hood
+				memcpy((void*)(carSaveLocation + 0x50), carData + 0x50, 0x1); // Wang
+				memcpy((void*)(carSaveLocation + 0x54), carData + 0x54, 0x1); // Mirror
+				memcpy((void*)(carSaveLocation + 0x58), carData + 0x58, 0x1); // Sticker
+				memcpy((void*)(carSaveLocation + 0x5C), carData + 0x5C, 0x1); // StickerVariant
+				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x1); // RoofSticker
+				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x1); // RoofStickerVariant
+				memcpy((void*)(carSaveLocation + 0x7C), carData + 0x7C, 0x1); // Should add neons
+				memcpy((void*)(carSaveLocation + 0x80), carData + 0x80, 0x1); // Trunk
+				memcpy((void*)(carSaveLocation + 0x84), carData + 0x84, 0x1); // PlateFrame
+				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x4); // PlateNumber
+				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x1); // Vinyl_body_challenge_prefecture_1~15
+				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x1); // Vinyl_body_challenge_prefecture
+				memcpy((void*)(carSaveLocation + 0xA4), carData + 0xA4, 0x1); // Rank
+				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x1); // Title
+
+				//memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
+				//memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
+				//memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
+				//memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
+				//memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
+				//memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 8);
+				//memcpy((void *)(carSaveLocation + 0x38), carData + 0x38, 8);
+				//memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 8);
+				//memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
+				//memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 8);
+				//memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
+				//memcpy((void *)(carSaveLocation + 0x7C), carData + 0x7C, 1); //should add neons
+				//memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 8);
+				//memcpy((void *)(carSaveLocation + 0x88), carData + 0x88, 8);
+				//memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
+				//memcpy((void *)(carSaveLocation + 0x98), carData + 0x98, 8);
+				//memcpy((void *)(carSaveLocation + 0xA0), carData + 0xA0, 8);
+				//memcpy((void *)(carSaveLocation + 0xA8), carData + 0xA8, 8);
+				//memcpy((void *)(carSaveLocation + 0xB8), carData + 0xB8, 8);
+				//memcpy((void *)(carSaveLocation + 0xC8), carData + 0xC8, 8);
+				//memcpy((void *)(carSaveLocation + 0xD8), carData + 0xD8, 8);
 				//memcpy((void *)(carSaveLocation + 0xE0), carData + 0xE0, 8);
 				customCar = true;
 			}
