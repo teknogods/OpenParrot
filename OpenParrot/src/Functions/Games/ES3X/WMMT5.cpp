@@ -697,10 +697,9 @@ static void LoadWmmt5CarData()
 				memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 1); // Trunk
 				memcpy((void *)(carSaveLocation + 0x84), carData + 0x80, 1); // Plate Frame
 				memcpy((void *)(carSaveLocation + 0x8A), carData + 0x8A, 1); // Plate Frame Colour
-				memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 1); // Power ??
-				memcpy((void *)(carSaveLocation + 0x94), carData + 0x94, 1); // Handling ??
-				// memcpy((void *)(carSaveLocation + 0x98), carData + 0x98, 1); // Power
-				// memcpy((void *)(carSaveLocation + 0x9C), carData + 0x9C, 1); // Handling
+				// memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
+				memcpy((void *)(carSaveLocation + 0x98), carData + 0x98, 1); // Power
+				memcpy((void *)(carSaveLocation + 0x9C), carData + 0x9C, 1); // Handling
 				// memcpy((void *)(carSaveLocation + 0xA0), carData + 0xA0, 8);
 				// memcpy((void *)(carSaveLocation + 0xA8), carData + 0xA8, 8);
 				// memcpy((void *)(carSaveLocation + 0xB8), carData + 0xB8, 8);
