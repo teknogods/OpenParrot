@@ -632,6 +632,7 @@ static void LoadWmmt5CarData()
 				fread(carData, fsize, 1, file);
 				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
 
+				/*
 				memcpy((void*)(carSaveLocation + 0x98), carData + 0x98, 0x1); // Power
 				memcpy((void*)(carSaveLocation + 0x9C), carData + 0x9C, 0x1); // Handling
 				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x1); // Region
@@ -656,29 +657,31 @@ static void LoadWmmt5CarData()
 				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x1); // Vinyl_body_challenge_prefecture
 				memcpy((void*)(carSaveLocation + 0xA4), carData + 0xA4, 0x1); // Rank
 				// memcpy((void*)(carSaveLocation + 0x), carData + 0x, 0x1); // Title
+				*/
 
-				//memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
-				//memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
-				//memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
-				//memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
-				//memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
-				//memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 8);
-				//memcpy((void *)(carSaveLocation + 0x38), carData + 0x38, 8);
-				//memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 8);
-				//memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
-				//memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 8);
-				//memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
-				//memcpy((void *)(carSaveLocation + 0x7C), carData + 0x7C, 1); //should add neons
-				//memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 8);
-				//memcpy((void *)(carSaveLocation + 0x88), carData + 0x88, 8);
-				//memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
-				//memcpy((void *)(carSaveLocation + 0x98), carData + 0x98, 8);
-				//memcpy((void *)(carSaveLocation + 0xA0), carData + 0xA0, 8);
-				//memcpy((void *)(carSaveLocation + 0xA8), carData + 0xA8, 8);
-				//memcpy((void *)(carSaveLocation + 0xB8), carData + 0xB8, 8);
-				//memcpy((void *)(carSaveLocation + 0xC8), carData + 0xC8, 8);
-				//memcpy((void *)(carSaveLocation + 0xD8), carData + 0xD8, 8);
-				//memcpy((void *)(carSaveLocation + 0xE0), carData + 0xE0, 8);
+				memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
+				memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
+				memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
+				memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
+				memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
+				memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 8);
+				memcpy((void *)(carSaveLocation + 0x38), carData + 0x38, 8);
+				memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 8);
+				memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
+				memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 8);
+				memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
+				memcpy((void *)(carSaveLocation + 0x7C), carData + 0x7C, 1); //should add neons
+				memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 8);
+				memcpy((void *)(carSaveLocation + 0x88), carData + 0x88, 8);
+				memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
+				memcpy((void *)(carSaveLocation + 0x98), carData + 0x98, 8);
+				memcpy((void *)(carSaveLocation + 0xA0), carData + 0xA0, 8);
+				memcpy((void *)(carSaveLocation + 0xA8), carData + 0xA8, 8);
+				memcpy((void *)(carSaveLocation + 0xB8), carData + 0xB8, 8);
+				memcpy((void *)(carSaveLocation + 0xC8), carData + 0xC8, 8);
+				memcpy((void *)(carSaveLocation + 0xD8), carData + 0xD8, 8);
+				memcpy((void *)(carSaveLocation + 0xE0), carData + 0xE0, 8);
+
 				customCar = true;
 			}
 			loadOk = false;
