@@ -441,10 +441,8 @@ static DWORD WINAPI forceFT(void* pArguments)
 			injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
 			injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
 		}
-		else // Car is already fully tuned
-		{
-			// Don't do anything
-		}
+
+		// Otherwise, don't do anything :)
 	}
 }
 
