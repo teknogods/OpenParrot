@@ -682,7 +682,8 @@ static void LoadWmmt5CarData()
 				// memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
 				// memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
 				// memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
-				memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 8);
+				memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 1);
+				memcpy((void *)(carSaveLocation + 0x34), carData + 0x34, 1);
 				// memcpy((void *)(carSaveLocation + 0x38), carData + 0x38, 8);
 				// memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 8);
 				// memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
