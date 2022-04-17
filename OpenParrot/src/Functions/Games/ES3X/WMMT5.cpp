@@ -682,10 +682,12 @@ static void LoadWmmt5CarData()
 				// memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
 				// memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
 				// memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
-				memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 1);
-				memcpy((void *)(carSaveLocation + 0x34), carData + 0x34, 1);
-				// memcpy((void *)(carSaveLocation + 0x38), carData + 0x38, 8);
-				// memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 8);
+				memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 1); // Stock Colour
+				memcpy((void *)(carSaveLocation + 0x34), carData + 0x34, 1); // Custom Colour
+				memcpy((void*)(carSaveLocation + 0x38), carData + 0x38, 1); // Rims Type
+				memcpy((void *)(carSaveLocation + 0x3C), carData + 0x3C, 1); // Rims Colour
+				memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 1); // Aero Type
+				memcpy((void *)(carSaveLocation + 0x44), carData + 0x44, 1); // Hood Type
 				// memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 8);
 				// memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 8);
 				// memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
