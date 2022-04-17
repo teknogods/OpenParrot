@@ -419,10 +419,17 @@ bool WINAPI Hook_SetSystemTime(SYSTEMTIME* in)
 	return TRUE;
 }
 
-static DWORD WINAPI forceFT(void* pArguments)
+// forceFullTune(pArguments: void*): DWORD WINAPI
+// Function which runs in a secondary thread if the forceFullTune
+// option is selected in the menu. If the player's car is not fully
+// tuned, it is forcibly set to max tune. If the player's car is already
+// fully tuned, it is left alone. 
+static DWORD WINAPI forceFullTune(void* pArguments)
 {
+	// Loops while the program is running
 	while (true) {
 
+		// Only runs every 16th frame
 		Sleep(16);
 
 		// Get the memory addresses for the car base save, power and handling values
@@ -806,7 +813,7 @@ static void LoadWmmt5CarData()
 	}
 	if (ToBool(config["Tune"]["Force Full Tune"]))
 	{
-		CreateThread(0, 0, forceFT, 0, 0, 0);
+		CreateThread(0, 0, forceFullTune, 0, 0, 0);
 	}
 
 	memset(carFileNamedxp, 0, 0xFF);
