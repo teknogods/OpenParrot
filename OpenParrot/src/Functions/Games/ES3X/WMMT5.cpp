@@ -668,8 +668,12 @@ static void LoadWmmt5CarData()
 		}
 	}
 
-	// DEBUG: CREATE FORCE FULL TUNE THREAD
-	CreateThread(0, 0, forceFullTune, 0, 0, 0);
+	// If the force full tune switch is set
+	if (ToBool(config["Tune"]["Force Full Tune"]))
+	{
+		// Create the force full tune thread
+		CreateThread(0, 0, forceFullTune, 0, 0, 0);
+	}
 
 	memset(carFileName, 0, 0xFF);
 	// Load actual car if available
