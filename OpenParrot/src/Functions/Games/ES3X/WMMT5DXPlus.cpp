@@ -210,7 +210,6 @@ unsigned char dxpterminalPackage6_Coin[139] = {
 	0x00, 0x28, 0x00, 0xBD, 0x07, 0xCF, 0xDC
 };
 
-
 //Event mode 2P
 unsigned char dxpterminalPackage1_Event4P[79] = {
 	0x01, 0x04, 0x44, 0x00, 0x12, 0x0e, 0x0a, 0x00, 0x10, 0x04, 0x18, 0x00,
@@ -411,80 +410,6 @@ unsigned int dxpHook_hasp_write(int hasp_handle, int hasp_fileid, unsigned int o
 unsigned char saveDatadxp[0x2000];
 unsigned char mileDatadxp[0x08];
 
-// BASE: 0x24E0 
-// Campaing honor data: 2998, save 0xB8
-// Story Mode Honor data: 25F0, save 0x98
-// StoryModeNoLoseHonorData: 2C80, Copy 0,0x10, Copy 0x18,0x28 maybe 8 bytes more
-// OtherHonorData: 2A90, Copy 0x60
-// CampaignHonorData: 2698, Copy 0x48
-
-//static int SaveCampaingHonorData2()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x2698;
-//	FILE* file = fopen(V("CampaignHonorData.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0x48);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
-//
-//static int SaveOtherHonorData()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x2A90;
-//	FILE* file = fopen(V("OtherHonorData.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0x60);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
-//
-//static int SaveStoryModeNoLoseHonorData()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x2C80;
-//	FILE* file = fopen(V("StoryModeNoLoseHonorData.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0x10);
-//	value += 0x18;
-//	memcpy(saveData, (void *)value, 0x28);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
-//
-//static int SaveCampaingHonorData()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x2998;
-//	FILE* file = fopen(V("campaing.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0xB8);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
-//
-//static int SaveStoryData()
-//{
-//	memset(saveData, 0, 0x1000);
-//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//	value += 0x25F0;
-//	FILE* file = fopen(V("story.sav"), V("wb"));
-//	memcpy(saveData, (void *)value, 0x98);
-//	fwrite(saveData, 1, 0x100, file);
-//	fclose(file);
-//	return 1;
-//}
-
 //set system date patch by pockywitch
 typedef bool (WINAPI* SETSYSTEMTIME)(SYSTEMTIME* in);
 SETSYSTEMTIME pSetSystemTime = NULL;
@@ -497,24 +422,62 @@ bool WINAPI Hook_SetSystemTime(SYSTEMTIME* in)
 static DWORD WINAPI forceFT(void* pArguments)
 {
 	while (true) {
+
 		Sleep(16);
+
+		// Get the memory addresses for the car base save, power and handling values
 		auto carSaveBase = (uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x01F7D578) + 0x268);
 		auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xAC);
 		auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xB8);
-		injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
-		injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
+
+		// Dereference the power value from the memory address
+		auto powerValue = injector::ReadMemory<uint8_t>(powerAddress, true);
+		auto handleValue = injector::ReadMemory<uint8_t>(handleAddress, true);
+
+		// If the power and handling values do not add up to fully tuned
+		if (powerValue + handleValue < 0x20)
+		{
+			// Car is not fully tuned, force it to the default full tune
+			injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
+			injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
+		}
+		else // Car is already fully tuned
+		{
+			// Don't do anything
+		}
 	}
-	//debug
-	/*
-	std::ofstream myfile("debug.txt");
-	myfile << "Base: ";
-	myfile << carSaveBase;
-	myfile << " Power: ";
-	myfile << powerAddress;
-	myfile << " Handling: ";
-	myfile << handleAddress;
-	myfile.close();
-	*/
+}
+
+// ******************************************** //
+// ************ Debug Data Logging ************ //
+// ******************************************** //
+
+// ************* Global Variables ************* //
+
+// **** String Variables
+
+// Debugging event log file
+std::string logfile = "wmmt5dxp_errors.txt";
+
+// writeLog(filename: String, message: String): Int
+// Given a filename string and a message string, appends
+// the message to the given file.
+static int writeLog(std::string filename, std::string message)
+{
+	// Log file to write to
+	std::ofstream eventLog;
+
+	// Open the filename provided (append mode)
+	eventLog.open(filename, std::ios_base::app);
+
+	// Write the message to the file
+	eventLog << message;
+
+	// Close the log file handle
+	eventLog.close();
+
+	// Success
+	return 0;
 }
 
 static bool saveOk = false;
@@ -560,21 +523,54 @@ static void LoadMileagedxp()
 	}
 }
 
-
 static int SaveGameData()
 {
 	if (!saveOk)
 		return 1;
+
+	writeLog(logfile, "[DEBUG] Saving game data ...\n");
+
+	// Address where player save data starts
+	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+
+	// Save story data
+
+	// Zero out save data binary
+	memset(saveDatadxp, 0, 0x2000);
+	writeLog(logfile, "[DEBUG] MEMSET OK\n");
+
+	// Address where the player story data starts
+	uintptr_t storySaveBase = *(uintptr_t*)(saveDataBase + 0x108);
+
+	writeLog(logfile, "[DEBUG] VALUE OK\n");
+
+	// Copy 340 nibbles to saveDatadxp from the story save data index
+	memcpy(saveDatadxp, (void*)storySaveBase, 0x340);
+	writeLog(logfile, "[DEBUG] MEMCPY OK\n");
+
+	// Open the OpenProgress save file binary
+	FILE* file = fopen("openprogress.sav", "wb");
+	writeLog(logfile, "[DEBUG] FOPEN OK\n");
+
+	// Write the full size of the saveDatadxp array
+	// (2000 nibbles) to the openprogress.sav file, 
+	// overwriting existing contents.
+	fwrite(saveDatadxp, 1, 0x2000, file);
+	writeLog(logfile, "[DEBUG] FWRITE OK\n");
+
+	// Close the openprogress file
+	fclose(file);
+	writeLog(logfile, "[DEBUG] FCLOSE OK\n");
+
+	writeLog(logfile, "[DEBUG] STORY SAVE OK\n");
 
 	// Car Profile saving
 	memset(carDatadxp, 0, 0xFF);
 	memset(carFileNamedxp, 0, 0xFF);
 
 	//new multilevel
-	uintptr_t carSaveBase = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
+	uintptr_t carSaveBase = *(uintptr_t*)(saveDataBase + 0x268);
 
-	//memcpy(carData + 0x00, (void*)(carSaveBase + 0xAC), 0x1);
-	//memcpy(carData + 0x01, (void*)(carSaveBase + 0xB8), 0x1); //successfully dumped power and handling!
 	memcpy(carDatadxp + 0x00, (void*)(carSaveBase + 0x0), 0xFF); //dumps whole region
 
 
@@ -589,220 +585,83 @@ static int SaveGameData()
 		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
 	}
 
-	FILE* file = fopen(carFileNamedxp, "wb");
-	fwrite(carDatadxp, 1, 0xFF, file);
-	fclose(file);
+	FILE* carFile = fopen(carFileNamedxp, "wb");
+	fwrite(carDatadxp, 1, 0xFF, carFile);
+	fclose(carFile);
 
 	saveMileagedxp();
 
 	saveOk = false;
 	return 1;
-
-	/*
-	memset(saveData, 0, 0x2000);
-	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-	value = *(uintptr_t*)(value + 0x108);
-	memcpy(saveData, (void *)value, 0x340);
-	FILE* file = fopen("openprogress.sav", "wb");
-	fwrite(saveData, 1, 0x2000, file);
-	fclose(file);
-
-	// Car Profile saving
-	memset(carData, 0, 0xFF);
-	memset(carFileNamedxp, 0, 0xFF);
-	memcpy(carData, (void *)*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18), 0xE0);
-	CreateDirectoryA("OpenParrot_Cars", nullptr);
-	if(customCardxp)
-	{
-		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\custom.car");
-	}
-	else
-	{
-		sprintf(carFileNamedxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
-	}
-	FILE *carSave = fopen(carFileNamedxp, "wb");
-	fwrite(carData, 1, 0xE0, file);
-	fclose(carSave);
-	//SaveStoryData();
-	//SaveCampaingHonorData();
-	//SaveStoryModeNoLoseHonorData();
-	//SaveOtherHonorData();
-	//SaveCampaingHonorData2();
-	saveOk = false;
-	return 1;
-	*/
 }
 
 uintptr_t saveGameOffsetdxp;
 
-//static int LoadCampaingHonorData2()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("CampaignHonorData.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x2698;
-//			memcpy((void *)value, saveData, 0x48);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-//
-//static int LoadOtherHonorData()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("OtherHonorData.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x2A90;
-//			memcpy((void *)value, saveData, 0x60);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-//
-//static int LoadStoryModeNoLoseHonorData()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("StoryModeNoLoseHonorData.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x2C80;
-//			//memcpy((void *)value, saveData, 0x10);
-//			value += 0x18;
-//			memcpy((void *)value, saveData, 0x28);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-//
-//static int LoadCampaingHonorData()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("campaing.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x24E0;
-//			memcpy((void *)value, saveData, 0xB8);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-//
-//static int LoadStoryData()
-//{
-//	memset(saveData, 0x0, 0x1000);
-//	FILE* file = fopen(V("story.sav"), V("rb"));
-//	if (file)
-//	{
-//		fseek(file, 0, SEEK_END);
-//		int fsize = ftell(file);
-//		if (fsize == 0x100)
-//		{
-//			fseek(file, 0, SEEK_SET);
-//			fread(saveData, fsize, 1, file);
-//			uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
-//			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-//			value += 0x25F0;
-//			memcpy((void *)value, saveData, 0x98);
-//		}
-//		fclose(file);
-//	}
-//	return 1;
-//}
-
 static int LoadGameData()
 {
 	saveOk = false;
+	
+	// Zero out the save data array
 	memset(saveDatadxp, 0x0, 0x2000);
+
+	// Address where player save data starts
+	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+
+	// Open the openprogress file with read privileges	
 	FILE* file = fopen("openprogress.sav", "rb");
+
+	// If the file exists
 	if (file)
 	{
+		// Get all of the contents from the file
 		fseek(file, 0, SEEK_END);
+
+		// Get the size of the file
 		int fsize = ftell(file);
+
+		// If the file has 2000 nibbles (correct size)
 		if (fsize == 0x2000)
 		{
+			// Reset seek index to start
 			fseek(file, 0, SEEK_SET);
+
+			// Read all of the contents of the file into saveDatadxp
 			fread(saveDatadxp, fsize, 1, file);
-			uintptr_t value = *(uintptr_t*)(imageBasedxplus + 0x1948F10);
-			value = *(uintptr_t*)(value + 0x108);
+
+			// Story save data offset
+			uintptr_t storyOffset = *(uintptr_t*)(saveDataBase + 0x108);
 
 			// First page
-			//memcpy((void *)(value), saveData, 0x48);
-			memcpy((void *)(value + 0x10), saveDatadxp + 0x10, 0x20);
-			memcpy((void *)(value + 0x40), saveDatadxp + 0x40, 0x08);
-			//memcpy((void *)(value + 0x48 + 8), saveData + 0x48 + 8, 0x20);
-			memcpy((void *)(value + 0x48 + 8), saveDatadxp + 0x48 + 8, 0x08);
-			memcpy((void *)(value + 0x48 + 24), saveDatadxp + 0x48 + 24, 0x08);
-			memcpy((void *)(value + 0x48 + 32), saveDatadxp + 0x48 + 32, 0x08);
+			memcpy((void *)(storyOffset + 0x10), saveDatadxp + 0x10, 0x20);
+			memcpy((void *)(storyOffset + 0x40), saveDatadxp + 0x40, 0x08);
+			memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x48 + 8, 0x08);
+			memcpy((void *)(storyOffset + 0x48 + 24), saveDatadxp + 0x48 + 24, 0x08);
+			memcpy((void *)(storyOffset + 0x48 + 32), saveDatadxp + 0x48 + 32, 0x08);
 
 			// Second page
-			value += 0x110;
-			memcpy((void *)(value), saveDatadxp + 0x110, 0x90);
-			value -= 0x110;
+			storyOffset += 0x110;
+			memcpy((void *)(storyOffset), saveDatadxp + 0x110, 0x90);
+			storyOffset -= 0x110;
 
 			// Third Page
-			value += 0x1B8;
-			memcpy((void *)(value), saveDatadxp + 0x1B8, 0x48);
-			memcpy((void *)(value + 0x48 + 8), saveDatadxp + 0x1B8 + 0x48 + 8, 0x28);
-			value -= 0x1B8;
+			storyOffset += 0x1B8;
+			memcpy((void *)(storyOffset), saveDatadxp + 0x1B8, 0x48);
+			memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x1B8 + 0x48 + 8, 0x28);
+			storyOffset -= 0x1B8;
 
 			// Fourth page
-			value += 0x240;
-			memcpy((void *)(value), saveDatadxp + 0x240, 0x68);
-			value -= 0x240;
+			storyOffset += 0x240;
+			memcpy((void *)(storyOffset), saveDatadxp + 0x240, 0x68);
+			storyOffset -= 0x240;
 
 			// Fifth page
-			value += 0x2B8;
-			memcpy((void *)(value), saveDatadxp + 0x2B8, 0x88);
-			value -= 0x2B8;
+			storyOffset += 0x2B8;
+			memcpy((void *)(storyOffset), saveDatadxp + 0x2B8, 0x88);
+			storyOffset -= 0x2B8;
 
 			loadOkdxp = true;
 
-			//+ 0x80
-
-			//+ [0x340]
-
-			// [[[[0000000005CE5850] + 108] + 340] + 50] + 50
-			// [[[[0000000005CE5850] + 108] + 340] + 50] + 54
-			// wmn5r.exe + 1948BF8
-			//TA stuff
+			// Time Attack
 
 			//[[[[magic_rva]+108]+340]+50]
 
@@ -1247,6 +1106,7 @@ static InitFunction Wmmt5Func([]()
 		fclose(fileG);
 	}*/
 
+	writeLog(logfile, "[DEBUG] Starting emulation ...\n");
 
 	bool isTerminal = false;
 	if (ToBool(config["General"]["TerminalMode"]))
@@ -1263,6 +1123,7 @@ static InitFunction Wmmt5Func([]()
 
 	hookPort = "COM3";
 	imageBasedxplus = (uintptr_t)GetModuleHandleA(0);
+
 	MH_Initialize();
 
 	// Hook dongle funcs

@@ -5,6 +5,7 @@
 #include <Utility/Hooking.Patterns.h>
 #include <thread>
 #ifdef _M_AMD64
+
 #pragma optimize("", off)
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -425,6 +426,7 @@ unsigned int WINAPI Hook_bind(SOCKET s, const sockaddr *addr, int namelen) {
 
 
 unsigned char saveData[0x2000];
+
 // BASE: 0x24E0 
 // Campaing honor data: 2998, save 0xB8
 // Story Mode Honor data: 25F0, save 0x98
@@ -516,10 +518,14 @@ static int SaveGameData()
 	if (!saveOk)
 		return 1;
 
+	// Zero out save data binary
 	memset(saveData, 0, 0x2000);
+
+	// Get the hex address for the start of the save data block
 	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
 	value = *(uintptr_t*)(value + 0x108);
 	memcpy(saveData, (void *)value, 0x340);
+
 	FILE* file = fopen("openprogress.sav", "wb");
 	fwrite(saveData, 1, 0x2000, file);
 	fclose(file);
@@ -527,6 +533,7 @@ static int SaveGameData()
 	// Car Profile saving
 	memset(carData, 0, 0xFF);
 	memset(carFileName, 0, 0xFF);
+
 	memcpy(carData, (void *)*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18), 0xE0);
 	CreateDirectoryA("OpenParrot_Cars", nullptr);
 	if(customCar)
@@ -1150,6 +1157,7 @@ static InitFunction Wmmt5Func([]()
 
 	hookPort = "COM3";
 	imageBase = (uintptr_t)GetModuleHandleA(0);
+
 	MH_Initialize();
 
 	// Hook dongle funcs
@@ -1161,8 +1169,6 @@ static InitFunction Wmmt5Func([]()
 	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_109906.dll", "hasp_login", Hook_hasp_login, NULL);
 	MH_CreateHookApi(L"WS2_32", "bind", Hook_bind, reinterpret_cast<LPVOID*>(&pbind));
-
-
 
 	GenerateDongleData(isTerminal);
 
