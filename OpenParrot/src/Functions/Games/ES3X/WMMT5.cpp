@@ -678,10 +678,10 @@ static void LoadWmmt5CarData()
 				fseek(file, 0, SEEK_SET);
 				fread(carData, fsize, 1, file);
 				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
-				memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
+				// memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
 				// memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
 				// memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
-				// memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
+				memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
 				// memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 8);
 				// memcpy((void *)(carSaveLocation + 0x38), carData + 0x38, 8);
 				// memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 8);
