@@ -620,30 +620,48 @@ static int LoadGameData()
 			// Backup for storing the data BEFORE I write to memory
 			unsigned char saveDataPre[0x100];
 
+			writeLog(logfileDxp, "Backup for storing the data BEFORE I write to memory OK");
+
 			// Flash the pre-backup to all zeros
-			memset((void*)saveDataPre, 0, 0x100);
+			memset(saveDataPre, 0, 0x100);
+
+			writeLog(logfileDxp, "Flash the pre-backup to all zeros OK");
 
 			// Copy the existing data in the game to the array
-			memcpy((void*)saveDataPre, (void*)(storyOffset + 0x70), 0x100);
+			memcpy(saveDataPre, (void*)(storyOffset + 0x70), 0x100);
+
+			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
 			
 			// Dump the existing memory to disk
 			writeDump("memory_before.bin", saveDataPre, 0x100);
+
+			writeLog(logfileDxp, "Dump the existing memory to disk OK");
 
 			// Dump the data that is being copied to a file
 			writeDump("openprogress_test.sav", saveDatadxp + 0x70, 0x100);
 			memcpy((void*)(storyOffset + 0x70), saveDatadxp + 0x70, 0x100);
 
+			writeLog(logfileDxp, "Dump the data that is being copied to a file OK");
+
 			// Backup for storing the data AFTER I write to memory
 			unsigned char saveDataPost[0x100];
 
-			// Flash the pre-backup to all zeros
-			memset((void*)saveDataPre, 0, 0x100);
+			writeLog(logfileDxp, "Backup for storing the data AFTER I write to memory OK");
+
+			// Flash the post-backup to all zeros
+			memset(saveDataPost, 0, 0x100);
+
+			writeLog(logfileDxp, "Flash the post-backup to all zeros OK");
 
 			// Copy the existing data in the game to the array
-			memcpy((void*)saveDataPre, (void*)(storyOffset + 0x70), 0x100);
+			memcpy(saveDataPost, (void*)(storyOffset + 0x70), 0x100);
+
+			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
 
 			// Dump the existing memory to disk
-			writeDump("memory_after.bin", saveDataPre, 0x100);
+			writeDump("memory_after.bin", saveDataPost, 0x100);
+
+			writeLog(logfileDxp, "Dump the existing memory to disk OK");
 
 			// First page
 			//memcpy((void *)(storyOffset), saveDatadxp, 0x08);
