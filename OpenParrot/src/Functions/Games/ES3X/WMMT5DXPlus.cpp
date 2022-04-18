@@ -619,7 +619,7 @@ static int LoadGameData()
 
 			// Dump the data that is being copied to a file
 			writeDump("openprogress_test.sav", saveDatadxp + 0xE0, 0x10);
-			memcpy((void*)(storyOffset), saveDatadxp + 0xE0, 0x10);
+			memcpy((void*)(storyOffset + 0xE0), saveDatadxp + 0xE0, 0x10);
 
 			// First page
 			//memcpy((void *)(storyOffset), saveDatadxp, 0x08);
