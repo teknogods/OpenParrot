@@ -613,13 +613,13 @@ static int LoadGameData()
 			fread(saveDatadxp, fsize, 1, file);
 
 			// Story save data offset
-			uintptr_t storyOffset = *(uintptr_t*)(saveDataBase + 0x70);
+			uintptr_t storyOffset = *(uintptr_t*)(saveDataBase + 0x108);
 
 			// Try copying everything??? lmfao
-			memcpy((void*)(storyOffset), saveDatadxp + 0x70, 0x320);
+			memcpy((void*)(storyOffset), saveDatadxp, 0x340);
 
 			// Dump the data that is being copied to a file
-			writeDump("openprogress_test.sav", saveDatadxp + 0x70, 0x320);
+			writeDump("openprogress_test.sav", saveDatadxp, 0x340);
 
 			// First page
 			//memcpy((void *)(storyOffset), saveDatadxp, 0x08);
@@ -1136,6 +1136,9 @@ static InitFunction Wmmt5Func([]()
 
 		// Load car trigger
 		safeJMP(imageBasedxplus + 0x72AB90, loadCar);
+		
+		// Attempting to piggyback story load off load car
+		safeJMP(imageBasedxplus + 0x72AB90, LoadGameData);
 
 		// Save car trigger
 		injector::MakeNOP(imageBasedxplus + 0x376F76, 0x12);
