@@ -426,7 +426,7 @@ static DWORD WINAPI forceFullTune(void* pArguments)
 // **** String Variables
 
 // Debugging event log file
-std::string logfileDxp = "wmmt5dxp_errors.txt";
+// std::string logfileDxp = "wmmt5dxp_errors.txt";
 
 // writeLog(filename: String, message: String): Int
 // Given a filename string and a message string, appends
@@ -528,8 +528,6 @@ static int SaveGameData()
 {
 	if (!saveOk)
 		return 1;
-
-	writeLog(logfileDxp, "[DEBUG] Saving game data ...\n");
 
 	// Address where player save data starts
 	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
@@ -978,8 +976,6 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 // of required subprocesses.
 static InitFunction Wmmt5Func([]()
 {
-	writeLog(logfileDxp, "[DEBUG] Starting emulation ...\n");
-
 	// Records if terminal mode is enabled
 	bool isTerminal = false;
 

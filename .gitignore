@@ -1,6 +1,7 @@
 *.sln
 *.vcxproj
 *.vcxproj.filters
+*.commit-and-copy.ps1
 .vs/
 build/
 Debug/
