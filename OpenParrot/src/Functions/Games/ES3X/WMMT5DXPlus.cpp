@@ -613,10 +613,13 @@ static int LoadGameData()
 			fread(saveDatadxp, fsize, 1, file);
 
 			// Story save data offset
-			uintptr_t storyOffset = *(uintptr_t*)(saveDataBase + 0x108);
+			uintptr_t storyOffset = *(uintptr_t*)(saveDataBase + 0xE0);
+
+			// Try copying everything??? lmfao
+			memcpy((void*)(storyOffset), saveDatadxp, 0x24F);
 
 			// First page
-			memcpy((void *)(storyOffset), saveDatadxp, 0x08);
+			//memcpy((void *)(storyOffset), saveDatadxp, 0x08);
 			// memcpy((void *)(storyOffset + 0x40), saveDatadxp + 0x40, 0x08);
 			// memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x48 + 8, 0x08);
 			// memcpy((void *)(storyOffset + 0x48 + 24), saveDatadxp + 0x48 + 24, 0x08);
