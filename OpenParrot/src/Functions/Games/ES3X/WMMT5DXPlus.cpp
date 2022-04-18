@@ -617,9 +617,33 @@ static int LoadGameData()
 
 			// Try copying everything??? lmfao
 
+			// Backup for storing the data BEFORE I write to memory
+			unsigned char saveDataPre[0x100];
+
+			// Flash the pre-backup to all zeros
+			memset((void*)saveDataPre, 0, 0x100);
+
+			// Copy the existing data in the game to the array
+			memcpy((void*)saveDataPre, (void*)(storyOffset + 0x70), 0x100);
+			
+			// Dump the existing memory to disk
+			writeDump("memory_before.bin", saveDataPre, 0x100);
+
 			// Dump the data that is being copied to a file
 			writeDump("openprogress_test.sav", saveDatadxp + 0x70, 0x100);
 			memcpy((void*)(storyOffset + 0x70), saveDatadxp + 0x70, 0x100);
+
+			// Backup for storing the data AFTER I write to memory
+			unsigned char saveDataPost[0x100];
+
+			// Flash the pre-backup to all zeros
+			memset((void*)saveDataPre, 0, 0x100);
+
+			// Copy the existing data in the game to the array
+			memcpy((void*)saveDataPre, (void*)(storyOffset + 0x70), 0x100);
+
+			// Dump the existing memory to disk
+			writeDump("memory_after.bin", saveDataPre, 0x100);
 
 			// First page
 			//memcpy((void *)(storyOffset), saveDatadxp, 0x08);
