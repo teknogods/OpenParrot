@@ -439,14 +439,48 @@ static int writeLog(std::string filename, std::string message)
 	// Open the filename provided (append mode)
 	eventLog.open(filename, std::ios_base::app);
 
-	// Write the message to the file
-	eventLog << message;
+	// File open success
+	if (eventLog.is_open()) 
+	{
+		// Write the message to the file
+		eventLog << message;
 
-	// Close the log file handle
-	eventLog.close();
+		// Close the log file handle
+		eventLog.close();
 
-	// Success
-	return 0;
+		// Success
+		return 0;
+	}
+	else // File open failed
+	{
+		// Failure
+		return 1;
+	}
+}
+
+// writeDump(filename: Char*, data: unsigned char *, size: size_t): Int
+static int writeDump(char * filename, unsigned char * data, size_t size)
+{
+	// Open the file with the provided filename
+	FILE* file = fopen(filename, "wb");
+
+	// File opened successfully
+	if (file)
+	{
+		// Write the data to the file
+		fwrite((void*)data, 1, size, file);
+
+		// Close the file
+		fclose(file);
+
+		// Return success status
+		return 0;
+	}
+	else // Failed to open
+	{
+		// Return failure status
+		return 1;
+	}
 }
 
 static bool saveOk = false;
@@ -504,32 +538,15 @@ static int SaveGameData()
 
 	// Zero out save data binary
 	memset(saveDatadxp, 0, 0x2000);
-	writeLog(logfileDxp, "[DEBUG] MEMSET OK\n");
 
 	// Address where the player story data starts
 	uintptr_t storySaveBase = *(uintptr_t*)(saveDataBase + 0x108);
 
-	writeLog(logfileDxp, "[DEBUG] VALUE OK\n");
-
 	// Copy 340 nibbles to saveDatadxp from the story save data index
 	memcpy(saveDatadxp, (void*)storySaveBase, 0x340);
-	writeLog(logfileDxp, "[DEBUG] MEMCPY OK\n");
 
-	// Open the OpenProgress save file binary
-	FILE* file = fopen("openprogress.sav", "wb");
-	writeLog(logfileDxp, "[DEBUG] FOPEN OK\n");
-
-	// Write the full size of the saveDatadxp array
-	// (2000 nibbles) to the openprogress.sav file, 
-	// overwriting existing contents.
-	fwrite(saveDatadxp, 1, 0x2000, file);
-	writeLog(logfileDxp, "[DEBUG] FWRITE OK\n");
-
-	// Close the openprogress file
-	fclose(file);
-	writeLog(logfileDxp, "[DEBUG] FCLOSE OK\n");
-
-	writeLog(logfileDxp, "[DEBUG] STORY SAVE OK\n");
+	// Dump the save data to openprogress.sav
+	writeDump("openprogress.sav", saveDatadxp, 0x2000);
 
 	// Car Profile saving
 	memset(carDataDxp, 0, 0xFF);
