@@ -631,34 +631,26 @@ static void LoadWmmt5CarData()
 				fread(carData, fsize, 1, file);
 				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
 
-				// memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
-				// memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
-				// memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
-				// memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
-				memcpy((void*)(carSaveLocation + 0x30), carData + 0x30, 1); // Stock Colour
-				memcpy((void*)(carSaveLocation + 0x34), carData + 0x34, 1); // Custom Colour
-				memcpy((void*)(carSaveLocation + 0x38), carData + 0x38, 1); // Rims Type
-				memcpy((void*)(carSaveLocation + 0x3C), carData + 0x3C, 1); // Rims Colour
-				memcpy((void*)(carSaveLocation + 0x40), carData + 0x40, 1); // Aero Type
-				memcpy((void*)(carSaveLocation + 0x44), carData + 0x44, 1); // Hood Type
-				memcpy((void*)(carSaveLocation + 0x50), carData + 0x50, 1); // Wing Type
-				memcpy((void*)(carSaveLocation + 0x54), carData + 0x54, 1); // Mirror Type
-				memcpy((void*)(carSaveLocation + 0x58), carData + 0x58, 1); // Body Sticker Type
-				memcpy((void*)(carSaveLocation + 0x5C), carData + 0x5C, 1); // Body Sticker Variant
-				// memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
-				memcpy((void*)(carSaveLocation + 0x7C), carData + 0x7C, 1); // Neons
-				memcpy((void*)(carSaveLocation + 0x80), carData + 0x80, 1); // Trunk
-				memcpy((void*)(carSaveLocation + 0x84), carData + 0x80, 1); // Plate Frame
-				memcpy((void*)(carSaveLocation + 0x8A), carData + 0x8A, 1); // Plate Frame Colour
-				// memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
-				memcpy((void*)(carSaveLocation + 0x98), carData + 0x98, 1); // Power
-				memcpy((void*)(carSaveLocation + 0x9C), carData + 0x9C, 1); // Handling
-				memcpy((void*)(carSaveLocation + 0xA4), carData + 0xA4, 1); // Rank
-				// memcpy((void *)(carSaveLocation + 0xA8), carData + 0xA8, 8);
-				// memcpy((void *)(carSaveLocation + 0xB8), carData + 0xB8, 8);
-				// memcpy((void *)(carSaveLocation + 0xC8), carData + 0xC8, 8);
-				// memcpy((void *)(carSaveLocation + 0xD8), carData + 0xD8, 8);
-				//memcpy((void *)(carSaveLocation + 0xE0), carData + 0xE0, 8);
+				memcpy((void*)(carSaveLocation + 0x08), carData + 0x08, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x10), carData + 0x10, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x20), carData + 0x20, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x28), carData + 0x28, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x30), carData + 0x30, 8); // Stock Colour (0x30), Custom Colour (0x34)
+				memcpy((void*)(carSaveLocation + 0x38), carData + 0x38, 8); // Rims Type (0x38), Rims Colour (0x3C)
+				memcpy((void*)(carSaveLocation + 0x40), carData + 0x40, 8); // Aero Type (0x40), Hood Type (0x44)
+				memcpy((void*)(carSaveLocation + 0x50), carData + 0x50, 8); // Wing Type (0x50), Mirror Type (0x54)
+				memcpy((void*)(carSaveLocation + 0x58), carData + 0x58, 8); // Body Sticker Type (0x58), Variant (0x5C)
+				memcpy((void*)(carSaveLocation + 0x68), carData + 0x68, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x7C), carData + 0x7C, 1); // Neon Type
+				memcpy((void*)(carSaveLocation + 0x80), carData + 0x80, 8); // Trunk Colour (0x80), Plate Frame (0x84)
+				memcpy((void*)(carSaveLocation + 0x88), carData + 0x88, 8); // Plate Frame Colour (0x8A)
+				memcpy((void*)(carSaveLocation + 0x90), carData + 0x90, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x98), carData + 0x98, 8); // Power (0x98), Handling (0x9C)
+				memcpy((void*)(carSaveLocation + 0xA0), carData + 0xA0, 8); // Rank (0xA4)
+				memcpy((void*)(carSaveLocation + 0xA8), carData + 0xA8, 8); // ??
+				memcpy((void*)(carSaveLocation + 0xB8), carData + 0xB8, 8); // ??
+				memcpy((void*)(carSaveLocation + 0xC8), carData + 0xC8, 8); // ??
+				memcpy((void*)(carSaveLocation + 0xD8), carData + 0xD8, 8); // ??
 
 				customCar = true;
 			}
@@ -691,34 +683,26 @@ static void LoadWmmt5CarData()
 				fread(carData, fsize, 1, file);
 				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
 
-				// memcpy((void *)(carSaveLocation + 0x08), carData + 0x08, 8);
-				// memcpy((void *)(carSaveLocation + 0x10), carData + 0x10, 8);
-				// memcpy((void *)(carSaveLocation + 0x20), carData + 0x20, 8);
-				// memcpy((void *)(carSaveLocation + 0x28), carData + 0x28, 8);
-				memcpy((void *)(carSaveLocation + 0x30), carData + 0x30, 1); // Stock Colour
-				memcpy((void *)(carSaveLocation + 0x34), carData + 0x34, 1); // Custom Colour
-				memcpy((void*)(carSaveLocation + 0x38), carData + 0x38, 1); // Rims Type
-				memcpy((void *)(carSaveLocation + 0x3C), carData + 0x3C, 1); // Rims Colour
-				memcpy((void *)(carSaveLocation + 0x40), carData + 0x40, 1); // Aero Type
-				memcpy((void *)(carSaveLocation + 0x44), carData + 0x44, 1); // Hood Type
-				memcpy((void *)(carSaveLocation + 0x50), carData + 0x50, 1); // Wing Type
-				memcpy((void *)(carSaveLocation + 0x54), carData + 0x54, 1); // Mirror Type
-				memcpy((void *)(carSaveLocation + 0x58), carData + 0x58, 1); // Body Sticker Type
-				memcpy((void *)(carSaveLocation + 0x5C), carData + 0x5C, 1); // Body Sticker Variant
-				// memcpy((void *)(carSaveLocation + 0x68), carData + 0x68, 8);
-				memcpy((void *)(carSaveLocation + 0x7C), carData + 0x7C, 1); // Neons
-				memcpy((void *)(carSaveLocation + 0x80), carData + 0x80, 1); // Trunk
-				memcpy((void *)(carSaveLocation + 0x84), carData + 0x80, 1); // Plate Frame
-				memcpy((void *)(carSaveLocation + 0x8A), carData + 0x8A, 1); // Plate Frame Colour
-				// memcpy((void *)(carSaveLocation + 0x90), carData + 0x90, 8);
-				memcpy((void *)(carSaveLocation + 0x98), carData + 0x98, 1); // Power
-				memcpy((void *)(carSaveLocation + 0x9C), carData + 0x9C, 1); // Handling
-				memcpy((void *)(carSaveLocation + 0xA4), carData + 0xA4, 1); // Rank
-				// memcpy((void *)(carSaveLocation + 0xA8), carData + 0xA8, 8);
-				// memcpy((void *)(carSaveLocation + 0xB8), carData + 0xB8, 8);
-				// memcpy((void *)(carSaveLocation + 0xC8), carData + 0xC8, 8);
-				// memcpy((void *)(carSaveLocation + 0xD8), carData + 0xD8, 8);
-				//memcpy((void *)(carSaveLocation + 0xE0), carData + 0xE0, 8);
+				memcpy((void*)(carSaveLocation + 0x08), carData + 0x08, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x10), carData + 0x10, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x20), carData + 0x20, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x28), carData + 0x28, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x30), carData + 0x30, 8); // Stock Colour (0x30), Custom Colour (0x34)
+				memcpy((void*)(carSaveLocation + 0x38), carData + 0x38, 8); // Rims Type (0x38), Rims Colour (0x3C)
+				memcpy((void*)(carSaveLocation + 0x40), carData + 0x40, 8); // Aero Type (0x40), Hood Type (0x44)
+				memcpy((void*)(carSaveLocation + 0x50), carData + 0x50, 8); // Wing Type (0x50), Mirror Type (0x54)
+				memcpy((void*)(carSaveLocation + 0x58), carData + 0x58, 8); // Body Sticker Type (0x58), Variant (0x5C)
+				memcpy((void*)(carSaveLocation + 0x68), carData + 0x68, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x7C), carData + 0x7C, 1); // Neon Type
+				memcpy((void*)(carSaveLocation + 0x80), carData + 0x80, 8); // Trunk Colour (0x80), Plate Frame (0x84)
+				memcpy((void*)(carSaveLocation + 0x88), carData + 0x88, 8); // Plate Frame Colour (0x8A)
+				memcpy((void*)(carSaveLocation + 0x90), carData + 0x90, 8); // ??
+				memcpy((void*)(carSaveLocation + 0x98), carData + 0x98, 8); // Power (0x98), Handling (0x9C)
+				memcpy((void*)(carSaveLocation + 0xA0), carData + 0xA0, 8); // Rank (0xA4)
+				memcpy((void*)(carSaveLocation + 0xA8), carData + 0xA8, 8); // ??
+				memcpy((void*)(carSaveLocation + 0xB8), carData + 0xB8, 8); // ??
+				memcpy((void*)(carSaveLocation + 0xC8), carData + 0xC8, 8); // ??
+				memcpy((void*)(carSaveLocation + 0xD8), carData + 0xD8, 8); // ??
 			}
 			fclose(file);
 		}

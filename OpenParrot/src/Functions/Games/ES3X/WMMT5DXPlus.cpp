@@ -583,6 +583,7 @@ uintptr_t saveGameOffsetdxp;
 
 static int LoadGameData()
 {
+	// Disable saving
 	saveOk = false;
 	
 	// Zero out the save data array
@@ -615,100 +616,21 @@ static int LoadGameData()
 			// Story save data offset
 			uintptr_t storyOffset = *(uintptr_t*)(saveDataBase + 0x108);
 
-			// Try copying everything??? lmfao
-
-			// Backup for storing the data BEFORE I write to memory
-			unsigned char saveDataPre[0x340];
-
-			writeLog(logfileDxp, "Backup for storing the data BEFORE I write to memory OK");
-
-			// Flash the pre-backup to all zeros
-			memset(saveDataPre, 0, 0x340);
-
-			writeLog(logfileDxp, "Flash the pre-backup to all zeros OK");
-
-			// Copy the existing data in the game to the array
-			memcpy(saveDataPre, (void*)(storyOffset), 0x340);
-
-			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
-			
-			// Dump the existing memory to disk
-			writeDump("memory_before.bin", saveDataPre, 0x340);
-
-			writeLog(logfileDxp, "Dump the existing memory to disk OK");
-
-			// Dump the data that is being copied to a file
-			// writeDump("openprogress_test.sav", saveDatadxp + 0x70, 0x100);
-			// memcpy((void*)(storyOffset + 0x70), saveDatadxp + 0x70, 0x100);
-
-			// memcpy((void*)(storyOffset + 0x7C), saveDatadxp + 0x7C, 0x1); // Not sure
-			// memcpy((void*)(storyOffset + 0xE0), saveDatadxp + 0xE0, 0x1); // Not sure
-			// memcpy((void*)(storyOffset + 0xE4), saveDatadxp + 0xE4, 0x1); // Not sure
-			// memcpy((void*)(storyOffset + 0xEC), saveDatadxp + 0xEC, 0x1); // Not sure
-			// memcpy((void*)(storyOffset + 0xEC), saveDatadxp + 0xEC, 0x1); // Not sure
-			// memcpy((void*)(storyOffset + 0x10C), saveDatadxp + 0x10C, 0x1); // Not sure
-
 			// Not sure why, but story doesn't load unless I add this
 			memcpy((void*)(storyOffset + 0x48), saveDatadxp + 0x48, 0x1);
 
 			// Pretty sure this is the whole save file region, but need to test more :)
 			memcpy((void*)(storyOffset + 0xE0), saveDatadxp + 0xE0, 0x80);
 
-			writeLog(logfileDxp, "Dump the data that is being copied to a file OK");
-
-			// Backup for storing the data AFTER I write to memory
-			unsigned char saveDataPost[0x340];
-
-			writeLog(logfileDxp, "Backup for storing the data AFTER I write to memory OK");
-
-			// Flash the post-backup to all zeros
-			memset(saveDataPost, 0, 0x340);
-
-			writeLog(logfileDxp, "Flash the post-backup to all zeros OK");
-
-			// Copy the existing data in the game to the array
-			memcpy(saveDataPost, (void*)(storyOffset), 0x340);
-
-			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
-
-			// Dump the existing memory to disk
-			writeDump("memory_after.bin", saveDataPost, 0x340);
-
-			writeLog(logfileDxp, "Dump the existing memory to disk OK");
-
-			// First page
-			//memcpy((void *)(storyOffset), saveDatadxp, 0x08);
-			// memcpy((void *)(storyOffset + 0x40), saveDatadxp + 0x40, 0x08);
-			// memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x48 + 8, 0x08);
-			// memcpy((void *)(storyOffset + 0x48 + 24), saveDatadxp + 0x48 + 24, 0x08);
-			// memcpy((void *)(storyOffset + 0x48 + 32), saveDatadxp + 0x48 + 32, 0x08);
-
-			// Second page
-			// storyOffset += 0x110;
-			// memcpy((void *)(storyOffset), saveDatadxp + 0x110, 0x90);
-			// storyOffset -= 0x110;
-
-			// Third Page
-			// storyOffset += 0x1B8;
-			// memcpy((void *)(storyOffset), saveDatadxp + 0x1B8, 0x48);
-			// memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x1B8 + 0x48 + 8, 0x28);
-			// storyOffset -= 0x1B8;
-
-			// Fourth page
-			// storyOffset += 0x240;
-			// memcpy((void *)(storyOffset), saveDatadxp + 0x240, 0x68);
-			// storyOffset -= 0x240;
-
-			// Fifth page
-			// storyOffset += 0x2B8;
-			// memcpy((void *)(storyOffset), saveDatadxp + 0x2B8, 0x88);
-			// storyOffset -= 0x2B8;
-
+			// Save data loaded successfully
 			loadOkDxp = true;
 		}
+
+		// Close the save file
 		fclose(file);
 	}
 
+	// Success status
 	return 1;
 }
 
