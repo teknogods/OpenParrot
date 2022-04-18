@@ -1139,7 +1139,7 @@ static InitFunction Wmmt5Func([]()
 		// skip erasing of temp card data
 		injector::WriteMemory<uint8_t>(imageBase + 0x8DEBC3, 0xEB, true);
 		// Skip erasing of temp card
-		safeJMP(imageBase + 0x54DCE1, LoadGameData);
+		// safeJMP(imageBase + 0x54DCE1, LoadGameData);
 		safeJMP(imageBase + 0x5612F0, ReturnTrue);
 		safeJMP(imageBase + 0x5753C0, ReturnTrue);
 		safeJMP(imageBase + 0x57DF10, ReturnTrue);
@@ -1157,8 +1157,9 @@ static InitFunction Wmmt5Func([]()
 		safeJMP(imageBase + 0x5507A0, ReturnTrue);
 		safeJMP(imageBase + 0x561290, ReturnTrue);
 
-		safeJMP(imageBase + 0x5A0AE8, LoadWmmt5CarData);
-
+		// safeJMP(imageBase + 0x5A0AE8, LoadWmmt5CarData);
+		safeJMP(imageBase + 0x5A0AE8, LoadGameData);
+		
 		// crash fix
 		//safeJMP(imageBase + 0xAD6F28, WmmtOperatorDelete);
 		//safeJMP(imageBase + 0xAD6F4C, WmmtMemset);
