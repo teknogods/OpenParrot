@@ -628,7 +628,7 @@ static int LoadGameData()
 			writeLog(logfileDxp, "Flash the pre-backup to all zeros OK");
 
 			// Copy the existing data in the game to the array
-			memcpy(saveDataPre, (void*)(storyOffset + 0x100), 0x100);
+			memcpy(saveDataPre, (void*)(storyOffset + 0x70), 0x100);
 
 			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
 			
@@ -639,7 +639,7 @@ static int LoadGameData()
 
 			// Dump the data that is being copied to a file
 			writeDump("openprogress_test.sav", saveDatadxp + 0x70, 0x100);
-			memcpy((void*)(storyOffset + 0x100), saveDatadxp + 0x70, 0x100);
+			memcpy((void*)(storyOffset + 0x70), saveDatadxp + 0x70, 0x100);
 
 			writeLog(logfileDxp, "Dump the data that is being copied to a file OK");
 
@@ -654,7 +654,7 @@ static int LoadGameData()
 			writeLog(logfileDxp, "Flash the post-backup to all zeros OK");
 
 			// Copy the existing data in the game to the array
-			memcpy(saveDataPost, (void*)(storyOffset + 0x100), 0x100);
+			memcpy(saveDataPost, (void*)(storyOffset + 0x70), 0x100);
 
 			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
 
