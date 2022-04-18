@@ -616,32 +616,32 @@ static int LoadGameData()
 			uintptr_t storyOffset = *(uintptr_t*)(saveDataBase + 0x108);
 
 			// First page
-			memcpy((void *)(storyOffset + 0x10), saveDatadxp + 0x10, 0x20);
-			memcpy((void *)(storyOffset + 0x40), saveDatadxp + 0x40, 0x08);
-			memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x48 + 8, 0x08);
-			memcpy((void *)(storyOffset + 0x48 + 24), saveDatadxp + 0x48 + 24, 0x08);
-			memcpy((void *)(storyOffset + 0x48 + 32), saveDatadxp + 0x48 + 32, 0x08);
+			memcpy((void *)(storyOffset), saveDatadxp, 0x08);
+			// memcpy((void *)(storyOffset + 0x40), saveDatadxp + 0x40, 0x08);
+			// memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x48 + 8, 0x08);
+			// memcpy((void *)(storyOffset + 0x48 + 24), saveDatadxp + 0x48 + 24, 0x08);
+			// memcpy((void *)(storyOffset + 0x48 + 32), saveDatadxp + 0x48 + 32, 0x08);
 
 			// Second page
-			storyOffset += 0x110;
-			memcpy((void *)(storyOffset), saveDatadxp + 0x110, 0x90);
-			storyOffset -= 0x110;
+			// storyOffset += 0x110;
+			// memcpy((void *)(storyOffset), saveDatadxp + 0x110, 0x90);
+			// storyOffset -= 0x110;
 
 			// Third Page
-			storyOffset += 0x1B8;
-			memcpy((void *)(storyOffset), saveDatadxp + 0x1B8, 0x48);
-			memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x1B8 + 0x48 + 8, 0x28);
-			storyOffset -= 0x1B8;
+			// storyOffset += 0x1B8;
+			// memcpy((void *)(storyOffset), saveDatadxp + 0x1B8, 0x48);
+			// memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x1B8 + 0x48 + 8, 0x28);
+			// storyOffset -= 0x1B8;
 
 			// Fourth page
-			storyOffset += 0x240;
-			memcpy((void *)(storyOffset), saveDatadxp + 0x240, 0x68);
-			storyOffset -= 0x240;
+			// storyOffset += 0x240;
+			// memcpy((void *)(storyOffset), saveDatadxp + 0x240, 0x68);
+			// storyOffset -= 0x240;
 
 			// Fifth page
-			storyOffset += 0x2B8;
-			memcpy((void *)(storyOffset), saveDatadxp + 0x2B8, 0x88);
-			storyOffset -= 0x2B8;
+			// storyOffset += 0x2B8;
+			// memcpy((void *)(storyOffset), saveDatadxp + 0x2B8, 0x88);
+			// storyOffset -= 0x2B8;
 
 			loadOkDxp = true;
 		}
