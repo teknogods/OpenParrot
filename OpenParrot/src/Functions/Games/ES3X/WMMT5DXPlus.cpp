@@ -618,22 +618,22 @@ static int LoadGameData()
 			// Try copying everything??? lmfao
 
 			// Backup for storing the data BEFORE I write to memory
-			unsigned char saveDataPre[0x100];
+			unsigned char saveDataPre[0x340];
 
 			writeLog(logfileDxp, "Backup for storing the data BEFORE I write to memory OK");
 
 			// Flash the pre-backup to all zeros
-			memset(saveDataPre, 0, 0x100);
+			memset(saveDataPre, 0, 0x340);
 
 			writeLog(logfileDxp, "Flash the pre-backup to all zeros OK");
 
 			// Copy the existing data in the game to the array
-			memcpy(saveDataPre, (void*)(storyOffset + 0x70), 0x100);
+			memcpy(saveDataPre, (void*)(storyOffset), 0x340);
 
 			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
 			
 			// Dump the existing memory to disk
-			writeDump("memory_before.bin", saveDataPre, 0x100);
+			writeDump("memory_before.bin", saveDataPre, 0x340);
 
 			writeLog(logfileDxp, "Dump the existing memory to disk OK");
 
@@ -644,22 +644,22 @@ static int LoadGameData()
 			writeLog(logfileDxp, "Dump the data that is being copied to a file OK");
 
 			// Backup for storing the data AFTER I write to memory
-			unsigned char saveDataPost[0x100];
+			unsigned char saveDataPost[0x340];
 
 			writeLog(logfileDxp, "Backup for storing the data AFTER I write to memory OK");
 
 			// Flash the post-backup to all zeros
-			memset(saveDataPost, 0, 0x100);
+			memset(saveDataPost, 0, 0x340);
 
 			writeLog(logfileDxp, "Flash the post-backup to all zeros OK");
 
 			// Copy the existing data in the game to the array
-			memcpy(saveDataPost, (void*)(storyOffset + 0x70), 0x100);
+			memcpy(saveDataPost, (void*)(storyOffset), 0x340);
 
 			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
 
 			// Dump the existing memory to disk
-			writeDump("memory_after.bin", saveDataPost, 0x100);
+			writeDump("memory_after.bin", saveDataPost, 0x340);
 
 			writeLog(logfileDxp, "Dump the existing memory to disk OK");
 
