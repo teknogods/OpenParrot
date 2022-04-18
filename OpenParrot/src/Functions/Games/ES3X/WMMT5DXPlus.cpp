@@ -618,8 +618,8 @@ static int LoadGameData()
 			// Try copying everything??? lmfao
 
 			// Dump the data that is being copied to a file
-			writeDump("openprogress_test.sav", saveDatadxp + 0xE0, 0x80);
-			memcpy((void*)(storyOffset + 0xE0), saveDatadxp + 0xE0, 0x80);
+			writeDump("openprogress_test.sav", saveDatadxp + 0x70, 0x100);
+			memcpy((void*)(storyOffset + 0x70), saveDatadxp + 0x70, 0x100);
 
 			// First page
 			//memcpy((void *)(storyOffset), saveDatadxp, 0x08);
