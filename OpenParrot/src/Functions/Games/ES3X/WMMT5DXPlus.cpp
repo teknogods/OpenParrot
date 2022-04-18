@@ -616,7 +616,10 @@ static int LoadGameData()
 			uintptr_t storyOffset = *(uintptr_t*)(saveDataBase + 0x70);
 
 			// Try copying everything??? lmfao
-			memcpy((void*)(storyOffset), saveDatadxp, 0x320);
+			memcpy((void*)(storyOffset), saveDatadxp + 0x70, 0x320);
+
+			// Dump the data that is being copied to a file
+			writeDump("openprogress_test.sav", saveDatadxp + 0x70, 0x320);
 
 			// First page
 			//memcpy((void *)(storyOffset), saveDatadxp, 0x08);
