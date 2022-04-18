@@ -1158,7 +1158,7 @@ static InitFunction Wmmt5Func([]()
 		safeJMP(imageBase + 0x561290, ReturnTrue);
 
 		safeJMP(imageBase + 0x5A0AE8, LoadWmmt5CarData);
-
+		
 		// crash fix
 		//safeJMP(imageBase + 0xAD6F28, WmmtOperatorDelete);
 		//safeJMP(imageBase + 0xAD6F4C, WmmtMemset);

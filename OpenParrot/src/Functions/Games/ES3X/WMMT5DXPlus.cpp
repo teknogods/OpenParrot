@@ -439,14 +439,48 @@ static int writeLog(std::string filename, std::string message)
 	// Open the filename provided (append mode)
 	eventLog.open(filename, std::ios_base::app);
 
-	// Write the message to the file
-	eventLog << message;
+	// File open success
+	if (eventLog.is_open()) 
+	{
+		// Write the message to the file
+		eventLog << message;
 
-	// Close the log file handle
-	eventLog.close();
+		// Close the log file handle
+		eventLog.close();
 
-	// Success
-	return 0;
+		// Success
+		return 0;
+	}
+	else // File open failed
+	{
+		// Failure
+		return 1;
+	}
+}
+
+// writeDump(filename: Char*, data: unsigned char *, size: size_t): Int
+static int writeDump(char * filename, unsigned char * data, size_t size)
+{
+	// Open the file with the provided filename
+	FILE* file = fopen(filename, "wb");
+
+	// File opened successfully
+	if (file)
+	{
+		// Write the data to the file
+		fwrite((void*)data, 1, size, file);
+
+		// Close the file
+		fclose(file);
+
+		// Return success status
+		return 0;
+	}
+	else // Failed to open
+	{
+		// Return failure status
+		return 1;
+	}
 }
 
 static bool saveOk = false;
@@ -504,32 +538,15 @@ static int SaveGameData()
 
 	// Zero out save data binary
 	memset(saveDatadxp, 0, 0x2000);
-	writeLog(logfileDxp, "[DEBUG] MEMSET OK\n");
 
 	// Address where the player story data starts
 	uintptr_t storySaveBase = *(uintptr_t*)(saveDataBase + 0x108);
 
-	writeLog(logfileDxp, "[DEBUG] VALUE OK\n");
-
 	// Copy 340 nibbles to saveDatadxp from the story save data index
 	memcpy(saveDatadxp, (void*)storySaveBase, 0x340);
-	writeLog(logfileDxp, "[DEBUG] MEMCPY OK\n");
 
-	// Open the OpenProgress save file binary
-	FILE* file = fopen("openprogress.sav", "wb");
-	writeLog(logfileDxp, "[DEBUG] FOPEN OK\n");
-
-	// Write the full size of the saveDatadxp array
-	// (2000 nibbles) to the openprogress.sav file, 
-	// overwriting existing contents.
-	fwrite(saveDatadxp, 1, 0x2000, file);
-	writeLog(logfileDxp, "[DEBUG] FWRITE OK\n");
-
-	// Close the openprogress file
-	fclose(file);
-	writeLog(logfileDxp, "[DEBUG] FCLOSE OK\n");
-
-	writeLog(logfileDxp, "[DEBUG] STORY SAVE OK\n");
+	// Dump the save data to openprogress.sav
+	writeDump("openprogress.sav", saveDatadxp, 0x2000);
 
 	// Car Profile saving
 	memset(carDataDxp, 0, 0xFF);
@@ -598,33 +615,94 @@ static int LoadGameData()
 			// Story save data offset
 			uintptr_t storyOffset = *(uintptr_t*)(saveDataBase + 0x108);
 
+			// Try copying everything??? lmfao
+
+			// Backup for storing the data BEFORE I write to memory
+			unsigned char saveDataPre[0x340];
+
+			writeLog(logfileDxp, "Backup for storing the data BEFORE I write to memory OK");
+
+			// Flash the pre-backup to all zeros
+			memset(saveDataPre, 0, 0x340);
+
+			writeLog(logfileDxp, "Flash the pre-backup to all zeros OK");
+
+			// Copy the existing data in the game to the array
+			memcpy(saveDataPre, (void*)(storyOffset), 0x340);
+
+			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
+			
+			// Dump the existing memory to disk
+			writeDump("memory_before.bin", saveDataPre, 0x340);
+
+			writeLog(logfileDxp, "Dump the existing memory to disk OK");
+
+			// Dump the data that is being copied to a file
+			// writeDump("openprogress_test.sav", saveDatadxp + 0x70, 0x100);
+			// memcpy((void*)(storyOffset + 0x70), saveDatadxp + 0x70, 0x100);
+
+			// memcpy((void*)(storyOffset + 0x7C), saveDatadxp + 0x7C, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0xE0), saveDatadxp + 0xE0, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0xE4), saveDatadxp + 0xE4, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0xEC), saveDatadxp + 0xEC, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0xEC), saveDatadxp + 0xEC, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0x10C), saveDatadxp + 0x10C, 0x1); // Not sure
+
+			// Not sure why, but story doesn't load unless I add this
+			memcpy((void*)(storyOffset + 0x48), saveDatadxp + 0x48, 0x1);
+
+			// Pretty sure this is the whole save file region, but need to test more :)
+			memcpy((void*)(storyOffset + 0xE0), saveDatadxp + 0xE0, 0x80);
+
+			writeLog(logfileDxp, "Dump the data that is being copied to a file OK");
+
+			// Backup for storing the data AFTER I write to memory
+			unsigned char saveDataPost[0x340];
+
+			writeLog(logfileDxp, "Backup for storing the data AFTER I write to memory OK");
+
+			// Flash the post-backup to all zeros
+			memset(saveDataPost, 0, 0x340);
+
+			writeLog(logfileDxp, "Flash the post-backup to all zeros OK");
+
+			// Copy the existing data in the game to the array
+			memcpy(saveDataPost, (void*)(storyOffset), 0x340);
+
+			writeLog(logfileDxp, "Copy the existing data in the game to the array OK");
+
+			// Dump the existing memory to disk
+			writeDump("memory_after.bin", saveDataPost, 0x340);
+
+			writeLog(logfileDxp, "Dump the existing memory to disk OK");
+
 			// First page
-			memcpy((void *)(storyOffset + 0x10), saveDatadxp + 0x10, 0x20);
-			memcpy((void *)(storyOffset + 0x40), saveDatadxp + 0x40, 0x08);
-			memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x48 + 8, 0x08);
-			memcpy((void *)(storyOffset + 0x48 + 24), saveDatadxp + 0x48 + 24, 0x08);
-			memcpy((void *)(storyOffset + 0x48 + 32), saveDatadxp + 0x48 + 32, 0x08);
+			//memcpy((void *)(storyOffset), saveDatadxp, 0x08);
+			// memcpy((void *)(storyOffset + 0x40), saveDatadxp + 0x40, 0x08);
+			// memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x48 + 8, 0x08);
+			// memcpy((void *)(storyOffset + 0x48 + 24), saveDatadxp + 0x48 + 24, 0x08);
+			// memcpy((void *)(storyOffset + 0x48 + 32), saveDatadxp + 0x48 + 32, 0x08);
 
 			// Second page
-			storyOffset += 0x110;
-			memcpy((void *)(storyOffset), saveDatadxp + 0x110, 0x90);
-			storyOffset -= 0x110;
+			// storyOffset += 0x110;
+			// memcpy((void *)(storyOffset), saveDatadxp + 0x110, 0x90);
+			// storyOffset -= 0x110;
 
 			// Third Page
-			storyOffset += 0x1B8;
-			memcpy((void *)(storyOffset), saveDatadxp + 0x1B8, 0x48);
-			memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x1B8 + 0x48 + 8, 0x28);
-			storyOffset -= 0x1B8;
+			// storyOffset += 0x1B8;
+			// memcpy((void *)(storyOffset), saveDatadxp + 0x1B8, 0x48);
+			// memcpy((void *)(storyOffset + 0x48 + 8), saveDatadxp + 0x1B8 + 0x48 + 8, 0x28);
+			// storyOffset -= 0x1B8;
 
 			// Fourth page
-			storyOffset += 0x240;
-			memcpy((void *)(storyOffset), saveDatadxp + 0x240, 0x68);
-			storyOffset -= 0x240;
+			// storyOffset += 0x240;
+			// memcpy((void *)(storyOffset), saveDatadxp + 0x240, 0x68);
+			// storyOffset -= 0x240;
 
 			// Fifth page
-			storyOffset += 0x2B8;
-			memcpy((void *)(storyOffset), saveDatadxp + 0x2B8, 0x88);
-			storyOffset -= 0x2B8;
+			// storyOffset += 0x2B8;
+			// memcpy((void *)(storyOffset), saveDatadxp + 0x2B8, 0x88);
+			// storyOffset -= 0x2B8;
 
 			loadOkDxp = true;
 		}
@@ -749,11 +827,30 @@ static void LoadWmmt5carDataDxp()
 	loadOkDxp = false;
 }
 
+static void loadGame()
+{
+	// Runs after car data is loaded
+
+	// Load story data thread
+	std::thread t1(LoadGameData);
+	t1.detach();
+
+	// Load car data thread
+	std::thread t2(LoadWmmt5carDataDxp);
+	t2.detach();
+}
+
+/*
+static void loadStory()
+{
+
+}
+
 static void loadCar()
 {
-	std::thread t1(LoadWmmt5carDataDxp);
-	t1.detach();
+
 }
+*/
 
 static int ReturnTrue()
 {
@@ -1112,7 +1209,13 @@ static InitFunction Wmmt5Func([]()
 		injector::MakeNOP(imageBasedxplus + 0x898BD3, 6);
 
 		// Load car trigger
-		safeJMP(imageBasedxplus + 0x72AB90, loadCar);
+		// safeJMP(imageBasedxplus + 0x72AB90, loadCar);
+		
+		// Load car and story data at once
+		safeJMP(imageBasedxplus + 0x72AB90, loadGame);
+		
+		// Attempting to piggyback story load off load car
+		// safeJMP(imageBasedxplus + 0x72AB90, loadStory);
 
 		// Save car trigger
 		injector::MakeNOP(imageBasedxplus + 0x376F76, 0x12);
