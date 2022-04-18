@@ -772,11 +772,30 @@ static void LoadWmmt5carDataDxp()
 	loadOkDxp = false;
 }
 
+static void loadGame()
+{
+	// Runs after car data is loaded
+
+	// Load story data thread
+	std::thread t1(LoadGameData);
+	t1.detach();
+
+	// Load car data thread
+	std::thread t2(LoadWmmt5carDataDxp);
+	t2.detach();
+}
+
+/*
+static void loadStory()
+{
+
+}
+
 static void loadCar()
 {
-	std::thread t1(LoadWmmt5carDataDxp);
-	t1.detach();
+
 }
+*/
 
 static int ReturnTrue()
 {
@@ -1135,10 +1154,13 @@ static InitFunction Wmmt5Func([]()
 		injector::MakeNOP(imageBasedxplus + 0x898BD3, 6);
 
 		// Load car trigger
-		safeJMP(imageBasedxplus + 0x72AB90, loadCar);
+		// safeJMP(imageBasedxplus + 0x72AB90, loadCar);
+		
+		// Load car and story data at once
+		safeJMP(imageBasedxplus + 0x72AB90, loadGame);
 		
 		// Attempting to piggyback story load off load car
-		safeJMP(imageBasedxplus + 0x72AB90, LoadGameData);
+		// safeJMP(imageBasedxplus + 0x72AB90, loadStory);
 
 		// Save car trigger
 		injector::MakeNOP(imageBasedxplus + 0x376F76, 0x12);
