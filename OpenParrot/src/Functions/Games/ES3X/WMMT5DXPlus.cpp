@@ -641,12 +641,17 @@ static int LoadGameData()
 			// writeDump("openprogress_test.sav", saveDatadxp + 0x70, 0x100);
 			// memcpy((void*)(storyOffset + 0x70), saveDatadxp + 0x70, 0x100);
 
-			memcpy((void*)(storyOffset + 0x7C), saveDatadxp + 0x7C, 0x1); // Not sure
-			memcpy((void*)(storyOffset + 0xE0), saveDatadxp + 0xE0, 0x1); // Not sure
-			memcpy((void*)(storyOffset + 0xE4), saveDatadxp + 0xE4, 0x1); // Not sure
-			memcpy((void*)(storyOffset + 0xEC), saveDatadxp + 0xEC, 0x1); // Not sure
-			memcpy((void*)(storyOffset + 0xEC), saveDatadxp + 0xEC, 0x1); // Not sure
-			memcpy((void*)(storyOffset + 0x10C), saveDatadxp + 0x10C, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0x7C), saveDatadxp + 0x7C, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0xE0), saveDatadxp + 0xE0, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0xE4), saveDatadxp + 0xE4, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0xEC), saveDatadxp + 0xEC, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0xEC), saveDatadxp + 0xEC, 0x1); // Not sure
+			// memcpy((void*)(storyOffset + 0x10C), saveDatadxp + 0x10C, 0x1); // Not sure
+
+			memcpy((void*)(storyOffset + 0x48), saveDatadxp + 0x48, 0x1); // No idea
+
+			// Copy whole 80 nibble region from disk into memory
+			memcpy((void*)(storyOffset + 0xE0), saveDatadxp + 0xE0, 0x80);
 
 			writeLog(logfileDxp, "Dump the data that is being copied to a file OK");
 
