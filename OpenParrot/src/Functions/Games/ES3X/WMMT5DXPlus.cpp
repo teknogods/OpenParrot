@@ -592,10 +592,11 @@ static int LoadGameData()
 	memset(carSettings, 0, 0x2000);
 
 	// Car save data pointer
-	uintptr_t carSave = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
+	// uintptr_t carSave = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
+	uintptr_t ptr = (*(uintptr_t*)(imageBasedxplus + 0x1F7D578));
 
 	// Dump massive region to see whats there
-	memcpy(carSettings, (void*)carSave, 0x2000);
+	memcpy(carSettings, (void*)ptr, 0x2000);
 
 	writeDump("carsavemem.bin", carSettings, 0x2000);
 
