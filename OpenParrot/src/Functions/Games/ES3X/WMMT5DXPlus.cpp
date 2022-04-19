@@ -589,40 +589,34 @@ static int LoadGameData()
 
 	// ********** DEBUG STUFF START **********
 
-	unsigned char dump[0x2000];
+	unsigned char carSettings[0x2000];
 
-	memset(dump, 0, 0x2000);
+	memset(carSettings, 0, 0x2000);
+
+	//	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+	// uintptr_t storySaveBase = *(uintptr_t*)(saveDataBase + 0x108);
 
 	// Car save data pointer
 	// uintptr_t carSave = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
 	uintptr_t ptr = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+	uintptr_t miles = *(uintptr_t*)(ptr + 0x280);
+	uintptr_t stars = *(uintptr_t*)(ptr + 0x110);
 
 	// Dump massive region to see whats there
-	memcpy(dump, (void*)ptr, 0x2000);
-	writeDump("pointers.bin", dump, 0x2000);
-
-	// Clear the dump array
-	memset(dump, 0, 0x2000);
-
-	// Dereference miles pointer
-	uintptr_t miles = *(uintptr_t*)((&ptr) + 0x280);
+	memcpy(carSettings, (void*)ptr, 0x2000);
+	writeDump("pointers.bin", carSettings, 0x2000);
+	memset(carSettings, 0, 0x2000);
 
 	// Dump massive region to see whats there
-	memcpy(dump, (void*)miles, 0x1);
-	writeDump("miles_.bin", dump, 0x2000);
-
-	// Clear the dump array
-	// memset(dump, 0, 0x2000);
-
-	// Dereference miles pointer
-	uintptr_t stars = *(uintptr_t*)((&ptr) + 0x110);
+	memcpy(carSettings, (void*)miles, 0x2000);
+	writeDump("miles.bin", carSettings, 0x2000);
+	memset(carSettings, 0, 0x2000);
 
 	// Dump massive region to see whats there
-	// memcpy(dump, (void*)stars, 0x2000);
-	// writeDump("stars_.bin", dump, 0x2000);
+	memcpy(carSettings, (void*)stars, 0x2000);
+	writeDump("stars.bin", carSettings, 0x2000);
+	memset(carSettings, 0, 0x2000);
 
-	// Clear the dump array
-	// memset(dump, 0, 0x2000);
 
 	// ********** DEBUG STUFF END **********
 
