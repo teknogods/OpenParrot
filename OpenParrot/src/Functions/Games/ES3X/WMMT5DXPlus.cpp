@@ -589,10 +589,10 @@ static int LoadGameData()
 
 	// DEBUG: Dump (potential) settings area to memory
 	// (imagebase+0x01FD11B0)+390
-	unsigned char settings[0x20];
-	memset(settings, 0, 0x20);
-	memcpy(settings, (void*)((imageBasedxplus + 0x01FD11B0) + 390), 0x20);
-	writeDump("opensettings.bin", settings, 0x20);
+	unsigned char settings[0x40];
+	memset(settings, 0, 0x40);
+	memcpy(settings, (void*)((imageBasedxplus + 0x01FD11B0) + 0x390 - 0x20), 0x40);
+	writeDump("opensettings.bin", settings, 0x40);
 
 	// Address where player save data starts
 	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
