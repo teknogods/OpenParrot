@@ -611,7 +611,9 @@ static int LoadGameData()
 	writeLog(logfileDxp, "Miles: '" + std::to_string(miles) + "'\n");
 
 	// Peek inside stars
-	writeLog(logfileDxp, "Stars: '" + std::to_string(stars) + "'\n");
+	memcpy(carSettings, (void*)stars, 0x2000);
+	writeDump("stars.bin", carSettings, 0x2000);
+	memset(carSettings, 0, 0x2000);
 
 	// Peek inside stars
 
