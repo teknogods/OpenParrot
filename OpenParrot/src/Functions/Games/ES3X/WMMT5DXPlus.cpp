@@ -587,15 +587,15 @@ static int LoadGameData()
 	// Zero out the save data array
 	memset(saveDatadxp, 0x0, 0x2000);
 
-	// DEBUG: Dump (potential) settings area to memory
-	// (imagebase+0x01FD11B0)+390
-	// unsigned char settings[0x2000];
-	// memset(settings, 0, 0x2000);
-	// memcpy(settings, (void*)((imageBasedxplus + 0x01FD11B0) + 0x390 - 0x1000), 0x2000);
-	// memcpy(settings, (void*)((imageBasedxplus + 0x1F7D578) - 0x1000), 0x2000);
-	// writeDump("opensettings.bin", settings, 0x2000);
+	unsigned char carSettings[0x2000];
 
-	writeLog(logfileDxp, std::to_string((*(uintptr_t*)(imageBasedxplus + 0x1F7D578))));
+	memset(carSettings, 0, 0x2000);
+
+	// Car save data pointer
+	uintptr_t carSave = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
+
+	// Dump massive region to see whats there
+	memcpy(carSettings, (void*)carSave, 0x2000);
 
 	// Address where player save data starts
 	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
@@ -646,10 +646,10 @@ static int LoadGameData()
 
 static void LoadWmmt5carDataDxp()
 {
+	
+
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-//	if (!loadOkDxp)
-//		return;
 	customCarDxp = false;
 	memset(carDataDxp, 0, 0xFF);
 	memset(carFileNameDxp, 0, 0xFF);
