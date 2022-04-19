@@ -602,14 +602,14 @@ static int LoadGameData()
 	writeDump("pointers.bin", dump, 0x2000);
 
 	// Dereference miles pointer
-	uintptr_t miles = *(uintptr_t*)((*(uintptr_t*)ptr) + 0x280);
+	uintptr_t miles = *(uintptr_t*)(ptr + 0x280);
 
 	// Dump massive region to see whats there
 	memcpy(dump, (void*)miles, 0x2000);
 	writeDump("miles_.bin", dump, 0x2000);
 
 	// Dereference miles pointer
-	uintptr_t stars = *(uintptr_t*)((*(uintptr_t*)ptr) + 0x110);
+	uintptr_t stars = *(uintptr_t*)(ptr + 0x110);
 
 	// Dump massive region to see whats there
 	memcpy(dump, (void*)stars, 0x2000);
