@@ -609,7 +609,7 @@ static int LoadGameData()
 
 	// Dump massive region to see whats there
 	memcpy(dump, (void*)miles, 0x8);
-	writeDump("miles_.bin", dump, 0x2000);
+	// writeDump("miles_.bin", dump, 0x2000);
 
 	// Clear the dump array
 	// memset(dump, 0, 0x2000);
