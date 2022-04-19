@@ -595,7 +595,7 @@ static int LoadGameData()
 
 	// Car save data pointer
 	// uintptr_t carSave = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
-	uintptr_t ptr = (*(uintptr_t*)(imageBasedxplus + 0x1F7D578));
+	uintptr_t ptr = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
 
 	// Dump massive region to see whats there
 	memcpy(dump, (void*)ptr, 0x2000);
@@ -605,7 +605,7 @@ static int LoadGameData()
 	memset(dump, 0, 0x2000);
 
 	// Dereference miles pointer
-	uintptr_t miles = *(uintptr_t*)(ptr + 0x280);
+	uintptr_t miles = *(uintptr_t*)((&ptr) + 0x280);
 
 	// Dump massive region to see whats there
 	memcpy(dump, (void*)miles, 0x1);
@@ -615,7 +615,7 @@ static int LoadGameData()
 	// memset(dump, 0, 0x2000);
 
 	// Dereference miles pointer
-	uintptr_t stars = *(uintptr_t*)(ptr + 0x110);
+	uintptr_t stars = *(uintptr_t*)((&ptr) + 0x110);
 
 	// Dump massive region to see whats there
 	// memcpy(dump, (void*)stars, 0x2000);
