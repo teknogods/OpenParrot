@@ -587,18 +587,35 @@ static int LoadGameData()
 	// Zero out the save data array
 	memset(saveDatadxp, 0x0, 0x2000);
 
-	unsigned char carSettings[0x2000];
+	// ********** DEBUG STUFF START **********
 
-	memset(carSettings, 0, 0x2000);
+	unsigned char dump[0x2000];
+
+	memset(dump, 0, 0x2000);
 
 	// Car save data pointer
 	// uintptr_t carSave = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
 	uintptr_t ptr = (*(uintptr_t*)(imageBasedxplus + 0x1F7D578));
 
 	// Dump massive region to see whats there
-	memcpy(carSettings, (void*)ptr, 0x2000);
+	memcpy(dump, (void*)ptr, 0x2000);
+	writeDump("pointers.bin", dump, 0x2000);
 
-	writeDump("carsavemem.bin", carSettings, 0x2000);
+	// Dereference miles pointer
+	uintptr_t miles = *(uintptr_t*)((*(uintptr_t*)ptr) + 0x280);
+
+	// Dump massive region to see whats there
+	memcpy(dump, (void*)miles, 0x2000);
+	writeDump("miles_.bin", dump, 0x2000);
+
+	// Dereference miles pointer
+	uintptr_t stars = *(uintptr_t*)((*(uintptr_t*)ptr) + 0x110);
+
+	// Dump massive region to see whats there
+	memcpy(dump, (void*)stars, 0x2000);
+	writeDump("stars_.bin", dump, 0x2000);
+
+	// ********** DEBUG STUFF END **********
 
 	// Address where player save data starts
 	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
@@ -674,8 +691,6 @@ static void LoadWmmt5carDataDxp()
 				fseek(file, 0, SEEK_SET);
 				fread(carDataDxp, fsize, 1, file);
 				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
-				memcpy((void*)(carSaveLocation + 0xAC), carDataDxp + 0xAC, 0x1); //power
-				memcpy((void*)(carSaveLocation + 0xB8), carDataDxp + 0xB8, 0x1); //handling
 				memcpy((void*)(carSaveLocation + 0x28), carDataDxp + 0x28, 0x1); //region
 				memcpy((void*)(carSaveLocation + 0x34), carDataDxp + 0x34, 0x1); //carID
 				memcpy((void*)(carSaveLocation + 0x38), carDataDxp + 0x38, 0x1); //defaultColor
@@ -696,6 +711,8 @@ static void LoadWmmt5carDataDxp()
 				memcpy((void*)(carSaveLocation + 0xA0), carDataDxp + 0xA0, 0x4); //plateNumber
 				memcpy((void*)(carSaveLocation + 0xA4), carDataDxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
 				memcpy((void*)(carSaveLocation + 0xA8), carDataDxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
+				memcpy((void*)(carSaveLocation + 0xAC), carDataDxp + 0xAC, 0x1); //power
+				memcpy((void*)(carSaveLocation + 0xB8), carDataDxp + 0xB8, 0x1); //handling
 				memcpy((void*)(carSaveLocation + 0xBC), carDataDxp + 0xBC, 0x1); //rank
 				memcpy((void*)(carSaveLocation + 0xF0), carDataDxp + 0xF0, 0x1); //title??
 
