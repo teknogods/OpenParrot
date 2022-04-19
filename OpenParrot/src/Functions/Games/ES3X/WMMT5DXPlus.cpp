@@ -608,10 +608,10 @@ static int LoadGameData()
 	memset(carSettings, 0, 0x2000);
 
 	// Peek inside miles
-	writeLog(logfileDxp, "Miles: '" + std::to_string(miles) + "'");
+	writeLog(logfileDxp, "Miles: '" + std::to_string(miles) + "'\n");
 
 	// Peek inside stars
-	writeLog(logfileDxp, "Stars: '" + std::to_string(stars) + "'");
+	writeLog(logfileDxp, "Stars: '" + std::to_string(stars) + "'\n");
 
 	// Peek inside stars
 
