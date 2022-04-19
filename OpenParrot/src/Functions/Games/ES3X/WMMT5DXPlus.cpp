@@ -608,8 +608,8 @@ static int LoadGameData()
 	uintptr_t miles = *(uintptr_t*)(ptr + 0x280);
 
 	// Dump massive region to see whats there
-	memcpy(dump, (void*)miles, 0x8);
-	// writeDump("miles_.bin", dump, 0x2000);
+	memcpy(dump, (void*)miles, 0x1);
+	writeDump("miles_.bin", dump, 0x2000);
 
 	// Clear the dump array
 	// memset(dump, 0, 0x2000);
