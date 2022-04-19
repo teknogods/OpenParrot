@@ -599,23 +599,21 @@ static int LoadGameData()
 	// Car save data pointer
 	// uintptr_t carSave = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
 	uintptr_t ptr = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
-	auto miles = (uintptr_t*)(ptr + 0x280);
-	auto stars = (uintptr_t*)(ptr + 0x110);
+	uintptr_t miles = *(uintptr_t*)(ptr + 0x280);
+	uintptr_t stars = *(uintptr_t*)(ptr + 0x110);
 
 	// Dump massive region to see whats there
 	memcpy(carSettings, (void*)ptr, 0x2000);
 	writeDump("pointers.bin", carSettings, 0x2000);
 	memset(carSettings, 0, 0x2000);
 
-	// Dump massive region to see whats there
-	memcpy(carSettings, miles, 0x2000);
-	writeDump("miles.bin", carSettings, 0x2000);
-	memset(carSettings, 0, 0x2000);
+	// Peek inside miles
+	writeLog(logfileDxp, "Miles: '" + std::to_string(miles) + "'");
 
-	// Dump massive region to see whats there
-	memcpy(carSettings, stars, 0x2000);
-	writeDump("stars.bin", carSettings, 0x2000);
-	memset(carSettings, 0, 0x2000);
+	// Peek inside stars
+	writeLog(logfileDxp, "Stars: '" + std::to_string(stars) + "'");
+
+	// Peek inside stars
 
 
 	// ********** DEBUG STUFF END **********
