@@ -597,6 +597,8 @@ static int LoadGameData()
 	// Dump massive region to see whats there
 	memcpy(carSettings, (void*)carSave, 0x2000);
 
+	writeDump("carsavemem.bin", carSettings, 0x2000);
+
 	// Address where player save data starts
 	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
 
