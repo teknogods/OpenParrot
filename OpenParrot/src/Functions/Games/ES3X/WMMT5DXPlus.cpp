@@ -426,7 +426,7 @@ static DWORD WINAPI forceFullTune(void* pArguments)
 // **** String Variables
 
 // Debugging event log file
-// std::string logfileDxp = "wmmt5dxp_errors.txt";
+std::string logfileDxp = "wmmt5dxp_errors.txt";
 
 // writeLog(filename: String, message: String): Int
 // Given a filename string and a message string, appends
@@ -589,11 +589,13 @@ static int LoadGameData()
 
 	// DEBUG: Dump (potential) settings area to memory
 	// (imagebase+0x01FD11B0)+390
-	unsigned char settings[0x2000];
-	memset(settings, 0, 0x2000);
+	// unsigned char settings[0x2000];
+	// memset(settings, 0, 0x2000);
 	// memcpy(settings, (void*)((imageBasedxplus + 0x01FD11B0) + 0x390 - 0x1000), 0x2000);
-	memcpy(settings, (void*)((imageBasedxplus + 0x1F7D578) - 0x1000), 0x2000);
-	writeDump("opensettings.bin", settings, 0x2000);
+	// memcpy(settings, (void*)((imageBasedxplus + 0x1F7D578) - 0x1000), 0x2000);
+	// writeDump("opensettings.bin", settings, 0x2000);
+
+	writeLog(logfileDxp, std::to_string((*(uintptr_t*)(imageBasedxplus + 0x1F7D578))));
 
 	// Address where player save data starts
 	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
