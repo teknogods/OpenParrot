@@ -497,19 +497,6 @@ char carFileNameDxp[0xFF];
 bool loadOkDxp = false;
 bool customCarDxp = false;
 
-// SaveGameData(void): Int
-// If saving is enabled, loads the 
-// player story data 
-static int SaveGameData()
-{
-	// Saving is disabled
-	if (!saveOk)
-		return 1;
-
-	saveOk = false;
-	return 1;
-}
-
 uintptr_t saveGameOffsetdxp;
 
 // loadCarFile(filename: char*): Int
@@ -685,6 +672,9 @@ static int saveCarData(char* filepath)
 	fwrite(carDataDxp, 1, 0xFF, carFile);
 
 	fclose(carFile);
+
+	// Success
+	return 1;
 }
 
 // loadStoryData(filepath: char *): Void
@@ -782,6 +772,9 @@ static int saveStoryData(char* filepath)
 
 	// Dump the save data to openprogress.sav
 	writeDump(storypath, saveDatadxp, 0x2000);
+
+	// Success
+	return 1;
 }
 
 static int loadMileData(char* filepath)
@@ -856,6 +849,9 @@ static int saveMileData(char* filepath)
 	fwrite(mileageLocation, 1, sizeof(mileageLocation), tempFile);
 
 	fclose(tempFile);
+
+	// Success
+	return 1;
 }
 
 static int loadGameData()
@@ -892,6 +888,47 @@ static int loadGameData()
 	return 1;
 }
 
+// SaveGameData(void): Int
+// If saving is enabled, loads the 
+// player story data 
+static int SaveGameData()
+{
+	// Saving is disabled
+	if (!saveOk)
+		return 1;
+
+	// Default directory
+	char* filepath = ".";
+
+	writeLog(logfileDxp, "creating directories ...\n");
+
+	// Ensure the directory exists
+	std::filesystem::create_directories(filepath);
+
+	writeLog(logfileDxp, "saving story ...\n");
+
+	// Load the openprogress.sav file
+	saveStoryData(filepath);
+
+	writeLog(logfileDxp, "saving car ...\n");
+
+	// Load the car save file
+	saveCarData(filepath);
+
+	writeLog(logfileDxp, "saving miles ...\n");
+
+	// Load the miles save file
+	saveMileData(filepath);
+
+	writeLog(logfileDxp, "success.");
+
+	// Disable saving
+	saveOk = false;
+
+	// Success
+	return 1;
+}
+
 static void loadGame()
 {
 	// Runs after car data is loaded
@@ -900,18 +937,6 @@ static void loadGame()
 	std::thread t1(loadGameData);
 	t1.detach();
 }
-
-/*
-static void loadStory()
-{
-
-}
-
-static void loadCar()
-{
-
-}
-*/
 
 static int ReturnTrue()
 {
