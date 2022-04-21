@@ -538,7 +538,7 @@ static int loadCarFile(char* filename)
 			uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
 
 			// Load the whole region from 0x20 to 0xF0
-			memcpy((void*)(carSaveLocation + 0x20), carDataDxp + 0x20, 0xD0);
+			// memcpy((void*)(carSaveLocation + 0x20), carDataDxp + 0x20, 0xD0);
 		}
 
 		// Disable loading
@@ -844,22 +844,22 @@ static int loadGameData()
 	// Default directory
 	char* filepath = ".";
 
-	writeLog(logfileDxp, "creating directories ...");
+	writeLog(logfileDxp, "creating directories ...\n");
 
 	// Ensure the directory exists
 	std::filesystem::create_directories(filepath);
 
-	writeLog(logfileDxp, "loading story ...");
+	writeLog(logfileDxp, "loading story ...\n");
 
 	// Load the openprogress.sav file
 	loadStoryData(filepath);
 
-	writeLog(logfileDxp, "loading car ...");
+	writeLog(logfileDxp, "loading car ...\n");
 
 	// Load the car save file
 	loadCarData(filepath);
 
-	writeLog(logfileDxp, "loading miles ...");
+	writeLog(logfileDxp, "loading miles ...\n");
 
 	// Load the miles save file
 	loadMileData(filepath);
