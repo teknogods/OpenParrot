@@ -537,8 +537,30 @@ static int loadCarFile(char* filename)
 			// Dereference the memory location for the car save data
 			uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
 
-			// Load the whole region from 0x20 to 0xF0
-			memcpy((void*)(carSaveLocation + 0x20), carDataDxp + 0x28, 0xC8);
+			memcpy((void*)(carSaveLocation + 0xAC), carDataDxp + 0xAC, 0x1); //power
+			memcpy((void*)(carSaveLocation + 0xB8), carDataDxp + 0xB8, 0x1); //handling
+			memcpy((void*)(carSaveLocation + 0x28), carDataDxp + 0x28, 0x1); //region
+			memcpy((void*)(carSaveLocation + 0x34), carDataDxp + 0x34, 0x1); //carID
+			memcpy((void*)(carSaveLocation + 0x38), carDataDxp + 0x38, 0x1); //defaultColor
+			memcpy((void*)(carSaveLocation + 0x3C), carDataDxp + 0x3C, 0x1); //customColor
+			memcpy((void*)(carSaveLocation + 0x40), carDataDxp + 0x40, 0x1); //rims
+			memcpy((void*)(carSaveLocation + 0x44), carDataDxp + 0x44, 0x1); //rimColor
+			memcpy((void*)(carSaveLocation + 0x48), carDataDxp + 0x48, 0x1); //aero
+			memcpy((void*)(carSaveLocation + 0x4C), carDataDxp + 0x4C, 0x1); //hood
+			memcpy((void*)(carSaveLocation + 0x58), carDataDxp + 0x58, 0x1); //wang
+			memcpy((void*)(carSaveLocation + 0x5C), carDataDxp + 0x5C, 0x1); //mirror
+			memcpy((void*)(carSaveLocation + 0x60), carDataDxp + 0x60, 0x1); //sticker
+			memcpy((void*)(carSaveLocation + 0x64), carDataDxp + 0x64, 0x1); //stickerVariant
+			memcpy((void*)(carSaveLocation + 0x88), carDataDxp + 0x88, 0x1); //roofSticker
+			memcpy((void*)(carSaveLocation + 0x8C), carDataDxp + 0x8C, 0x1); //roofStickerVariant
+			memcpy((void*)(carSaveLocation + 0x90), carDataDxp + 0x90, 0x1); //neon
+			memcpy((void*)(carSaveLocation + 0x94), carDataDxp + 0x94, 0x1); //trunk
+			memcpy((void*)(carSaveLocation + 0x98), carDataDxp + 0x98, 0x1); //plateFrame
+			memcpy((void*)(carSaveLocation + 0xA0), carDataDxp + 0xA0, 0x4); //plateNumber
+			memcpy((void*)(carSaveLocation + 0xA4), carDataDxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
+			memcpy((void*)(carSaveLocation + 0xA8), carDataDxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
+			memcpy((void*)(carSaveLocation + 0xBC), carDataDxp + 0xBC, 0x1); //rank
+			memcpy((void*)(carSaveLocation + 0xF0), carDataDxp + 0xF0, 0x1); //title??
 		}
 
 		// Disable loading
