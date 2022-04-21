@@ -548,10 +548,10 @@ static int loadCarFile(char* filename)
 			// Dereference the memory location for the car save data
 			uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
 
-			memcpy((void*)(carSaveLocation + 0x00), carDataDxp + 0x00, 8); // ??
-			memcpy((void*)(carSaveLocation + 0x08), carDataDxp + 0x08, 8); // ??
-			memcpy((void*)(carSaveLocation + 0x10), carDataDxp + 0x10, 8); // ??
-			memcpy((void*)(carSaveLocation + 0x18), carDataDxp + 0x18, 8); // ??
+			// memcpy((void*)(carSaveLocation + 0x00), carDataDxp + 0x00, 8); // ??
+			// memcpy((void*)(carSaveLocation + 0x08), carDataDxp + 0x08, 8); // ??
+			//memcpy((void*)(carSaveLocation + 0x10), carDataDxp + 0x10, 8); // ??
+			// memcpy((void*)(carSaveLocation + 0x18), carDataDxp + 0x18, 8); // ??
 			memcpy((void*)(carSaveLocation + 0x20), carDataDxp + 0x20, 8); // ??
 			memcpy((void*)(carSaveLocation + 0x28), carDataDxp + 0x28, 8); // Region (0x28)
 			memcpy((void*)(carSaveLocation + 0x30), carDataDxp + 0x30, 8); // CarID (0x34)
