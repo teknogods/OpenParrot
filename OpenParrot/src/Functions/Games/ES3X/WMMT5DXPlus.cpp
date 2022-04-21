@@ -1,6 +1,7 @@
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
+#include <filesystem>
 #include <iostream>
 #include <cstdint>
 #include <fstream>
@@ -369,9 +370,10 @@ unsigned int dxpHook_hasp_write(int hasp_handle, int hasp_fileid, unsigned int o
 	return HASP_STATUS_OK;
 }
 
-
-
+// Save data dump memory block
 unsigned char saveDatadxp[0x2000];
+
+// Mile data dump memory block
 unsigned char mileDatadxp[0x08];
 
 //set system date patch by pockywitch
@@ -495,83 +497,14 @@ char carFileNameDxp[0xFF];
 bool loadOkDxp = false;
 bool customCarDxp = false;
 
-static void saveMileage()
-{
-	auto mileageLocation = (uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x280);
-
-	FILE* tempFile = fopen("mileage.dat", "wb");
-	fwrite(mileageLocation, 1, sizeof(mileageLocation), tempFile);
-	fclose(tempFile);
-}
-
-static void LoadMileage()
-{
-	
-	memset(mileDatadxp, 0, 0x08);
-	FILE* miles = fopen("mileage.dat", "rb");
-	if (miles)
-	{
-		fseek(miles, 0, SEEK_END);
-		int mileSize = ftell(miles);
-		if (mileSize == 0x08)
-		{
-			fseek(miles, 0, SEEK_SET);
-			fread(mileDatadxp, mileSize, 1, miles);
-			uintptr_t mileMemory = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
-			memcpy((void*)(mileMemory + 0x280), mileDatadxp + 0x00, 0x04);
-			fclose(miles);
-		}
-	}
-}
-
+// SaveGameData(void): Int
+// If saving is enabled, loads the 
+// player story data 
 static int SaveGameData()
 {
+	// Saving is disabled
 	if (!saveOk)
 		return 1;
-
-	// Address where player save data starts
-	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
-
-	// Save story data
-
-	// Zero out save data binary
-	memset(saveDatadxp, 0, 0x2000);
-
-	// Address where the player story data starts
-	uintptr_t storySaveBase = *(uintptr_t*)(saveDataBase + 0x108);
-
-	// Copy 340 nibbles to saveDatadxp from the story save data index
-	memcpy(saveDatadxp, (void*)storySaveBase, 0x340);
-
-	// Dump the save data to openprogress.sav
-	writeDump("openprogress.sav", saveDatadxp, 0x2000);
-
-	// Car Profile saving
-	memset(carDataDxp, 0, 0xFF);
-	memset(carFileNameDxp, 0, 0xFF);
-
-	//new multilevel
-	uintptr_t carSaveBase = *(uintptr_t*)(saveDataBase + 0x268);
-
-	memcpy(carDataDxp + 0x00, (void*)(carSaveBase + 0x0), 0xFF); //dumps whole region
-
-
-	CreateDirectoryA("OpenParrot_Cars", nullptr);
-
-	if (customCarDxp)
-	{
-		sprintf(carFileNameDxp, ".\\OpenParrot_Cars\\custom.car");
-	}
-	else
-	{
-		sprintf(carFileNameDxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
-	}
-
-	FILE* carFile = fopen(carFileNameDxp, "wb");
-	fwrite(carDataDxp, 1, 0xFF, carFile);
-	fclose(carFile);
-
-	saveMileage();
 
 	saveOk = false;
 	return 1;
@@ -579,52 +512,184 @@ static int SaveGameData()
 
 uintptr_t saveGameOffsetdxp;
 
-static int LoadGameData()
+// loadCarFile(filename: char*): Int
+// Given a filename, loads the data from
+// the car file into memory. 
+static int loadCarFile(char* filename)
 {
-	// Disable saving
-	saveOk = false;
+	// Open the file with the filename
+	FILE* file = fopen(filename, "rb");
+
+	// File open OK
+	if (file)
+	{
+		// Get the length of the file
+		fseek(file, 0, SEEK_END);
+		int fsize = ftell(file);
+
+		// If the file has the right size
+		if (fsize == 0xFF)
+		{
+			// Reset to start of the file and read it into the car data variable
+			fseek(file, 0, SEEK_SET);
+			fread(carDataDxp, fsize, 1, file);
+
+			// Dereference the memory location for the car save data
+			uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
+
+			// Load the whole region from 0x20 to 0xF0
+			memcpy((void*)(carSaveLocation + 0x20), carDataDxp + 0x20, 0xD0);
+		}
+
+		// Disable loading
+		loadOkDxp = false;
+
+		// Close the file
+		fclose(file);
+
+		// Success
+		return  1;
+	}
+
+	// Failed
+	return 0;
+}
+
+// loadCarData(filepath: char*): Void
+// Given a filepath, attempts to load a 
+// car file (either custom.car or specific
+// car file) from that folder.
+static int loadCarData(char * filepath)
+{
+	// Sleep for 1 second
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	// Custom car disabled by default
+	customCarDxp = false;
+
+	// Miles path string
+	char carpath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(carpath, 0, 0xFF);
+
+	// Copy the file path to the miles path
+	strcpy(carpath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(carpath, "\\OpenParrot_Cars");
+
+	// Create the OpenParrot_cars directory at the given filepath
+	std::filesystem::create_directories(carpath);
+
+	// Get the path to the custom car file
+	sprintf(carFileNameDxp, "%s\\custom.car", carpath);
+
+	// If the custom car file exists
+	if (FileExists(carFileNameDxp))
+	{
+		// Load the custom car file
+		loadCarFile(carFileNameDxp);
+
+		// Enable custom car switch
+		customCarDxp = true;
+	}
+
+	// Empty the car filename string
+	memset(carFileNameDxp, 0, 0xFF);
+
+	// Get the path to the specific car file
+	sprintf(carFileNameDxp, "%s\\%08X.car", carpath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
 	
+	// If the specific car file exists
+	if (FileExists(carFileNameDxp))
+	{
+		// Load the car file
+		loadCarFile(carFileNameDxp);
+	}
+
+	// Success
+	return 1;
+}
+
+static int saveCarData(char* filepath)
+{
+	// Car Profile saving
+	memset(carDataDxp, 0, 0xFF);
+	memset(carFileNameDxp, 0, 0xFF);
+
+	// Address where player save data starts
+	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+
+	//new multilevel
+	uintptr_t carSaveBase = *(uintptr_t*)(saveDataBase + 0x268);
+
+	// Miles path string
+	char carpath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(carpath, 0, 0xFF);
+
+	// Copy the file path to the miles path
+	strcpy(carpath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(carpath, "\\OpenParrot_Cars");
+
+	// CreateDirectoryA(carpath, nullptr);
+
+	// Create the cars path folder
+	std::filesystem::create_directories(carpath);
+
+	// Copy the 0xFF bytes from memory to the car data array
+	memcpy(carDataDxp + 0x00, (void*)(carSaveBase + 0x0), 0xFF);
+
+	// If custom car is set
+	if (customCarDxp)
+	{
+		// Save the file to custom.car
+		sprintf(carpath, "%s\\custom.car", carpath);
+	}
+	else // Custom car is not set
+	{
+		// Save the file to the specific car filename
+		sprintf(carpath, "%s\\%8X.car", carpath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
+	}
+
+	// Open the file at the given car path
+	FILE* carFile = fopen(carpath, "wb");
+
+	// Write the data from the array to the file
+	fwrite(carDataDxp, 1, 0xFF, carFile);
+
+	fclose(carFile);
+}
+
+// loadStoryData(filepath: char *): Void
+// Given a filepath, loads the story data 
+// from the file into memory.
+static int loadStoryData(char* filepath)
+{
 	// Zero out the save data array
 	memset(saveDatadxp, 0x0, 0x2000);
 
-	// ********** DEBUG STUFF START **********
+	// Miles path string
+	char storypath[0xFF];
 
-	unsigned char carSettings[0x2000];
+	// Set the milepath memory to zero
+	memset(storypath, 0, 0xFF);
 
-	memset(carSettings, 0, 0x2000);
+	// Copy the file path to the miles path
+	strcpy(storypath, filepath);
 
-	//	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
-	// uintptr_t storySaveBase = *(uintptr_t*)(saveDataBase + 0x108);
-
-	// Car save data pointer
-	// uintptr_t carSave = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
-	uintptr_t ptr = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
-	uintptr_t miles = *(uintptr_t*)(ptr + 0x280);
-	uintptr_t stars = *(uintptr_t*)(ptr + 0x110);
-
-	// Dump massive region to see whats there
-	memcpy(carSettings, (void*)ptr, 0x2000);
-	writeDump("pointers.bin", carSettings, 0x2000);
-	memset(carSettings, 0, 0x2000);
-
-	// Peek inside miles
-	writeLog(logfileDxp, "Miles: '" + std::to_string(miles) + "'\n");
-
-	// Peek inside stars
-	memcpy(carSettings, (void*)stars, 0x2000);
-	writeDump("stars.bin", carSettings, 0x2000);
-	memset(carSettings, 0, 0x2000);
-
-	// Peek inside stars
-
-
-	// ********** DEBUG STUFF END **********
+	// Append the mileage filename to the string
+	strcat(storypath, "\\openprogress.sav");
 
 	// Address where player save data starts
 	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
 
 	// Open the openprogress file with read privileges	
-	FILE* file = fopen("openprogress.sav", "rb");
+	FILE* file = fopen(storypath, "rb");
 
 	// If the file exists
 	if (file)
@@ -665,119 +730,134 @@ static int LoadGameData()
 	return 1;
 }
 
-
-
-static void LoadWmmt5carDataDxp()
+static int saveStoryData(char* filepath)
 {
+	// Miles path string
+	char storypath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(storypath, 0, 0xFF);
+
+	// Copy the file path to the miles path
+	strcpy(storypath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(storypath, "\\openprogress.sav.dat");
+
+	// Save story data
+
+	// Address where player save data starts
+	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+
+	// Zero out save data binary
+	memset(saveDatadxp, 0, 0x2000);
+
+	// Address where the player story data starts
+	uintptr_t storySaveBase = *(uintptr_t*)(saveDataBase + 0x108);
+
+	// Copy 340 nibbles to saveDatadxp from the story save data index
+	memcpy(saveDatadxp, (void*)storySaveBase, 0x340);
+
+	// Dump the save data to openprogress.sav
+	writeDump(storypath, saveDatadxp, 0x2000);
+}
+
+static int loadMileData(char* filepath)
+{
+	// Zero out the mile data memory
+	memset(mileDatadxp, 0, 0x08);
+
+	// Miles path string
+	char milepath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(milepath, 0, 0xFF);
+
+	// Copy the file path to the miles path
+	strcpy(milepath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(milepath, "\\mileage.dat");
+
+	// Path to the miles file
+	FILE* miles = fopen(milepath, "rb");
 	
-
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-	customCarDxp = false;
-	memset(carDataDxp, 0, 0xFF);
-	memset(carFileNameDxp, 0, 0xFF);
-	CreateDirectoryA("OpenParrot_Cars", nullptr);
-
-	LoadMileage();
-
-	// check for custom car
-	sprintf(carFileNameDxp, ".\\OpenParrot_Cars\\custom.car");
-	if (FileExists(carFileNameDxp))
+	// File loaded OK
+	if (miles)
 	{
-		FILE* file = fopen(carFileNameDxp, "rb");
-		if (file)
-		{
-			fseek(file, 0, SEEK_END);
-			int fsize = ftell(file);
-			if (fsize == 0xFF)
-			{
-				fseek(file, 0, SEEK_SET);
-				fread(carDataDxp, fsize, 1, file);
-				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
-				memcpy((void*)(carSaveLocation + 0x28), carDataDxp + 0x28, 0x1); //region
-				memcpy((void*)(carSaveLocation + 0x34), carDataDxp + 0x34, 0x1); //carID
-				memcpy((void*)(carSaveLocation + 0x38), carDataDxp + 0x38, 0x1); //defaultColor
-				memcpy((void*)(carSaveLocation + 0x3C), carDataDxp + 0x3C, 0x1); //customColor
-				memcpy((void*)(carSaveLocation + 0x40), carDataDxp + 0x40, 0x1); //rims
-				memcpy((void*)(carSaveLocation + 0x44), carDataDxp + 0x44, 0x1); //rimColor
-				memcpy((void*)(carSaveLocation + 0x48), carDataDxp + 0x48, 0x1); //aero
-				memcpy((void*)(carSaveLocation + 0x4C), carDataDxp + 0x4C, 0x1); //hood
-				memcpy((void*)(carSaveLocation + 0x58), carDataDxp + 0x58, 0x1); //wang
-				memcpy((void*)(carSaveLocation + 0x5C), carDataDxp + 0x5C, 0x1); //mirror
-				memcpy((void*)(carSaveLocation + 0x60), carDataDxp + 0x60, 0x1); //sticker
-				memcpy((void*)(carSaveLocation + 0x64), carDataDxp + 0x64, 0x1); //stickerVariant
-				memcpy((void*)(carSaveLocation + 0x88), carDataDxp + 0x88, 0x1); //roofSticker
-				memcpy((void*)(carSaveLocation + 0x8C), carDataDxp + 0x8C, 0x1); //roofStickerVariant
-				memcpy((void*)(carSaveLocation + 0x90), carDataDxp + 0x90, 0x1); //neon
-				memcpy((void*)(carSaveLocation + 0x94), carDataDxp + 0x94, 0x1); //trunk
-				memcpy((void*)(carSaveLocation + 0x98), carDataDxp + 0x98, 0x1); //plateFrame
-				memcpy((void*)(carSaveLocation + 0xA0), carDataDxp + 0xA0, 0x4); //plateNumber
-				memcpy((void*)(carSaveLocation + 0xA4), carDataDxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
-				memcpy((void*)(carSaveLocation + 0xA8), carDataDxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
-				memcpy((void*)(carSaveLocation + 0xAC), carDataDxp + 0xAC, 0x1); //power
-				memcpy((void*)(carSaveLocation + 0xB8), carDataDxp + 0xB8, 0x1); //handling
-				memcpy((void*)(carSaveLocation + 0xBC), carDataDxp + 0xBC, 0x1); //rank
-				memcpy((void*)(carSaveLocation + 0xF0), carDataDxp + 0xF0, 0x1); //title??
+		// Get the size of the file
+		fseek(miles, 0, SEEK_END);
+		int mileSize = ftell(miles);
 
-				customCarDxp = true;
-			}
-			loadOkDxp = false;
-			fclose(file);
-			return;
+		// If the file size is correct
+		if (mileSize == 0x08)
+		{
+			// Load the content from the file into mileDatadxp
+			fseek(miles, 0, SEEK_SET);
+			fread(mileDatadxp, mileSize, 1, miles);
+
+			// Get the pointer to the memory location storing the miles
+			uintptr_t mileMemory = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+
+			// Copy the mile data from the file into the memory location
+			memcpy((void*)(mileMemory + 0x280), mileDatadxp + 0x00, 0x04);
+
+			fclose(miles);
 		}
 	}
 
-	// If the force full tune switch is set
-	if (ToBool(config["Tune"]["Force Full Tune"]))
-	{
-		// Create the force full tune thread
-		CreateThread(0, 0, forceFullTune, 0, 0, 0);
-	}
+	// Success
+	return 1;
+}
 
-	memset(carFileNameDxp, 0, 0xFF);
-	// Load actual car if available
-	sprintf(carFileNameDxp, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
-	if(FileExists(carFileNameDxp))
-	{
-		FILE* file = fopen(carFileNameDxp, "rb");
-		if (file)
-		{
-			fseek(file, 0, SEEK_END);
-			int fsize = ftell(file);
-			if (fsize == 0xFF)
-			{	
-				fseek(file, 0, SEEK_SET);
-				fread(carDataDxp, fsize, 1, file);
-				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
-				memcpy((void*)(carSaveLocation + 0xAC), carDataDxp + 0xAC, 0x1); //power
-				memcpy((void*)(carSaveLocation + 0xB8), carDataDxp + 0xB8, 0x1); //handling
-				memcpy((void*)(carSaveLocation + 0x28), carDataDxp + 0x28, 0x1); //region
-				memcpy((void*)(carSaveLocation + 0x34), carDataDxp + 0x34, 0x1); //carID
-				memcpy((void*)(carSaveLocation + 0x38), carDataDxp + 0x38, 0x1); //defaultColor
-				memcpy((void*)(carSaveLocation + 0x3C), carDataDxp + 0x3C, 0x1); //customColor
-				memcpy((void*)(carSaveLocation + 0x40), carDataDxp + 0x40, 0x1); //rims
-				memcpy((void*)(carSaveLocation + 0x44), carDataDxp + 0x44, 0x1); //rimColor
-				memcpy((void*)(carSaveLocation + 0x48), carDataDxp + 0x48, 0x1); //aero
-				memcpy((void*)(carSaveLocation + 0x4C), carDataDxp + 0x4C, 0x1); //hood
-				memcpy((void*)(carSaveLocation + 0x58), carDataDxp + 0x58, 0x1); //wang
-				memcpy((void*)(carSaveLocation + 0x5C), carDataDxp + 0x5C, 0x1); //mirror
-				memcpy((void*)(carSaveLocation + 0x60), carDataDxp + 0x60, 0x1); //sticker
-				memcpy((void*)(carSaveLocation + 0x64), carDataDxp + 0x64, 0x1); //stickerVariant
-				memcpy((void*)(carSaveLocation + 0x88), carDataDxp + 0x88, 0x1); //roofSticker
-				memcpy((void*)(carSaveLocation + 0x8C), carDataDxp + 0x8C, 0x1); //roofStickerVariant
-				memcpy((void*)(carSaveLocation + 0x90), carDataDxp + 0x90, 0x1); //neon
-				memcpy((void*)(carSaveLocation + 0x94), carDataDxp + 0x94, 0x1); //trunk
-				memcpy((void*)(carSaveLocation + 0x98), carDataDxp + 0x98, 0x1); //plateFrame
-				memcpy((void*)(carSaveLocation + 0xA0), carDataDxp + 0xA0, 0x4); //plateNumber
-				memcpy((void*)(carSaveLocation + 0xA4), carDataDxp + 0xA4, 0x1); //vinyl_body_challenge_prefecture_1~15
-				memcpy((void*)(carSaveLocation + 0xA8), carDataDxp + 0xA8, 0x1); //vinyl_body_challenge_prefecture
-				memcpy((void*)(carSaveLocation + 0xBC), carDataDxp + 0xBC, 0x1); //rank
-				memcpy((void*)(carSaveLocation + 0xF0), carDataDxp + 0xF0, 0x1); //title??
-			}
-			fclose(file);
-		}
-	}
-	loadOkDxp = false;
+static int saveMileData(char* filepath)
+{
+	// Get the pointer to the memory location storing the miles
+	auto mileageLocation = (uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x280);
+
+	// Miles path string
+	char milepath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(milepath, 0, 0xFF);
+
+	// Copy the file path to the miles path
+	strcpy(milepath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(milepath, "\\mileage.dat");
+
+	// Load the miles file
+	FILE* tempFile = fopen(milepath, "wb");
+
+	// Write the miles data from memory to the miles file
+	fwrite(mileageLocation, 1, sizeof(mileageLocation), tempFile);
+
+	fclose(tempFile);
+}
+
+static int loadGameData()
+{
+	// Disable saving
+	saveOk = false;
+
+	// Default directory
+	char* filepath = ".";
+
+	// Ensure the directory exists
+	std::filesystem::create_directories(filepath);
+
+	// Load the openprogress.sav file
+	loadStoryData(filepath);
+
+	// Load the car save file
+	loadCarData(filepath);
+
+	// Load the miles save file
+	loadMileData(filepath);
+
+	// Success
+	return 1;
 }
 
 static void loadGame()
@@ -785,12 +865,8 @@ static void loadGame()
 	// Runs after car data is loaded
 
 	// Load story data thread
-	std::thread t1(LoadGameData);
+	std::thread t1(loadGameData);
 	t1.detach();
-
-	// Load car data thread
-	std::thread t2(LoadWmmt5carDataDxp);
-	t2.detach();
 }
 
 /*
