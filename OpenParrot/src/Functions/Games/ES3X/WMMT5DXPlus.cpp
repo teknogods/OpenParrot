@@ -569,8 +569,8 @@ static int loadCarFile(char* filename)
 			memcpy((void*)(carSaveLocation + 0xA0), carDataDxp + 0xA0, 8); // Plate Number (0xA0), vinyl_body_challenge_prefecture_1~15 (0xA4)
 			memcpy((void*)(carSaveLocation + 0xA8), carDataDxp + 0xA8, 8); // vinyl_body_challenge_prefecture (0xA8), Power (0xAC)
 			memcpy((void*)(carSaveLocation + 0xB8), carDataDxp + 0xB8, 8); // Handling (0xB8), Rank (0xBC)
-			memcpy((void*)(carSaveLocation + 0xC0), carDataDxp + 0xC0, 8); // ??
-			memcpy((void*)(carSaveLocation + 0xC8), carDataDxp + 0xC8, 8); // ??
+			// memcpy((void*)(carSaveLocation + 0xC0), carDataDxp + 0xC0, 8); // ??
+			// memcpy((void*)(carSaveLocation + 0xC8), carDataDxp + 0xC8, 8); // ??
 			// memcpy((void*)(carSaveLocation + 0xD0), carDataDxp + 0xD0, 8); // ??
 			// memcpy((void*)(carSaveLocation + 0xD8), carDataDxp + 0xD8, 8); // ??
 		}
