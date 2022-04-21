@@ -385,6 +385,37 @@ bool WINAPI Hook_SetSystemTime(SYSTEMTIME* in)
 	return TRUE;
 }
 
+// setFullTune(void): Int
+// If the currently loaded car is NOT fully tuned, 
+// updates the power and handling values to be fully
+// tuned (16 for each). If they are already fully tuned,
+// does not change any values.
+static int setFullTune()
+{
+	// Get the memory addresses for the car base save, power and handling values
+	auto carSaveBase = (uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x01F7D578) + 0x268);
+	auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xAC);
+	auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xB8);
+
+	// Dereference the power value from the memory address
+	auto powerValue = injector::ReadMemory<uint8_t>(powerAddress, true);
+	auto handleValue = injector::ReadMemory<uint8_t>(handleAddress, true);
+
+	// If the power and handling values do not add up to fully tuned
+	if (powerValue + handleValue < 0x20)
+	{
+		// Car is not fully tuned, force it to the default full tune
+		injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
+		injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
+
+		// Updated
+		return 1;
+	}
+
+	// Not updated
+	return 0;
+}
+
 // forceFullTune(pArguments: void*): DWORD WINAPI
 // Function which runs in a secondary thread if the forceFullTune
 // option is selected in the menu. If the player's car is not fully
@@ -398,24 +429,8 @@ static DWORD WINAPI forceFullTune(void* pArguments)
 		// Only runs every 16th frame
 		Sleep(16);
 
-		// Get the memory addresses for the car base save, power and handling values
-		auto carSaveBase = (uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x01F7D578) + 0x268);
-		auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xAC);
-		auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0xB8);
-
-		// Dereference the power value from the memory address
-		auto powerValue = injector::ReadMemory<uint8_t>(powerAddress, true);
-		auto handleValue = injector::ReadMemory<uint8_t>(handleAddress, true);
-
-		// If the power and handling values do not add up to fully tuned
-		if (powerValue + handleValue < 0x20)
-		{
-			// Car is not fully tuned, force it to the default full tune
-			injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
-			injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
-		}
-
-		// Otherwise, don't do anything :)
+		// Run the set full tune process
+		setFullTune();
 	}
 }
 
@@ -621,7 +636,10 @@ static int loadCarData(char * filepath)
 	if (ToBool(config["Tune"]["Force Full Tune"]))
 	{
 		// Create the force full tune thread
-		CreateThread(0, 0, forceFullTune, 0, 0, 0);
+		// CreateThread(0, 0, forceFullTune, 0, 0, 0);
+
+		// Set the car to be fully tuned
+		setFullTune();
 	}
 
 	// Success
