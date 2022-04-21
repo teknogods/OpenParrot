@@ -549,7 +549,7 @@ static int loadCarFile(char* filename)
 			uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
 
 			memcpy((void*)(carSaveLocation + 0x28), carDataDxp + 0x28, 8); // Region (0x28)
-			memcpy((void*)(carSaveLocation + 0x30), carDataDxp + 0x30, 8); // CarID (0x34)
+			// memcpy((void*)(carSaveLocation + 0x30), carDataDxp + 0x30, 8); // CarID (0x34)
 			// memcpy((void*)(carSaveLocation + 0x38), carDataDxp + 0x38, 4); // defaultColor
 			memcpy((void*)(carSaveLocation + 0x3C), carDataDxp + 0x3C, 4); // CustomColor (0x3C)
 			memcpy((void*)(carSaveLocation + 0x40), carDataDxp + 0x40, 8); // Rims (0x40), Rims Colour (0x44)
