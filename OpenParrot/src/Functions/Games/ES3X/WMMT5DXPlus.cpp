@@ -686,22 +686,22 @@ static int loadStoryData(char* filepath)
 	memset(saveDatadxp, 0x0, 0x2000);
 
 	// Miles path string
-	char storypath[0xFF];
+	char storyPath[0xFF];
 
 	// Set the milepath memory to zero
-	memset(storypath, 0, 0xFF);
+	memset(storyPath, 0, 0xFF);
 
 	// Copy the file path to the miles path
-	strcpy(storypath, filepath);
+	strcpy(storyPath, filepath);
 
 	// Append the mileage filename to the string
-	strcat(storypath, "\\openprogress.sav");
+	strcat(storyPath, "\\openprogress.sav");
 
 	// Address where player save data starts
 	uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
 
 	// Open the openprogress file with read privileges	
-	FILE* file = fopen(storypath, "rb");
+	FILE* file = fopen(storyPath, "rb");
 
 	// If the file exists
 	if (file)
@@ -745,16 +745,16 @@ static int loadStoryData(char* filepath)
 static int saveStoryData(char* filepath)
 {
 	// Miles path string
-	char storypath[0xFF];
+	char storyPath[0xFF];
 
 	// Set the milepath memory to zero
-	memset(storypath, 0, 0xFF);
+	memset(storyPath, 0, 0xFF);
 
 	// Copy the file path to the miles path
-	strcpy(storypath, filepath);
+	strcpy(storyPath, filepath);
 
 	// Append the mileage filename to the string
-	strcat(storypath, "\\openprogress.sav");
+	strcat(storyPath, "\\openprogress.sav");
 
 	// Save story data
 
@@ -771,7 +771,7 @@ static int saveStoryData(char* filepath)
 	memcpy(saveDatadxp, (void*)storySaveBase, 0x340);
 
 	// Dump the save data to openprogress.sav
-	writeDump(storypath, saveDatadxp, 0x2000);
+	writeDump(storyPath, saveDatadxp, 0x2000);
 
 	// Success
 	return 1;
@@ -862,6 +862,46 @@ static int loadGameData()
 	// Default directory
 	char* filepath = ".\\scrubbs";
 
+	// Miles path string
+	char loadPath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(loadPath, 0, 0xFF);
+
+	// Seperate save file / cars per user profile
+	if (ToBool(config["Save"]["Save Per Custom Name"]))
+	{
+		// Get the profile name from the 
+		std::string name = config["General"]["CustomName"];
+
+		// Add the c string version of the profile name to the path
+		sprintf(loadPath, "%s\\%s", loadPath, name.c_str());
+	}
+
+	// Seperate miles / story per car
+	if (ToBool(config["Save"]["Save Per Car"]))
+	{
+		// Need to get the hex code for the selected car
+
+		// Address where player save data starts
+		uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+
+		// Address where the car save data starts
+		uintptr_t carSaveBase = *(uintptr_t*)(saveDataBase + 0x268);
+
+		// If custom car is set
+		if (customCarDxp)
+		{
+			// Add the car id to the save path
+			sprintf(loadPath, "%s\\custom", loadPath);
+		}
+		else // Custom car is not set
+		{
+			// Add the custom folder to the save path
+			sprintf(loadPath, "%s\\%08X", loadPath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
+		}
+	}
+
 	writeLog(logfileDxp, "creating directories ...\n");
 
 	// Ensure the directory exists
@@ -888,6 +928,8 @@ static int loadGameData()
 	return 1;
 }
 
+
+
 // SaveGameData(void): Int
 // If saving is enabled, loads the 
 // player story data 
@@ -897,28 +939,65 @@ static int SaveGameData()
 	if (!saveOk)
 		return 1;
 
-	// Default directory
-	char* filepath = ".\\scrubbs";
+	// Miles path string
+	char savePath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(savePath, 0, 0xFF);
+
+	// Seperate save file / cars per user profile
+	if (ToBool(config["Save"]["Save Per Custom Name"]))
+	{
+		// Get the profile name from the 
+		std::string name = config["General"]["CustomName"];
+
+		// Add the c string version of the profile name to the path
+		sprintf(savePath, "%s\\%s", savePath, name.c_str());
+	}
+
+	// Seperate miles / story per car
+	if (ToBool(config["Save"]["Save Per Car"]))
+	{
+		// Need to get the hex code for the selected car
+
+		// Address where player save data starts
+		uintptr_t saveDataBase = *(uintptr_t*)(imageBasedxplus + 0x1F7D578);
+
+		// Address where the car save data starts
+		uintptr_t carSaveBase = *(uintptr_t*)(saveDataBase + 0x268);
+
+		// If custom car is set
+		if (customCarDxp)
+		{
+			// Add the car id to the save path
+			sprintf(savePath, "%s\\custom", savePath);
+		}
+		else // Custom car is not set
+		{
+			// Add the custom folder to the save path
+			sprintf(savePath, "%s\\%08X", savePath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
+		}
+	}
 
 	writeLog(logfileDxp, "creating directories ...\n");
 
 	// Ensure the directory exists
-	std::filesystem::create_directories(filepath);
+	std::filesystem::create_directories(savePath);
 
 	writeLog(logfileDxp, "saving story ...\n");
 
 	// Load the openprogress.sav file
-	saveStoryData(filepath);
+	saveStoryData(savePath);
 
 	writeLog(logfileDxp, "saving car ...\n");
 
 	// Load the car save file
-	saveCarData(filepath);
+	saveCarData(savePath);
 
 	writeLog(logfileDxp, "saving miles ...\n");
 
 	// Load the miles save file
-	saveMileData(filepath);
+	saveMileData(savePath);
 
 	writeLog(logfileDxp, "success.\n");
 
