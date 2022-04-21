@@ -538,7 +538,7 @@ static int loadCarFile(char* filename)
 			uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x268);
 
 			// Load the whole region from 0x20 to 0xF0
-			// memcpy((void*)(carSaveLocation + 0x20), carDataDxp + 0x20, 0xD0);
+			memcpy((void*)(carSaveLocation + 0x20), carDataDxp + 0x28, 0xC8);
 		}
 
 		// Disable loading
