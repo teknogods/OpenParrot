@@ -554,7 +554,7 @@ static int loadCarFile(char* filename)
 			memcpy((void*)(carSaveLocation + 0x3C), carDataDxp + 0x3C, 4); // CustomColor (0x3C)
 			memcpy((void*)(carSaveLocation + 0x40), carDataDxp + 0x40, 8); // Rims (0x40), Rims Colour (0x44)
 			memcpy((void*)(carSaveLocation + 0x48), carDataDxp + 0x48, 8); // Aero (0x48), Hood (0x4C)
-			memcpy((void*)(carSaveLocation + 0x50), carDataDxp + 0x50, 8); // ??
+			// memcpy((void*)(carSaveLocation + 0x50), carDataDxp + 0x50, 8); // ??
 			memcpy((void*)(carSaveLocation + 0x58), carDataDxp + 0x58, 8); // Wing (0x58), Mirror (0x5C)
 			memcpy((void*)(carSaveLocation + 0x60), carDataDxp + 0x60, 8); // Sticker (0x60), Sticker Type (0x64)
 			// memcpy((void*)(carSaveLocation + 0x68), carDataDxp + 0x60, 8); // ??
