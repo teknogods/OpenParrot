@@ -662,7 +662,7 @@ static int saveCarData(char* filepath)
 	else // Custom car is not set
 	{
 		// Save the file to the specific car filename
-		sprintf(carpath, "%s\\%8X.car", carpath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
+		sprintf(carpath, "%s\\%08X.car", carpath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBasedxplus + 0x1F7D578) + 0x268) + 0x34));
 	}
 
 	// Open the file at the given car path
@@ -754,7 +754,7 @@ static int saveStoryData(char* filepath)
 	strcpy(storypath, filepath);
 
 	// Append the mileage filename to the string
-	strcat(storypath, "\\openprogress.sav.dat");
+	strcat(storypath, "\\openprogress.sav");
 
 	// Save story data
 
@@ -860,7 +860,7 @@ static int loadGameData()
 	saveOk = false;
 
 	// Default directory
-	char* filepath = ".";
+	char* filepath = ".\\scrubbs";
 
 	writeLog(logfileDxp, "creating directories ...\n");
 
@@ -882,7 +882,7 @@ static int loadGameData()
 	// Load the miles save file
 	loadMileData(filepath);
 
-	writeLog(logfileDxp, "success.");
+	writeLog(logfileDxp, "success.\n");
 
 	// Success
 	return 1;
@@ -898,7 +898,7 @@ static int SaveGameData()
 		return 1;
 
 	// Default directory
-	char* filepath = ".";
+	char* filepath = ".\\scrubbs";
 
 	writeLog(logfileDxp, "creating directories ...\n");
 
@@ -920,7 +920,7 @@ static int SaveGameData()
 	// Load the miles save file
 	saveMileData(filepath);
 
-	writeLog(logfileDxp, "success.");
+	writeLog(logfileDxp, "success.\n");
 
 	// Disable saving
 	saveOk = false;
