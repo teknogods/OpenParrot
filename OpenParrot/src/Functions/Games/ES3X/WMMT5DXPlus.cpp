@@ -859,9 +859,6 @@ static int loadGameData()
 	// Disable saving
 	saveOk = false;
 
-	// Default directory
-	char* filepath = ".\\scrubbs";
-
 	// Miles path string
 	char loadPath[0xFF];
 
@@ -903,24 +900,25 @@ static int loadGameData()
 	}
 
 	writeLog(logfileDxp, "creating directories ...\n");
+	writeLog(logfileDxp, "path:" + std::string(loadPath) + "\n");
 
 	// Ensure the directory exists
-	std::filesystem::create_directories(filepath);
+	std::filesystem::create_directories(loadPath);
 
 	writeLog(logfileDxp, "loading story ...\n");
 
 	// Load the openprogress.sav file
-	loadStoryData(filepath);
+	loadStoryData(loadPath);
 
 	writeLog(logfileDxp, "loading car ...\n");
 
 	// Load the car save file
-	loadCarData(filepath);
+	loadCarData(loadPath);
 
 	writeLog(logfileDxp, "loading miles ...\n");
 
 	// Load the miles save file
-	loadMileData(filepath);
+	loadMileData(loadPath);
 
 	writeLog(logfileDxp, "success.\n");
 
@@ -980,6 +978,7 @@ static int SaveGameData()
 	}
 
 	writeLog(logfileDxp, "creating directories ...\n");
+	writeLog(logfileDxp, "path:" + std::string(savePath) + "\n");
 
 	// Ensure the directory exists
 	std::filesystem::create_directories(savePath);
