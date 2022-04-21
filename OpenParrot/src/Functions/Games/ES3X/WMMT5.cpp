@@ -427,8 +427,39 @@ unsigned int WINAPI Hook_bind(SOCKET s, const sockaddr *addr, int namelen) {
 	}
 }
 
-
+// Save data dump memory block
 unsigned char saveData[0x2000];
+
+// setFullTune(void): Int
+// If the currently loaded car is NOT fully tuned, 
+// updates the power and handling values to be fully
+// tuned (16 for each). If they are already fully tuned,
+// does not change any values.
+static int setFullTune()
+{
+	// Car save hex address
+	auto carSaveBase = (uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
+	auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0x98);
+	auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0x9C);
+
+	// Dereference the power value from the memory address
+	auto powerValue = injector::ReadMemory<uint8_t>(powerAddress, true);
+	auto handleValue = injector::ReadMemory<uint8_t>(handleAddress, true);
+
+	// If the power and handling values do not add up to fully tuned
+	if (powerValue + handleValue < 0x20)
+	{
+		// Car is not fully tuned, force it to the default full tune
+		injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
+		injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
+
+		// Updated
+		return 1;
+	}
+
+	// Not updated
+	return 0;
+}
 
 // forceFullTune(pArguments: void*): DWORD WINAPI
 // Function which runs in a secondary thread if the forceFullTune
@@ -443,24 +474,8 @@ static DWORD WINAPI forceFullTune(void* pArguments)
 		// Only runs every 16th frame
 		Sleep(16);
 
-		// Car save hex address
-		auto carSaveBase = (uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
-		auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase) + 0x98);
-		auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase) + 0x9C);
-
-		// Dereference the power value from the memory address
-		auto powerValue = injector::ReadMemory<uint8_t>(powerAddress, true);
-		auto handleValue = injector::ReadMemory<uint8_t>(handleAddress, true);
-
-		// If the power and handling values do not add up to fully tuned
-		if (powerValue + handleValue < 0x20)
-		{
-			// Car is not fully tuned, force it to the default full tune
-			injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
-			injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
-		}
-
-		// Otherwise, don't do anything :)
+		// Run the set full tune process
+		setFullTune();
 	}
 }
 
@@ -496,17 +511,53 @@ static int writeLog(std::string filename, std::string message)
 	return 0;
 }
 
+// writeDump(filename: Char*, data: unsigned char *, size: size_t): Int
+static int writeDump(char* filename, unsigned char* data, size_t size)
+{
+	// Open the file with the provided filename
+	FILE* file = fopen(filename, "wb");
+
+	// File opened successfully
+	if (file)
+	{
+		// Write the data to the file
+		fwrite((void*)data, 1, size, file);
+
+		// Close the file
+		fclose(file);
+
+		// Return success status
+		return 0;
+	}
+	else // Failed to open
+	{
+		// Return failure status
+		return 1;
+	}
+}
+
+// Sets if saving is allowed or not
 static bool saveOk = false;
+
+// If custom car is used
+bool customCar = false;
+
+// Sets if loading is allowed
+bool loadOk = false;
+
+// Car save data reserved memory
 unsigned char carData[0xFF];
+
+// Car filename string
+char carFileName[0xFF];
+
+// SaveOk(void): Void
+// Enables saving
 static int SaveOk()
 {
 	saveOk = true;
 	return 1;
 }
-
-char carFileName[0xFF];
-bool loadOk = false;
-bool customCar = false;
 
 static int SaveGameData()
 {
