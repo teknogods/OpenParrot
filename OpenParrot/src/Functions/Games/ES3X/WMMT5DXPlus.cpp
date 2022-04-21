@@ -571,8 +571,8 @@ static int loadCarFile(char* filename)
 			memcpy((void*)(carSaveLocation + 0xB8), carDataDxp + 0xB8, 8); // Handling (0xB8), Rank (0xBC)
 			memcpy((void*)(carSaveLocation + 0xC0), carDataDxp + 0xC0, 8); // ??
 			memcpy((void*)(carSaveLocation + 0xC8), carDataDxp + 0xC8, 8); // ??
-			memcpy((void*)(carSaveLocation + 0xD0), carDataDxp + 0xD0, 8); // ??
-			memcpy((void*)(carSaveLocation + 0xD8), carDataDxp + 0xD8, 8); // ??
+			// memcpy((void*)(carSaveLocation + 0xD0), carDataDxp + 0xD0, 8); // ??
+			// memcpy((void*)(carSaveLocation + 0xD8), carDataDxp + 0xD8, 8); // ??
 		}
 
 		// Disable loading
