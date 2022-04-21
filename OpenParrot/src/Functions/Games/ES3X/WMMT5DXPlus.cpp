@@ -844,17 +844,27 @@ static int loadGameData()
 	// Default directory
 	char* filepath = ".";
 
+	writeLog(logfileDxp, "creating directories ...");
+
 	// Ensure the directory exists
 	std::filesystem::create_directories(filepath);
+
+	writeLog(logfileDxp, "loading story ...");
 
 	// Load the openprogress.sav file
 	loadStoryData(filepath);
 
+	writeLog(logfileDxp, "loading car ...");
+
 	// Load the car save file
 	loadCarData(filepath);
 
+	writeLog(logfileDxp, "loading miles ...");
+
 	// Load the miles save file
 	loadMileData(filepath);
+
+	writeLog(logfileDxp, "success.");
 
 	// Success
 	return 1;
