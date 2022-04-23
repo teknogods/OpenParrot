@@ -78,9 +78,7 @@ void BG4ManualHack(Helpers* helpers) //Hack to allow us to select Manual
 	if (MenuTime == 0x1194)
 	{
 		if (!MenuHack)
-		{
 			MenuHack = true;
-		}
 	}
 
 	if (MenuTime == 0x00)
@@ -117,17 +115,13 @@ static void BG4ProManualHack(Helpers* helpers) //Hack to allow us to select Manu
 	if (VehicleSelection)
 	{
 		if (!MenuHack)
-		{
 			MenuHack = true;
-		}
 	}
 
 	if (MenuTime == 0x00)
 	{
 		if (MenuHack)
-		{
 			MenuHack = false;
-		}
 	}
 
 	if (MenuHack)
@@ -152,7 +146,7 @@ void BG4ProInputs(Helpers* helpers)
 	if (!init)
 	{
 		imageBase = (DWORD)GetModuleHandleA(0);
-		UINT8 WaitForAttract = helpers->ReadByte(0x42D964, true);
+		UINT8 WaitForAttract = helpers->ReadByte(0x42E386, true);
 
 		if (WaitForAttract)
 		{

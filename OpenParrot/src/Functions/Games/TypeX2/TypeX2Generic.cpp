@@ -517,6 +517,9 @@ static InitFunction initFunction([]()
 			// Fix sound only being in left ear
 			injector::WriteMemoryRaw(imageBase + 0x36C3DC, "\x00\x60\xA9\x45", 4, true);
 
+			// Rename window name
+			injector::WriteMemoryRaw(imageBase + 0x36B790, "\x4F\x70\x65\x6E\x50\x61\x72\x72\x6F\x74\x20\x2D\x20\x42\x61\x74\x74\x6C\x65\x20\x47\x65\x61\x72\x20\x34\x20\x54\x75\x6E\x65\x64", 37, true);
+
 			if (ToBool(config["General"]["IntroFix"]))
 			{
 				// thanks for Ducon2016 for the patch!
