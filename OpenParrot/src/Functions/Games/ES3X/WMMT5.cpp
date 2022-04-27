@@ -1,6 +1,7 @@
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
+#include <filesystem>
 #include <iostream>
 #include <cstdint>
 #include <fstream>
@@ -427,8 +428,113 @@ unsigned int WINAPI Hook_bind(SOCKET s, const sockaddr *addr, int namelen) {
 	}
 }
 
-
+// Save data dump memory block
 unsigned char saveData[0x2000];
+
+// BASE: 0x24E0 
+// Campaing honor data: 2998, save 0xB8
+// Story Mode Honor data: 25F0, save 0x98
+// StoryModeNoLoseHonorData: 2C80, Copy 0,0x10, Copy 0x18,0x28 maybe 8 bytes more
+// OtherHonorData: 2A90, Copy 0x60
+// CampaignHonorData: 2698, Copy 0x48
+
+//static int SaveCampaingHonorData2()
+//{
+//	memset(saveData, 0, 0x1000);
+//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
+//	value += 0x2698;
+//	FILE* file = fopen(V("CampaignHonorData.sav"), V("wb"));
+//	memcpy(saveData, (void *)value, 0x48);
+//	fwrite(saveData, 1, 0x100, file);
+//	fclose(file);
+//	return 1;
+//}
+//
+//static int SaveOtherHonorData()
+//{
+//	memset(saveData, 0, 0x1000);
+//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
+//	value += 0x2A90;
+//	FILE* file = fopen(V("OtherHonorData.sav"), V("wb"));
+//	memcpy(saveData, (void *)value, 0x60);
+//	fwrite(saveData, 1, 0x100, file);
+//	fclose(file);
+//	return 1;
+//}
+//
+//static int SaveStoryModeNoLoseHonorData()
+//{
+//	memset(saveData, 0, 0x1000);
+//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
+//	value += 0x2C80;
+//	FILE* file = fopen(V("StoryModeNoLoseHonorData.sav"), V("wb"));
+//	memcpy(saveData, (void *)value, 0x10);
+//	value += 0x18;
+//	memcpy(saveData, (void *)value, 0x28);
+//	fwrite(saveData, 1, 0x100, file);
+//	fclose(file);
+//	return 1;
+//}
+//
+//static int SaveCampaingHonorData()
+//{
+//	memset(saveData, 0, 0x1000);
+//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
+//	value += 0x2998;
+//	FILE* file = fopen(V("campaing.sav"), V("wb"));
+//	memcpy(saveData, (void *)value, 0xB8);
+//	fwrite(saveData, 1, 0x100, file);
+//	fclose(file);
+//	return 1;
+//}
+//
+//static int SaveStoryData()
+//{
+//	memset(saveData, 0, 0x1000);
+//	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+//	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
+//	value += 0x25F0;
+//	FILE* file = fopen(V("story.sav"), V("wb"));
+//	memcpy(saveData, (void *)value, 0x98);
+//	fwrite(saveData, 1, 0x100, file);
+//	fclose(file);
+//	return 1;
+//}
+
+// setFullTune(void): Int
+// If the currently loaded car is NOT fully tuned, 
+// updates the power and handling values to be fully
+// tuned (16 for each). If they are already fully tuned,
+// does not change any values.
+static int setFullTune()
+{
+	// Car save hex address
+	auto carSaveBase = (uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
+	auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0x98);
+	auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase)+0x9C);
+
+	// Dereference the power value from the memory address
+	auto powerValue = injector::ReadMemory<uint8_t>(powerAddress, true);
+	auto handleValue = injector::ReadMemory<uint8_t>(handleAddress, true);
+
+	// If the power and handling values do not add up to fully tuned
+	if (powerValue + handleValue < 0x20)
+	{
+		// Car is not fully tuned, force it to the default full tune
+		injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
+		injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
+
+		// Updated
+		return 1;
+	}
+
+	// Not updated
+	return 0;
+}
 
 // forceFullTune(pArguments: void*): DWORD WINAPI
 // Function which runs in a secondary thread if the forceFullTune
@@ -443,24 +549,8 @@ static DWORD WINAPI forceFullTune(void* pArguments)
 		// Only runs every 16th frame
 		Sleep(16);
 
-		// Car save hex address
-		auto carSaveBase = (uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
-		auto powerAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase) + 0x98);
-		auto handleAddress = (uintptr_t*)(*(uintptr_t*)(carSaveBase) + 0x9C);
-
-		// Dereference the power value from the memory address
-		auto powerValue = injector::ReadMemory<uint8_t>(powerAddress, true);
-		auto handleValue = injector::ReadMemory<uint8_t>(handleAddress, true);
-
-		// If the power and handling values do not add up to fully tuned
-		if (powerValue + handleValue < 0x20)
-		{
-			// Car is not fully tuned, force it to the default full tune
-			injector::WriteMemory<uint8_t>(powerAddress, 0x10, true);
-			injector::WriteMemory<uint8_t>(handleAddress, 0x10, true);
-		}
-
-		// Otherwise, don't do anything :)
+		// Run the set full tune process
+		setFullTune();
 	}
 }
 
@@ -486,228 +576,529 @@ static int writeLog(std::string filename, std::string message)
 	// Open the filename provided (append mode)
 	eventLog.open(filename, std::ios_base::app);
 
-	// Write the message to the file
-	eventLog << message;
+	// File open success
+	if (eventLog.is_open())
+	{
+		// Write the message to the file
+		eventLog << message;
 
-	// Close the log file handle
-	eventLog.close();
+		// Close the log file handle
+		eventLog.close();
 
-	// Success
-	return 0;
+		// Success
+		return 0;
+	}
+	else // File open failed
+	{
+		// Failure
+		return 1;
+	}
 }
 
+// writeDump(filename: Char*, data: unsigned char *, size: size_t): Int
+static int writeDump(char* filename, unsigned char* data, size_t size)
+{
+	// Open the file with the provided filename
+	FILE* file = fopen(filename, "wb");
+
+	// File opened successfully
+	if (file)
+	{
+		// Write the data to the file
+		fwrite((void*)data, 1, size, file);
+
+		// Close the file
+		fclose(file);
+
+		// Return success status
+		return 0;
+	}
+	else // Failed to open
+	{
+		// Return failure status
+		return 1;
+	}
+}
+
+// Sets if saving is allowed or not
 static bool saveOk = false;
+
+// If custom car is used
+bool customCar = false;
+
+// Sets if loading is allowed
+bool loadOk = false;
+
+// Car save data reserved memory
 unsigned char carData[0xFF];
+
+// Car filename string
+char carFileName[0xFF];
+
+// SaveOk(void): Void
+// Enables saving
 static int SaveOk()
 {
 	saveOk = true;
 	return 1;
 }
 
-char carFileName[0xFF];
-bool loadOk = false;
-bool customCar = false;
-
-static int SaveGameData()
+// loadCarFile(filename: char*): Int
+// Given a filename, loads the data from
+// the car file into memory. 
+static int loadCarFile(char* filename)
 {
-	if (!saveOk)
-		return 1;
+	// Open the file with the filename
+	FILE* file = fopen(filename, "rb");
 
-	// Zero out save data binary
-	memset(saveData, 0, 0x2000);
-
-	// Get the hex address for the start of the save data block
-	uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-	value = *(uintptr_t*)(value + 0x108);
-	memcpy(saveData, (void *)value, 0x340);
-
-	FILE* file = fopen("openprogress.sav", "wb");
-	fwrite(saveData, 1, 0x2000, file);
-	fclose(file);
-
-	// Car Profile saving
-	memset(carData, 0, 0xFF);
-	memset(carFileName, 0, 0xFF);
-
-	memcpy(carData, (void *)*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18), 0xE0);
-	CreateDirectoryA("OpenParrot_Cars", nullptr);
-	if(customCar)
-	{
-		sprintf(carFileName, ".\\OpenParrot_Cars\\custom.car");
-	}
-	else
-	{
-		sprintf(carFileName, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
-	}
-	FILE *carSave = fopen(carFileName, "wb");
-	fwrite(carData, 1, 0xE0, file);
-	fclose(carSave);
-	//SaveStoryData();
-	//SaveCampaingHonorData();
-	//SaveStoryModeNoLoseHonorData();
-	//SaveOtherHonorData();
-	//SaveCampaingHonorData2();
-	saveOk = false;
-	return 1;
-}
-
-uintptr_t saveGameOffset;
-
-static int LoadGameData()
-{
-	saveOk = false;
-	memset(saveData, 0x0, 0x2000);
-	FILE* file = fopen("openprogress.sav", "rb");
+	// File open OK
 	if (file)
 	{
+		// Get the length of the file
 		fseek(file, 0, SEEK_END);
 		int fsize = ftell(file);
-		if (fsize == 0x2000)
+
+		// If the file has the right size
+		if (fsize == 0xE0)
 		{
+			// Reset to start of the file and read it into the car data variable
 			fseek(file, 0, SEEK_SET);
-			fread(saveData, fsize, 1, file);
-			uintptr_t value = *(uintptr_t*)(imageBase + 0x1948F10);
-			value = *(uintptr_t*)(value + 0x108);
+			fread(carData, fsize, 1, file);
 
-			// First page
-			//memcpy((void *)(value), saveData, 0x48);
-			memcpy((void *)(value + 0x10), saveData + 0x10, 0x20);
-			memcpy((void *)(value + 0x40), saveData + 0x40, 0x08);
-			//memcpy((void *)(value + 0x48 + 8), saveData + 0x48 + 8, 0x20);
-			memcpy((void *)(value + 0x48 + 8), saveData + 0x48 + 8, 0x08);
-			memcpy((void *)(value + 0x48 + 24), saveData + 0x48 + 24, 0x08);
-			memcpy((void *)(value + 0x48 + 32), saveData + 0x48 + 32, 0x08);
+			// Dereference the memory location for the car save data
+			uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
 
-			// Second page
-			value += 0x110;
-			memcpy((void *)(value), saveData + 0x110, 0x90);
-			value -= 0x110;
-
-			// Third Page
-			value += 0x1B8;
-			memcpy((void *)(value), saveData + 0x1B8, 0x48);
-			memcpy((void *)(value + 0x48 + 8), saveData + 0x1B8 + 0x48 + 8, 0x28);
-			value -= 0x1B8;
-
-			// Fourth page
-			value += 0x240;
-			memcpy((void *)(value), saveData + 0x240, 0x68);
-			value -= 0x240;
-
-			// Fifth page
-			value += 0x2B8;
-			memcpy((void *)(value), saveData + 0x2B8, 0x88);
-			value -= 0x2B8;
-
-			loadOk = true;
+			memcpy((void*)(carSaveLocation + 0x08), carData + 0x08, 8); // ??
+			memcpy((void*)(carSaveLocation + 0x10), carData + 0x10, 8); // ??
+			memcpy((void*)(carSaveLocation + 0x20), carData + 0x20, 8); // ??
+			memcpy((void*)(carSaveLocation + 0x28), carData + 0x28, 8); // ??
+			memcpy((void*)(carSaveLocation + 0x30), carData + 0x30, 8); // Stock Colour (0x30), Custom Colour (0x34)
+			memcpy((void*)(carSaveLocation + 0x38), carData + 0x38, 8); // Rims Type (0x38), Rims Colour (0x3C)
+			memcpy((void*)(carSaveLocation + 0x40), carData + 0x40, 8); // Aero Type (0x40), Hood Type (0x44)
+			memcpy((void*)(carSaveLocation + 0x50), carData + 0x50, 8); // Wing Type (0x50), Mirror Type (0x54)
+			memcpy((void*)(carSaveLocation + 0x58), carData + 0x58, 8); // Body Sticker Type (0x58), Variant (0x5C)
+			memcpy((void*)(carSaveLocation + 0x68), carData + 0x68, 8); // ??
+			memcpy((void*)(carSaveLocation + 0x7C), carData + 0x7C, 1); // Neon Type
+			memcpy((void*)(carSaveLocation + 0x80), carData + 0x80, 8); // Trunk Colour (0x80), Plate Frame (0x84)
+			memcpy((void*)(carSaveLocation + 0x88), carData + 0x88, 8); // Plate Frame Colour (0x8A)
+			memcpy((void*)(carSaveLocation + 0x90), carData + 0x90, 8); // ??
+			memcpy((void*)(carSaveLocation + 0x98), carData + 0x98, 8); // Power (0x98), Handling (0x9C)
+			memcpy((void*)(carSaveLocation + 0xA0), carData + 0xA0, 8); // Rank (0xA4)
+			memcpy((void*)(carSaveLocation + 0xA8), carData + 0xA8, 8); // ??
+			memcpy((void*)(carSaveLocation + 0xB8), carData + 0xB8, 8); // ??
+			memcpy((void*)(carSaveLocation + 0xC8), carData + 0xC8, 8); // ??
+			memcpy((void*)(carSaveLocation + 0xD8), carData + 0xD8, 8); // ??
 		}
+
+		// Disable loading
+		loadOk = false;
+
+		// Close the file
 		fclose(file);
+
+		// Success
+		return 1;
 	}
 
-	return 1;
+	// Failed
+	return 0;
 }
 
-static void LoadWmmt5CarData()
+// loadCarData(filepath: char*): Void
+// Given a filepath, attempts to load a 
+// car file (either custom.car or specific
+// car file) from that folder.
+static int loadCarData(char* filepath)
 {
-	if (!loadOk)
-		return;
-	customCar = false;
-	memset(carData, 0, 0xFF);
-	memset(carFileName, 0, 0xFF);
-	CreateDirectoryA("OpenParrot_Cars", nullptr);
+	// Sleep for 1 second
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-	// check for custom car
-	sprintf(carFileName, ".\\OpenParrot_Cars\\custom.car");
+	// Custom car disabled by default
+	customCar = false;
+
+	// Miles path string
+	char carPath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(carPath, 0, 0xFF);
+
+	// Copy the file path to the miles path
+	strcpy(carPath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(carPath, "\\OpenParrot_Cars");
+
+	// Create the OpenParrot_cars directory at the given filepath
+	std::filesystem::create_directories(carPath);
+
+	// Get the path to the custom car file
+	sprintf(carFileName, "%s\\custom.car", carPath);
+
+	// If the custom car file exists
 	if (FileExists(carFileName))
 	{
-		FILE* file = fopen(carFileName, "rb");
-		if (file)
-		{
-			fseek(file, 0, SEEK_END);
-			int fsize = ftell(file);
-			if (fsize == 0xE0)
-			{
-				fseek(file, 0, SEEK_SET);
-				fread(carData, fsize, 1, file);
-				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
+		// Load the custom car file
+		loadCarFile(carFileName);
 
-				memcpy((void*)(carSaveLocation + 0x08), carData + 0x08, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x10), carData + 0x10, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x20), carData + 0x20, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x28), carData + 0x28, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x30), carData + 0x30, 8); // Stock Colour (0x30), Custom Colour (0x34)
-				memcpy((void*)(carSaveLocation + 0x38), carData + 0x38, 8); // Rims Type (0x38), Rims Colour (0x3C)
-				memcpy((void*)(carSaveLocation + 0x40), carData + 0x40, 8); // Aero Type (0x40), Hood Type (0x44)
-				memcpy((void*)(carSaveLocation + 0x50), carData + 0x50, 8); // Wing Type (0x50), Mirror Type (0x54)
-				memcpy((void*)(carSaveLocation + 0x58), carData + 0x58, 8); // Body Sticker Type (0x58), Variant (0x5C)
-				memcpy((void*)(carSaveLocation + 0x68), carData + 0x68, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x7C), carData + 0x7C, 1); // Neon Type
-				memcpy((void*)(carSaveLocation + 0x80), carData + 0x80, 8); // Trunk Colour (0x80), Plate Frame (0x84)
-				memcpy((void*)(carSaveLocation + 0x88), carData + 0x88, 8); // Plate Frame Colour (0x8A)
-				memcpy((void*)(carSaveLocation + 0x90), carData + 0x90, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x98), carData + 0x98, 8); // Power (0x98), Handling (0x9C)
-				memcpy((void*)(carSaveLocation + 0xA0), carData + 0xA0, 8); // Rank (0xA4)
-				memcpy((void*)(carSaveLocation + 0xA8), carData + 0xA8, 8); // ??
-				memcpy((void*)(carSaveLocation + 0xB8), carData + 0xB8, 8); // ??
-				memcpy((void*)(carSaveLocation + 0xC8), carData + 0xC8, 8); // ??
-				memcpy((void*)(carSaveLocation + 0xD8), carData + 0xD8, 8); // ??
+		// Enable custom car switch
+		customCar = true;
+	}
 
-				customCar = true;
-			}
-			loadOk = false;
-			fclose(file);
-			return;
-		}
+	// Empty the car filename string
+	memset(carFileName, 0, 0xFF);
+
+	// Get the path to the specific car file
+	sprintf(carFileName, "%s\\%08X.car", carPath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
+
+	// If the specific car file exists
+	if (FileExists(carFileName))
+	{
+		// Load the car file
+		loadCarFile(carFileName);
 	}
 
 	// If the force full tune switch is set
 	if (ToBool(config["Tune"]["Force Full Tune"]))
 	{
 		// Create the force full tune thread
-		CreateThread(0, 0, forceFullTune, 0, 0, 0);
+		// CreateThread(0, 0, forceFullTune, 0, 0, 0);
+
+		// Set the car to be fully tuned
+		setFullTune();
 	}
 
-	memset(carFileName, 0, 0xFF);
-	// Load actual car if available
-	sprintf(carFileName, ".\\OpenParrot_Cars\\%08X.car", *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
-	if(FileExists(carFileName))
-	{
-		FILE* file = fopen(carFileName, "rb");
-		if (file)
-		{
-			fseek(file, 0, SEEK_END);
-			int fsize = ftell(file);
-			if (fsize == 0xE0)
-			{
-				fseek(file, 0, SEEK_SET);
-				fread(carData, fsize, 1, file);
-				uintptr_t carSaveLocation = *(uintptr_t*)((*(uintptr_t*)(imageBase + 0x1948F10)) + 0x180 + 0xa8 + 0x18);
+	// Success
+	return 1;
+}
 
-				memcpy((void*)(carSaveLocation + 0x08), carData + 0x08, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x10), carData + 0x10, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x20), carData + 0x20, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x28), carData + 0x28, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x30), carData + 0x30, 8); // Stock Colour (0x30), Custom Colour (0x34)
-				memcpy((void*)(carSaveLocation + 0x38), carData + 0x38, 8); // Rims Type (0x38), Rims Colour (0x3C)
-				memcpy((void*)(carSaveLocation + 0x40), carData + 0x40, 8); // Aero Type (0x40), Hood Type (0x44)
-				memcpy((void*)(carSaveLocation + 0x50), carData + 0x50, 8); // Wing Type (0x50), Mirror Type (0x54)
-				memcpy((void*)(carSaveLocation + 0x58), carData + 0x58, 8); // Body Sticker Type (0x58), Variant (0x5C)
-				memcpy((void*)(carSaveLocation + 0x68), carData + 0x68, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x7C), carData + 0x7C, 1); // Neon Type
-				memcpy((void*)(carSaveLocation + 0x80), carData + 0x80, 8); // Trunk Colour (0x80), Plate Frame (0x84)
-				memcpy((void*)(carSaveLocation + 0x88), carData + 0x88, 8); // Plate Frame Colour (0x8A)
-				memcpy((void*)(carSaveLocation + 0x90), carData + 0x90, 8); // ??
-				memcpy((void*)(carSaveLocation + 0x98), carData + 0x98, 8); // Power (0x98), Handling (0x9C)
-				memcpy((void*)(carSaveLocation + 0xA0), carData + 0xA0, 8); // Rank (0xA4)
-				memcpy((void*)(carSaveLocation + 0xA8), carData + 0xA8, 8); // ??
-				memcpy((void*)(carSaveLocation + 0xB8), carData + 0xB8, 8); // ??
-				memcpy((void*)(carSaveLocation + 0xC8), carData + 0xC8, 8); // ??
-				memcpy((void*)(carSaveLocation + 0xD8), carData + 0xD8, 8); // ??
-			}
-			fclose(file);
+static int saveCarData(char* filepath) 
+{
+	// Car Profile saving
+	memset(carData, 0, 0xFF);
+	memset(carFileName, 0, 0xFF);
+
+	// Get the hex address for the start of the save data block
+	uintptr_t saveDataBase = *(uintptr_t*)(imageBase + 0x1948F10);
+
+	// Address where car save data starts
+	uintptr_t carSaveBase = *(uintptr_t*)(saveDataBase + 0x108);
+
+	// Miles path string
+	char carPath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(carPath, 0, 0xFF);
+
+	// Copy the file path to the miles path
+	strcpy(carPath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(carPath, "\\OpenParrot_Cars");
+
+	// CreateDirectoryA(carPath, nullptr);
+
+	// Create the cars path folder
+	std::filesystem::create_directories(carPath);
+
+	// Copy the 0xE0 bytes from memory to the car data array
+	memcpy(carData, (void*)*(uintptr_t*)(saveDataBase + 0x180 + 0xa8 + 0x18), 0xE0);
+
+	// If custom car is set
+	if (customCar)
+	{
+		// Save the file to custom.car
+		sprintf(carPath, "%s\\custom.car", carPath);
+	}
+	else // Custom car is not set
+	{
+		// Save the file to the specific car filename
+		sprintf(carPath, "%s\\%08X.car", carPath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
+	}
+
+	// Open the file at the given car path
+	FILE* carFile = fopen(carPath, "wb");
+
+	// Write the data from the array to the file
+	fwrite(carData, 1, 0xE0, carFile);
+	fclose(carFile);
+
+	// Success
+	return 1;
+}
+
+static int saveStoryData(char* filepath)
+{
+	// Miles path string
+	char storyPath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(storyPath, 0, 0xFF);
+
+	// Copy the file path to the miles path
+	strcpy(storyPath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(storyPath, "\\openprogress.sav");
+
+	// Save story data
+	
+	// Address where player save data starts
+	uintptr_t saveDataBase = *(uintptr_t*)(imageBase + 0x1948F10);
+
+	// Zero out save data binary
+	memset(saveData, 0, 0x2000);
+
+	// Address where the story save data starts
+	uintptr_t storySaveBase = *(uintptr_t*)(saveDataBase + 0x108);
+
+	// Copy to saveData from the story save data index
+	memcpy(saveData, (void*)storySaveBase, 0x340);
+
+	// Dump the save data to openprogress.sav
+	writeDump(storyPath, saveData, 0x2000);
+
+	//SaveStoryData();
+	//SaveCampaingHonorData();
+	//SaveStoryModeNoLoseHonorData();
+	//SaveOtherHonorData();
+	//SaveCampaingHonorData2();
+
+	// Success
+	return 1;
+}
+
+static int loadStoryData(char* filepath)
+{
+	// Zero out the save data array
+	memset(saveData, 0x0, 0x2000);
+
+	// Miles path string
+	char storyPath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(storyPath, 0, 0xFF);
+
+	// Copy the file path to the miles path
+	strcpy(storyPath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(storyPath, "\\openprogress.sav");
+
+	// Address where player save data starts
+	uintptr_t saveDataBase = *(uintptr_t*)(imageBase + 0x1948F10);
+
+	// Open the openprogress file with read privileges	
+	FILE* file = fopen(storyPath, "rb");
+
+	// If the file exists
+	if (file)
+	{
+		// Get all of the contents from the file
+		fseek(file, 0, SEEK_END);
+		
+		// Get the size of the file
+		int fsize = ftell(file);
+		
+		// Check file is correct size
+		if (fsize == 0x2000)
+		{
+			// Reset seek index to start
+			fseek(file, 0, SEEK_SET);
+
+			// Read all of the contents of the file into saveDatadxp
+			fread(saveData, fsize, 1, file);
+
+			// Story save data offset
+			uintptr_t saveStoryBase = *(uintptr_t*)(saveDataBase + 0x108);
+
+			// Not sure why, but story doesn't load unless I add this
+			memcpy((void*)(saveStoryBase + 0x48), saveData + 0x48, 0x1);
+
+			// Pretty sure this is the whole save file region, but need to test more :)
+			memcpy((void*)(saveStoryBase + 0xE0), saveData + 0xE0, 0x80);
+
+			/*
+			// First page
+			//memcpy((void *)(value), saveData, 0x48);
+			memcpy((void*)(value + 0x10), saveData + 0x10, 0x20);
+			memcpy((void*)(value + 0x40), saveData + 0x40, 0x08);
+			//memcpy((void *)(value + 0x48 + 8), saveData + 0x48 + 8, 0x20);
+			memcpy((void*)(value + 0x48 + 8), saveData + 0x48 + 8, 0x08);
+			memcpy((void*)(value + 0x48 + 24), saveData + 0x48 + 24, 0x08);
+			memcpy((void*)(value + 0x48 + 32), saveData + 0x48 + 32, 0x08);
+
+			// Second page
+			value += 0x110;
+			memcpy((void*)(value), saveData + 0x110, 0x90);
+			value -= 0x110;
+
+			// Third Page
+			value += 0x1B8;
+			memcpy((void*)(value), saveData + 0x1B8, 0x48);
+			memcpy((void*)(value + 0x48 + 8), saveData + 0x1B8 + 0x48 + 8, 0x28);
+			value -= 0x1B8;
+
+			// Fourth page
+			value += 0x240;
+			memcpy((void*)(value), saveData + 0x240, 0x68);
+			value -= 0x240;
+
+			// Fifth page
+			value += 0x2B8;
+			memcpy((void*)(value), saveData + 0x2B8, 0x88);
+			value -= 0x2B8;
+			*/
+
+
+			// Save data loaded successfully
+			loadOk = true;
+		}
+		fclose(file);
+	}
+
+	//LoadStoryData();
+	//LoadCampaingHonorData();
+	//LoadStoryModeNoLoseHonorData();
+	//LoadOtherHonorData();
+	//LoadCampaingHonorData2();
+
+	// Success status
+	return 1;
+}
+
+static int SaveGameData()
+{
+	// Saving is disabled
+	if (!saveOk)
+		return 1;
+
+	// Miles path string
+	char savePath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(savePath, 0, 0xFF);
+
+	// Wirte the '.' into the load path
+	sprintf(savePath, ".");
+
+	// Seperate save file / cars per user profile
+	if (ToBool(config["Save"]["Save Per Custom Name"]))
+	{
+		// Get the profile name from the 
+		std::string name = config["General"]["CustomName"];
+
+		// Add the c string version of the profile name to the path
+		sprintf(savePath, "%s\\%s", savePath, name.c_str());
+	}
+
+	// Seperate miles / story per car
+	if (ToBool(config["Save"]["Save Per Car"]))
+	{
+		// Need to get the hex code for the selected car
+
+		// Address where player save data starts
+		uintptr_t saveDataBase = *(uintptr_t*)(imageBase + 0x1948F10);
+
+		// Address where the car save data starts
+		uintptr_t carSaveBase = *(uintptr_t*)(saveDataBase + 0x108);
+
+		// If custom car is set
+		if (customCar)
+		{
+			// Add the car id to the save path
+			sprintf(savePath, "%s\\custom", savePath);
+		}
+		else // Custom car is not set
+		{
+			// Add the custom folder to the save path
+			sprintf(savePath, "%s\\%08X", savePath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
 		}
 	}
-	loadOk = false;
+
+	// Ensure the directory exists
+	std::filesystem::create_directories(savePath);
+
+	// Save the openprogress.sav file
+	saveStoryData(savePath);
+
+	// Save the car save file
+	saveCarData(savePath);
+
+	// Disable saving
+	saveOk = false;
+
+	// Success
+	return 1;
+}
+
+static int loadGameData()
+{
+	// Disable saving
+	saveOk = false;
+
+	// Miles path string
+	char loadPath[0xFF];
+
+	// Set the milepath memory to zero
+	memset(loadPath, 0, 0xFF);
+
+	// Wirte the '.' into the load path
+	sprintf(loadPath, ".");
+
+	// Seperate save file / cars per user profile
+	if (ToBool(config["Save"]["Save Per Custom Name"]))
+	{
+		// Get the profile name from the 
+		std::string name = config["General"]["CustomName"];
+
+		// Add the c string version of the profile name to the path
+		sprintf(loadPath, "%s\\%s", loadPath, name.c_str());
+	}
+
+	// Seperate miles / story per car
+	if (ToBool(config["Save"]["Save Per Car"]))
+	{
+		// Need to get the hex code for the selected car
+
+		// Address where player save data starts
+		uintptr_t saveDataBase = *(uintptr_t*)(imageBase + 0x1948F10);
+
+		// Address where the car save data starts
+		uintptr_t carSaveBase = *(uintptr_t*)(saveDataBase + 0x108);
+
+		// If custom car is set
+		if (customCar)
+		{
+			// Add the car id to the save path
+			sprintf(loadPath, "%s\\custom", loadPath);
+		}
+		else // Custom car is not set
+		{
+			// Add the custom folder to the save path
+			sprintf(loadPath, "%s\\%08X", loadPath, *(DWORD*)(*(uintptr_t*)(*(uintptr_t*)(imageBase + 0x1948F10) + 0x180 + 0xa8 + 0x18) + 0x2C));
+		}
+	}
+
+	// Ensure the directory exists
+	std::filesystem::create_directories(loadPath);
+
+	// Load the openprogress.sav file
+	loadStoryData(loadPath);
+
+	// Load the car save file
+	loadCarData(loadPath);
+
+	// Success
+	return 1;
+}
+
+static void loadGame()
+{
+	// Runs after car data is loaded
+
+	// Load story data thread
+	std::thread t1(loadGameData);
+	t1.detach();
 }
 
 static int ReturnTrue()
@@ -1123,7 +1514,9 @@ static InitFunction Wmmt5Func([]()
 		// skip erasing of temp card data
 		injector::WriteMemory<uint8_t>(imageBase + 0x8DEBC3, 0xEB, true);
 		// Skip erasing of temp card
-		safeJMP(imageBase + 0x54DCE1, LoadGameData);
+		
+		// Old story load func
+		// safeJMP(imageBase + 0x54DCE1, LoadGameData);
 		safeJMP(imageBase + 0x5612F0, ReturnTrue);
 		safeJMP(imageBase + 0x5753C0, ReturnTrue);
 		safeJMP(imageBase + 0x57DF10, ReturnTrue);
@@ -1141,7 +1534,11 @@ static InitFunction Wmmt5Func([]()
 		safeJMP(imageBase + 0x5507A0, ReturnTrue);
 		safeJMP(imageBase + 0x561290, ReturnTrue);
 
-		safeJMP(imageBase + 0x5A0AE8, LoadWmmt5CarData);
+		
+		// safeJMP(imageBase + 0x5A0AE8, LoadWmmt5CarData);
+
+		// Load story and car data
+		safeJMP(imageBase + 0x5A0AE8, loadGame);
 		
 		// crash fix
 		//safeJMP(imageBase + 0xAD6F28, WmmtOperatorDelete);
