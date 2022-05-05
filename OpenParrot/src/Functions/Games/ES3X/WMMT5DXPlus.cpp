@@ -878,10 +878,26 @@ static int loadStoryData(char* filepath)
 			uintptr_t saveStoryBase = *(uintptr_t*)(saveDataBase + 0x108);
 
 			// Not sure why, but story doesn't load unless I add this
-			memcpy((void*)(saveStoryBase + 0x48), saveDatadxp + 0x48, 0x1);
+			memcpy((void*)(saveStoryBase + 0x48), saveDatadxp + 0x48, 0x8);
+
 
 			// Pretty sure this is the whole save file region, but need to test more :)
-			memcpy((void*)(saveStoryBase + 0xE0), saveDatadxp + 0xE0, 0x80);
+			memcpy((void*)(saveStoryBase + 0xE0), saveDatadxp + 0xE0, 0x8);
+			memcpy((void*)(saveStoryBase + 0xE8), saveDatadxp + 0xE8, 0x8);
+			memcpy((void*)(saveStoryBase + 0xF0), saveDatadxp + 0xF0, 0x8);
+			memcpy((void*)(saveStoryBase + 0xF8), saveDatadxp + 0xF8, 0x8);
+			memcpy((void*)(saveStoryBase + 0x100), saveDatadxp + 0x100, 0x8);
+			memcpy((void*)(saveStoryBase + 0x108), saveDatadxp + 0x108, 0x8);
+			memcpy((void*)(saveStoryBase + 0x110), saveDatadxp + 0x110, 0x8);
+			memcpy((void*)(saveStoryBase + 0x118), saveDatadxp + 0x118, 0x8);
+			memcpy((void*)(saveStoryBase + 0x120), saveDatadxp + 0x120, 0x8);
+			memcpy((void*)(saveStoryBase + 0x128), saveDatadxp + 0x128, 0x8);
+			memcpy((void*)(saveStoryBase + 0x130), saveDatadxp + 0x130, 0x8);
+			memcpy((void*)(saveStoryBase + 0x138), saveDatadxp + 0x138, 0x8);
+			memcpy((void*)(saveStoryBase + 0x140), saveDatadxp + 0x140, 0x8);
+			memcpy((void*)(saveStoryBase + 0x148), saveDatadxp + 0x148, 0x8);
+			memcpy((void*)(saveStoryBase + 0x150), saveDatadxp + 0x150, 0x8);
+			memcpy((void*)(saveStoryBase + 0x158), saveDatadxp + 0x158, 0x8);
 
 			// Save data loaded successfully
 			loadOkDxp = true;
@@ -1216,7 +1232,7 @@ static int loadGameData()
 	memset(loadPath, 0, 0xFF);
 
 	// Wirte the '.' into the load path
-	sprintf(loadPath, ".");
+	sprintf(loadPath, ".\\SaveData");
 
 	// Seperate save file / cars per user profile
 	if (ToBool(config["Save"]["Save Per Custom Name"]))
@@ -1255,11 +1271,11 @@ static int loadGameData()
 	// Ensure the directory exists
 	std::filesystem::create_directories(loadPath);
 
-	// Load the openprogress.sav file
-	loadStoryData(loadPath);
-
 	// Load the car save file
 	loadCarData(loadPath);
+
+	// Load the openprogress.sav file
+	loadStoryData(loadPath);
 
 	// Load the miles save file
 	loadMileData(loadPath);
@@ -1286,7 +1302,7 @@ static int SaveGameData()
 	memset(savePath, 0, 0xFF);
 
 	// Wirte the '.' into the load path
-	sprintf(savePath, ".");
+	sprintf(savePath, ".\\SaveData");
 
 	// Seperate save file / cars per user profile
 	if (ToBool(config["Save"]["Save Per Custom Name"]))

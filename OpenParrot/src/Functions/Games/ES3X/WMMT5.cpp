@@ -7,7 +7,9 @@
 #include <fstream>
 #include "MinHook.h"
 #include <Utility/Hooking.Patterns.h>
+#include <chrono>
 #include <thread>
+
 #ifdef _M_AMD64
 
 #pragma optimize("", off)
@@ -546,7 +548,7 @@ static DWORD WINAPI forceFullTune(void* pArguments)
 	// Loops while the program is running
 	while (true) {
 
-		// Only runs every 16th frame
+		// Sleep for 16ms
 		Sleep(16);
 
 		// Run the set full tune process
