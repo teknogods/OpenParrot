@@ -877,27 +877,30 @@ static int loadStoryData(char* filepath)
 			// Story save data offset
 			uintptr_t saveStoryBase = *(uintptr_t*)(saveDataBase + 0x108);
 
-			// Not sure why, but story doesn't load unless I add this
-			memcpy((void*)(saveStoryBase + 0x48), saveDatadxp + 0x48, 0x8);
+			// 0x00 - 08 4C - Should be able to use this to figure out what game a save is from
 
+			// (Mostly) discovered story data
 
-			// Pretty sure this is the whole save file region, but need to test more :)
-			memcpy((void*)(saveStoryBase + 0xE0), saveDatadxp + 0xE0, 0x8);
-			memcpy((void*)(saveStoryBase + 0xE8), saveDatadxp + 0xE8, 0x8);
-			memcpy((void*)(saveStoryBase + 0xF0), saveDatadxp + 0xF0, 0x8);
-			memcpy((void*)(saveStoryBase + 0xF8), saveDatadxp + 0xF8, 0x8);
-			memcpy((void*)(saveStoryBase + 0x100), saveDatadxp + 0x100, 0x8);
-			memcpy((void*)(saveStoryBase + 0x108), saveDatadxp + 0x108, 0x8);
-			memcpy((void*)(saveStoryBase + 0x110), saveDatadxp + 0x110, 0x8);
-			memcpy((void*)(saveStoryBase + 0x118), saveDatadxp + 0x118, 0x8);
-			memcpy((void*)(saveStoryBase + 0x120), saveDatadxp + 0x120, 0x8);
-			memcpy((void*)(saveStoryBase + 0x128), saveDatadxp + 0x128, 0x8);
-			memcpy((void*)(saveStoryBase + 0x130), saveDatadxp + 0x130, 0x8);
-			memcpy((void*)(saveStoryBase + 0x138), saveDatadxp + 0x138, 0x8);
-			memcpy((void*)(saveStoryBase + 0x140), saveDatadxp + 0x140, 0x8);
-			memcpy((void*)(saveStoryBase + 0x148), saveDatadxp + 0x148, 0x8);
-			memcpy((void*)(saveStoryBase + 0x150), saveDatadxp + 0x150, 0x8);
-			memcpy((void*)(saveStoryBase + 0x158), saveDatadxp + 0x158, 0x8);
+			memcpy((void*)(saveStoryBase + 0x48), saveDatadxp + 0x48, 0x8); // Story Bit
+			memcpy((void*)(saveStoryBase + 0xE0), saveDatadxp + 0xE0, 0x8); // ??
+			memcpy((void*)(saveStoryBase + 0xE8), saveDatadxp + 0xE8, 0x8); // Chapter Progress (0xE8) (Bitmask)
+			memcpy((void*)(saveStoryBase + 0xF0), saveDatadxp + 0xF0, 0x8); // Current Chapter (0xF0), Total Wins (0xF4)
+			memcpy((void*)(saveStoryBase + 0xF8), saveDatadxp + 0xF8, 0x8); // ??
+			memcpy((void*)(saveStoryBase + 0x100), saveDatadxp + 0x100, 0x8); // Win Streak (0x104)
+			memcpy((void*)(saveStoryBase + 0x108), saveDatadxp + 0x108, 0x8); // ??
+			memcpy((void*)(saveStoryBase + 0x110), saveDatadxp + 0x110, 0x8); // Locked Chapters (0x110) (Bitmask)
+			
+			// Can't tell if the data past this point does anything
+			
+			// memcpy((void*)(saveStoryBase + 0x118), saveDatadxp + 0x118, 0x8); // ??
+			// memcpy((void*)(saveStoryBase + 0x120), saveDatadxp + 0x120, 0x8); // ??
+			// memcpy((void*)(saveStoryBase + 0x128), saveDatadxp + 0x128, 0x8); // ??
+			// memcpy((void*)(saveStoryBase + 0x130), saveDatadxp + 0x130, 0x8); // ??
+			// memcpy((void*)(saveStoryBase + 0x138), saveDatadxp + 0x138, 0x8); // ??
+			// memcpy((void*)(saveStoryBase + 0x140), saveDatadxp + 0x140, 0x8); // ??
+			// memcpy((void*)(saveStoryBase + 0x148), saveDatadxp + 0x148, 0x8); // ??
+			// memcpy((void*)(saveStoryBase + 0x150), saveDatadxp + 0x150, 0x8); // ??
+			// memcpy((void*)(saveStoryBase + 0x158), saveDatadxp + 0x158, 0x8); // ??
 
 			// Save data loaded successfully
 			loadOkDxp = true;
@@ -912,6 +915,8 @@ static int loadStoryData(char* filepath)
 			//TA stuff
 
 			//[[[[magic_rva]+108]+340]+50]
+
+			// memcpy((void*)(saveStoryBase + 0x24E0 + 0x16), saveDatadxp + 0x16, 0x1000);
 
 			//value += 0x24E0;
 			// First chunk
@@ -1341,11 +1346,11 @@ static int SaveGameData()
 	// Ensure the directory exists
 	std::filesystem::create_directories(savePath);
 
-	// Load the openprogress.sav file
-	saveStoryData(savePath);
-
 	// Load the car save file
 	saveCarData(savePath);
+
+	// Load the openprogress.sav file
+	saveStoryData(savePath);
 
 	// Load the miles save file
 	saveMileData(savePath);
