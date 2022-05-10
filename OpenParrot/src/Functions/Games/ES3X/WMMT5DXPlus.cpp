@@ -1237,7 +1237,8 @@ static int loadGameData()
 	memset(loadPath, 0, 0xFF);
 
 	// Wirte the '.' into the load path
-	sprintf(loadPath, ".\\SaveData");
+	// sprintf(loadPath, ".\\SaveData");
+	sprintf(loadPath, ".");
 
 	// Seperate save file / cars per user profile
 	if (ToBool(config["Save"]["Save Per Custom Name"]))
@@ -1307,7 +1308,8 @@ static int SaveGameData()
 	memset(savePath, 0, 0xFF);
 
 	// Wirte the '.' into the load path
-	sprintf(savePath, ".\\SaveData");
+	// sprintf(savePath, ".\\SaveData");
+	sprintf(savePath, ".");
 
 	// Seperate save file / cars per user profile
 	if (ToBool(config["Save"]["Save Per Custom Name"]))
