@@ -376,6 +376,9 @@ unsigned char saveDatadxp[0x2000];
 // Mile data dump memory block
 unsigned char mileDatadxp[0x08];
 
+// Star data dump memory block
+unsigned char starDataDxp[0x40];
+
 //set system date patch by pockywitch
 typedef bool (WINAPI* SETSYSTEMTIME)(SYSTEMTIME* in);
 SETSYSTEMTIME pSetSystemTime = NULL;
@@ -673,9 +676,6 @@ static int loadCarFile(char* filename)
 // car file) from that folder.
 static int loadCarData(char * filepath)
 {
-	// Sleep for 1 second
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
 	// Custom car disabled by default
 	customCarDxp = false;
 
@@ -1225,6 +1225,107 @@ static int saveMileData(char* filepath)
 	return 1;
 }
 
+// Credits to chery vtec tuning club for figuring out star loading / saving
+static int saveStarData(char* filepath)
+{
+	// Star path saving
+	char starPath[0xFF];
+
+	// Set the storyPath memory to zero
+	memset(starPath, 0, 0xFF);
+
+	// Copy the file path to the stars path
+	strcpy(starPath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(starPath, "\\stars.bin");
+
+	// Clear star data memory
+	memset(starDataDxp, 0, 0x40);
+
+	// Save Star Data
+
+	// Dereference the star pointer
+	uintptr_t starBase = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x110);
+
+	// Dumps first 2 bytes from star pointer
+	memcpy(starDataDxp + 0x00, (void*)(starBase + 0x248), 0x2);
+
+	// Dumps medal offsets from star pointer, 16 bytes
+	memcpy(starDataDxp + 0x04, (void*)(starBase + 0x254), 0x10);
+
+	// Dump the contents of the star data array to the file
+	writeDump(starPath, starDataDxp, sizeof(starDataDxp));
+
+	// Success
+	return 1;
+}
+
+static int loadStarData(char* filepath)
+{
+	// Star path loading
+	char starPath[0xFF];
+
+	// Set the storyPath memory to zero
+	memset(starPath, 0, 0xFF);
+
+	// Copy the file path to the stars path
+	strcpy(starPath, filepath);
+
+	// Append the mileage filename to the string
+	strcat(starPath, "\\stars.bin");
+
+	// Clear star data memory
+	memset(starDataDxp, 0, 0x40);
+
+	// Open the star binary file
+	FILE* starFile = fopen(starPath, "rb");
+
+	// saveStarData(".\\preloadstars");
+	writeLog(logfileDxp, "Loading stars ...\n");
+
+	// If the file opened successfully
+	if (starFile)
+	{
+		// saveStarData(".\\preloadstars");
+		writeLog(logfileDxp, "success.\n");
+
+		// If the file size is correct
+		fseek(starFile, 0, SEEK_END);
+		int starSize = ftell(starFile);
+		if (starSize == 0x40)
+		{
+			// Reset the file pointer to the start
+			fseek(starFile, 0, SEEK_SET);
+
+			// Read all of the contents into the array
+			fread(starDataDxp, starSize, 1, starFile);
+
+			// Dereference the star pointer in the game memory
+			uintptr_t starBase = *(uintptr_t*)((*(uintptr_t*)(imageBasedxplus + 0x1F7D578)) + 0x110);
+
+			// Dumps first 2 bytes from star pointer
+			memcpy((void*)(starBase + 0x248), starDataDxp + 0x00, 0x2);
+
+			// Dumps medal offsets from star pointer, 16 bytes
+			memcpy((void*)(starBase + 0x254), starDataDxp + 0x04, 0x10);
+
+			// Close the stars file
+			fclose(starFile);
+		}
+	}
+
+	// saveStarData(".\\postloadstars");
+
+	// Delay another ten seconds
+	// std::this_thread::sleep_for(std::chrono::seconds(10));
+
+	// saveStarData(".\\delayloadstars");
+
+	// Success
+	return 1;
+}
+
 static int loadGameData()
 {
 	// Disable saving
@@ -1277,6 +1378,9 @@ static int loadGameData()
 	// Ensure the directory exists
 	std::filesystem::create_directories(loadPath);
 
+	// Sleep for 1 second
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
 	// Load the car save file
 	loadCarData(loadPath);
 
@@ -1285,6 +1389,12 @@ static int loadGameData()
 
 	// Load the miles save file
 	loadMileData(loadPath);
+
+	// Sleep for 14 seconds
+	std::this_thread::sleep_for(std::chrono::seconds(14));
+
+	// Load the stars save file
+	loadStarData(loadPath);
 
 	// Success
 	return 1;
@@ -1356,6 +1466,9 @@ static int SaveGameData()
 
 	// Load the miles save file
 	saveMileData(savePath);
+
+	// Load the miles save file
+	saveStarData(savePath);
 
 	// Disable saving
 	saveOk = false;
