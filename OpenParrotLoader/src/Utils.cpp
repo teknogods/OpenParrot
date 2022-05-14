@@ -60,10 +60,10 @@ wchar_t* GetFileVersion(const wchar_t* pszFilePath)
 	}
 
 	swprintf(versionString, 64, L"%d.%d.%d.%d",
-		(pFileInfo->dwFileVersionMS >> 16) & 0xff,
-		(pFileInfo->dwFileVersionMS >> 0) & 0xff,
-		(pFileInfo->dwFileVersionLS >> 16) & 0xff,
-		(pFileInfo->dwFileVersionLS >> 0) & 0xff
+		(pFileInfo->dwFileVersionMS >> 16) & 0xFFFF,
+		(pFileInfo->dwFileVersionMS >> 0) & 0xFFFF,
+		(pFileInfo->dwFileVersionLS >> 16) & 0xFFFF,
+		(pFileInfo->dwFileVersionLS >> 0) & 0xFFFF
 	);
 
 	return versionString;
