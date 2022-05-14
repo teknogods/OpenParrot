@@ -5,6 +5,8 @@
 
 // Based of the awesome work of BatteryShark! (https://mercaldim.gitbook.io/writeups/20151128)
 
+#if _M_IX86
+
 uint8_t* g_bLAccelEnd = nullptr;  // Left accelerator pedal speed
 uint8_t* g_bRAccelEnd = nullptr;  // Right accelerator pedal speed
 uint8_t* g_bKeyExc = nullptr;     // Digital button triggers
@@ -300,3 +302,5 @@ static InitFunction FrenzyExpressFunc([]()
 
 	MH_EnableHook(MH_ALL_HOOKS);
 }, GameID::FrenzyExpress);
+
+#endif

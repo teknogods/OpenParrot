@@ -413,29 +413,6 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::Daytona3;
 			break;
 		}
-#if !_DEBUG
-		// IF GAME = JusticeLeague (if workingdir\JLA.exe exists) , AVOID THIS CHECK (note: darius checked offset is beyond JLA exe limits and TP crashes...)
-		char working_directory[MAX_PATH + 1];
-		GetCurrentDirectoryA(sizeof(working_directory), working_directory);
-		std::string JLAexestr0 = working_directory;
-		std::string JLAexestr = JLAexestr0 + "\\JLA.exe";
-		bool JLAexists(std::filesystem::exists(JLAexestr.c_str()));
-		if (JLAexists == false)
-		{
-			if (*(uint32_t*)(moduleBase + 0x2CC751) == 0x6B75C084)
-			{
-				currentGame = GameID::DariusBurst;
-				NesicaKey = NesicaKey::DariusBurst;
-				break;
-			}
-			if (*(uint32_t*)(moduleBase + 0x302741) == 0x7075C084)
-			{
-				currentGame = GameID::DariusBurst116;
-				NesicaKey = NesicaKey::DariusBurst;
-				break;
-			}
-		}
-#endif
 #else
 		// X64
 		// School of Ragnarok
@@ -686,6 +663,14 @@ void GameDetect::DetectCurrentGame()
 		case 0x1B36A088: // Frenzy Express by Simply Austin
 			SetGameId(GameID::FrenzyExpress, "Frenzy Express");
 			break;
+		case 0x5F9F4B9F: // Dariusburst: Another Chronicle (V1.05)
+			SetGameId(GameID::DariusBurst, "Dariusburst: Another Chronicle (V1.05)");
+			NesicaKey = NesicaKey::DariusBurst;
+			break;
+		case 0xCD3EF573: // Dariusburst: Another Chronicle EX (V1.16)
+			SetGameId(GameID::DariusBurst116, "Dariusburst: Another Chronicle EX (V1.16)");
+			NesicaKey = NesicaKey::DariusBurst;
+			break;
 #ifdef _DEBUG
 		case 0x148CC191: // Elevator Action Death Parade
 			currentGame = GameID::ElevatorActionDeathParade;
@@ -860,6 +845,7 @@ void GameDetect::DetectCurrentGame()
 void GameDetect::SetGameId(GameID gameId, char* name)
 {
 	currentGame = gameId;
+	printf("Detected game: %s\n", name);
 #ifdef _DEBUG
 	info(true, "---------------------------------");
 	info(true, "Game CRC %s detected", name);
