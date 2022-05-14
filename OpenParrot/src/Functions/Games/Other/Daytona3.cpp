@@ -331,18 +331,10 @@ static InitFunction Daytona3Func([]()
 		injector::MakeNOP(imageBase + 0x29B513, 4);
 
 		if (ToBool(config["General"]["MSAA4X Disable"]))
-		{
 			injector::WriteMemoryRaw(imageBase + 0x17CD3D, "\x00", 1, true);
-		}
 
 		if (ToBool(config["General"]["Hide Cursor"]))
-		{
-			SetCursorPos(20000, 20000);
-		}
-		else
-		{
-			injector::MakeNOP(0x004DBB62, 8);
-		}
+			ShowCursor(false);
 
 		std::string FFBDeadzoneString = config["General"]["FFB Deadzone Percent"];
 		int FFBDeadzone = std::stoi(FFBDeadzoneString);
