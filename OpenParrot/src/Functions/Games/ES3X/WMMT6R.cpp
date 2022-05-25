@@ -962,7 +962,7 @@ static InitFunction Wmmt6RFunc([]()
 		// skip erasing of temp card data
 		injector::WriteMemory<uint8_t>(imageBase + 0xB2CF33, 0xEB, true);
 		// Skip erasing of temp card
-		safeJMP(imageBase + 0x6ADBF0, LoadGameData);
+		//safeJMP(imageBase + 0x6ADBF0, LoadGameData); //Disabled temporary to stop users copying WMMT6 save to 6R until save works correctly so load has a purpose!!
 		safeJMP(imageBase + 0x6C7270, ReturnTrue);
 	}
 
