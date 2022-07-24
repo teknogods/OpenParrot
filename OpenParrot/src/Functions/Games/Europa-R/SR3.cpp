@@ -115,13 +115,21 @@ static InitFunction sr3Func([]()
 		// don't hide cursor
 		injector::MakeNOP(0x591106, 8, true);
 
-		// don't clip cursor
-		MH_CreateHookApi(L"User32.dll", "ClipCursor", &ClipCursorHook, (void**)&ClipCursorOrg);
-		MH_CreateHookApi(L"User32.dll", "GetClipCursor", &GetClipCursorHook, (void**)&GetClipCursorOrg);
 		injector::MakeNOP(0x591189, 8, true);
 		injector::MakeNOP(0x5910FE, 8, true);
 
 		MH_CreateHookApi(L"User32.dll", "CreateWindowExA", &CreateWindowExAHook, (void**)&CreateWindowExAOrg);
+	}
+
+	if (ToBool(config["General"]["Windowed"]) || (ToBool(config["Score"]["Enable Submission (Patreon Only)"]) && ToBool(config["Score"]["Enable GUI"]))) // don't clip cursor
+	{
+		MH_CreateHookApi(L"User32.dll", "ClipCursor", &ClipCursorHook, (void**)&ClipCursorOrg);
+		MH_CreateHookApi(L"User32.dll", "GetClipCursor", &GetClipCursorHook, (void**)&GetClipCursorOrg);
+	}
+
+	if ((ToBool(config["Score"]["Enable Submission (Patreon Only)"]) && ToBool(config["Score"]["Enable GUI"]) && ToBool(config["Score"]["Hide Cursor"])))
+	{
+		ShowCursor(false);
 	}
 
 	MH_CreateHookApi(L"kernel32.dll", "GetPrivateProfileIntA", &GetPrivateProfileIntAHook, (void**)&GetPrivateProfileIntAOri);
