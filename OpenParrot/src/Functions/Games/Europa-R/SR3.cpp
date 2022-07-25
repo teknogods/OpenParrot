@@ -132,6 +132,32 @@ static InitFunction sr3Func([]()
 		ShowCursor(false);
 	}
 
+	if (ToBool(config["General"]["InRace 2D Adjust"]))
+	{
+		DWORD XResolution = FetchDwordInformation("General", "ResolutionWidth", 1280);
+
+		if (XResolution > 2560) //Seems to stretch resolution past 2560?
+			XResolution = 2560;
+
+		if (XResolution < 1280) //Adjust lower resolution later
+			XResolution = 1280;
+
+		DWORD TimerCountdownAdjust = ((XResolution - 1280) / 14.88372093023256) + 1280;
+		DWORD TimeExtendedAdjust = ((XResolution - 1280) / 6.0) + 1280;
+		DWORD FinalLapAdjust = ((XResolution - 1280) / 8.0) + 1280;
+
+		DWORD imageBase = (DWORD)GetModuleHandleA(0);
+		injector::WriteMemoryRaw(imageBase + 0x1A6F28, "\x66\xBA\x00\x05\x90\x90\x90", 7, true); //In Race Timer
+		injector::WriteMemoryRaw(imageBase + 0x19EA49, "\x66\xB9\x00\x05\x90\x90\x90", 7, true); //Time Extended
+		injector::WriteMemoryRaw(imageBase + 0x19E806, "\x66\xB9\x00\x05\x90\x90\x90", 7, true); //Final Lap
+		injector::WriteMemoryRaw(imageBase + 0x1A48E5, "\xBA\x00\x05\x00\x00\x90\x90", 7, true); //CountDown
+
+		injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, TimerCountdownAdjust, true);
+		injector::WriteMemory<WORD>(imageBase + 0x19EA4B, TimeExtendedAdjust, true);
+		injector::WriteMemory<WORD>(imageBase + 0x19E808, FinalLapAdjust, true);
+		injector::WriteMemory<WORD>(imageBase + 0x1A48E6, TimerCountdownAdjust, true);
+	}
+
 	MH_CreateHookApi(L"kernel32.dll", "GetPrivateProfileIntA", &GetPrivateProfileIntAHook, (void**)&GetPrivateProfileIntAOri);
 	MH_CreateHookApi(L"kernel32.dll", "GetPrivateProfileStringA", &GetPrivateProfileStringAHook, (void**)&GetPrivateProfileStringAOri);
 	MH_EnableHook(MH_ALL_HOOKS);
