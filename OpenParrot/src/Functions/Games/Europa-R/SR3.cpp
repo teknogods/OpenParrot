@@ -1,8 +1,32 @@
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
+#include "Mmsystem.h"
 #if _M_IX86
 extern int* ffbOffset;
+extern int* wheelSection;
+
+static bool CoinButton;
+static bool SoundFail;
+static bool Init;
+
+static int CoinSoundEntry;
+static int Play5;
+static int Play4;
+static int Play3;
+static int Play2;
+static int Play1;
+
+static LPCSTR OpenCoin1 = "open .\\Coin\\Coin.mp3 alias CoinSound1";
+static LPCSTR OpenCoin2 = "open .\\Coin\\Coin.mp3 alias CoinSound2";
+static LPCSTR OpenCoin3 = "open .\\Coin\\Coin.mp3 alias CoinSound3";
+static LPCSTR OpenCoin4 = "open .\\Coin\\Coin.mp3 alias CoinSound4";
+static LPCSTR OpenCoin5 = "open .\\Coin\\Coin.mp3 alias CoinSound5";
+static LPCSTR PlayCoin1 = "play CoinSound1 from 0";
+static LPCSTR PlayCoin2 = "play CoinSound2 from 0";
+static LPCSTR PlayCoin3 = "play CoinSound3 from 0";
+static LPCSTR PlayCoin4 = "play CoinSound4 from 0";
+static LPCSTR PlayCoin5 = "play CoinSound5 from 0";
 
 int __stdcall Sr3FfbFunc(DWORD device, DWORD data)
 {
@@ -72,6 +96,65 @@ static BOOL(__stdcall* GetClipCursorOrg)(LPRECT lpRect);
 static BOOL WINAPI GetClipCursorHook(LPRECT lpRect)
 {
 	return false;
+}
+
+static DWORD WINAPI CoinInput(LPVOID lpParam)
+{
+	while (true)
+	{
+		if (!Init)
+		{
+			Init = true;
+			mciSendStringA(OpenCoin1, 0, 0, 0);
+			mciSendStringA(OpenCoin2, 0, 0, 0);
+			mciSendStringA(OpenCoin3, 0, 0, 0);
+			mciSendStringA(OpenCoin4, 0, 0, 0);
+			mciSendStringA(OpenCoin5, 0, 0, 0);
+		}
+
+		if (*wheelSection & 0x01)
+		{
+			if (!CoinButton)
+			{
+				CoinButton = true;
+
+				if (!SoundFail)
+				{
+					++CoinSoundEntry;
+
+					switch (CoinSoundEntry)
+					{
+					case 0x05:
+						Play5 = mciSendStringA(PlayCoin5, 0, 0, 0);
+						CoinSoundEntry = 0;
+						break;
+					case 0x04:
+						Play4 = mciSendStringA(PlayCoin4, 0, 0, 0);
+						break;
+					case 0x03:
+						Play3 = mciSendStringA(PlayCoin3, 0, 0, 0);
+						break;
+					case 0x02:
+						Play2 = mciSendStringA(PlayCoin2, 0, 0, 0);
+						break;
+					case 0x01:
+						Play1 = mciSendStringA(PlayCoin1, 0, 0, 0);
+						break;
+
+						if (Play1 != 0 && Play2 != 0 && Play3 != 0 && Play4 != 0 && Play5 != 0)
+							SoundFail = true;
+					}
+				}
+				++*(BYTE*)(0xB41748);
+			}
+		}
+		else
+		{
+			if (CoinButton)
+				CoinButton = false;
+		}
+		Sleep(16);
+	}
 }
 
 static InitFunction sr3Func([]()
@@ -157,6 +240,9 @@ static InitFunction sr3Func([]()
 		injector::WriteMemory<WORD>(imageBase + 0x19E808, FinalLapAdjust, true);
 		injector::WriteMemory<WORD>(imageBase + 0x1A48E6, TimerCountdownAdjust, true);
 	}
+	
+	if (!ToBool(config["General"]["FreePlay"]))
+		CreateThread(NULL, 0, CoinInput, NULL, 0, NULL); //Create thread for coin
 
 	MH_CreateHookApi(L"kernel32.dll", "GetPrivateProfileIntA", &GetPrivateProfileIntAHook, (void**)&GetPrivateProfileIntAOri);
 	MH_CreateHookApi(L"kernel32.dll", "GetPrivateProfileStringA", &GetPrivateProfileStringAHook, (void**)&GetPrivateProfileStringAOri);
