@@ -159,6 +159,7 @@ static DWORD WINAPI CoinInput(LPVOID lpParam)
 
 static InitFunction sr3Func([]()
 {
+	DWORD imageBase = (DWORD)GetModuleHandleA(0);
 	DWORD oldprot = 0;
 	DWORD oldprot2 = 0;
 	VirtualProtect((LPVOID)0x401000, 0x273000, 0x40, &oldprot);
@@ -219,26 +220,98 @@ static InitFunction sr3Func([]()
 	{
 		DWORD XResolution = FetchDwordInformation("General", "ResolutionWidth", 1280);
 
-		if (XResolution > 2560) //Seems to stretch resolution past 2560?
-			XResolution = 2560;
-
-		if (XResolution < 1280) //Adjust lower resolution later
-			XResolution = 1280;
-
-		DWORD TimerCountdownAdjust = ((XResolution - 1280) / 14.88372093023256) + 1280;
-		DWORD TimeExtendedAdjust = ((XResolution - 1280) / 6.0) + 1280;
-		DWORD FinalLapAdjust = ((XResolution - 1280) / 8.0) + 1280;
-
-		DWORD imageBase = (DWORD)GetModuleHandleA(0);
 		injector::WriteMemoryRaw(imageBase + 0x1A6F28, "\x66\xBA\x00\x05\x90\x90\x90", 7, true); //In Race Timer
 		injector::WriteMemoryRaw(imageBase + 0x19EA49, "\x66\xB9\x00\x05\x90\x90\x90", 7, true); //Time Extended
 		injector::WriteMemoryRaw(imageBase + 0x19E806, "\x66\xB9\x00\x05\x90\x90\x90", 7, true); //Final Lap
 		injector::WriteMemoryRaw(imageBase + 0x1A48E5, "\xBA\x00\x05\x00\x00\x90\x90", 7, true); //CountDown
 
-		injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, TimerCountdownAdjust, true);
-		injector::WriteMemory<WORD>(imageBase + 0x19EA4B, TimeExtendedAdjust, true);
-		injector::WriteMemory<WORD>(imageBase + 0x19E808, FinalLapAdjust, true);
-		injector::WriteMemory<WORD>(imageBase + 0x1A48E6, TimerCountdownAdjust, true);
+		switch (XResolution)
+		{
+		case 640:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1160, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1045, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1100, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1160, true);
+			break;
+		case 800:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1200, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1140, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1170, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1200, true);
+			break;
+		case 1024:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1255, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1235, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1240, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1255, true);
+			break;
+		case 1152:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1260, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1270, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1270, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1260, true);
+			break;
+		case 1176:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1270, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1280, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1270, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1270, true);
+			break;
+		case 1360:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1280, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1320, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1305, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1280, true);
+			break;
+		case 1366:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1285, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1320, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1305, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1285, true);
+			break;
+		case 1440:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1300, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1340, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1310, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1300, true);
+			break;
+		case 1600:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1305, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1360, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1325, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1305, true);
+			break;
+		case 1680:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1310, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1370, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1335, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1310, true);
+			break;
+		case 1920:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1320, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1400, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1355, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1320, true);
+			break;
+		case 2560:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1340, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1450, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1390, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1340, true);
+			break;
+		case 3840:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1365, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1500, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1425, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1365, true);
+			break;
+		case 5120:
+			injector::WriteMemory<WORD>(imageBase + 0x1A6F2A, 1375, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19EA4B, 1525, true);
+			injector::WriteMemory<WORD>(imageBase + 0x19E808, 1440, true);
+			injector::WriteMemory<WORD>(imageBase + 0x1A48E6, 1375, true);
+			break;
+		}
 	}
 	
 	if (!ToBool(config["General"]["FreePlay"]))
