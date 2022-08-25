@@ -6,6 +6,7 @@
 
 bool Aime_isDBAliveReturnValue = true;
 bool Aime_hasConfirmValue = false;
+bool Aime_hasResultValue = false;
 
 bool CALLPLEB Aime_acceptConfirm()
 {
@@ -84,7 +85,7 @@ bool CALLPLEB Aime_hasResult()
 #ifdef _LOGAPM3AIME
 	info(true, "Aime_hasResult");
 #endif
-	return false;
+	return Aime_hasResultValue;
 }
 
 bool CALLPLEB Aime_isBusy()
