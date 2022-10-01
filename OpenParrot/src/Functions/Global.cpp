@@ -506,6 +506,11 @@ static InitFunction globalFunc([]()
 
 	if (ToBool(config["Score"]["Enable Submission (Patreon Only)"]))
 	{
+		if (ToBool(config["Score"]["Enable Capture"]))
+			WritePrivateProfileStringA("Score", "Enable Capture", "1", ".\\ScoreSubmission.ini");
+		else
+			WritePrivateProfileStringA("Score", "Enable Capture", "0", ".\\ScoreSubmission.ini");
+
 		static char buf[MAX_PATH];
 		HMODULE hMod;
 #if defined(_M_IX86)
