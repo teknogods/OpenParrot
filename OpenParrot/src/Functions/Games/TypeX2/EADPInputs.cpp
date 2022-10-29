@@ -216,10 +216,7 @@ int __fastcall EADP2DHook(void* ECX, void* EDX)
 					*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
 					break;
 				case 0x02:
-					if (!P1ReadyStart && !P2ReadyStart)
-						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
-					else
-						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+					*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
 					TitleCount = 0;
 					break;
 				}
