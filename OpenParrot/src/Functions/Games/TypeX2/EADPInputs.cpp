@@ -31,10 +31,18 @@ UINT8 EADPVolume;
 static bool VolUP;
 static bool VolDown;
 
+static DWORD P1Health;
+static DWORD P2Health;
+static UINT8 GameContinue;
+
 static bool P1ReadyStart;
 static bool P2ReadyStart;
 
+static bool NameEntryScreen;
+static int NameEntryScreenCount;
+
 static float TaitoLogo;
+
 
 static int TimerCount;
 static float P1Timer;
@@ -45,6 +53,11 @@ static float oldP2Timer;
 extern float EADPRenderWidth;
 extern float EADPRenderHeight;
 static int TitleCount;
+
+static float p1X;
+static float p1Y;
+static float p2X;
+static float p2Y;
 
 static char INIChar[256];
 
@@ -126,29 +139,70 @@ static void TaitoLogoWrite(Helpers* helpers)
 	helpers->WriteFloat32(TaitoBase + 0x3C4, -(resHeightD3D9 / 2.0 - ((EADPRenderHeight / 2.0) + 450.0)), false);
 }
 
-static void P1P2ReadyStartRead(Helpers* helpers)
+static void Random2DRead(Helpers* helpers)
 {
 	DWORD ReadyBase = helpers->ReadInt32(0x212C80, true);
 	DWORD ReadyOff0 = helpers->ReadInt32(ReadyBase + 0x10, false);
 	DWORD ReadyOff1 = helpers->ReadInt32(ReadyOff0 + 0x60, false);
 	P1ReadyStart = helpers->ReadByte(ReadyOff1 + 0x8D1, false);
 	P2ReadyStart = helpers->ReadByte(ReadyOff1 + 0x9A1, false);
+
+	DWORD HealthBase1P = helpers->ReadInt32(0x212CD8, true);
+	DWORD Health1POff0 = helpers->ReadInt32(HealthBase1P + 0x08, false);
+	DWORD Health1POff1 = helpers->ReadInt32(Health1POff0 + 0x08, false);
+	P1Health = helpers->ReadInt32(Health1POff1 + 0xC0, false);
+
+	DWORD HealthBase2P = helpers->ReadInt32(0x2124A4, true);
+	DWORD Health2POff0 = helpers->ReadInt32(HealthBase2P + 0x04, false);
+	DWORD Health2POff1 = helpers->ReadInt32(Health2POff0 + 0x04, false);
+	DWORD Health2POff2 = helpers->ReadInt32(Health2POff1 + 0x9F0, false);
+	P2Health = helpers->ReadInt32(Health2POff2 + 0xC0, false);
+
+	DWORD ContinueBase = helpers->ReadInt32(0x212CC4, true);
+	DWORD ContinueOff0 = helpers->ReadInt32(ContinueBase + 0x04, false);
+	DWORD ContinueOff1 = helpers->ReadInt32(ContinueOff0 + 0x40, false);
+	GameContinue = helpers->ReadInt32(ContinueOff1 + 0x3C, false);
 }
 
 int(__fastcall* EADP2DOri)(void* ECX, void* EDX);
 int __fastcall EADP2DHook(void* ECX, void* EDX)
 {
+	Random2DRead(0);
+
 	EADP2DOri(ECX, EDX);
 
 	if (*(float*)((int)ECX + 20) == 211.0 && (-TaitoLogo == 0))
 		*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
 
+	if (!GameContinue && P1Health <= 10 && P2Health <= 10 && -TaitoLogo == 0)
+		*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+
+	if (*(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0) == 33.0)
+		++NameEntryScreenCount;
+	else
+	{
+		if (NameEntryScreenCount)
+			--NameEntryScreenCount;
+	}
+
+	if (NameEntryScreenCount > 3)
+		NameEntryScreen = true;
+	else
+		NameEntryScreen = false;
+
+	if (NameEntryScreen)
+	{
+		*(float*)(imageBase + 0x21224C) = (p1X / 255.0) * 768.0; // P1 X Axis
+		*(float*)(imageBase + 0x212250) = (p1Y / 255.0) * resHeightD3D9; // P1 Y Axis
+
+		*(float*)(imageBase + 0x2122A4) = (p2X / 255.0) * 768.0; // P2 X Axis
+		*(float*)(imageBase + 0x2122A8) = (p2Y / 255.0) * resHeightD3D9; // P2 Y Axis
+	}
+
 	if (!*(DWORD*)((int)EDX + 40))
 	{
 		if (-TaitoLogo > 0)
 		{
-			P1P2ReadyStartRead(0);
-
 			if (*(float*)((int)ECX + 20) == 135.0 || *(float*)((int)ECX + 20) == 137.0)
 			{
 				++TitleCount;
@@ -243,10 +297,10 @@ void EADPInputs(Helpers* helpers)
 	float yMin = 255.0 * TopMaxHeight / resHeightD3D9;
 	float yMax = 255.0 * BottomMaxHeight / resHeightD3D9;
 
-	float p1X = (float)*ffbOffset2;
-	float p1Y = (float)*ffbOffset3;
-	float p2X = (float)*ffbOffset4;
-	float p2Y = (float)*ffbOffset5;
+	p1X = (float)*ffbOffset2;
+	p1Y = (float)*ffbOffset3;
+	p2X = (float)*ffbOffset4;
+	p2Y = (float)*ffbOffset5;
 
 	p1X = fmin(fmax(p1X, xMin), xMax);
 	p1X = round((p1X - xMin) / (xMax - xMin) * 255.0);
