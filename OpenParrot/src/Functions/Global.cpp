@@ -229,6 +229,7 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 /* WINDOW HOOKS */
 
 DWORD g_windowStyle;
+DWORD EADP_windowStyle;
 
 int g_x = 0;
 int g_y = 0;
@@ -253,6 +254,18 @@ HWND WINAPI CreateWindowExAHk(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWind
 		lpWindowName = lpClassName;
 		dwStyle = g_windowStyle;
 	}
+
+	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
+	{
+		if (strcmp(lpWindowName, "CriSmpSoundOutput") == 0)
+			dwStyle = EADP_windowStyle;
+		else
+		{
+			nWidth = 768;
+			nHeight = 1360;
+		}
+	}
+
 	// Make window pos centered
 	g_x = (GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2;
 	g_y = (GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2;
@@ -388,6 +401,9 @@ BOOL WINAPI SetCursorPosHk(int X, int Y)
 void init_windowHooks(windowHooks* data)
 {
 	g_windowStyle = WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+
+	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
+		EADP_windowStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
 
 	int rx, ry;
 	GetDesktopResolution(rx, ry);

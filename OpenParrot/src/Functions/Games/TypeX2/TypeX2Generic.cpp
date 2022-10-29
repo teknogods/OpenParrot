@@ -12,11 +12,22 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
+extern DWORD WINAPI D3D9Crosshairs(LPVOID lpParam);
 extern void BG4ManualHack(Helpers* helpers);
 extern void BG4ProInputs(Helpers* helpers);
 extern void KOFSkyStageInputs(Helpers* helpers);
+extern void EADPInputs(Helpers* helpers);
 static bool ProMode;
 extern bool BG4EnableTracks;
+
+extern int(__fastcall* EADPVolumeSetupOri)(void* ECX, void* EDX, float a2);
+extern int __fastcall EADPVolumeSetup(void* ECX, void* EDX, float a2);
+extern int(__fastcall* EADPCenter3DOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
+extern int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
+extern int(__fastcall* EADP2DOri)(void* ECX, void* EDX);
+extern int __fastcall EADP2DHook(void* ECX, void* EDX);
+extern UINT8 EADPVolume;
+extern bool EnableD3D9Crosshairs;
 
 void AddCommOverride(HANDLE hFile);
 
@@ -396,6 +407,8 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 		case GameID::KOFSkyStage100J:
 			KOFSkyStageInputs(0);
 			break;
+		case GameID::ElevatorActionDeathParade:
+			EADPInputs(0);
 		}
 		Sleep(16);
 	}
@@ -1121,6 +1134,10 @@ static InitFunction initFunction([]()
 	{
 		DWORD oldPageProtection = 0;
 
+		// change window title
+		static const char* title = "OpenParrot - Elevator Action: Death Parade";
+		injector::WriteMemory<DWORD>(imageBase + 0x22EC, (DWORD)title, true);
+
 		if (ToBool(config["General"]["Windowed"]))
 		{
 			VirtualProtect((LPVOID)(imageBase + 0X18F270), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
@@ -1128,11 +1145,30 @@ static InitFunction initFunction([]()
 			hooks.createWindowExA = imageBase + 0X18F270;
 			init_windowHooks(&hooks);
 			VirtualProtect((LPVOID)(imageBase + 0X18F270), 4, oldPageProtection, &oldPageProtection);
-
-			// change window title
-			static const char* title = "OpenParrot - Elevator Action: Death Parade";
-			injector::WriteMemory<DWORD>(imageBase + 0x22EC, (DWORD)title, true);
 		}
+
+		injector::WriteMemoryRaw(imageBase + 0x84396, "\xEB", 1, true);
+		injector::WriteMemoryRaw(imageBase + 0x88ABA, "\x85", 1, true);
+
+		injector::MakeNOP(0x4CE4E1, 3);
+
+		EADPVolume = GetPrivateProfileIntA("Settings", "Volume", 100, ".\\OpenParrot\\Settings.ini");
+
+		EnableD3D9Crosshairs = (ToBool(config["Crosshairs"]["Enable"]));
+
+		MH_Initialize();
+		MH_CreateHook((void*)(imageBase + 0x16CBF0), EADPVolumeSetup, (void**)&EADPVolumeSetupOri);
+		if (!(ToBool(config["General"]["Windowed"])))
+		{
+			MH_CreateHook((void*)(imageBase + 0x3780), EADPCenter3DHook, (void**)&EADPCenter3DOri);
+			MH_CreateHook((void*)(imageBase + 0x116450), EADP2DHook, (void**)&EADP2DOri);
+		}
+		MH_EnableHook(MH_ALL_HOOKS);
+
+		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
+
+		if (EnableD3D9Crosshairs)
+			CreateThread(NULL, 0, D3D9Crosshairs, NULL, 0, NULL);
 	}
 });
 #endif

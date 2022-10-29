@@ -1,0 +1,326 @@
+#include <StdInc.h>
+#include "Utility/GameDetect.h"
+#include "Utility/InitFunction.h"
+#include "Functions/Global.h"
+#include "Utility/Helper.h"
+
+extern int* ffbOffset;
+extern int* ffbOffset2;
+extern int* ffbOffset3;
+extern int* ffbOffset4;
+extern int* ffbOffset5;
+
+extern int Player1Active;
+extern int Player2Active;
+
+extern DWORD resWidthD3D9;
+extern DWORD resHeightD3D9;
+
+static DWORD imageBase;
+
+bool EnableD3D9Crosshairs;
+static bool Init;
+static bool Windowed;
+static bool GameFrontWindow;
+static int FrontWindowCount;
+
+static RECT rect;
+static int WindowWidth, WindowHeight;
+
+UINT8 EADPVolume;
+static bool VolUP;
+static bool VolDown;
+
+static bool P1ReadyStart;
+static bool P2ReadyStart;
+
+static float TaitoLogo;
+
+static int TimerCount;
+static float P1Timer;
+static float P2Timer;
+static float oldP1Timer;
+static float oldP2Timer;
+
+extern float EADPRenderWidth;
+extern float EADPRenderHeight;
+static int TitleCount;
+
+static char INIChar[256];
+
+static void WriteVol()
+{
+	sprintf_s(INIChar, "%d", EADPVolume);
+	WritePrivateProfileStringA("Settings", "Volume", INIChar, ".\\OpenParrot\\Settings.ini");
+}
+
+static void VolumeSetting(Helpers* helpers)
+{
+	DWORD Base = helpers->ReadInt32(0x212CDC, true);
+	EADPVolume = helpers->ReadByte(Base + 0x49, false);
+
+	if (*ffbOffset & 0x10)
+	{
+		if (!VolUP)
+		{
+			VolUP = true;
+
+			helpers->WriteByte(Base + 0x49, EADPVolume + 0x03, false);
+			EADPVolume = helpers->ReadByte(Base + 0x49, false);
+			WriteVol();
+		}
+	}
+	else
+	{
+		if (VolUP)
+			VolUP = false;
+	}
+
+	if (*ffbOffset & 0x20)
+	{
+		if (!VolDown)
+		{
+			VolDown = true;
+
+			helpers->WriteByte(Base + 0x49, EADPVolume - 0x03, false);
+			EADPVolume = helpers->ReadByte(Base + 0x49, false);
+			WriteVol();
+		}
+	}
+	else
+	{
+		if (VolDown)
+			VolDown = false;
+	}
+}
+
+int(__fastcall* EADPVolumeSetupOri)(void* ECX, void* EDX, float a2);
+int __fastcall EADPVolumeSetup(void* ECX, void* EDX, float a2)
+{
+	VolumeSetting(0);
+	a2 = EADPVolume / 255.0;
+
+	return EADPVolumeSetupOri(ECX, EDX, a2);
+}
+
+int(__fastcall* EADPCenter3DOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
+int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3, float a4, float a5)
+{
+	if (EADPRenderWidth)
+		a2 = (resWidthD3D9 / 2.0) - (EADPRenderWidth / 2.0);
+	else
+		a2 = (resWidthD3D9 / 2.0) - 384.0;
+
+	if (EADPRenderHeight)
+		a3 = (resHeightD3D9 / 2.0) - (EADPRenderHeight / 2.0);
+	else
+		a3 = (resHeightD3D9 / 2.0) - 680.0;
+
+	return EADPCenter3DOri(ECX, EDX, a2, a3, a4, a5);
+}
+
+static void TaitoLogoWrite(Helpers* helpers)
+{
+	DWORD TaitoBase = helpers->ReadInt32(0x212CA4, true);
+	helpers->WriteFloat32(TaitoBase + 0x3C0, -(resWidthD3D9 / 2.0) + ((EADPRenderWidth / 2.0) - 60.0), false);
+	helpers->WriteFloat32(TaitoBase + 0x3C4, -(resHeightD3D9 / 2.0 - ((EADPRenderHeight / 2.0) + 450.0)), false);
+}
+
+static void P1P2ReadyStartRead(Helpers* helpers)
+{
+	DWORD ReadyBase = helpers->ReadInt32(0x212C80, true);
+	DWORD ReadyOff0 = helpers->ReadInt32(ReadyBase + 0x10, false);
+	DWORD ReadyOff1 = helpers->ReadInt32(ReadyOff0 + 0x60, false);
+	P1ReadyStart = helpers->ReadByte(ReadyOff1 + 0x8D1, false);
+	P2ReadyStart = helpers->ReadByte(ReadyOff1 + 0x9A1, false);
+}
+
+int(__fastcall* EADP2DOri)(void* ECX, void* EDX);
+int __fastcall EADP2DHook(void* ECX, void* EDX)
+{
+	EADP2DOri(ECX, EDX);
+
+	if (*(float*)((int)ECX + 20) == 211.0 && (-TaitoLogo == 0))
+		*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+
+	if (!*(DWORD*)((int)EDX + 40))
+	{
+		if (-TaitoLogo > 0)
+		{
+			P1P2ReadyStartRead(0);
+
+			if (*(float*)((int)ECX + 20) == 135.0 || *(float*)((int)ECX + 20) == 137.0)
+			{
+				++TitleCount;
+
+				if (P1ReadyStart || P2ReadyStart)
+					*(float*)((int)ECX + 20) = -99999999.0; // Hide shit far away
+
+				switch (TitleCount)
+				{
+				case 0x01:
+					*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+					break;
+				case 0x02:
+					if (!P1ReadyStart && !P2ReadyStart)
+						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
+					else
+						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+					TitleCount = 0;
+					break;
+				}
+			}
+			else
+				*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+
+			*(float*)((int)ECX + 24) = *(float*)((int)ECX + 24) - ((resHeightD3D9 / 2.0) - 640.0);
+
+			TaitoLogoWrite(0);
+		}
+	}
+
+	return 0;
+}
+
+void EADPInputs(Helpers* helpers)
+{
+	if (!Init)
+	{
+		Init = true;
+		imageBase = (DWORD)GetModuleHandleA(0);
+		Windowed = ToBool(config["General"]["Windowed"]);
+	}
+
+	*(BYTE*)(imageBase + 0x201C10) = 0x02; // Enable Inputs
+
+	DWORD VolBase = helpers->ReadInt32(0x212CDC, true);
+
+	if (EADPVolume == 0)
+		VolumeSetting(0);
+
+	helpers->WriteByte(VolBase + 0x49, EADPVolume, false);
+
+	if (Windowed)
+	{ 
+		helpers->WriteIntPtr(0x5F5290, 768, false); // Force Res
+		helpers->WriteIntPtr(0x5F5294, 1360, false); // Force Res
+	}
+	else
+	{
+		DWORD TaitoBase = helpers->ReadInt32(0x212CA4, true);
+		TaitoLogo = helpers->ReadFloat32(TaitoBase + 0x3C0, false);
+	}
+
+	DWORD RenderBase = helpers->ReadInt32(0x212C80, true);
+	EADPRenderWidth = helpers->ReadFloat32(RenderBase + 0x94, false);
+	EADPRenderHeight = helpers->ReadFloat32(RenderBase + 0x98, false);
+
+	float LeftMaxWidth = (int)round((float)resWidthD3D9 / 2.0) - ((float)EADPRenderWidth / 2.0);
+	float RightMaxWidth = (int)round((float)resWidthD3D9 / 2.0) + ((float)EADPRenderWidth / 2.0);
+	float TopMaxHeight = (int)round((float)resHeightD3D9 / 2.0) - ((float)EADPRenderHeight / 2.0);
+	float BottomMaxHeight = (int)round((float)resHeightD3D9 / 2.0) + ((float)EADPRenderHeight / 2.0);
+
+	float P1XAxis = (*ffbOffset2 / 255.0) * resWidthD3D9;
+	float P1YAxis = (*ffbOffset3 / 255.0) * resHeightD3D9;
+
+	float P2XAxis = (*ffbOffset4 / 255.0) * resWidthD3D9;
+	float P2YAxis = (*ffbOffset5 / 255.0) * resHeightD3D9;
+
+	bool P1SceenOut = (P1XAxis <= LeftMaxWidth || P1XAxis >= RightMaxWidth || P1YAxis <= TopMaxHeight || P1YAxis >= BottomMaxHeight);
+	bool P2SceenOut = (P2XAxis <= LeftMaxWidth || P2XAxis >= RightMaxWidth || P2YAxis <= TopMaxHeight || P2YAxis >= BottomMaxHeight);
+
+	P1SceenOut ? *(BYTE*)(imageBase + 0x201BEA) = 0x01 : *(BYTE*)(imageBase + 0x201BEA) = 0x00; // P1 Out
+	P2SceenOut ? *(BYTE*)(imageBase + 0x201BF4) = 0x01 : *(BYTE*)(imageBase + 0x201BF4) = 0x00; // P2 Out
+
+	(*ffbOffset & 0x01) ? *(BYTE*)(imageBase + 0x201BF0) = 0x01 : *(BYTE*)(imageBase + 0x201BF0) = 0x00; // P1 Trigger
+	(*ffbOffset & 0x02) ? *(BYTE*)(imageBase + 0x212235) = 0x01 : *(BYTE*)(imageBase + 0x212235) = 0x00; // P1 Grenade
+
+	(*ffbOffset & 0x04) ? *(BYTE*)(imageBase + 0x201BFA) = 0x01 : *(BYTE*)(imageBase + 0x201BFA) = 0x00; // P2 Trigger
+	(*ffbOffset & 0x08) ? *(BYTE*)(imageBase + 0x21228D) = 0x01 : *(BYTE*)(imageBase + 0x21228D) = 0x00; // P2 Grenade
+
+	float xMin = 255.0 * LeftMaxWidth / resWidthD3D9;
+	float xMax = 255.0 * RightMaxWidth / resWidthD3D9;
+	float yMin = 255.0 * TopMaxHeight / resHeightD3D9;
+	float yMax = 255.0 * BottomMaxHeight / resHeightD3D9;
+
+	float p1X = (float)*ffbOffset2;
+	float p1Y = (float)*ffbOffset3;
+	float p2X = (float)*ffbOffset4;
+	float p2Y = (float)*ffbOffset5;
+
+	p1X = fmin(fmax(p1X, xMin), xMax);
+	p1X = round((p1X - xMin) / (xMax - xMin) * 255.0);
+
+	p1Y = fmin(fmax(p1Y, yMin), yMax);
+	p1Y = round((p1Y - yMin) / (yMax - yMin) * 255.0);
+
+	p2X = fmin(fmax(p2X, xMin), xMax);
+	p2X = round((p2X - xMin) / (xMax - xMin) * 255.0);
+
+	p2Y = fmin(fmax(p2Y, yMin), yMax);
+	p2Y = round((p2Y - yMin) / (yMax - yMin) * 255.0);
+
+	*(WORD*)(imageBase + 0x201BEC) = (p1X / 255.0) * 16384; // P1 X Axis
+	*(WORD*)(imageBase + 0x201BEE) = (p1Y / 255.0) * 16384; // P1 Y Axis
+
+	*(WORD*)(imageBase + 0x201BF6) = (p2X / 255.0) * 16384; // P2 X Axis
+	*(WORD*)(imageBase + 0x201BF8) = (p2Y / 255.0) * 16384; // P2 Y Axis
+
+	if (EnableD3D9Crosshairs)
+	{
+		DWORD TimerBase = helpers->ReadInt32(0x210A80, true);
+
+		P1Timer = helpers->ReadFloat32(TimerBase + 0x17A1C, false); // P1
+		P2Timer = helpers->ReadFloat32(TimerBase + 0x17B08, false); // P2
+		float Start = helpers->ReadFloat32(TimerBase + 0x17B28, false);
+
+		if (Start)
+		{
+			if (oldP1Timer != P1Timer && P1Timer > 0)
+				Player1Active = true;
+			else
+				Player1Active = false;
+
+			if (oldP2Timer != P2Timer && P2Timer > 0)
+				Player2Active = true;
+			else
+				Player2Active = false;
+
+			++TimerCount;
+
+			if (TimerCount == 2)
+			{
+				TimerCount = 0;
+				oldP1Timer = P1Timer;
+				oldP2Timer = P2Timer;
+			}
+		}
+	}
+
+	HWND Game = FindWindowA("Eva", "OpenParrot - Elevator Action: Death Parade");
+
+	if (Game)
+	{
+		if (GetWindowRect(Game, &rect))
+		{
+			WindowWidth = rect.right - rect.left;
+			WindowHeight = rect.bottom - rect.top;
+		}
+
+		resWidthD3D9 = WindowWidth;
+		resHeightD3D9 = WindowHeight;
+
+
+		if (P1SceenOut)
+		{
+			*(float*)(imageBase + 0x21224C) = (*ffbOffset2 / 255.0) * resWidthD3D9; // P1 X Axis
+			*(float*)(imageBase + 0x212250) = (*ffbOffset3 / 255.0) * resHeightD3D9; // P1 Y Axis
+		}
+
+		if (P2SceenOut)
+		{
+			*(float*)(imageBase + 0x2122A4) = (*ffbOffset4 / 255.0) * resWidthD3D9; // P2 X Axis
+			*(float*)(imageBase + 0x2122A8) = (*ffbOffset5 / 255.0) * resHeightD3D9; // P2 Y Axis
+		}
+	}
+}

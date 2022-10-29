@@ -671,12 +671,10 @@ void GameDetect::DetectCurrentGame()
 			SetGameId(GameID::DariusBurst116, "Dariusburst: Another Chronicle EX (V1.16)");
 			NesicaKey = NesicaKey::DariusBurst;
 			break;
-#ifdef _DEBUG
 		case 0x148CC191: // Elevator Action Death Parade
 			currentGame = GameID::ElevatorActionDeathParade;
 			X2Type = X2Type::ElevatorActionDeathParade;
 			break;
-#endif
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:

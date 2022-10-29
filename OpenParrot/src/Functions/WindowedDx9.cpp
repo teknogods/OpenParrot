@@ -61,7 +61,7 @@ static HRESULT WINAPI ResetWrap(IDirect3DDevice9* self, D3DPRESENT_PARAMETERS* p
 
 static HRESULT WINAPI CreateDeviceWrap(IDirect3D9* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice9** ppReturnedDeviceInterface)
 {
-	if (Windowed)
+	if (Windowed || GameDetect::currentGame == GameID::ElevatorActionDeathParade)
 	{
 		pPresentationParameters->Windowed = TRUE;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
@@ -130,7 +130,7 @@ static InitFunction initFunc([]()
 		FpsLimiterSet((float)FetchDwordInformation("General", "FpsLimit", 60));
 	}
 
-	if (Windowed || FpsLimiterEnable || GameDetect::currentGame == GameID::TroubleWitches)
+	if (Windowed || FpsLimiterEnable || GameDetect::currentGame == GameID::TroubleWitches || GameDetect::currentGame == GameID::ElevatorActionDeathParade)
 		InitD3D9WindowHook();
 });
 #pragma optimize("", on)
