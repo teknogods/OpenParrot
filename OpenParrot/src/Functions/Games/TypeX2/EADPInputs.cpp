@@ -199,36 +199,33 @@ int __fastcall EADP2DHook(void* ECX, void* EDX)
 		*(float*)(imageBase + 0x2122A8) = (p2Y / 255.0) * resHeightD3D9; // P2 Y Axis
 	}
 
-	if (!*(DWORD*)((int)EDX + 40))
+	if (-TaitoLogo)
 	{
-		if (-TaitoLogo > 0)
+		if (*(float*)((int)ECX + 20) == 135.0 || *(float*)((int)ECX + 20) == 137.0)
 		{
-			if (*(float*)((int)ECX + 20) == 135.0 || *(float*)((int)ECX + 20) == 137.0)
+			++TitleCount;
+
+			if (P1ReadyStart || P2ReadyStart)
+				*(float*)((int)ECX + 20) = -99999999.0; // Hide shit far away
+
+			switch (TitleCount)
 			{
-				++TitleCount;
-
-				if (P1ReadyStart || P2ReadyStart)
-					*(float*)((int)ECX + 20) = -99999999.0; // Hide shit far away
-
-				switch (TitleCount)
-				{
-				case 0x01:
-					*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
-					break;
-				case 0x02:
-					*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
-					TitleCount = 0;
-					break;
-				}
-			}
-			else
+			case 0x01:
 				*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
-
-			*(float*)((int)ECX + 24) = *(float*)((int)ECX + 24) - ((resHeightD3D9 / 2.0) - 640.0);
-
-			TaitoLogoWrite(0);
+				break;
+			case 0x02:
+				*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
+				TitleCount = 0;
+				break;
+			}
 		}
-	}
+		else
+			*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+
+		*(float*)((int)ECX + 24) = *(float*)((int)ECX + 24) - ((resHeightD3D9 / 2.0) - 640.0);
+
+		TaitoLogoWrite(0);
+	}	
 
 	return 0;
 }
