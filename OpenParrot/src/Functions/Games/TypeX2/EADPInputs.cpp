@@ -59,6 +59,11 @@ static float p1Y;
 static float p2X;
 static float p2Y;
 
+static int oldffbOffset2;
+static int oldffbOffset3;
+static int oldffbOffset4;
+static int oldffbOffset5;
+
 static char INIChar[256];
 
 static void WriteVol()
@@ -192,6 +197,14 @@ int __fastcall EADP2DHook(void* ECX, void* EDX)
 
 	if (NameEntryScreen)
 	{
+		if (EnableD3D9Crosshairs)
+		{
+			if (oldffbOffset2 != *ffbOffset2 && *ffbOffset2 && oldffbOffset3 != *ffbOffset3 && *ffbOffset3)
+				Player1Active = true;
+			if (oldffbOffset4 != *ffbOffset4 && *ffbOffset4 && oldffbOffset5 != *ffbOffset5 && *ffbOffset5)
+				Player2Active = true;
+		}
+
 		*(float*)(imageBase + 0x21224C) = (p1X / 255.0) * 768.0; // P1 X Axis
 		*(float*)(imageBase + 0x212250) = (p1Y / 255.0) * resHeightD3D9; // P1 Y Axis
 
@@ -322,7 +335,7 @@ void EADPInputs(Helpers* helpers)
 		P2Timer = helpers->ReadFloat32(TimerBase + 0x17B08, false); // P2
 		float Start = helpers->ReadFloat32(TimerBase + 0x17B28, false);
 
-		if (Start)
+		if (Start && !NameEntryScreen)
 		{
 			if (oldP1Timer != P1Timer && P1Timer > 0)
 				Player1Active = true;
@@ -343,6 +356,31 @@ void EADPInputs(Helpers* helpers)
 				oldP2Timer = P2Timer;
 			}
 		}
+		else
+		{
+			if (-TaitoLogo > 0)
+			{
+				if (oldffbOffset2 != *ffbOffset2 && *ffbOffset2 && oldffbOffset3 != *ffbOffset3 && *ffbOffset3)
+					Player1Active = true;
+				if (oldffbOffset4 != *ffbOffset4 && *ffbOffset4 && oldffbOffset5 != *ffbOffset5 && *ffbOffset5)
+					Player2Active = true;
+			}
+			else
+			{
+				if (!NameEntryScreen)
+				{
+					if (Player1Active)
+						Player1Active = false;
+
+					if (Player2Active)
+						Player2Active = false;
+				}
+			}
+		}
+		oldffbOffset2 = *ffbOffset2;
+		oldffbOffset3 = *ffbOffset3;
+		oldffbOffset4 = *ffbOffset4;
+		oldffbOffset5 = *ffbOffset5;
 	}
 
 	HWND Game = FindWindowA("Eva", "OpenParrot - Elevator Action: Death Parade");
