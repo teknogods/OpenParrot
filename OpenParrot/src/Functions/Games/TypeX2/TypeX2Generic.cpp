@@ -12,7 +12,6 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
-extern DWORD WINAPI D3D9Crosshairs(LPVOID lpParam);
 extern void BG4ManualHack(Helpers* helpers);
 extern void BG4ProInputs(Helpers* helpers);
 extern void KOFSkyStageInputs(Helpers* helpers);
@@ -27,7 +26,6 @@ extern int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3,
 extern int(__fastcall* EADP2DOri)(void* ECX, void* EDX);
 extern int __fastcall EADP2DHook(void* ECX, void* EDX);
 extern UINT8 EADPVolume;
-extern bool EnableD3D9Crosshairs;
 
 void AddCommOverride(HANDLE hFile);
 
@@ -1154,8 +1152,6 @@ static InitFunction initFunction([]()
 
 		EADPVolume = GetPrivateProfileIntA("Settings", "Volume", 100, ".\\OpenParrot\\Settings.ini");
 
-		EnableD3D9Crosshairs = (ToBool(config["Crosshairs"]["Enable"]));
-
 		MH_Initialize();
 		MH_CreateHook((void*)(imageBase + 0x16CBF0), EADPVolumeSetup, (void**)&EADPVolumeSetupOri);
 		if (!(ToBool(config["General"]["Windowed"])))
@@ -1166,9 +1162,6 @@ static InitFunction initFunction([]()
 		MH_EnableHook(MH_ALL_HOOKS);
 
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
-
-		if (EnableD3D9Crosshairs)
-			CreateThread(NULL, 0, D3D9Crosshairs, NULL, 0, NULL);
 	}
 });
 #endif

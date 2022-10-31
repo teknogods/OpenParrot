@@ -18,7 +18,19 @@ extern DWORD resHeightD3D9;
 
 static DWORD imageBase;
 
-bool EnableD3D9Crosshairs;
+extern bool EnableD3D9Crosshairs;
+extern bool EnableD3D9Bezel;
+extern bool EnableD3D9Border;
+
+static bool GetOrigRenderRes;
+
+extern float ScaleBezelX;
+extern float ScaleBezelY;
+
+extern int BorderThickness;
+extern int BezelPixelWidth;
+extern int BezelPixelHeight;
+
 static bool Init;
 static bool Windowed;
 static bool GameFrontWindow;
@@ -43,7 +55,6 @@ static int NameEntryScreenCount;
 
 static float TaitoLogo;
 
-
 static int TimerCount;
 static float P1Timer;
 static float P2Timer;
@@ -52,6 +63,8 @@ static float oldP2Timer;
 
 extern float EADPRenderWidth;
 extern float EADPRenderHeight;
+static float EADPRenderWidthOri;
+static float EADPRenderHeightOri;
 static int TitleCount;
 
 static float p1X;
@@ -326,6 +339,32 @@ void EADPInputs(Helpers* helpers)
 
 	*(WORD*)(imageBase + 0x201BF6) = (p2X / 255.0) * 16384; // P2 X Axis
 	*(WORD*)(imageBase + 0x201BF8) = (p2Y / 255.0) * 16384; // P2 Y Axis
+
+	if (EnableD3D9Bezel || EnableD3D9Border)
+	{
+		if (!GetOrigRenderRes && EADPRenderWidth && EADPRenderHeight)
+		{
+			GetOrigRenderRes = true;
+			EADPRenderWidthOri = EADPRenderWidth;
+			EADPRenderHeightOri = EADPRenderHeight;
+		}
+
+		if (EnableD3D9Bezel && EnableD3D9Border)
+		{
+			helpers->WriteFloat32(RenderBase + 0x94, EADPRenderWidthOri - ((BorderThickness / 2.0) + BezelPixelWidth), false);
+			helpers->WriteFloat32(RenderBase + 0x98, EADPRenderHeightOri - ((BorderThickness / 2.0) + BezelPixelHeight), false);
+		}
+		else if (EnableD3D9Border)
+		{
+			helpers->WriteFloat32(RenderBase + 0x94, EADPRenderWidthOri - (BorderThickness / 2.0), false);
+			helpers->WriteFloat32(RenderBase + 0x98, EADPRenderHeightOri - (BorderThickness / 2.0), false);
+		}
+		else
+		{
+			helpers->WriteFloat32(RenderBase + 0x94, EADPRenderWidthOri - BezelPixelWidth, false);
+			helpers->WriteFloat32(RenderBase + 0x98, EADPRenderHeightOri - BezelPixelHeight, false);
+		}
+	}	
 
 	if (EnableD3D9Crosshairs)
 	{
