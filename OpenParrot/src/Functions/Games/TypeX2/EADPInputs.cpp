@@ -137,15 +137,18 @@ int __fastcall EADPVolumeSetup(void* ECX, void* EDX, float a2)
 int(__fastcall* EADPCenter3DOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
 int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3, float a4, float a5)
 {
-	if (EADPRenderWidth)
-		a2 = (resWidthD3D9 / 2.0) - (EADPRenderWidth / 2.0);
-	else
-		a2 = (resWidthD3D9 / 2.0) - 384.0;
+	if (!GameContinue && P1Health <= 10 && P2Health <= 10 && -TaitoLogo == 0)
+	{
+		if (EADPRenderWidth)
+			a2 = (resWidthD3D9 / 2.0) - (EADPRenderWidth / 2.0);
+		else
+			a2 = (resWidthD3D9 / 2.0) - 384.0;
 
-	if (EADPRenderHeight)
-		a3 = (resHeightD3D9 / 2.0) - (EADPRenderHeight / 2.0);
-	else
-		a3 = (resHeightD3D9 / 2.0) - 680.0;
+		if (EADPRenderHeight)
+			a3 = (resHeightD3D9 / 2.0) - (EADPRenderHeight / 2.0);
+		else
+			a3 = (resHeightD3D9 / 2.0) - 680.0;
+	}
 
 	return EADPCenter3DOri(ECX, EDX, a2, a3, a4, a5);
 }
