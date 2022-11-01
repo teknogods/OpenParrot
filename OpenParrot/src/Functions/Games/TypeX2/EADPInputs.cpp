@@ -142,12 +142,12 @@ int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3, float 
 		if (EADPRenderWidth)
 			a2 = (resWidthD3D9 / 2.0) - (EADPRenderWidth / 2.0);
 		else
-			a2 = (resWidthD3D9 / 2.0) - 384.0;
+			a2 = (resWidthD3D9 / 2.0) - 360.0;
 
 		if (EADPRenderHeight)
 			a3 = (resHeightD3D9 / 2.0) - (EADPRenderHeight / 2.0);
 		else
-			a3 = (resHeightD3D9 / 2.0) - 680.0;
+			a3 = (resHeightD3D9 / 2.0) - 640.0;
 	}
 
 	return EADPCenter3DOri(ECX, EDX, a2, a3, a4, a5);
@@ -156,8 +156,8 @@ int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3, float 
 static void TaitoLogoWrite(Helpers* helpers)
 {
 	DWORD TaitoBase = helpers->ReadInt32(0x212CA4, true);
-	helpers->WriteFloat32(TaitoBase + 0x3C0, -(resWidthD3D9 / 2.0) + ((EADPRenderWidth / 2.0) - 60.0), false);
-	helpers->WriteFloat32(TaitoBase + 0x3C4, -(resHeightD3D9 / 2.0 - ((EADPRenderHeight / 2.0) + 450.0)), false);
+	helpers->WriteFloat32(TaitoBase + 0x3C0, -360.0, false);
+	helpers->WriteFloat32(TaitoBase + 0x3C4, -640.0, false);
 }
 
 static void Random2DRead(Helpers* helpers)
@@ -192,7 +192,10 @@ int __fastcall EADP2DHook(void* ECX, void* EDX)
 
 	EADP2DOri(ECX, EDX);
 
-	if (*(float*)((int)ECX + 20) == 211.0 && (-TaitoLogo == 0))
+	if (*(float*)((int)ECX + 20) == 236.5 && -TaitoLogo == 0)
+		*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+
+	if (*(float*)((int)ECX + 20) == 211.0 && (P1Health > 10 || P2Health > 10))
 		*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
 
 	if (!GameContinue && P1Health <= 10 && P2Health <= 10 && -TaitoLogo == 0)
@@ -215,9 +218,9 @@ int __fastcall EADP2DHook(void* ECX, void* EDX)
 	{
 		if (EnableD3D9Crosshairs)
 		{
-			if (oldffbOffset2 != *ffbOffset2 && *ffbOffset2 && oldffbOffset3 != *ffbOffset3 && *ffbOffset3)
+			if (oldffbOffset2 && oldffbOffset2 != *ffbOffset2 && *ffbOffset2 && oldffbOffset3 && oldffbOffset3 != *ffbOffset3 && *ffbOffset3)
 				Player1Active = true;
-			if (oldffbOffset4 != *ffbOffset4 && *ffbOffset4 && oldffbOffset5 != *ffbOffset5 && *ffbOffset5)
+			if (oldffbOffset4 && oldffbOffset4 != *ffbOffset4 && *ffbOffset4 && oldffbOffset5 && oldffbOffset5 != *ffbOffset5 && *ffbOffset5)
 				Player2Active = true;
 		}
 
@@ -367,7 +370,7 @@ void EADPInputs(Helpers* helpers)
 			helpers->WriteFloat32(RenderBase + 0x94, EADPRenderWidthOri - BezelPixelWidth, false);
 			helpers->WriteFloat32(RenderBase + 0x98, EADPRenderHeightOri - BezelPixelHeight, false);
 		}
-	}	
+	}
 
 	if (EnableD3D9Crosshairs)
 	{
@@ -402,9 +405,9 @@ void EADPInputs(Helpers* helpers)
 		{
 			if (-TaitoLogo > 0)
 			{
-				if (oldffbOffset2 != *ffbOffset2 && *ffbOffset2 && oldffbOffset3 != *ffbOffset3 && *ffbOffset3)
+				if (oldffbOffset2 && oldffbOffset2 != *ffbOffset2 && *ffbOffset2 && oldffbOffset3 && oldffbOffset3 != *ffbOffset3 && *ffbOffset3)
 					Player1Active = true;
-				if (oldffbOffset4 != *ffbOffset4 && *ffbOffset4 && oldffbOffset5 != *ffbOffset5 && *ffbOffset5)
+				if (oldffbOffset4 && oldffbOffset4 != *ffbOffset4 && *ffbOffset4 && oldffbOffset5 && oldffbOffset5 != *ffbOffset5 && *ffbOffset5)
 					Player2Active = true;
 			}
 			else
