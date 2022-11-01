@@ -394,7 +394,7 @@ void EADPInputs(Helpers* helpers)
 
 			++TimerCount;
 
-			if (TimerCount == 2)
+			if (TimerCount == 4)
 			{
 				TimerCount = 0;
 				oldP1Timer = P1Timer;
