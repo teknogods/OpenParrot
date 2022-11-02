@@ -58,12 +58,6 @@ static float TaitoLogo;
 static bool AttractVideo;
 bool EADPAttractVidPlay;
 
-static int TimerCount;
-static float P1Timer;
-static float P2Timer;
-static float oldP1Timer;
-static float oldP2Timer;
-
 extern float EADPRenderWidth;
 extern float EADPRenderHeight;
 static float EADPRenderWidthOri;
@@ -424,30 +418,21 @@ void EADPInputs(Helpers* helpers)
 	{
 		DWORD TimerBase = helpers->ReadInt32(0x210A80, true);
 
-		P1Timer = helpers->ReadFloat32(TimerBase + 0x17A1C, false); // P1
-		P2Timer = helpers->ReadFloat32(TimerBase + 0x17B08, false); // P2
 		float Start = helpers->ReadFloat32(TimerBase + 0x17B28, false);
+		UINT8 P1Active = helpers->ReadByte(TimerBase + 0x1794C, false);
+		UINT8 P2Active = helpers->ReadByte(TimerBase + 0x17A38, false);
 
 		if (Start && !NameEntryScreen)
 		{
-			if (oldP1Timer != P1Timer && P1Timer > 0)
+			if (P1Active)
 				Player1Active = true;
 			else
 				Player1Active = false;
 
-			if (oldP2Timer != P2Timer && P2Timer > 0)
+			if (P2Active)
 				Player2Active = true;
 			else
 				Player2Active = false;
-
-			++TimerCount;
-
-			if (TimerCount == 4)
-			{
-				TimerCount = 0;
-				oldP1Timer = P1Timer;
-				oldP2Timer = P2Timer;
-			}
 		}
 		else
 		{
