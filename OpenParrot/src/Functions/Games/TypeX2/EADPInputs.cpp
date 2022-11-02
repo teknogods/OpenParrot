@@ -55,6 +55,9 @@ static int NameEntryScreenCount;
 
 static float TaitoLogo;
 
+static bool AttractVideo;
+bool EADPAttractVidPlay;
+
 static int TimerCount;
 static float P1Timer;
 static float P2Timer;
@@ -133,6 +136,17 @@ int __fastcall EADPVolumeSetup(void* ECX, void* EDX, float a2)
 	a2 = EADPVolume / 255.0;
 
 	return EADPVolumeSetupOri(ECX, EDX, a2);
+}
+
+int(__fastcall* AttractVideoCenterOri)(void* ECX, void* EDX);
+int __fastcall AttractVideoCenterHook(void* ECX, void* EDX)
+{
+	AttractVideoCenterOri(ECX, EDX);
+
+	if (AttractVideo)
+		*(float*)((int)ECX + 352) = *(float*)((int)ECX + 352) + ((resWidthD3D9 / 2.0) - 360.0);
+
+	return 0;
 }
 
 int(__fastcall* EADPCenter3DOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
@@ -308,6 +322,21 @@ void EADPInputs(Helpers* helpers)
 	{
 		DWORD TaitoBase = helpers->ReadInt32(0x212CA4, true);
 		TaitoLogo = helpers->ReadFloat32(TaitoBase + 0x3C0, false);
+
+		DWORD CheckVideoBase = helpers->ReadInt32(0x209C38, true);
+		UINT8 CheckVideo1 = helpers->ReadByte(CheckVideoBase + 0x8AB, false);
+		UINT8 CheckVideo2 = helpers->ReadByte(CheckVideoBase + 0x95B, false);
+
+		if (-TaitoLogo && CheckVideo1 && CheckVideo2 && EADPAttractVidPlay)
+		{
+			if (!AttractVideo)
+				AttractVideo = true;
+		}
+		else
+		{
+			if (AttractVideo)
+				AttractVideo = false;
+		}
 	}
 
 	DWORD RenderBase = helpers->ReadInt32(0x212C80, true);

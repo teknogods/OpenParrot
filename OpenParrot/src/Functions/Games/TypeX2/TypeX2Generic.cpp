@@ -25,7 +25,10 @@ extern int(__fastcall* EADPCenter3DOri)(void* ECX, void* EDX, float a2, float a3
 extern int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
 extern int(__fastcall* EADP2DOri)(void* ECX, void* EDX);
 extern int __fastcall EADP2DHook(void* ECX, void* EDX);
+extern int(__fastcall* AttractVideoCenterOri)(void* ECX, void* EDX);
+extern int __fastcall AttractVideoCenterHook(void* ECX, void* EDX);
 extern UINT8 EADPVolume;
+extern bool EADPAttractVidPlay;
 
 void AddCommOverride(HANDLE hFile);
 
@@ -60,8 +63,20 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		return moveBuf;
 	}
 
+	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
+	{
+		if (strcmp(lpFileName, "data\\test\\swf\\move_eng.ssw") == 0 || strcmp(lpFileName, "data\\test\\swf\\move_chi.ssw") == 0)
+			EADPAttractVidPlay = true;
+	}
+
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
 	{
+		if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
+		{
+			if (EADPAttractVidPlay)
+				EADPAttractVidPlay = false;
+		}
+
 		memset(moveBuf, 0, 256);
 
 		char pathRoot[MAX_PATH];
@@ -1158,6 +1173,7 @@ static InitFunction initFunction([]()
 		{
 			MH_CreateHook((void*)(imageBase + 0x3780), EADPCenter3DHook, (void**)&EADPCenter3DOri);
 			MH_CreateHook((void*)(imageBase + 0x116450), EADP2DHook, (void**)&EADP2DOri);
+			MH_CreateHook((void*)(imageBase + 0x2F60), AttractVideoCenterHook, (void**)&AttractVideoCenterOri);
 		}
 		MH_EnableHook(MH_ALL_HOOKS);
 
