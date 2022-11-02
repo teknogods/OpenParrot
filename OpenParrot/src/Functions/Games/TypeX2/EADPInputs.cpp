@@ -66,6 +66,7 @@ extern float EADPRenderHeight;
 static float EADPRenderWidthOri;
 static float EADPRenderHeightOri;
 static int TitleCount;
+static int TitleCount2;
 
 static float p1X;
 static float p1Y;
@@ -233,7 +234,7 @@ int __fastcall EADP2DHook(void* ECX, void* EDX)
 
 	if (-TaitoLogo)
 	{
-		if (*(float*)((int)ECX + 20) == 135.0 || *(float*)((int)ECX + 20) == 137.0)
+		if (*(float*)((int)ECX + 20) == 135.0)
 		{
 			++TitleCount;
 
@@ -248,6 +249,24 @@ int __fastcall EADP2DHook(void* ECX, void* EDX)
 			case 0x02:
 				*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
 				TitleCount = 0;
+				break;
+			}
+		}
+		else if (*(float*)((int)ECX + 20) == 137.0)
+		{
+			++TitleCount2;
+
+			if (P1ReadyStart || P2ReadyStart)
+				*(float*)((int)ECX + 20) = -99999999.0; // Hide shit far away
+
+			switch (TitleCount2)
+			{
+			case 0x01:
+				*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+				break;
+			case 0x02:
+				*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
+				TitleCount2 = 0;
 				break;
 			}
 		}
