@@ -123,6 +123,11 @@ static void VolumeSetting(Helpers* helpers)
 	}
 }
 
+static void AlignTest2D(Helpers* helpers)
+{
+	helpers->WriteIntPtr(0xCDE7D, resWidthD3D9, true); // Align Test Menu
+}
+
 int(__fastcall* EADPVolumeSetupOri)(void* ECX, void* EDX, float a2);
 int __fastcall EADPVolumeSetup(void* ECX, void* EDX, float a2)
 {
@@ -143,8 +148,20 @@ int __fastcall AttractVideoCenterHook(void* ECX, void* EDX)
 	return 0;
 }
 
-int(__fastcall* EADPCenter3DOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
-int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3, float a4, float a5)
+int(__fastcall* TestMenuCenterOri)(void* ECX, void* EDX, int a2);
+int __fastcall TestMenuCenterHook(void* ECX, void* EDX, int a2)
+{
+	TestMenuCenterOri(ECX, EDX, a2);
+
+	*(float*)((int)ECX + 12) = resWidthD3D9 / 2.0;
+
+	AlignTest2D(0);
+
+	return 0;
+}
+
+int(__fastcall* EADP3DCenterOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
+int __fastcall EADP3DCenterHook(void* ECX, void* EDX, float a2, float a3, float a4, float a5)
 {
 	if (!GameContinue && P1Health <= 10 && P2Health <= 10 && -TaitoLogo == 0)
 	{
@@ -159,7 +176,7 @@ int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3, float 
 			a3 = (resHeightD3D9 / 2.0) - 640.0;
 	}
 
-	return EADPCenter3DOri(ECX, EDX, a2, a3, a4, a5);
+	return EADP3DCenterOri(ECX, EDX, a2, a3, a4, a5);
 }
 
 static void TaitoLogoWrite(Helpers* helpers)
@@ -194,12 +211,12 @@ static void Random2DRead(Helpers* helpers)
 	GameContinue = helpers->ReadInt32(ContinueOff1 + 0x3C, false);
 }
 
-int(__fastcall* EADP2DOri)(void* ECX, void* EDX);
-int __fastcall EADP2DHook(void* ECX, void* EDX)
+int(__fastcall* EADP2DCenterOri)(void* ECX, void* EDX);
+int __fastcall EADP2DCenterHook(void* ECX, void* EDX)
 {
 	Random2DRead(0);
 
-	EADP2DOri(ECX, EDX);
+	EADP2DCenterOri(ECX, EDX);
 
 	if (*(float*)((int)ECX + 20) == 236.5 && -TaitoLogo == 0)
 		*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
@@ -309,8 +326,8 @@ void EADPInputs(Helpers* helpers)
 
 	if (Windowed)
 	{ 
-		helpers->WriteIntPtr(0x5F5290, 768, false); // Force Res
-		helpers->WriteIntPtr(0x5F5294, 1360, false); // Force Res
+		helpers->WriteIntPtr(0x5F5290, 720, false); // Force Res
+		helpers->WriteIntPtr(0x5F5294, 1280, false); // Force Res
 	}
 	else
 	{

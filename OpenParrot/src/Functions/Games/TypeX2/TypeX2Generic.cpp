@@ -21,12 +21,14 @@ extern bool BG4EnableTracks;
 
 extern int(__fastcall* EADPVolumeSetupOri)(void* ECX, void* EDX, float a2);
 extern int __fastcall EADPVolumeSetup(void* ECX, void* EDX, float a2);
-extern int(__fastcall* EADPCenter3DOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
-extern int __fastcall EADPCenter3DHook(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
-extern int(__fastcall* EADP2DOri)(void* ECX, void* EDX);
-extern int __fastcall EADP2DHook(void* ECX, void* EDX);
+extern int(__fastcall* EADP3DCenterOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
+extern int __fastcall EADP3DCenterHook(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
+extern int(__fastcall* EADP2DCenterOri)(void* ECX, void* EDX);
+extern int __fastcall EADP2DCenterHook(void* ECX, void* EDX);
 extern int(__fastcall* AttractVideoCenterOri)(void* ECX, void* EDX);
 extern int __fastcall AttractVideoCenterHook(void* ECX, void* EDX);
+extern int(__fastcall* TestMenuCenterOri)(void* ECX, void* EDX, int a2);
+extern int __fastcall TestMenuCenterHook(void* ECX, void* EDX, int a2);
 extern UINT8 EADPVolume;
 extern bool EADPAttractVidPlay;
 
@@ -1171,9 +1173,11 @@ static InitFunction initFunction([]()
 		MH_CreateHook((void*)(imageBase + 0x16CBF0), EADPVolumeSetup, (void**)&EADPVolumeSetupOri);
 		if (!(ToBool(config["General"]["Windowed"])))
 		{
-			MH_CreateHook((void*)(imageBase + 0x3780), EADPCenter3DHook, (void**)&EADPCenter3DOri);
-			MH_CreateHook((void*)(imageBase + 0x116450), EADP2DHook, (void**)&EADP2DOri);
+			MH_CreateHook((void*)(imageBase + 0x3780), EADP3DCenterHook, (void**)&EADP3DCenterOri);
+			MH_CreateHook((void*)(imageBase + 0x116450), EADP2DCenterHook, (void**)&EADP2DCenterOri);
 			MH_CreateHook((void*)(imageBase + 0x2F60), AttractVideoCenterHook, (void**)&AttractVideoCenterOri);
+			MH_CreateHook((void*)(imageBase + 0xCDDB0), TestMenuCenterHook, (void**)&TestMenuCenterOri);
+			injector::MakeNOP(imageBase + 0xCDDEE, 2);
 		}
 		MH_EnableHook(MH_ALL_HOOKS);
 

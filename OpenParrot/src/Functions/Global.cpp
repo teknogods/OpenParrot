@@ -261,8 +261,8 @@ HWND WINAPI CreateWindowExAHk(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWind
 			dwStyle = EADP_windowStyle;
 		else
 		{
-			nWidth = 768;
-			nHeight = 1360;
+			nWidth = 720;
+			nHeight = 1280;
 		}
 	}
 
