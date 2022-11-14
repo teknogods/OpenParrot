@@ -12,68 +12,72 @@ extern int* ffbOffset5;
 
 extern int Player1Active;
 extern int Player2Active;
-
-extern DWORD resWidthD3D9;
-extern DWORD resHeightD3D9;
-
-static DWORD imageBase;
-
-extern bool EnableD3D9Crosshairs;
-extern bool EnableD3D9Bezel;
-extern bool EnableD3D9Border;
-
-static bool GetOrigRenderRes;
-
-extern float ScaleBezelX;
-extern float ScaleBezelY;
-
 extern int BorderThickness;
 extern int BezelPixelWidth;
 extern int BezelPixelHeight;
-
-static bool Init;
-static bool Windowed;
-static bool GameFrontWindow;
 static int FrontWindowCount;
-
-static RECT rect;
 static int WindowWidth, WindowHeight;
-
-UINT8 EADPVolume;
-static bool VolUP;
-static bool VolDown;
-
-static DWORD P1Health;
-static DWORD P2Health;
-static UINT8 GameContinue;
-
-static bool P1ReadyStart;
-static bool P2ReadyStart;
-
-static bool NameEntryScreen;
-static int NameEntryScreenCount;
-
-static float TaitoLogo;
-
-static bool AttractVideo;
-bool EADPAttractVidPlay;
-
-extern float EADPRenderWidth;
-extern float EADPRenderHeight;
-static float EADPRenderWidthOri;
-static float EADPRenderHeightOri;
 static int TitleCount;
 static int TitleCount2;
-
-static float p1X;
-static float p1Y;
-static float p2X;
-static float p2Y;
-
+static int TitleCount3;
+static int VibrationSleepCount;
+static int VibrationCount;
+static int VibrationTime;
+static int VibrationPower;
 static int oldffbOffset2;
 static int oldffbOffset3;
 static int oldffbOffset4;
 static int oldffbOffset5;
+
+extern float EADPRenderWidth;
+extern float EADPRenderHeight;
+extern float ScaleBezelX;
+extern float ScaleBezelY;
+static float EADPRenderWidthOri;
+static float EADPRenderHeightOri;
+static float TaitoLogo;
+static float currentEADPRenderWidth;
+static float currentEADPRenderHeight;
+static float p1X;
+static float p1Y;
+static float p2X;
+static float p2Y;
+float DoorFloatLeft;
+float DoorFloatRight;
+float currentDoorFloatLeft;
+float currentDoorFloatRight;
+
+extern bool EnableD3D9Crosshairs;
+extern bool EnableD3D9Bezel;
+extern bool EnableD3D9Border;
+static bool Init;
+static bool Windowed;
+static bool GameFrontWindow;
+static bool GetOrigRenderRes;
+static bool VolUP;
+static bool VolDown;
+static bool P1ReadyStart;
+static bool P2ReadyStart;
+static bool HideShootTheMainDisplay;
+static bool AttractVideo;
+static bool AttractionDoors;
+static bool PlayVibrationEffect;
+static bool VibrationEffect;
+bool EADPCenter2D;
+bool EADPCenter3D;
+bool EADPNameEntry;
+bool EADPAttractVidPlay;
+
+extern DWORD resWidthD3D9;
+extern DWORD resHeightD3D9;
+static DWORD imageBase;
+static DWORD P1Health;
+static DWORD P2Health;
+
+static UINT8 GameContinue;
+UINT8 EADPVolume;
+
+static RECT rect;
 
 static char INIChar[256];
 
@@ -123,9 +127,36 @@ static void VolumeSetting(Helpers* helpers)
 	}
 }
 
+int(__fastcall* ResultsCenterOri)(void* ECX, void* EDX, int a2, int a3);
+int __fastcall ResultsCenterHook(void* ECX, void* EDX, int a2, int a3)
+{
+	EADPCenter2D = true;
+	return ResultsCenterOri(ECX, EDX, a2, a3);
+}
+
 static void AlignTest2D(Helpers* helpers)
 {
 	helpers->WriteIntPtr(0xCDE7D, resWidthD3D9, true); // Align Test Menu
+}
+
+int(__cdecl* AttractionDoorOri)(float a1, float a2, float a3);
+int __cdecl AttractionDoorHook(float a1, float a2, float a3)
+{
+	DoorFloatLeft = a1; currentDoorFloatLeft = a1;
+	DoorFloatRight = a2; currentDoorFloatRight = a2;
+
+	return AttractionDoorOri(a1, a2, a3);
+}
+
+int(__cdecl* VibrationDoorOri)(float a1, int a2, int a3);
+int __cdecl VibrationDoorHook(float a1, int a2, int a3)
+{
+	VibrationEffect = true;
+
+	VibrationPower = a2;
+	VibrationTime = a3;
+
+	return VibrationDoorOri(a1, a2, a3);
 }
 
 int(__fastcall* EADPVolumeSetupOri)(void* ECX, void* EDX, float a2);
@@ -163,17 +194,18 @@ int __fastcall TestMenuCenterHook(void* ECX, void* EDX, int a2)
 int(__fastcall* EADP3DCenterOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
 int __fastcall EADP3DCenterHook(void* ECX, void* EDX, float a2, float a3, float a4, float a5)
 {
-	if (!GameContinue && P1Health <= 10 && P2Health <= 10 && -TaitoLogo == 0)
+	if (!GameContinue && P1Health <= 10 && P2Health <= 10 && -TaitoLogo == 0 || EADPCenter3D)
 	{
-		if (EADPRenderWidth)
-			a2 = (resWidthD3D9 / 2.0) - (EADPRenderWidth / 2.0);
+		if (EADPCenter3D)
+		{
+			if (a2 != (resWidthD3D9 / 2.0) - (EADPRenderWidthOri / 2.0))
+				a2 = a2 + ((resWidthD3D9 / 2.0) - 360.0);
+		}
 		else
-			a2 = (resWidthD3D9 / 2.0) - 360.0;
+			a2 = a2 + ((resWidthD3D9 / 2.0) - 360.0);
 
-		if (EADPRenderHeight)
-			a3 = (resHeightD3D9 / 2.0) - (EADPRenderHeight / 2.0);
-		else
-			a3 = (resHeightD3D9 / 2.0) - 640.0;
+		if (!EADPCenter3D)
+			a3 = a3 + ((resHeightD3D9 / 2.0) - 640.0);
 	}
 
 	return EADP3DCenterOri(ECX, EDX, a2, a3, a4, a5);
@@ -193,6 +225,12 @@ static void Random2DRead(Helpers* helpers)
 	DWORD ReadyOff1 = helpers->ReadInt32(ReadyOff0 + 0x60, false);
 	P1ReadyStart = helpers->ReadByte(ReadyOff1 + 0x8D1, false);
 	P2ReadyStart = helpers->ReadByte(ReadyOff1 + 0x9A1, false);
+
+	if (P1ReadyStart || P2ReadyStart)
+	{
+		helpers->WriteByte(ReadyOff1 + 0x8D1, 0x01, false);
+		helpers->WriteByte(ReadyOff1 + 0x9A1, 0x01, false);
+	}
 
 	DWORD HealthBase1P = helpers->ReadInt32(0x212CD8, true);
 	DWORD Health1POff0 = helpers->ReadInt32(HealthBase1P + 0x08, false);
@@ -218,29 +256,22 @@ int __fastcall EADP2DCenterHook(void* ECX, void* EDX)
 
 	EADP2DCenterOri(ECX, EDX);
 
+	if (HideShootTheMainDisplay)
+	{
+		if (*(float*)((int)ECX + 20) == 108.0 && *(float*)((int)ECX + 24) == 29.0 && -TaitoLogo == 0 && !GameContinue)
+			*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - 99999999999.0;
+	}
+
 	if (*(float*)((int)ECX + 20) == 236.5 && -TaitoLogo == 0)
 		*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
 
 	if (*(float*)((int)ECX + 20) == 211.0 && (P1Health > 10 || P2Health > 10))
 		*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
 
-	if (!GameContinue && P1Health <= 10 && P2Health <= 10 && -TaitoLogo == 0)
+	if (!GameContinue && EADPCenter2D && -TaitoLogo == 0 || !GameContinue && EADPNameEntry && -TaitoLogo == 0)
 		*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
 
-	if (*(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0) == 33.0)
-		++NameEntryScreenCount;
-	else
-	{
-		if (NameEntryScreenCount)
-			--NameEntryScreenCount;
-	}
-
-	if (NameEntryScreenCount > 3)
-		NameEntryScreen = true;
-	else
-		NameEntryScreen = false;
-
-	if (NameEntryScreen)
+	if (EADPNameEntry)
 	{
 		if (EnableD3D9Crosshairs)
 		{
@@ -263,26 +294,51 @@ int __fastcall EADP2DCenterHook(void* ECX, void* EDX)
 		{
 			++TitleCount;
 
-			if (P1ReadyStart || P2ReadyStart)
-				*(float*)((int)ECX + 20) = -99999999.0; // Hide shit far away
-
-			switch (TitleCount)
+			if (P1ReadyStart && P2ReadyStart)
 			{
-			case 0x01:
-				*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
-				break;
-			case 0x02:
-				*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
 				TitleCount = 0;
-				break;
+				++TitleCount3;
+				
+				switch (TitleCount3)
+				{
+				case 0x01:
+					*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+					break;
+				case 0x02:
+					*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
+					TitleCount3 = 0;
+					break;
+				}
+			}
+			else
+			{
+				TitleCount3 = 0;
+
+				switch (TitleCount)
+				{
+				case 0x01:
+					if ((P1ReadyStart && P2ReadyStart) || P1ReadyStart)
+						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
+					else if (P2ReadyStart)
+						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
+					else
+						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+					break;
+				case 0x02:
+					if ((P1ReadyStart && P2ReadyStart) || P2ReadyStart)
+						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+					else if (P1ReadyStart)
+						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) - ((resWidthD3D9 / 2.0) - 360.0);
+					else
+						*(float*)((int)ECX + 20) = *(float*)((int)ECX + 20) + ((resWidthD3D9 / 2.0) - 360.0);
+					TitleCount = 0;
+					break;
+				}
 			}
 		}
 		else if (*(float*)((int)ECX + 20) == 137.0)
 		{
 			++TitleCount2;
-
-			if (P1ReadyStart || P2ReadyStart)
-				*(float*)((int)ECX + 20) = -99999999.0; // Hide shit far away
 
 			switch (TitleCount2)
 			{
@@ -313,6 +369,8 @@ void EADPInputs(Helpers* helpers)
 		Init = true;
 		imageBase = (DWORD)GetModuleHandleA(0);
 		Windowed = ToBool(config["General"]["Windowed"]);
+		AttractionDoors = ToBool(config["Attraction Doors"]["Enable"]);
+		HideShootTheMainDisplay = ToBool(config["General"]["Hide Shoot the display msg"]);
 	}
 
 	*(BYTE*)(imageBase + 0x201C10) = 0x02; // Enable Inputs
@@ -331,9 +389,6 @@ void EADPInputs(Helpers* helpers)
 	}
 	else
 	{
-		DWORD TaitoBase = helpers->ReadInt32(0x212CA4, true);
-		TaitoLogo = helpers->ReadFloat32(TaitoBase + 0x3C0, false);
-
 		DWORD CheckVideoBase = helpers->ReadInt32(0x209C38, true);
 		UINT8 CheckVideo1 = helpers->ReadByte(CheckVideoBase + 0x8AB, false);
 		UINT8 CheckVideo2 = helpers->ReadByte(CheckVideoBase + 0x95B, false);
@@ -350,9 +405,77 @@ void EADPInputs(Helpers* helpers)
 		}
 	}
 
+	if (AttractionDoors)
+	{
+		if (VibrationEffect)
+		{
+			++VibrationCount;
+			++VibrationSleepCount;
+
+			float Power = (float)VibrationPower / 200.0;
+
+			if (VibrationSleepCount == 2)
+			{
+				VibrationSleepCount = 0;
+
+				if (!PlayVibrationEffect)
+					PlayVibrationEffect = true;
+				else
+					PlayVibrationEffect = false;
+			}
+
+			if (PlayVibrationEffect)
+			{
+				DoorFloatLeft += Power;
+				DoorFloatRight += Power;
+			}
+			else
+			{
+				DoorFloatLeft -= Power;
+				DoorFloatRight -= Power;
+			}
+
+			if (DoorFloatLeft > 1.0)
+				DoorFloatLeft = 1.0;
+
+			if (DoorFloatRight > 1.0)
+				DoorFloatRight = 1.0;
+
+			if (DoorFloatLeft < 0.0)
+				DoorFloatLeft = 0.0;
+
+			if (DoorFloatRight < 0.0)
+				DoorFloatRight = 0.0;
+
+			if (VibrationCount >= VibrationTime / 16.0)
+			{
+				VibrationEffect = false;
+				DoorFloatLeft = currentDoorFloatLeft;
+				DoorFloatRight = currentDoorFloatRight;
+			}
+		}
+		else
+		{
+			if (VibrationCount)
+				VibrationCount = 0;
+		}
+	}
+
+	DWORD TaitoBase = helpers->ReadInt32(0x212CA4, true);
+	TaitoLogo = helpers->ReadFloat32(TaitoBase + 0x3C0, false);
+
 	DWORD RenderBase = helpers->ReadInt32(0x212C80, true);
-	EADPRenderWidth = helpers->ReadFloat32(RenderBase + 0x94, false);
-	EADPRenderHeight = helpers->ReadFloat32(RenderBase + 0x98, false);
+	currentEADPRenderWidth = helpers->ReadFloat32(RenderBase + 0x94, false);
+	currentEADPRenderHeight = helpers->ReadFloat32(RenderBase + 0x98, false);
+
+	if ((int)currentEADPRenderWidth % 2 != 0)
+		helpers->WriteFloat32(RenderBase + 0x94, currentEADPRenderWidth + 1.0, false);
+
+	if (currentEADPRenderWidth)
+		EADPRenderWidth = currentEADPRenderWidth;
+
+	if (currentEADPRenderHeight)
+		EADPRenderHeight = currentEADPRenderHeight;
 
 	float LeftMaxWidth = (int)round((float)resWidthD3D9 / 2.0) - ((float)EADPRenderWidth / 2.0);
 	float RightMaxWidth = (int)round((float)resWidthD3D9 / 2.0) + ((float)EADPRenderWidth / 2.0);
@@ -405,15 +528,15 @@ void EADPInputs(Helpers* helpers)
 	*(WORD*)(imageBase + 0x201BF6) = (p2X / 255.0) * 16384; // P2 X Axis
 	*(WORD*)(imageBase + 0x201BF8) = (p2Y / 255.0) * 16384; // P2 Y Axis
 
+	if (!GetOrigRenderRes && EADPRenderWidth && EADPRenderHeight)
+	{
+		GetOrigRenderRes = true;
+		EADPRenderWidthOri = EADPRenderWidth;
+		EADPRenderHeightOri = EADPRenderHeight;
+	}
+
 	if (EnableD3D9Bezel || EnableD3D9Border)
 	{
-		if (!GetOrigRenderRes && EADPRenderWidth && EADPRenderHeight)
-		{
-			GetOrigRenderRes = true;
-			EADPRenderWidthOri = EADPRenderWidth;
-			EADPRenderHeightOri = EADPRenderHeight;
-		}
-
 		if (EnableD3D9Bezel && EnableD3D9Border)
 		{
 			helpers->WriteFloat32(RenderBase + 0x94, EADPRenderWidthOri - ((BorderThickness / 2.0) + BezelPixelWidth), false);
@@ -426,8 +549,11 @@ void EADPInputs(Helpers* helpers)
 		}
 		else
 		{
-			helpers->WriteFloat32(RenderBase + 0x94, EADPRenderWidthOri - BezelPixelWidth, false);
+			float W = helpers->WriteFloat32(RenderBase + 0x94, EADPRenderWidthOri - BezelPixelWidth, false);
 			helpers->WriteFloat32(RenderBase + 0x98, EADPRenderHeightOri - BezelPixelHeight, false);
+
+			if ((int)W % 2 != 0)
+				helpers->WriteFloat32(RenderBase + 0x94, W + 1.0, false);
 		}
 	}
 
@@ -439,7 +565,7 @@ void EADPInputs(Helpers* helpers)
 		UINT8 P1Active = helpers->ReadByte(TimerBase + 0x1794C, false);
 		UINT8 P2Active = helpers->ReadByte(TimerBase + 0x17A38, false);
 
-		if (Start && !NameEntryScreen)
+		if (Start && !EADPNameEntry)
 		{
 			if (P1Active)
 				Player1Active = true;
@@ -462,7 +588,7 @@ void EADPInputs(Helpers* helpers)
 			}
 			else
 			{
-				if (!NameEntryScreen)
+				if (!EADPNameEntry)
 				{
 					if (Player1Active)
 						Player1Active = false;

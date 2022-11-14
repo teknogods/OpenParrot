@@ -1,14 +1,15 @@
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
-#include "Utility/Helper.h"
 #include <intrin.h>
 #include <shlwapi.h>
 #include <iostream>
 #include <fstream>
 #include "Utility/GameDetect.h"
+#include "Utility/Helper.h"
 #include <d3d9.h>
 #include "DirectXSDK/Include/d3dx9.h"
+#include "FpsLimiter.h"
 
 #if _M_IX86
 #pragma comment(lib, "../inc/DirectXSDK/Lib/x86/d3d9.lib")
@@ -24,8 +25,12 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
+static char RenderHookChar[256];
+static bool PresentHook;
+
 float EADPRenderWidth;
 float EADPRenderHeight;
+static float AdjustmentValue;
 
 DWORD resWidthD3D9;
 DWORD resHeightD3D9;
@@ -39,8 +44,7 @@ static bool Windowed;
 bool EnableD3D9Bezel;
 bool EnableD3D9Border;
 bool EnableD3D9Crosshairs;
-
-bool TestMenu;
+bool EnableD3D9Doors;
 
 static bool ScaleD3D9Bezel;
 static bool ScaleD3D9Border;
@@ -52,20 +56,32 @@ int BorderThickness;
 int BezelPixelWidth;
 int BezelPixelHeight;
 
+extern float DoorFloatLeft;
+extern float DoorFloatRight;
+
 static std::ifstream P1Size{};
 static std::ifstream P2Size{};
 static std::ifstream BezelSize{};
 static std::ifstream BorderSize{};
+static std::ifstream DoorLeftSize{};
+static std::ifstream DoorRightSize{};
+static std::ifstream DoorBezelSize{};
 
 static wchar_t P1buf[MAX_PATH];
 static wchar_t P2buf[MAX_PATH];
 static wchar_t Bezelbuf[MAX_PATH];
 static wchar_t Borderbuf[MAX_PATH];
+static wchar_t DoorLeftbuf[MAX_PATH];
+static wchar_t DoorRightbuf[MAX_PATH];
+static wchar_t DoorBezelbuf[MAX_PATH];
 
 static unsigned int P1Width, P1Height;
 static unsigned int P2Width, P2Height;
 static unsigned int BezelWidth, BezelHeight;
 static unsigned int BorderWidth, BorderHeight;
+static unsigned int DoorLeftWidth, DoorLeftHeight;
+static unsigned int DoorRightWidth, DoorRightHeight;
+static unsigned int DoorBezelWidth, DoorBezelHeight;
 
 static D3DXMATRIX bezel_scaling_matrix;
 static D3DXMATRIX border_scaling_matrix;
@@ -85,13 +101,101 @@ static LPD3DXSPRITE SpriteBezel = NULL;
 static D3DXVECTOR3 vPosBezel;
 static D3DXVECTOR3 vCenBezel;
 
+static LPDIRECT3DTEXTURE9 TextureDoorBezel = NULL;
+static LPD3DXSPRITE SpriteDoorBezel = NULL;
+static D3DXVECTOR3 vPosDoorBezel;
+static D3DXVECTOR3 vCenDoorBezel;
+
 static LPDIRECT3DTEXTURE9 TextureBorder = NULL;
 static LPD3DXSPRITE SpriteBorder = NULL;
 static D3DXVECTOR3 vPosBorder;
 static D3DXVECTOR3 vCenBorder;
 
+static LPDIRECT3DTEXTURE9 TextureDoorLeft = NULL;
+static LPD3DXSPRITE SpriteDoorLeft = NULL;
+static D3DXVECTOR3 vPosDoorLeft;
+static D3DXVECTOR3 vCenDoorLeft;
+
+static LPDIRECT3DTEXTURE9 TextureDoorRight = NULL;
+static LPD3DXSPRITE SpriteDoorRight = NULL;
+static D3DXVECTOR3 vPosDoorRight;
+static D3DXVECTOR3 vCenDoorRight;
+
+static IDirect3DSwapChain9* SwapChainMain;
+static IDirect3DSurface9* SurfaceMain;
+
 static bool P1SceenOut;
 static bool P2SceenOut;
+
+static bool DoorInit;
+
+static float LeftDoorMin;
+static float LeftDoorMax;
+static float LeftValueTotal;
+
+static float RightDoorMin;
+static float RightDoorMax;
+static float RightValueTotal;
+
+static float DoorSpeed = 8.0;
+
+static void EADPAttractionDoorsCalculations()
+{
+	if (!DoorInit)
+	{
+		DoorInit = true;
+
+		vPosDoorLeft.x = (int)round((float)resWidthD3D9 / 2.0) - (DoorLeftWidth * 2.0) + DoorLeftWidth / 2.0;
+
+		LeftDoorMin = (int)round((float)resWidthD3D9 / 2.0) - (DoorLeftWidth * 2.0) + DoorLeftWidth / 2.0;
+		LeftDoorMax = (int)round((float)resWidthD3D9 / 2.0) - DoorLeftWidth / 2.0;
+
+		LeftValueTotal = LeftDoorMax - LeftDoorMin;
+
+		vPosDoorRight.x = (int)round((float)resWidthD3D9 / 2.0) + (DoorRightWidth * 2.0) - DoorRightWidth / 2.0;
+
+		RightDoorMin = (int)round((float)resWidthD3D9 / 2.0) + (DoorRightWidth * 2.0) - DoorRightWidth / 2.0;
+		RightDoorMax = (int)round((float)resWidthD3D9 / 2.0) + DoorRightWidth / 2.0;
+
+		RightValueTotal = RightDoorMax - RightDoorMin;
+	}
+
+	if (EADPRenderWidth)
+		DoorSpeed = ((EADPRenderWidth / 2.0) / 405.0) * 8.0;
+
+	float DoorLeft = DoorFloatLeft * LeftValueTotal + LeftDoorMin;
+	vPosDoorLeft.x = fmin(fmax(vPosDoorLeft.x, LeftDoorMin), LeftDoorMax);
+
+	float DoorRight = DoorFloatRight * RightValueTotal + RightDoorMin;
+	vPosDoorRight.x = fmin(fmax(vPosDoorRight.x, RightDoorMax), RightDoorMin);
+
+	if (resWidthD3D9 <= 768)
+		AdjustmentValue = 1.0;
+	else
+		AdjustmentValue = 4.0;
+
+	if (vPosDoorLeft.x > DoorLeft + AdjustmentValue)
+		vPosDoorLeft.x -= DoorSpeed;
+	else if (vPosDoorLeft.x < DoorLeft - AdjustmentValue)
+		vPosDoorLeft.x += DoorSpeed;
+
+	if (vPosDoorRight.x > DoorRight + AdjustmentValue)
+		vPosDoorRight.x -= DoorSpeed;
+	else if (vPosDoorRight.x < DoorRight - AdjustmentValue)
+		vPosDoorRight.x += DoorSpeed;
+
+	if (vPosDoorLeft.x > LeftDoorMax)
+		vPosDoorLeft.x = LeftDoorMax;
+
+	if (vPosDoorLeft.x < LeftDoorMin)
+		vPosDoorLeft.x = LeftDoorMin;
+
+	if (vPosDoorRight.x < RightDoorMax)
+		vPosDoorRight.x = RightDoorMax;
+
+	if (vPosDoorRight.x > RightDoorMin)
+		vPosDoorRight.x = RightDoorMin;
+}
 
 static void EADPCrosshairCalculations()
 {
@@ -101,10 +205,10 @@ static void EADPCrosshairCalculations()
 	vPos2P.x = (int)round((float)(*ffbOffset4) / 255.0f * (float)resWidthD3D9); // P2 X axis
 	vPos2P.y = (int)round((float)(*ffbOffset5) / 255.0f * (float)resHeightD3D9); // P2 Y axis
 
-	float LeftMaxWidth = (int)round((float)resWidthD3D9 / 2.0) - ((float)EADPRenderWidth / 2.0);
-	float RightMaxWidth = (int)round((float)resWidthD3D9 / 2.0) + ((float)EADPRenderWidth / 2.0);
-	float TopMaxHeight = (int)round((float)resHeightD3D9 / 2.0) - ((float)EADPRenderHeight / 2.0);
-	float BottomMaxHeight = (int)round((float)resHeightD3D9 / 2.0) + ((float)EADPRenderHeight / 2.0);
+	float LeftMaxWidth = (int)round((float)resWidthD3D9 / 2.0) - (EADPRenderWidth / 2.0);
+	float RightMaxWidth = (int)round((float)resWidthD3D9 / 2.0) + (EADPRenderWidth / 2.0);
+	float TopMaxHeight = (int)round((float)resHeightD3D9 / 2.0) - (EADPRenderHeight / 2.0);
+	float BottomMaxHeight = (int)round((float)resHeightD3D9 / 2.0) + (EADPRenderHeight / 2.0);
 
 	float P1XAxis = (*ffbOffset2 / 255.0) * resWidthD3D9;
 	float P1YAxis = (*ffbOffset3 / 255.0) * resHeightD3D9;
@@ -114,13 +218,9 @@ static void EADPCrosshairCalculations()
 
 	P1SceenOut = (P1XAxis <= LeftMaxWidth || P1XAxis >= RightMaxWidth || P1YAxis <= TopMaxHeight || P1YAxis >= BottomMaxHeight);
 	P2SceenOut = (P2XAxis <= LeftMaxWidth || P2XAxis >= RightMaxWidth || P2YAxis <= TopMaxHeight || P2YAxis >= BottomMaxHeight);
-} 
+}
 
-typedef HRESULT(APIENTRY* Present) (LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcRect, CONST RECT* pDestRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion);
-static HRESULT APIENTRY Present_hook(LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcRect, CONST RECT* pDestRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion);
-static Present Present_orig = 0;
-
-static HRESULT APIENTRY Present_hook(LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcRect, CONST RECT* pDestRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion)
+static void RenderOurItems(LPDIRECT3DDEVICE9 Device)
 {
 	if (!D3D9Init)
 	{
@@ -184,7 +284,7 @@ static HRESULT APIENTRY Present_hook(LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcR
 			BezelWidth = ntohl(BezelWidth);
 			BezelHeight = ntohl(BezelHeight);
 
-			vCenBezel.x = BezelWidth / 2.0; // Bezel Center
+			vCenBezel.x = BezelWidth / 2.0; // Bezel X Center
 			vCenBezel.y = BezelHeight / 2.0; // Bezel Y Center
 
 			D3DXCreateTextureFromFileEx(Device, Bezelbuf, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &TextureBezel);
@@ -212,6 +312,87 @@ static HRESULT APIENTRY Present_hook(LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcR
 			D3DXCreateTextureFromFileEx(Device, Borderbuf, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &TextureBorder);
 			D3DXCreateSprite(Device, &SpriteBorder);
 		}
+
+		if (EnableD3D9Doors)
+		{
+			GetModuleFileName(NULL, DoorBezelbuf, MAX_PATH);
+			PathRemoveFileSpec(DoorBezelbuf);
+			wcscat(DoorBezelbuf, L"\\DoorsBezel.png");
+
+			DoorBezelSize.open(DoorBezelbuf);
+
+			DoorBezelSize.seekg(16);
+			DoorBezelSize.read((char*)&DoorBezelWidth, 4);
+			DoorBezelSize.read((char*)&DoorBezelHeight, 4);
+
+			DoorBezelWidth = ntohl(DoorBezelWidth);
+			DoorBezelHeight = ntohl(DoorBezelHeight);
+
+			vCenDoorBezel.x = DoorBezelWidth / 2.0; // Bezel X Center
+			vCenDoorBezel.y = DoorBezelHeight / 2.0; // Bezel Y Center
+			vPosDoorBezel.x = (float)resWidthD3D9 / 2.0;
+			vPosDoorBezel.y = (float)resHeightD3D9 / 2.0;
+
+			D3DXCreateTextureFromFileEx(Device, DoorBezelbuf, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &TextureDoorBezel);
+			D3DXCreateSprite(Device, &SpriteDoorBezel);
+
+			GetModuleFileName(NULL, DoorLeftbuf, MAX_PATH);
+			PathRemoveFileSpec(DoorLeftbuf);
+			wcscat(DoorLeftbuf, L"\\DoorLeft.png");
+
+			DoorLeftSize.open(DoorLeftbuf);
+
+			DoorLeftSize.seekg(16);
+			DoorLeftSize.read((char*)&DoorLeftWidth, 4);
+			DoorLeftSize.read((char*)&DoorLeftHeight, 4);
+
+			DoorLeftWidth = ntohl(DoorLeftWidth);
+			DoorLeftHeight = ntohl(DoorLeftHeight);
+
+			vCenDoorLeft.x = DoorLeftWidth / 2.0; // Bezel X Center
+			vCenDoorLeft.y = DoorLeftHeight / 2.0; // Bezel Y Center
+			vPosDoorLeft.y = (float)resHeightD3D9 / 2.0; // Door Left Y
+
+			D3DXCreateTextureFromFileEx(Device, DoorLeftbuf, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &TextureDoorLeft);
+			D3DXCreateSprite(Device, &SpriteDoorLeft);
+
+			GetModuleFileName(NULL, DoorRightbuf, MAX_PATH);
+			PathRemoveFileSpec(DoorRightbuf);
+			wcscat(DoorRightbuf, L"\\DoorRight.png");
+
+			DoorRightSize.open(DoorRightbuf);
+
+			DoorRightSize.seekg(16);
+			DoorRightSize.read((char*)&DoorRightWidth, 4);
+			DoorRightSize.read((char*)&DoorRightHeight, 4);
+
+			DoorRightWidth = ntohl(DoorRightWidth);
+			DoorRightHeight = ntohl(DoorRightHeight);
+
+			vCenDoorRight.x = DoorRightWidth / 2.0; // Door Right X Center
+			vCenDoorRight.y = DoorRightHeight / 2.0; // Door Right Y Center
+			vPosDoorRight.y = (float)resHeightD3D9 / 2.0; // Door Right Y
+
+			D3DXCreateTextureFromFileEx(Device, DoorRightbuf, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &TextureDoorRight);
+			D3DXCreateSprite(Device, &SpriteDoorRight);
+		}
+	}
+
+	if (EnableD3D9Doors)
+	{
+		EADPAttractionDoorsCalculations();
+
+		SpriteDoorBezel->Begin(0);
+		SpriteDoorBezel->Draw(TextureDoorBezel, NULL, &vCenDoorBezel, &vPosDoorBezel, 0xFFFFFFFF);
+		SpriteDoorBezel->End();
+
+		SpriteDoorLeft->Begin(0);
+		SpriteDoorLeft->Draw(TextureDoorLeft, NULL, &vCenDoorLeft, &vPosDoorLeft, 0xFFFFFFFF);
+		SpriteDoorLeft->End();
+
+		SpriteDoorRight->Begin(0);
+		SpriteDoorRight->Draw(TextureDoorRight, NULL, &vCenDoorRight, &vPosDoorRight, 0xFFFFFFFF);
+		SpriteDoorRight->End();
 	}
 
 	if (EnableD3D9Crosshairs)
@@ -306,68 +487,102 @@ static HRESULT APIENTRY Present_hook(LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcR
 
 		SpriteBorder->End();
 	}
+}
+
+typedef HRESULT(APIENTRY* EndScene) (IDirect3DDevice9*);
+static HRESULT APIENTRY EndScene_hook(IDirect3DDevice9*);
+static EndScene EndScene_orig = 0;
+
+static HRESULT APIENTRY EndScene_hook(IDirect3DDevice9* Device)
+{
+	FpsLimiter();
+
+	Device->GetSwapChain(0, &SwapChainMain);
+
+	SwapChainMain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_LEFT, &SurfaceMain);
+
+	Device->SetRenderTarget(0, SurfaceMain);
+
+	RenderOurItems(Device);
+
+	return EndScene_orig(Device);
+}
+
+typedef HRESULT(APIENTRY* Present) (LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcRect, CONST RECT* pDestRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion);
+static HRESULT APIENTRY Present_hook(LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcRect, CONST RECT* pDestRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion);
+static Present Present_orig = 0;
+
+static HRESULT APIENTRY Present_hook(LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcRect, CONST RECT* pDestRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion)
+{
+	FpsLimiter();
+
+	Device->GetSwapChain(0, &SwapChainMain);
+
+	SwapChainMain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_LEFT, &SurfaceMain);
+
+	Device->SetRenderTarget(0, SurfaceMain);
+
+	RenderOurItems(Device);
 
 	return Present_orig(Device, pSrcRect, pDestRect, hDestWindow, pDirtyRegion);
 }
 
 DWORD WINAPI D3D9MiscHook(__in  LPVOID lpParameter)
 {
-	while (GetModuleHandleA("d3d9.dll") == 0 || !FindWindowA("Eva", "OpenParrot - Elevator Action: Death Parade"))
+	while (!FindWindowA("Eva", "OpenParrot - Elevator Action: Death Parade"))
 	{
-		Sleep(100);
+		Sleep(8);
 	}
 
-	HWND Game = FindWindowA("Eva", "OpenParrot - Elevator Action: Death Parade");
+	FpsLimiterSet(60.0f);
 
-	IDirect3D9* d3d = NULL;
-	IDirect3DDevice9* d3ddev = NULL;
+	HRESULT hr = E_FAIL;
+	IDirect3D9Ex* pD3D = NULL;
+	IDirect3DDevice9Ex* pDevice = NULL;
 
-	HWND tmpWnd = CreateWindowA("BUTTON", "Temp Window", WS_SYSMENU | WS_MINIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT, 300, 300, NULL, NULL, NULL, NULL);
-	if (tmpWnd == NULL)
+	// Create the D3D object, which is needed to create the D3DDevice.
+	if (FAILED(hr = Direct3DCreate9Ex(D3D_SDK_VERSION, &pD3D)))
 	{
-		return 0;
+		pD3D = NULL;
+		return hr;
 	}
 
-	d3d = Direct3DCreate9(D3D_SDK_VERSION);
-	if (d3d == NULL)
-	{
-		DestroyWindow(tmpWnd);
-		return 0;
-	}
-
+	// Set up the structure used to create the D3DDevice. 
 	D3DPRESENT_PARAMETERS d3dpp;
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
 	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3dpp.hDeviceWindow = tmpWnd;
-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 
-	HRESULT result = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, tmpWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &d3ddev);
-	if (result != D3D_OK)
+	// Create the Direct3D device. 
+	if (FAILED(hr = pD3D->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetForegroundWindow(),
+		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+		&d3dpp, NULL, &pDevice)))
 	{
-		d3d->Release();
-		DestroyWindow(tmpWnd);
-		return 0;
+		pDevice = NULL;
+		return hr;
 	}
 
 #if defined _M_X64
-	DWORD64* dVtable = (DWORD64*)d3ddev;
+	DWORD64* dVtable = (DWORD64*)pDevice;
 	dVtable = (DWORD64*)dVtable[0];
 #elif defined _M_IX86
-	DWORD* dVtable = (DWORD*)d3ddev;
+	DWORD* dVtable = (DWORD*)pDevice;
 	dVtable = (DWORD*)dVtable[0];
 #endif
 
 	Present_orig = (Present)dVtable[17];
+	EndScene_orig = (EndScene)dVtable[42];
 
 	MH_Initialize();
-	MH_CreateHook((DWORD_PTR*)dVtable[17], &Present_hook, reinterpret_cast<void**>(&Present_orig));
-	MH_EnableHook((DWORD_PTR*)dVtable[17]);
+	if (PresentHook)
+		MH_CreateHook((DWORD_PTR*)dVtable[17], &Present_hook, reinterpret_cast<void**>(&Present_orig));
+	else
+		MH_CreateHook((DWORD_PTR*)dVtable[42], &EndScene_hook, reinterpret_cast<void**>(&EndScene_orig));
+	MH_EnableHook(MH_ALL_HOOKS);
 
-	d3ddev->Release();
-	d3d->Release();
-	DestroyWindow(tmpWnd);
-	return 1;
+	pDevice->Release();
+	pD3D->Release();
+	return hr;
 }
 
 static InitFunction initFunc([]()
@@ -377,6 +592,7 @@ static InitFunction initFunc([]()
 			EnableD3D9Crosshairs = (ToBool(config["Crosshairs"]["Enable"]));
 			EnableD3D9Bezel = (ToBool(config["Bezel"]["Enable"]));
 			EnableD3D9Border = (ToBool(config["Border"]["Enable"]));
+			EnableD3D9Doors = (ToBool(config["Attraction Doors"]["Enable"]));
 
 			ScaleD3D9Bezel = (ToBool(config["Bezel"]["Scale"]));
 			ScaleD3D9Border = (ToBool(config["Border"]["Scale"]));
@@ -387,6 +603,11 @@ static InitFunction initFunc([]()
 
 			if (BorderThickness)
 				BorderThickness = BorderThickness * 4.0;
+
+			GetPrivateProfileStringA("General", "Render Hook", "", RenderHookChar, 256, ".\\teknoparrot.ini");
+
+			if (strcmpi(RenderHookChar, "Present") == 0)
+				PresentHook = true;
 
 			if (EnableD3D9Crosshairs || EnableD3D9Bezel || EnableD3D9Border)
 				CreateThread(NULL, 0, D3D9MiscHook, NULL, 0, NULL);
