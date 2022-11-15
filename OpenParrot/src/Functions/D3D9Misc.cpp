@@ -39,6 +39,7 @@ int Player2Active;
 
 static bool D3D9Init;
 static bool Windowed;
+static bool Landscape;
 
 bool EnableD3D9Bezel;
 bool EnableD3D9Border;
@@ -159,8 +160,13 @@ static void EADPAttractionDoorsCalculations()
 		RightValueTotal = RightDoorMax - RightDoorMin;
 	}
 
-	if (EADPRenderWidth)
-		DoorSpeed = ((EADPRenderWidth / 2.0) / 405.0) * 8.0;
+	if (Landscape)
+		DoorSpeed = 8.0;
+	else
+	{
+		if (EADPRenderWidth)
+			DoorSpeed = ((EADPRenderWidth / 2.0) / 405.0) * 8.0;
+	}
 
 	float DoorLeft = DoorFloatLeft * LeftValueTotal + LeftDoorMin;
 	vPosDoorLeft.x = fmin(fmax(vPosDoorLeft.x, LeftDoorMin), LeftDoorMax);
@@ -168,14 +174,14 @@ static void EADPAttractionDoorsCalculations()
 	float DoorRight = DoorFloatRight * RightValueTotal + RightDoorMin;
 	vPosDoorRight.x = fmin(fmax(vPosDoorRight.x, RightDoorMax), RightDoorMin);
 
-	if (vPosDoorLeft.x > DoorLeft + 1.5)
+	if (vPosDoorLeft.x > DoorLeft + 4.0)
 		vPosDoorLeft.x -= DoorSpeed;
-	else if (vPosDoorLeft.x < DoorLeft - 1.5)
+	else if (vPosDoorLeft.x < DoorLeft - 4.0)
 		vPosDoorLeft.x += DoorSpeed;
 
-	if (vPosDoorRight.x > DoorRight + 1.5)
+	if (vPosDoorRight.x > DoorRight + 4.0)
 		vPosDoorRight.x -= DoorSpeed;
-	else if (vPosDoorRight.x < DoorRight - 1.5)
+	else if (vPosDoorRight.x < DoorRight - 4.0)
 		vPosDoorRight.x += DoorSpeed;
 
 	if (vPosDoorLeft.x > LeftDoorMax)
@@ -594,6 +600,12 @@ static InitFunction initFunc([]()
 			BezelPixelWidth = ToInt(config["Bezel"]["Width Thickness"]);
 			BezelPixelHeight = ToInt(config["Bezel"]["Height Thickness"]);
 			BorderThickness = ToInt(config["Border"]["Thickness"]);
+
+			int theScreenWidth = GetSystemMetrics(SM_CXFULLSCREEN);
+			int theScreenHeight = GetSystemMetrics(SM_CYFULLSCREEN);
+
+			if (theScreenWidth > theScreenHeight)
+				Landscape = true;
 
 			if (BorderThickness)
 				BorderThickness = BorderThickness * 4.0;
