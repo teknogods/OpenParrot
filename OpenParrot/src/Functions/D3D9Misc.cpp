@@ -30,7 +30,6 @@ static bool PresentHook;
 
 float EADPRenderWidth;
 float EADPRenderHeight;
-static float AdjustmentValue;
 
 DWORD resWidthD3D9;
 DWORD resHeightD3D9;
@@ -169,19 +168,14 @@ static void EADPAttractionDoorsCalculations()
 	float DoorRight = DoorFloatRight * RightValueTotal + RightDoorMin;
 	vPosDoorRight.x = fmin(fmax(vPosDoorRight.x, RightDoorMax), RightDoorMin);
 
-	if (resWidthD3D9 <= 768)
-		AdjustmentValue = 1.0;
-	else
-		AdjustmentValue = 4.0;
-
-	if (vPosDoorLeft.x > DoorLeft + AdjustmentValue)
+	if (vPosDoorLeft.x > DoorLeft + 1.5)
 		vPosDoorLeft.x -= DoorSpeed;
-	else if (vPosDoorLeft.x < DoorLeft - AdjustmentValue)
+	else if (vPosDoorLeft.x < DoorLeft - 1.5)
 		vPosDoorLeft.x += DoorSpeed;
 
-	if (vPosDoorRight.x > DoorRight + AdjustmentValue)
+	if (vPosDoorRight.x > DoorRight + 1.5)
 		vPosDoorRight.x -= DoorSpeed;
-	else if (vPosDoorRight.x < DoorRight - AdjustmentValue)
+	else if (vPosDoorRight.x < DoorRight - 1.5)
 		vPosDoorRight.x += DoorSpeed;
 
 	if (vPosDoorLeft.x > LeftDoorMax)
