@@ -189,11 +189,11 @@ int __fastcall TestMenuCenterHook(void* ECX, void* EDX, int a2)
 
 	if (ScaleTestMenu)
 	{
-		*(float*)((int)ECX + 16) = resHeightD3D9;
-
 		float ResAdjust = 5120.0 / resWidthD3D9;
 
-		*(double*)(imageBase + 0x212708) = 0.15 * ResAdjust;
+		*(float*)((int)ECX + 16) = resHeightD3D9 / ResAdjust;
+
+		*(double*)(imageBase + 0x212708) = 0.162 * ResAdjust;
 	}
 
 	AlignTest2D(0);
