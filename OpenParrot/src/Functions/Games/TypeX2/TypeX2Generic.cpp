@@ -1239,6 +1239,9 @@ static InitFunction initFunction([]()
 
 		injector::WriteMemory<DWORD>(imageBase + 0x5C78, (DWORD)&EADPmonitors, true); // Play 1 or 2 screen
 
+		if (ToBool(config["General"]["Scale Test Menu"]))
+			injector::WriteMemory<DWORD>(imageBase + 0xCDDEA, imageBase + 0x212708, true);
+
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 	}
 });

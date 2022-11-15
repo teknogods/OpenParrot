@@ -63,6 +63,7 @@ static bool AttractVideo;
 static bool AttractionDoors;
 static bool PlayVibrationEffect;
 static bool VibrationEffect;
+static bool ScaleTestMenu;
 bool EADPCenter2D;
 bool EADPCenter3D;
 bool EADPNameEntry;
@@ -185,6 +186,15 @@ int __fastcall TestMenuCenterHook(void* ECX, void* EDX, int a2)
 	TestMenuCenterOri(ECX, EDX, a2);
 
 	*(float*)((int)ECX + 12) = resWidthD3D9 / 2.0;
+
+	if (ScaleTestMenu)
+	{
+		*(float*)((int)ECX + 16) = resHeightD3D9;
+
+		float ResAdjust = 5120.0 / resWidthD3D9;
+
+		*(double*)(imageBase + 0x212708) = 0.15 * ResAdjust;
+	}
 
 	AlignTest2D(0);
 
@@ -371,6 +381,7 @@ void EADPInputs(Helpers* helpers)
 		Windowed = ToBool(config["General"]["Windowed"]);
 		AttractionDoors = ToBool(config["Attraction Doors"]["Enable"]);
 		HideShootTheMainDisplay = ToBool(config["General"]["Hide Shoot the display msg"]);
+		ScaleTestMenu = ToBool(config["General"]["Scale Test Menu"]);
 	}
 
 	*(BYTE*)(imageBase + 0x201C10) = 0x02; // Enable Inputs
