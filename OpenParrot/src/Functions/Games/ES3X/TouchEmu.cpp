@@ -2,6 +2,7 @@
 #include "MinHook.h"
 #include <Windowsx.h>
 #include <vector>
+#ifdef _M_AMD64
 // FORKED FROM OUR FORK: https://github.com/ProjectAsakura/OpenParrot/blob/master/OpenParrot/src/Utility/TouchSerial/
 // THANKS!
 #define TS_PIPE_TIMEOUT 16
@@ -283,3 +284,4 @@ void mt6SerialTouchInit()
 	CreateThread(NULL, 0, mt6SerialNamedPipeServer, NULL, 0, NULL);
 	Sleep(20);
 }
+#endif

@@ -75,29 +75,33 @@ HANDLE __stdcall Hook_CreateFileA(LPCSTR lpFileName,
 	DWORD dwFlagsAndAttributes,
 	HANDLE hTemplateFile)
 {
-	// Cheap hack for the touchscreen
-	// ReadFile checks handle
-	if (stricmp(lpFileName, "\\\\.\\COM1") == 0)
+#ifdef _M_AMD64
+	if (GameDetect::currentGame == GameID::WMMT6)
 	{
-		// Assume this is maxitune6...
-		// This *very* sucks, I'll write something better one day...
-		if (!touchTaken)
+		// Cheap hack for the touchscreen
+		// ReadFile checks handle
+		if (stricmp(lpFileName, "\\\\.\\COM1") == 0)
 		{
-			mt6SerialTouchInit();
+			// Assume this is maxitune6...
+			// This *very* sucks, I'll write something better one day...
+			if (!touchTaken)
+			{
+				mt6SerialTouchInit();
+			}
+
+			HANDLE hResult = __CreateFileA("\\\\.\\pipe\\mt6-touchemu",
+				dwDesiredAccess,
+				dwShareMode,
+				lpSecurityAttributes,
+				dwCreationDisposition,
+				dwFlagsAndAttributes,
+				hTemplateFile);
+			touchHandle = hResult;
+			touchTaken = true;
+			return hResult;
 		}
-
-		HANDLE hResult = __CreateFileA("\\\\.\\pipe\\mt6-touchemu",
-			dwDesiredAccess,
-			dwShareMode,
-			lpSecurityAttributes,
-			dwCreationDisposition,
-			dwFlagsAndAttributes,
-			hTemplateFile);
-		touchHandle = hResult;
-		touchTaken = true;
-		return hResult;
 	}
-
+#endif
 
 	if (strcmp(lpFileName, hookPort) == 0)
 	{
@@ -164,25 +168,30 @@ HANDLE __stdcall Hook_CreateFileW(LPCWSTR lpFileName,
 	DWORD dwFlagsAndAttributes,
 	HANDLE hTemplateFile)
 {
-	if (wcsicmp(lpFileName, L"\\\\.\\COM1") == 0)
+#ifdef _M_AMD64
+	if (GameDetect::currentGame == GameID::WMMT6)
 	{
-		if (!touchTaken)
+		if (wcsicmp(lpFileName, L"\\\\.\\COM1") == 0)
 		{
-			mt6SerialTouchInit();
+			if (!touchTaken)
+			{
+				mt6SerialTouchInit();
+			}
+
+			HANDLE hResult = __CreateFileW(L"\\\\.\\pipe\\mt6-touchemu",
+				dwDesiredAccess,
+				dwShareMode,
+				lpSecurityAttributes,
+				dwCreationDisposition,
+				dwFlagsAndAttributes,
+				hTemplateFile);
+
+			touchHandle = hResult;
+			touchTaken = true;
+			return hResult;
 		}
-
-		HANDLE hResult = __CreateFileW(L"\\\\.\\pipe\\mt6-touchemu",
-			dwDesiredAccess,
-			dwShareMode,
-			lpSecurityAttributes,
-			dwCreationDisposition,
-			dwFlagsAndAttributes,
-			hTemplateFile);
-
-		touchHandle = hResult;
-		touchTaken = true;
-		return hResult;
 	}
+#endif
 	if (wcscmp(lpFileName, L"COM4") == 0 && !JVSAlreadyTaken)
 	{
 		HANDLE hResult = __CreateFileW(emuPortW,
@@ -263,7 +272,7 @@ static std::set<HANDLE> g_commOverrides;
 
 static bool IsCommHooked(HANDLE hFile)
 {
-	return (hFile == jvsHandle || hFile==touchHandle || g_commOverrides.find(hFile) != g_commOverrides.end());
+	return (hFile == jvsHandle || hFile == touchHandle || g_commOverrides.find(hFile) != g_commOverrides.end());
 }
 
 void AddCommOverride(HANDLE hFile)
