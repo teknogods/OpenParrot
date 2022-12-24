@@ -2,6 +2,7 @@
 #include <Utility/InitFunction.h>
 #include <Utility/GameDetect.h>
 #include "amJvs.h"
+#include <Functions/Games/ES3X/TouchEmu.h>
 #pragma optimize("", off)
 #include <MinHook.h>
 
@@ -63,6 +64,8 @@ LPCSTR hookPort = "COM4";
 DWORD amJvsDataOffset = 0;
 HANDLE jvsHandle = (HANDLE)-1;
 bool JVSAlreadyTaken = false;
+HANDLE touchHandle = (HANDLE)-1;
+bool touchTaken = false;
 
 HANDLE __stdcall Hook_CreateFileA(LPCSTR lpFileName,
 	DWORD dwDesiredAccess,
@@ -72,6 +75,30 @@ HANDLE __stdcall Hook_CreateFileA(LPCSTR lpFileName,
 	DWORD dwFlagsAndAttributes,
 	HANDLE hTemplateFile)
 {
+	// Cheap hack for the touchscreen
+	// ReadFile checks handle
+	if (stricmp(lpFileName, "\\\\.\\COM1") == 0)
+	{
+		// Assume this is maxitune6...
+		// This *very* sucks, I'll write something better one day...
+		if (!touchTaken)
+		{
+			mt6SerialTouchInit();
+		}
+
+		HANDLE hResult = __CreateFileA("\\\\.\\pipe\\mt6-touchemu",
+			dwDesiredAccess,
+			dwShareMode,
+			lpSecurityAttributes,
+			dwCreationDisposition,
+			dwFlagsAndAttributes,
+			hTemplateFile);
+		touchHandle = hResult;
+		touchTaken = true;
+		return hResult;
+	}
+
+
 	if (strcmp(lpFileName, hookPort) == 0)
 	{
 #ifdef _DEBUG
@@ -137,6 +164,25 @@ HANDLE __stdcall Hook_CreateFileW(LPCWSTR lpFileName,
 	DWORD dwFlagsAndAttributes,
 	HANDLE hTemplateFile)
 {
+	if (wcsicmp(lpFileName, L"\\\\.\\COM1") == 0)
+	{
+		if (!touchTaken)
+		{
+			mt6SerialTouchInit();
+		}
+
+		HANDLE hResult = __CreateFileW(L"\\\\.\\pipe\\mt6-touchemu",
+			dwDesiredAccess,
+			dwShareMode,
+			lpSecurityAttributes,
+			dwCreationDisposition,
+			dwFlagsAndAttributes,
+			hTemplateFile);
+
+		touchHandle = hResult;
+		touchTaken = true;
+		return hResult;
+	}
 	if (wcscmp(lpFileName, L"COM4") == 0 && !JVSAlreadyTaken)
 	{
 		HANDLE hResult = __CreateFileW(emuPortW,
@@ -217,7 +263,7 @@ static std::set<HANDLE> g_commOverrides;
 
 static bool IsCommHooked(HANDLE hFile)
 {
-	return (hFile == jvsHandle || g_commOverrides.find(hFile) != g_commOverrides.end());
+	return (hFile == jvsHandle || hFile==touchHandle || g_commOverrides.find(hFile) != g_commOverrides.end());
 }
 
 void AddCommOverride(HANDLE hFile)

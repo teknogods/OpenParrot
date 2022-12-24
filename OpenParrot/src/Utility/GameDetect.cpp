@@ -821,6 +821,9 @@ void GameDetect::DetectCurrentGame()
 		case 0xc20612d0: // Patched Base
 			SetGameId(GameID::UmifreshTest, "Umihara KawaseFresh! For AC Test Menu");
 			break;
+		case 0x7e804704:
+			SetGameId(GameID::AmAuthD64, "AMAuthd for WMMT6");
+			break;
 #endif
 		default:
 #ifdef _DEBUG
