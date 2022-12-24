@@ -190,7 +190,9 @@ static u_short htonsHook(u_short hostshort)
 #endif
 
 	if (hostshort == 80) {
+#ifdef _DEBUG
 		info(true, "replacing port...");
+#endif
 		return htons_orig(HttpPort);
 	}
 	else {
