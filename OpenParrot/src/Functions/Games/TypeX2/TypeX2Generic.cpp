@@ -29,20 +29,9 @@ extern int(__fastcall* AttractVideoCenterOri)(void* ECX, void* EDX);
 extern int __fastcall AttractVideoCenterHook(void* ECX, void* EDX);
 extern int(__fastcall* TestMenuCenterOri)(void* ECX, void* EDX, int a2);
 extern int __fastcall TestMenuCenterHook(void* ECX, void* EDX, int a2);
-extern int(__cdecl* AttractionDoorOri)(float a1, float a2, float a3);
-extern int __cdecl AttractionDoorHook(float a1, float a2, float a3);
-extern int(__cdecl* VibrationDoorOri)(float a1, int a2, int a3);
-extern int __cdecl VibrationDoorHook(float a1, int a2, int a3);
-extern int(__fastcall* ResultsCenterOri)(void* ECX, void* EDX, int a2, int a3);
-extern int __fastcall ResultsCenterHook(void* ECX, void* EDX, int a2, int a3);
-
-extern bool EADPCenter3D;
-extern bool EADPCenter2D;
-extern bool EADPNameEntry;
-static DWORD EADPmonitors = 1;
-
 extern UINT8 EADPVolume;
 extern bool EADPAttractVidPlay;
+
 void AddCommOverride(HANDLE hFile);
 
 static char moveBuf[256];
@@ -80,35 +69,6 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 	{
 		if (strcmp(lpFileName, "data\\test\\swf\\move_eng.ssw") == 0 || strcmp(lpFileName, "data\\test\\swf\\move_chi.ssw") == 0)
 			EADPAttractVidPlay = true;
-
-		if (strcmp(lpFileName, "data\\UI\\UI_entry.bin") == 0)
-			EADPNameEntry = true;
-		else
-		{
-			if (EADPNameEntry)
-				EADPNameEntry = false;
-		}
-
-		if (strcmp(lpFileName, "data\\UI\\UI_gameover.bin") == 0 || strcmp(lpFileName, "data\\UI\\UI_result.bin") == 0 || strcmp(lpFileName, "data\\UI\\UI_rank.bin") == 0 || strcmp(lpFileName, "data\\UI\\UI_entry.bin") == 0)
-		{
-			EADPCenter2D = true;
-
-			if (strcmp(lpFileName, "data\\UI\\UI_result.bin") == 0)
-				EADPCenter3D = true;
-		}
-		else
-		{
-			if (EADPCenter2D)
-			{
-				const char* IgnoreSoundFiles = strstr(lpFileName, "data\\sound\\");
-
-				if (IgnoreSoundFiles != lpFileName)
-				{
-					EADPCenter2D = false;
-					EADPCenter3D = false;
-				}
-			}
-		}
 	}
 
 	if (!strncmp(lpFileName, "D:", 2) || !strncmp(lpFileName, "d:", 2))
@@ -521,7 +481,8 @@ static InitFunction initFunction([]()
 		{
 			// Redirect messagelog file
 			injector::WriteMemoryRaw(0x00AD8B6C, ".\\messagelog.dat\0", 18, true);
-
+			injector::MakeNOP(0x005563DC, 2, true);
+			injector::MakeNOP(0x005562B7, 2, true);
 			break;
 		}
 		case X2Type::VRL:
@@ -1210,37 +1171,16 @@ static InitFunction initFunction([]()
 		EADPVolume = GetPrivateProfileIntA("Settings", "Volume", 100, ".\\OpenParrot\\Settings.ini");
 
 		MH_Initialize();
-
 		MH_CreateHook((void*)(imageBase + 0x16CBF0), EADPVolumeSetup, (void**)&EADPVolumeSetupOri);
-
 		if (!(ToBool(config["General"]["Windowed"])))
 		{
 			MH_CreateHook((void*)(imageBase + 0x3780), EADP3DCenterHook, (void**)&EADP3DCenterOri);
 			MH_CreateHook((void*)(imageBase + 0x116450), EADP2DCenterHook, (void**)&EADP2DCenterOri);
 			MH_CreateHook((void*)(imageBase + 0x2F60), AttractVideoCenterHook, (void**)&AttractVideoCenterOri);
 			MH_CreateHook((void*)(imageBase + 0xCDDB0), TestMenuCenterHook, (void**)&TestMenuCenterOri);
-			MH_CreateHook((void*)(imageBase + 0xB9130), ResultsCenterHook, (void**)&ResultsCenterOri);
 			injector::MakeNOP(imageBase + 0xCDDEE, 2);
 		}
-
-		injector::MakeJMP(imageBase + 0xC4E20, ReturnsTrue); // Enable Attraction Door Test Menu
-		injector::MakeJMP(imageBase + 0x3EBA0, ReturnsTrue); // Enable Attraction Door Ingame
-
-		if (ToBool(config["Attraction Doors"]["Enable"]))
-		{
-			MH_CreateHook((void*)(imageBase + 0xC4B10), AttractionDoorHook, (void**)&AttractionDoorOri); // Attraction Door Values
-			MH_CreateHook((void*)(imageBase + 0xC4C40), VibrationDoorHook, (void**)&VibrationDoorOri); // Vibration Door Values
-		}
-
 		MH_EnableHook(MH_ALL_HOOKS);
-
-		if ((ToBool(config["General"]["Multi Screen"])))
-			EADPmonitors = 2;
-
-		injector::WriteMemory<DWORD>(imageBase + 0x5C78, (DWORD)&EADPmonitors, true); // Play 1 or 2 screen
-
-		if (ToBool(config["General"]["Scale Test Menu"]))
-			injector::WriteMemory<DWORD>(imageBase + 0xCDDEA, imageBase + 0x212708, true);
 
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 	}
