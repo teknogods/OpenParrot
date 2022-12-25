@@ -466,7 +466,7 @@ void GameDetect::DetectCurrentGame()
 				}
 				else if (newCrcResult == 0x0761cc11)
 				{
-					if (config["General"]["Banapass Connection"] == "1") {
+					if (ToBool(config["General"]["Banapass Connection"])) {
 						SetGameId(GameID::WMMT6, "WMMT6");
 					}
 					else {
