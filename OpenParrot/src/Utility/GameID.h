@@ -139,5 +139,6 @@ enum class GameID
 	OtoshuDX,
 	ElevatorActionDeathParade,
 	FrenzyExpress,
-	AmAuthD64
+	AmAuthD64,
+	WMMT6LEGACY
 };
