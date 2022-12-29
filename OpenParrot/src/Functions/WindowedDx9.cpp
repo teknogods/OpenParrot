@@ -10,6 +10,7 @@
 // Local variables
 static bool Windowed = false;
 static bool FpsLimiterEnable = false;
+static bool MultiScreen = false;
 
 // Prototypes
 static HRESULT(WINAPI* g_oldPresent)(IDirect3DDevice9* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
@@ -61,7 +62,7 @@ static HRESULT WINAPI ResetWrap(IDirect3DDevice9* self, D3DPRESENT_PARAMETERS* p
 
 static HRESULT WINAPI CreateDeviceWrap(IDirect3D9* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice9** ppReturnedDeviceInterface)
 {
-	if (Windowed || GameDetect::currentGame == GameID::ElevatorActionDeathParade)
+	if (Windowed || GameDetect::currentGame == GameID::ElevatorActionDeathParade && !MultiScreen)
 	{
 		pPresentationParameters->Windowed = TRUE;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
@@ -116,6 +117,10 @@ static InitFunction initFunc([]()
 
 	// Make local variables for speed
 	Windowed = ToBool(config["General"]["Windowed"]);
+	MultiScreen = ToBool(config["General"]["Multi Screen"]);
+
+	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade && MultiScreen)
+		Windowed = false;
 
 	// Old boolean based limit of 60 fps (keep this for backward compatibility)
 	if (ToBool(config["General"]["Framelimiter"]))
@@ -130,7 +135,7 @@ static InitFunction initFunc([]()
 		FpsLimiterSet((float)FetchDwordInformation("General", "FpsLimit", 60));
 	}
 
-	if (Windowed || FpsLimiterEnable || GameDetect::currentGame == GameID::TroubleWitches || GameDetect::currentGame == GameID::ElevatorActionDeathParade)
+	if (Windowed || FpsLimiterEnable || GameDetect::currentGame == GameID::TroubleWitches || GameDetect::currentGame == GameID::ElevatorActionDeathParade && !MultiScreen)
 		InitD3D9WindowHook();
 });
 #pragma optimize("", on)
