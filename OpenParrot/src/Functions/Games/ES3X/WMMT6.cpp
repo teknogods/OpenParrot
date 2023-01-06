@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
@@ -550,68 +551,59 @@ static void prepareCerts()
 	FILE* termkey = fopen("./data_jp/network/private/terminal-key_v388.pem", "wb");
 	fwrite(terminal_key_v388, 1, sizeof(terminal_key_v388), termkey);
 	fclose(termkey);
+	
 	return;
-
 }
 
 
 static InitFunction Wmmt6Func([]()
 	{
-		// Alloc debug console
-		FreeConsole();
-AllocConsole();
-SetConsoleTitle(L"Maxitune6 Console");
+		if (std::filesystem::exists(".\\card.ini")) {
+		}
+		else {
+			//std::string accessCode = "30764352518498791337";
+			//std::string chipId = "7F5C9744F111111143262C3300040610";
+			char generatedAccessCode[34] = "000000000000000000000000000000000";
+			strcpy(generatedAccessCode, config["Banapass"]["AccessCode"].c_str());
+			WritePrivateProfileStringA("card", "accessCode", generatedAccessCode, ".\\card.ini");
+			char generatedChipId[22] = "000000000000000000000";
+			strcpy(generatedChipId, config["Banapass"]["Card ID"].c_str());
+			WritePrivateProfileStringA("card", "chipId", generatedChipId, ".\\card.ini");
+		}
 
-FILE* pNewStdout = nullptr;
-FILE* pNewStderr = nullptr;
-FILE* pNewStdin = nullptr;
-
-::freopen_s(&pNewStdout, "CONOUT$", "w", stdout);
-::freopen_s(&pNewStderr, "CONOUT$", "w", stderr);
-::freopen_s(&pNewStdin, "CONIN$", "r", stdin);
-std::cout.clear();
-std::cerr.clear();
-std::cin.clear();
-std::wcout.clear();
-std::wcerr.clear();
-std::wcin.clear();
-//
-//puts("hello there, maxitune");
-
-// folder for path redirections
+		// folder for path redirections
 		prepareCerts();
-CreateDirectoryA(".\\TP", nullptr);
+		CreateDirectoryA(".\\TP", nullptr);
 
-/*
-FILE* fileF = _wfopen(L".\\TP\\setting.lua.gz", L"r");
-if (fileF == NULL)
-{
-	FILE* settingsF = _wfopen(L".\\TP\\setting.lua.gz", L"wb");
-	fwrite(settingData, 1, sizeof(settingData), settingsF);
-	fclose(settingsF);
-}
-else
-{
-	fclose(fileF);
-}
-*/
+		/*
+		FILE* fileF = _wfopen(L".\\TP\\setting.lua.gz", L"r");
+		if (fileF == NULL)
+		{
+			FILE* settingsF = _wfopen(L".\\TP\\setting.lua.gz", L"wb");
+			fwrite(settingData, 1, sizeof(settingData), settingsF);
+			fclose(settingsF);
+		}
+		else
+		{
+			fclose(fileF);
+		}
+		*/
 
-bool isTerminal = false;
-if (ToBool(config["General"]["TerminalMode"]))
-{
-	isTerminal = true;
-}
+		bool isTerminal = false;
+		if (ToBool(config["General"]["TerminalMode"]))
+		{
+			isTerminal = true;
+		}
 
-std::string networkip = config["General"]["NetworkAdapterIP"];
-if (!networkip.empty())
-{
-	ipaddr = networkip.c_str();
-}
+		std::string networkip = config["General"]["NetworkAdapterIP"];
+		if (!networkip.empty())
+		{
+			ipaddr = networkip.c_str();
+		}
 
-hookPort = "COM3";
-imageBase = (uintptr_t)GetModuleHandleA(0);
-MH_Initialize();
-
+		hookPort = "COM3";
+		imageBase = (uintptr_t)GetModuleHandleA(0);
+		MH_Initialize();
 // Hook dongle funcs
 MH_CreateHookApi(L"hasp_windows_x64_28756.dll", "hasp_write", Hook_hasp_write, NULL);
 MH_CreateHookApi(L"hasp_windows_x64_28756.dll", "hasp_read", Hook_hasp_read, NULL);
@@ -977,7 +969,7 @@ injector::WriteMemory<uint8_t>(imageBase + 0x8A6AE8, 0x38EB, true);
 	injector::WriteMemory<WORD>(imageBase + 0x399A60 + 4, 0x90C0, true);
 	*/
 }
-init_BanapassEmu();
+//init_BanapassEmu();
 MH_EnableHook(MH_ALL_HOOKS);
 	}, GameID::WMMT6);
 #endif

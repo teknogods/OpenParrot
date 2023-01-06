@@ -1,4 +1,4 @@
-#include <StdInc.h>
+﻿#include <StdInc.h>
 #pragma optimize("", off)
 #include <iphlpapi.h>
 #include <winsock2.h>
@@ -255,10 +255,37 @@ static void prepareWMMT()
 	}
 }
 
+typedef HRESULT(__stdcall* DllRegisterServerFunc)();
+
+static void dllreg()
+{
+	//iauthdll.dll
+	HMODULE hModule = LoadLibrary(L"iauthdll.dll");
+	DllRegisterServerFunc DllRegisterServer = (DllRegisterServerFunc)GetProcAddress(hModule, "DllRegisterServer");
+	HRESULT hr = DllRegisterServer();
+	if (SUCCEEDED(hr))
+	{
+#ifdef DEBUG
+		īnfo(true, "iauthdll.dll registered successfully!");
+#endif
+	}
+	else
+	{
+		int msgboxID = MessageBox(
+			NULL,
+			(LPCWSTR)L"There was an error registering a DLL needed for WMMT6 online.",
+			(LPCWSTR)L"WMMT6 Banapass Setup",
+			MB_ICONWARNING | MB_OK
+		);
+		// There was an error
+	}
+}
+
 static InitFunction HookAmAuthD64([]()
 	{
 	// write config files for mt6
 		prepareWMMT();
+		dllreg();
 		MH_Initialize();
 		MH_CreateHookApi(L"kernel32.dll", "SetSystemTime", SetSystemTimeHook, (void**)&orig_SetSystemTime);
 		MH_CreateHookApi(L"ws2_32.dll", "getaddrinfo", getaddrinfoHookAMAuth, (void**)&g_origgetaddrinfoo);
