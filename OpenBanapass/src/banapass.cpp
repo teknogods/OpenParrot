@@ -6,7 +6,7 @@
 #include <string>
 #define BANA_API_VERSION "Ver 1.6.0"
 
-
+char* rawCardDataBuffer = (char*)malloc(sizeof(char) * (168 + 1));
 std::string getProfileString(LPCSTR name, LPCSTR key, LPCSTR def, LPCSTR filename)
 {
 	char temp[1024];
@@ -211,10 +211,12 @@ extern "C"
 			memcpy(rawCardData + 0x50, accessCode.c_str(), accessCode.size() + 1);
 			memcpy(rawCardData + 0x2C, chipId.c_str(), chipId.size() + 1);
 
+			memcpy(rawCardDataBuffer, rawCardData, 168);
+
 			int dn = 0;
 			int reader_status = 0;
 
-			std::thread t(callback, dn, reader_status, rawCardData, e);
+			std::thread t(callback, dn, reader_status, rawCardDataBuffer, e);
 			t.detach();
 
 			// this is a really ugly hack, forgive me
