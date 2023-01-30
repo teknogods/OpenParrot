@@ -5,7 +5,7 @@
 #include <chrono>
 #include <string>
 #define BANA_API_VERSION "Ver 1.6.0"
-
+#pragma optimize ("", off)
 char* rawCardDataBuffer = (char*)malloc(sizeof(char) * (168 + 1));
 std::string getProfileString(LPCSTR name, LPCSTR key, LPCSTR def, LPCSTR filename)
 {
@@ -231,3 +231,4 @@ extern "C"
 	}
 
 }
+#pragma optimize("", on)

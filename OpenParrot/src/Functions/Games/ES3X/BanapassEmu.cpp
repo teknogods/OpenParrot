@@ -6,6 +6,7 @@
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #define BANA_API_VERSION "Ver 1.6.0"
+#pragma optimize("",off)
 // ORIGINAL CODE FORKED FROM: https://github.com/shiibe/OpenBanapass/tree/taiko/OpenBanapass
 // THANKS!
 
@@ -353,3 +354,4 @@ void init_BanapassEmu()
 	MH_CreateHookApi(L"bngrw.dll", "BngRwAttach", BngRwAttach, NULL);
 	MH_EnableHook(MH_ALL_HOOKS);
 }
+#pragma optimize("", on)
