@@ -49,7 +49,7 @@ static char moveBuf[256];
 static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 {
 #ifdef _DEBUG
-	info(true, "ParseFileNamesA original: %s", lpFileName);
+	info("ParseFileNamesA original: %s", lpFileName);
 #endif
 	// Tetris ram folder redirect
 	if (!strncmp(lpFileName, ".\\TGM3\\", 7)) 
@@ -129,9 +129,9 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		{
 			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
 #ifdef _DEBUG
-			info(true, "PathRoot: %s", pathRoot);
-			info(true, "ParseFileNamesA - 3: %s", lpFileName + 3);
-			info(true, "ParseFileNamesA movBuf: %s", moveBuf);
+			info("PathRoot: %s", pathRoot);
+			info("ParseFileNamesA - 3: %s", lpFileName + 3);
+			info("ParseFileNamesA movBuf: %s", moveBuf);
 #endif
 			// convert char to string, and replace '/' to '\\'
 			std::string movBufOP = moveBuf;
@@ -141,7 +141,7 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 			if (movBufOP.find(pathRoot + 3) != std::string::npos)
 			{
 #ifdef _DEBUG
-				info(true, "!!!!!!!!!!!NO REDIRECT!!!!!!!!!!!!");
+				info("!!!!!!!!!!!NO REDIRECT!!!!!!!!!!!!");
 #endif
 				return lpFileName;
 			}
@@ -152,7 +152,7 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 			{
 				sprintf(moveBuf, ".\\%s", lpFileName + 2);
 #ifdef _DEBUG
-				info(true, "D:data redirect: %s", moveBuf);
+				info("D:data redirect: %s", moveBuf);
 #endif
 				return moveBuf;
 			}
@@ -161,7 +161,7 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 			{
 				sprintf(moveBuf, ".\\%s", lpFileName + 4);
 #ifdef _DEBUG
-				info(true, "D:.\\data redirect: %s", moveBuf);
+				info("D:.\\data redirect: %s", moveBuf);
 #endif
 				return moveBuf;
 			}
@@ -179,7 +179,7 @@ static wchar_t moveBufW[256];
 static LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 {
 #ifdef _DEBUG
-	info(true, "ParseFileNamesW original: %ls", lpFileName);
+	info("ParseFileNamesW original: %ls", lpFileName);
 #endif
 	if (!wcsncmp(lpFileName, L"D:", 2) || !wcsncmp(lpFileName, L"d:", 2))
 	{
@@ -194,9 +194,9 @@ static LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 			swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);
 
 #ifdef _DEBUG
-			info(true, "PathRootW: %ls", pathRootW);
-			info(true, "ParseFileNamesW: %ls", lpFileName + 3);
-			info(true, "ParseFileNamesW movBufW: %ls", moveBufW);
+			info("PathRootW: %ls", pathRootW);
+			info("ParseFileNamesW: %ls", lpFileName + 3);
+			info("ParseFileNamesW movBufW: %ls", moveBufW);
 #endif
 			// convert wchar to wstring, and replace '/' to '\\'
 			std::wstring movBufWOP = moveBufW;
@@ -206,7 +206,7 @@ static LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 			if (movBufWOP.find(pathRootW + 3) != std::wstring::npos)
 			{
 #ifdef _DEBUG
-				info(true, "!!!!!!!!!!!NO REDIRECT_W!!!!!!!!!!!!");
+				info("!!!!!!!!!!!NO REDIRECT_W!!!!!!!!!!!!");
 #endif
 				return lpFileName;
 			}
@@ -229,7 +229,7 @@ static BOOL __stdcall SetCurrentDirectoryAWrap(LPCSTR lpPathName)
 
 	strrchr(pathRoot, '\\')[0] = '\0'; // chop off everything from the last backslash.
 #ifdef _DEBUG
-	info(true, "SetCurrentDirectoryA: %s", lpPathName);
+	info("SetCurrentDirectoryA: %s", lpPathName);
 #endif
 	if (!strncmp(lpPathName, ".\\sh", 4)) // wacky racers fix
 	{

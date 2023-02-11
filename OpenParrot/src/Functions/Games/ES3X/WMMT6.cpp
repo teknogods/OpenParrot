@@ -229,7 +229,7 @@ DNS_STATUS(WINAPI* g_origDnsQuery_A)(PCSTR pszName, WORD wType, DWORD Options, P
 DNS_STATUS WINAPI DnsQuery_AHook(PCSTR pszName, WORD wType, DWORD Options, PVOID pExtra, PDNS_RECORD* ppQueryResults, PVOID* pReserved)
 {
 #if _DEBUG
-	info(true, "DnsQuery_AHook: %s", pszName);
+	info("DnsQuery_AHook: %s", pszName);
 #endif
 
 	if (strncmp(pszName, "tenporouter.loc", 15) == 0 || strncmp(pszName, "bbrouter.loc", 15) == 0)
@@ -248,7 +248,7 @@ DNS_STATUS WINAPI DnsQuery_AHook(PCSTR pszName, WORD wType, DWORD Options, PVOID
 	if (strncmp(pszName, "mobirouter.loc", 14) == 0 || strncmp(pszName, "dslrouter.loc", 13) == 0)
 	{
 #if _DEBUG
-		info(true, "DnsQuery_AHooked: returning error.");
+		info("DnsQuery_AHooked: returning error.");
 #endif
 		return NULL;
 	}
@@ -322,7 +322,7 @@ int(WSAAPI* g_origgetaddrinfo)(PCSTR pNodeName, PCSTR pServiceName, const ADDRIN
 int WSAAPI getaddrinfoHook(PCSTR pNodeName, PCSTR pServiceName, const ADDRINFOA* pHints, PADDRINFOA* ppResult)
 {
 #if _DEBUG
-	info(true, "getaddrinfo: %s, %s", pNodeName, pServiceName);
+	info("getaddrinfo: %s, %s", pNodeName, pServiceName);
 #endif
 
 	return g_origgetaddrinfo(pNodeName, pServiceName, pHints, ppResult);

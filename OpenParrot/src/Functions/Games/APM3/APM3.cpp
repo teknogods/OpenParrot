@@ -418,7 +418,7 @@ DWORD_PTR CALLPLEB Input_isOpenPewviewWindow()
 GamepadInfo* CALLPLEB Input_setGamepadConfig(GamepadInfo *gamepadInfo)
 {
 #ifdef _LOGAPM3
-	info(true, "Input_setGamepadConfig");
+	info("Input_setGamepadConfig");
 #endif
 
 	return 0;
@@ -427,7 +427,7 @@ GamepadInfo* CALLPLEB Input_setGamepadConfig(GamepadInfo *gamepadInfo)
 char* CALLPLEB NetworkProperty_getAddressString()
 {
 #ifdef _DEBUG
-	info(true, "NetworkProperty_getAddressString");
+	info("NetworkProperty_getAddressString");
 #endif
 	return NetworkProperty_getAddressStringReturnValue;
 }
@@ -435,7 +435,7 @@ char* CALLPLEB NetworkProperty_getAddressString()
 DWORD_PTR CALLPLEB NetworkProperty_getAddressValue()
 {
 #ifdef _DEBUG
-	info(true, "NetworkProperty_getAddressValue");
+	info("NetworkProperty_getAddressValue");
 #endif
 	return NetworkProperty_getAddressValueReturnValue;
 }
@@ -445,7 +445,7 @@ static wchar_t* gameDir = L".\\";
 wchar_t* CALLPLEB System_getAppRootPath()
 {
 #ifdef _LOGAPM3
-	info(true, "System_getAppRootPath");
+	info("System_getAppRootPath");
 #endif
 	return gameDir;
 }

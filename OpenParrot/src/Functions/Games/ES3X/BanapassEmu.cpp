@@ -103,8 +103,8 @@ void StartReadThread(void (*callback)(int, int, void*, void*), void* cardStuctPt
 			//const auto accessCode = getProfileString("card", "accessCode", "30764352518498791337", ".\\card.ini");
 			//const auto chipId = getProfileString("card", "chipId", "7F5C9744F111111143262C3300040610", ".\\card.ini");
 #ifdef _DEBUG
-			info(true, "accessCode: %s", accessCode.c_str());
-			info(true, "chipId: %s", chipId.c_str());
+			info("accessCode: %s", accessCode.c_str());
+			info("chipId: %s", chipId.c_str());
 #endif
 			memcpy(rawCardData + 0x50, accessCode.c_str(), accessCode.size() + 1);
 			memcpy(rawCardData + 0x2C, chipId.c_str(), chipId.size() + 1);
@@ -118,7 +118,7 @@ void StartReadThread(void (*callback)(int, int, void*, void*), void* cardStuctPt
 
 ULONGLONG BngRwAttach(UINT a1, char* a2, int a3, int a4, long (*callback)(long, long, long*), long* some_struct_ptr) {
 #ifdef _DEBUG
-	info(true, "BngRwAttach(%i, %s, %d, %d, %p, %p)\n", a1, a2, a3, a4, callback, some_struct_ptr);
+	info("BngRwAttach(%i, %s, %d, %d, %p, %p)\n", a1, a2, a3, a4, callback, some_struct_ptr);
 #endif
 	createCard();
 
@@ -129,21 +129,21 @@ ULONGLONG BngRwAttach(UINT a1, char* a2, int a3, int a4, long (*callback)(long, 
 
 long BngRwInit() {
 #ifdef _DEBUG
-	info(true, "BngRwInit()\n");
+	info("BngRwInit()\n");
 #endif
 	return 0;
 }
 
 ULONGLONG BngRwReqSetLedPower() {
 #ifdef _DEBUG
-	info(true, "BngRwSetLedPower()\n");
+	info("BngRwSetLedPower()\n");
 #endif
 	return 0;
 }
 
 int BngRwDevReset(UINT a, long (*callback)(int, int, long*), long* some_struct_ptr) {
 #ifdef _DEBUG
-	info(true, "BngRwDevReset(%i, %p, %p)\n", a, callback, some_struct_ptr);
+	info("BngRwDevReset(%i, %p, %p)\n", a, callback, some_struct_ptr);
 #endif
 
 	std::thread t(StartResetThread, callback, some_struct_ptr);
@@ -153,7 +153,7 @@ int BngRwDevReset(UINT a, long (*callback)(int, int, long*), long* some_struct_p
 
 ULONGLONG BngRwExReadMifareAllBlock() {
 #ifdef _DEBUG
-	info(true, "BngRwExReadMifareAllBlock()\n");
+	info("BngRwExReadMifareAllBlock()\n");
 #endif
 	return 0xffffff9c;
 }
@@ -161,56 +161,56 @@ ULONGLONG BngRwExReadMifareAllBlock() {
 // Finalise?
 void BngRwFin() {
 #ifdef _DEBUG
-	info(true, "BngRwFin()\n");
+	info("BngRwFin()\n");
 #endif
 }
 
 UINT BngRwGetFwVersion(UINT a) {
 #ifdef _DEBUG
-	info(true, "BngRwGetFwVersion(%i)\n", a);
+	info("BngRwGetFwVersion(%i)\n", a);
 #endif
 	return 0;
 }
 
 UINT BngRwGetStationID(UINT a) {
 #ifdef _DEBUG
-	info(true, "BngRwGetStationID(%i)\n", a);
+	info("BngRwGetStationID(%i)\n", a);
 #endif
 	return 0;
 }
 
 const char* BngRwGetVersion() {
 #ifdef _DEBUG
-	info(true, "BngRwGetVersion()\n");
+	info("BngRwGetVersion()\n");
 #endif
 	return BANA_API_VERSION;
 }
 
 ULONGLONG BngRwIsCmdExec(UINT a) {
 #ifdef _DEBUG
-	info(true, "BngRwIsCmdExec(%i)\n", a);
+	info("BngRwIsCmdExec(%i)\n", a);
 #endif
 	return 0xFFFFFFFF;
 }
 
 UINT BngRwGetTotalRetryCount(UINT a) {
 #ifdef _DEBUG
-	info(true, "BngRwGetTotalRetryCount(%i)\n", a);
+	info("BngRwGetTotalRetryCount(%i)\n", a);
 #endif
 	return 0;
 }
 
 int BngRwReqLed(UINT a, UINT b, ULONGLONG c, ULONGLONG d) {
 #ifdef _DEBUG
-	info(true, "BngRwReqLed(%i, %i, %llu, %llu)\n", a, b, c, d);
-	info(true, "\a");
+	info("BngRwReqLed(%i, %i, %llu, %llu)\n", a, b, c, d);
+	info("\a");
 #endif
 	return 1;
 }
 
 int BngRwReqAction(UINT a, UINT b, void (*callback)(long, int, long*), long* some_struct_ptr) {
 #ifdef _DEBUG
-	info(true, "BngRwReqAction(%i, %i, %p, %p)\n", a, b, callback, some_struct_ptr);
+	info("BngRwReqAction(%i, %i, %p, %p)\n", a, b, callback, some_struct_ptr);
 #endif
 
 	std::thread t(StartReqActionThread, callback, some_struct_ptr);
@@ -224,21 +224,21 @@ int BngRwReqAction(UINT a, UINT b, void (*callback)(long, int, long*), long* som
 
 int BngRwReqAiccAuth(UINT a, int b, UINT c, int* d, ULONGLONG e, ULONGLONG f, ULONGLONG* g) {
 #ifdef _DEBUG
-	info(true, "BngRwReqAiccAuth(%i, %d, %i, %p, %llu, %llu, %p)\n", a, b, c, d, e, f, g);
+	info("BngRwReqAiccAuth(%i, %d, %i, %p, %llu, %llu, %p)\n", a, b, c, d, e, f, g);
 #endif
 	return 1;
 }
 
 int BngRwReqBeep(UINT a, UINT b, ULONGLONG c, ULONGLONG d) {
 #ifdef _DEBUG
-	info(true, "BngRwReqBeep(%i, %i, %llu, %llu)\n", a, b, c, d);
+	info("BngRwReqBeep(%i, %i, %llu, %llu)\n", a, b, c, d);
 #endif
 	return 1;
 }
 
 int BngRwReqCancel(UINT a) {
 #ifdef _DEBUG
-	info(true, "BngRwReqCancel(%i)\n", a);
+	info("BngRwReqCancel(%i)\n", a);
 #endif
 	if (7 < a)
 	{
@@ -249,21 +249,21 @@ int BngRwReqCancel(UINT a) {
 
 int BngRwReqFwCleanup(UINT a, ULONGLONG b, ULONGLONG c) {
 #ifdef _DEBUG
-	info(true, "BngRwReqFwCleanup(%i, %llu, %llu)\n", a, b, c);
+	info("BngRwReqFwCleanup(%i, %llu, %llu)\n", a, b, c);
 #endif
 	return 1;
 }
 
 int BngRwReqFwVersionup(UINT a, ULONGLONG b, ULONGLONG c, ULONGLONG d) {
 #ifdef _DEBUG
-	info(true, "BngRwReqFwVersionup(%i, %llu, %llu, %llu)\n", a, b, c, d);
+	info("BngRwReqFwVersionup(%i, %llu, %llu, %llu)\n", a, b, c, d);
 #endif
 	return 1;
 }
 
 int BngRwReqLatchID(UINT a, ULONGLONG b, ULONGLONG c) {
 #ifdef _DEBUG
-	info(true, "BngRwReqLatchId(%i, %llu, %llu)\n", a, b, c);
+	info("BngRwReqLatchId(%i, %llu, %llu)\n", a, b, c);
 #endif
 	if (a < 8)
 	{
@@ -275,7 +275,7 @@ int BngRwReqLatchID(UINT a, ULONGLONG b, ULONGLONG c) {
 int BngRwReqSendMailTo(UINT a, int b, UINT c, int* d,
 	char* e, char* f, char* g, char* h, ULONGLONG i, ULONGLONG j) {
 #ifdef _DEBUG
-	info(true, "BngRwReqSendMailTo(%i, %d, %i, %p, %s, %s, %s, %s, %llu, %llu)\n", a, b, c, d, e, f, g, h, i, j);
+	info("BngRwReqSendMailTo(%i, %d, %i, %p, %s, %s, %s, %s, %llu, %llu)\n", a, b, c, d, e, f, g, h, i, j);
 #endif
 	if (7 < a)
 	{
@@ -291,7 +291,7 @@ int BngRwReqSendMailTo(UINT a, int b, UINT c, int* d,
 int BngRwReqSendUrlTo(UINT a, int b, UINT c, int* d,
 	char* e, char* f, ULONGLONG g, ULONGLONG h) {
 #ifdef _DEBUG
-	info(true, "BngRwReqSendUrlTo(%i, %d, %i, %p, %s, %s, %llu, %llu)\n", a, b, c, d, e, f, g, h);
+	info("BngRwReqSendUrlTo(%i, %d, %i, %p, %s, %s, %llu, %llu)\n", a, b, c, d, e, f, g, h);
 #endif
 	if (7 < a)
 	{
@@ -306,7 +306,7 @@ int BngRwReqSendUrlTo(UINT a, int b, UINT c, int* d,
 
 int BngRwReqWaitTouch(UINT a, int maxIntSomehow, UINT c, void (*callback)(int, int, void*, void*), void* card_struct_ptr) {
 #ifdef _DEBUG
-	info(true, "BngRwReqWaitTouch(%i, %d, %i, %p, %p)\n", a, maxIntSomehow, c, callback, card_struct_ptr);
+	info("BngRwReqWaitTouch(%i, %d, %i, %p, %p)\n", a, maxIntSomehow, c, callback, card_struct_ptr);
 #endif
 
 	// Hack to make sure previous threads have exited

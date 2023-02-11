@@ -19,8 +19,7 @@ NesysEmu::NesysEmu()
 
 		const _LIBRARY_INFO* linfo = reinterpret_cast<const _LIBRARY_INFO*>(data);
 
-#ifdef _DEBUG
-		info(true, "NESYS CLIENT START: pid %d, exePath %s, version %s", linfo->pid, linfo->exePath, linfo->version);
+#ifdef _DEBUG"NESYS CLIENT START: pid %d, exePath %s, version %s", linfo->pid, linfo->exePath, linfo->version);
 #endif
 
 		SendResponse(SCOMMAND_CLIENT_START_REPLY, nullptr);
@@ -424,7 +423,7 @@ void NesysEmu::ProcessRequestInternal(const NesysCommandHeader* header)
 	if (handler != m_commandHandlers.end())
 	{
 #ifdef _DEBUG
-		info(true, "got nesys command: %d\n", header->command);
+		info("got nesys command: %d\n", header->command);
 #endif
 
 		handler->second(header->data, header->length);
@@ -432,7 +431,7 @@ void NesysEmu::ProcessRequestInternal(const NesysCommandHeader* header)
 	}
 
 #ifdef _DEBUG
-	info(true, "got unhandled nesys command: %d\n", header->command); //
+	info("got unhandled nesys command: %d\n", header->command); //
 #endif
 }
 

@@ -106,14 +106,14 @@ HANDLE __stdcall Hook_CreateFileA(LPCSTR lpFileName,
 	if (strcmp(lpFileName, hookPort) == 0)
 	{
 #ifdef _DEBUG
-		info(true, "CreateFileA JVS: %s", lpFileName);
-		info(true, "--------------------------------------------");
+		info("CreateFileA JVS: %s", lpFileName);
+		info("--------------------------------------------");
 #endif
 
 		if (jvsHandle != INVALID_HANDLE_VALUE)
 		{
 #ifdef _DEBUG
-			info(true, "Closing JVS handle!");
+			info("Closing JVS handle!");
 #endif
 			CloseHandle(jvsHandle);
 			jvsHandle = INVALID_HANDLE_VALUE;
@@ -140,7 +140,7 @@ HANDLE __stdcall Hook_CreateFileA(LPCSTR lpFileName,
 		memcpy(temp, ".\\", 2);
 		memcpy(temp + 2, lpFileName + 3, len - 3);
 #ifdef _DEBUG
-		info(true, "data drive file redirected: %s -> %s", lpFileName, temp);
+		info("data drive file redirected: %s -> %s", lpFileName, temp);
 #endif
 		HANDLE hResult = __CreateFileA(temp,
 			dwDesiredAccess,
@@ -352,7 +352,7 @@ BOOL WINAPI Hook_SetupComm(HANDLE hFile, DWORD dwInQueue, DWORD dwOutQueue)
 	}
 
 #if defined(_DEBUG)
-	info(true, "SetupComm(hFile %x, dwInQueue %x, dwOutQueue %x)", hFile, dwInQueue, dwOutQueue);
+	info("SetupComm(hFile %x, dwInQueue %x, dwOutQueue %x)", hFile, dwInQueue, dwOutQueue);
 #endif
 
 	return true;

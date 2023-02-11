@@ -16,9 +16,10 @@ uint32_t GetCRC32(const void* pData, int length)
 
 	return _crc ^ 0xFFFFFFFF;
 }
-#ifdef _DEBUG
-void info(bool unused, const char* format, ...)
+
+void info(const char* format, ...)
 {
+#ifdef _DEBUG
 	va_list args;
 	char buffer[1024] = "[OpenParrot] ";
 
@@ -27,12 +28,9 @@ void info(bool unused, const char* format, ...)
 	va_end(args);
 
 	OutputDebugStringA(buffer);
-}
-#else
-void info(bool unused, const char* format, ...)
-{
-}
 #endif
+}
+
 int strcmp(const char* str1, const char* str2, bool csensitive)
 {
 	return (csensitive ? ::strcmp(str1, str2) : ::_stricmp(str1, str2));

@@ -459,7 +459,7 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 
 	if (pstr[0] != JVS_SYNC_CODE) {
 #ifdef _DEBUG
-		info(true, "Invalid Sync code!\n");
+		info("Invalid Sync code!\n");
 #endif
 	}
 #ifdef _DEBUG
@@ -534,7 +534,7 @@ unsigned long process_stream(unsigned char *stream, unsigned long srcsize, unsig
 			break;
 		default:
 #ifdef _DEBUG
-			info(true, "Unknown command %X\n", __ARG__(0));
+			info("Unknown command %X\n", __ARG__(0));
 #endif
 			r.report(JVS_REPORT_OK);
 			increment = 1;
@@ -786,15 +786,15 @@ LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 
 			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
 #ifdef _DEBUG
-			info(true, "PathRoot: %s", pathRoot);
-			info(true, "ParseFileNamesA: %s", lpFileName + 3);
-			info(true, "ParseFileNamesA movBuf: %s", moveBuf);
+			info("PathRoot: %s", pathRoot);
+			info("ParseFileNamesA: %s", lpFileName + 3);
+			info("ParseFileNamesA movBuf: %s", moveBuf);
 #endif
 
 			if(!strncmp(moveBuf + 13, pathRoot + 3, 5))
 			{
 #ifdef _DEBUG
-				info(true, "!!!!!!!!!!!NO REDIRECT!!!!!!!!!!!!");
+				info("!!!!!!!!!!!NO REDIRECT!!!!!!!!!!!!");
 #endif
 				return lpFileName;
 			}
@@ -826,15 +826,15 @@ LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 			swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 3);
 
 #ifdef _DEBUG
-			info(true, "PathRootW: %ls", pathRootW);
-			info(true, "ParseFileNamesW: %ls", lpFileName + 3);
-			info(true, "ParseFileNamesW movBufW: %ls", moveBufW);
+			info("PathRootW: %ls", pathRootW);
+			info("ParseFileNamesW: %ls", lpFileName + 3);
+			info("ParseFileNamesW movBufW: %ls", moveBufW);
 #endif
 
 			if (!wcsncmp(moveBufW + 13, pathRootW + 3, 5))
 			{
 #ifdef _DEBUG
-				info(true, "!!!!!!!!!!!NO REDIRECT_W!!!!!!!!!!!!");
+				info("!!!!!!!!!!!NO REDIRECT_W!!!!!!!!!!!!");
 #endif
 				return lpFileName;
 			}

@@ -382,1309 +382,1309 @@ static void info(...)
 __int64 NESiCAUtilLibIsOnlineMode()
 {
 	auto result = g_origNESiCAUtilLibIsOnlineMode();
-	info(true, "NESiCAUtilLibIsOnlineMode result: %08X", result);
+	info("NESiCAUtilLibIsOnlineMode result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibGetStatus()
 {
 	auto result = g_origNESiCAUtilLibGetStatus();
-	info(true, "NESiCAUtilLibGetStatus result: %08X", result);
+	info("NESiCAUtilLibGetStatus result: %08X", result);
 	return 1; // can be anything thats not 0?
 }
 
 __int64 NESiCAUtilLibDelete()
 {
 	auto result = g_origNESiCAUtilLibDelete();
-	info(true, "NESiCAUtilLibDelete result: %08X", result);
+	info("NESiCAUtilLibDelete result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibGetCenterInformation()
 {
 	auto result = g_origNESiCAUtilLibGetCenterInformation();
-	info(true, "NESiCAUtilLibGetCenterInformation result: %08X", result);
+	info("NESiCAUtilLibGetCenterInformation result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibGetInformation()
 {
 	auto result = g_origNESiCAUtilLibGetInformation();
-	info(true, "NESiCAUtilLibGetInformation result: %08X", result);
+	info("NESiCAUtilLibGetInformation result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibGetPlayerAskInformation()
 {
 	auto result = g_origNESiCAUtilLibGetPlayerAskInformation();
-	info(true, "NESiCAUtilLibGetPlayerAskInformation result: %08X", result);
+	info("NESiCAUtilLibGetPlayerAskInformation result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibGetPlayerInformation()
 {
 	auto result = g_origNESiCAUtilLibGetPlayerInformation();
-	info(true, "NESiCAUtilLibGetPlayerInformation result: %08X", result);
+	info("NESiCAUtilLibGetPlayerInformation result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibGetPlayerTime()
 {
 	auto result = g_origNESiCAUtilLibGetPlayerTime();
-	info(true, "NESiCAUtilLibGetPlayerTime result: %08X", result);
+	info("NESiCAUtilLibGetPlayerTime result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibGetStatusStringUTF16()
 {
 	auto result = g_origNESiCAUtilLibGetStatusStringUTF16();
-	info(true, "NESiCAUtilLibGetStatusStringUTF16 result: %08X", result);
+	info("NESiCAUtilLibGetStatusStringUTF16 result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibInit()
 {
 	auto result = g_origNESiCAUtilLibInit();
-	info(true, "NESiCAUtilLibInit result: %08X", result);
+	info("NESiCAUtilLibInit result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibIsExistInstance()
 {
 	auto result = g_origNESiCAUtilLibIsExistInstance();
-	info(true, "NESiCAUtilLibIsExistInstance result: %08X", result);
+	info("NESiCAUtilLibIsExistInstance result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLibUpdate()
 {
 	auto result = g_origNESiCAUtilLibUpdate();
-	info(true, "NESiCAUtilLibUpdate result: %08X", result);
+	info("NESiCAUtilLibUpdate result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLib_NESiCA_BData_Get()
 {
 	auto result = g_origNESiCAUtilLib_NESiCA_BData_Get();
-	info(true, "NESiCAUtilLib_NESiCA_BData_Get result: %08X", result);
+	info("NESiCAUtilLib_NESiCA_BData_Get result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLib_NESiCA_BData_Set()
 {
 	auto result = g_origNESiCAUtilLib_NESiCA_BData_Set();
-	info(true, "NESiCAUtilLib_NESiCA_BData_Set result: %08X", result);
+	info("NESiCAUtilLib_NESiCA_BData_Set result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLib_NESiCA_BData_SetDefault()
 {
 	auto result = g_origNESiCAUtilLib_NESiCA_BData_SetDefault();
-	info(true, "NESiCAUtilLib_NESiCA_BData_SetDefault result: %08X", result);
+	info("NESiCAUtilLib_NESiCA_BData_SetDefault result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLib_NESiCA_TData_GetBuf()
 {
 	auto result = g_origNESiCAUtilLib_NESiCA_TData_GetBuf();
-	info(true, "NESiCAUtilLib_NESiCA_TData_GetBuf result: %08X", result);
+	info("NESiCAUtilLib_NESiCA_TData_GetBuf result: %08X", result);
 	return result;
 }
 
 __int64 NESiCAUtilLib_NESiCA_TData_GetSize()
 {
 	auto result = g_origNESiCAUtilLib_NESiCA_TData_GetSize();
-	info(true, "NESiCAUtilLib_NESiCA_TData_GetSize result: %08X", result);
+	info("NESiCAUtilLib_NESiCA_TData_GetSize result: %08X", result);
 	return result;
 }
 
 __int64 BeginPlay()
 {
 	auto result = g_origBeginPlay();
-	info(true, "BeginPlay result: %08X", result);
+	info("BeginPlay result: %08X", result);
 	return result;
 }
 
 __int64 ContinuePlay()
 {
 	auto result = g_origContinuePlay();
-	info(true, "ContinuePlay result: %08X", result);
+	info("ContinuePlay result: %08X", result);
 	return result;
 }
 
 __int64 EndPlay()
 {
 	auto result = g_origEndPlay();
-	info(true, "EndPlay result: %08X", result);
+	info("EndPlay result: %08X", result);
 	return result;
 }
 
 __int64 GetGlobalIP()
 {
 	auto result = g_origGetGlobalIP();
-	info(true, "GetGlobalIP result: %08X", result);
+	info("GetGlobalIP result: %08X", result);
 	return result;
 }
 
 __int64 GetKeyConfig()
 {
 	auto result = g_origGetKeyConfig();
-	info(true, "GetKeyConfig result: %08X", result);
+	info("GetKeyConfig result: %08X", result);
 	return result;
 }
 
 __int64 GetLanInterface()
 {
 	auto result = g_origGetLanInterface();
-	info(true, "GetLanInterface result: %08X", result);
+	info("GetLanInterface result: %08X", result);
 	return result;
 }
 
 __int64 GetLibraryVersion()
 {
 	auto result = g_origGetLibraryVersion();
-	info(true, "GetLibraryVersion result: %08X", result);
+	info("GetLibraryVersion result: %08X", result);
 	return result;
 }
 
 __int64 GetNWInfo()
 {
 	auto result = g_origGetNWInfo();
-	info(true, "GetNWInfo result: %08X", result);
+	info("GetNWInfo result: %08X", result);
 	return result;
 }
 
 __int64 GetNewsImagePath()
 {
 	auto result = g_origGetNewsImagePath();
-	info(true, "GetNewsImagePath result: %08X", result);
+	info("GetNewsImagePath result: %08X", result);
 	return result;
 }
 
 __int64 GetRanking(signed int a1, __int64 a2, signed int a3, DWORD_PTR a4, DWORD_PTR a5)
 {
 	auto result = g_origGetRanking(a1, a2, a3, a4, a5);
-	info(true, "GetRanking result: %08X", result);
+	info("GetRanking result: %08X", result);
 	return result;
 }
 
 __int64 GetResponseTime()
 {
 	auto result = g_origGetResponseTime();
-	info(true, "GetResponseTime result: %08X", result);
+	info("GetResponseTime result: %08X", result);
 	return result;
 }
 
 __int64 GetServerInfo()
 {
 	auto result = g_origGetServerInfo();
-	info(true, "GetServerInfo result: %08X", result);
+	info("GetServerInfo result: %08X", result);
 	return result;
 }
 
 __int64 GetServiceVersion()
 {
 	auto result = g_origGetServiceVersion();
-	info(true, "GetServiceVersion result: %08X", result);
+	info("GetServiceVersion result: %08X", result);
 	return result;
 }
 
 __int64 GetTenpoInfo()
 {
 	auto result = g_origGetTenpoInfo();
-	info(true, "GetTenpoInfo result: %08X", result);
+	info("GetTenpoInfo result: %08X", result);
 	return result;
 }
 
 __int64 IsBeginningProcessFinished()
 {
 	auto result = g_origIsBeginningProcessFinished();
-	info(true, "IsBeginningProcessFinished result: %08X", result);
+	info("IsBeginningProcessFinished result: %08X", result);
 	return result;
 }
 
 __int64 IsDisactive()
 {
 	auto result = g_origIsDisactive();
-	info(true, "IsDisactive result: %08X", result);
+	info("IsDisactive result: %08X", result);
 	return result;
 }
 
 __int64 IsEndingProcessFinished()
 {
 	auto result = g_origIsEndingProcessFinished();
-	info(true, "IsEndingProcessFinished result: %08X", result);
+	info("IsEndingProcessFinished result: %08X", result);
 	return result;
 }
 
 __int64 IsEventMode()
 {
 	auto result = g_origIsEventMode();
-	info(true, "IsEventMode result: %08X", result);
+	info("IsEventMode result: %08X", result);
 	return result;
 }
 
 __int64 IsReadyDownloadRanking()
 {
 	auto result = g_origIsReadyDownloadRanking();
-	info(true, "IsReadyDownloadRanking result: %08X", result);
+	info("IsReadyDownloadRanking result: %08X", result);
 	return result;
 }
 
 __int64 IsTestMode()
 {
 	auto result = g_origIsTestMode();
-	info(true, "IsTestMode result: %08X", result);
+	info("IsTestMode result: %08X", result);
 	return result;
 }
 
 __int64 IsUploaded()
 {
 	auto result = g_origIsUploaded();
-	info(true, "IsUploaded result: %08X", result);
+	info("IsUploaded result: %08X", result);
 	return result;
 }
 
 __int64 LockProcess()
 {
 	auto result = g_origLockProcess();
-	info(true, "LockProcess result: %08X", result);
+	info("LockProcess result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterBattlePointMonth()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterBattlePointMonth();
-	info(true, "NESiCA_Card_GetDetailCharacterBattlePointMonth result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterBattlePointMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterBattlePointTotal()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterBattlePointTotal();
-	info(true, "NESiCA_Card_GetDetailCharacterBattlePointTotal result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterBattlePointTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterDrawCountMonth()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterDrawCountMonth();
-	info(true, "NESiCA_Card_GetDetailCharacterDrawCountMonth result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterDrawCountMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterDrawCountTotal()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterDrawCountTotal();
-	info(true, "NESiCA_Card_GetDetailCharacterDrawCountTotal result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterDrawCountTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterLastColorID()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterLastColorID();
-	info(true, "NESiCA_Card_GetDetailCharacterLastColorID result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterLastColorID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterLastComment()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterLastComment();
-	info(true, "NESiCA_Card_GetDetailCharacterLastComment result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterLastComment result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterLastCostumeID()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterLastCostumeID();
-	info(true, "NESiCA_Card_GetDetailCharacterLastCostumeID result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterLastCostumeID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterLastVTrigger()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterLastVTrigger();
-	info(true, "NESiCA_Card_GetDetailCharacterLastVTrigger result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterLastVTrigger result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterLoseCountMonth()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterLoseCountMonth();
-	info(true, "NESiCA_Card_GetDetailCharacterLoseCountMonth result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterLoseCountMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterLoseCountTotal()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterLoseCountTotal();
-	info(true, "NESiCA_Card_GetDetailCharacterLoseCountTotal result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterLoseCountTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterUseCountMonth()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterUseCountMonth();
-	info(true, "NESiCA_Card_GetDetailCharacterUseCountMonth result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterUseCountMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterUseCountTotal()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterUseCountTotal();
-	info(true, "NESiCA_Card_GetDetailCharacterUseCountTotal result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterUseCountTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterWinCountMonth()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterWinCountMonth();
-	info(true, "NESiCA_Card_GetDetailCharacterWinCountMonth result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterWinCountMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCharacterWinCountTotal()
 {
 	auto result = g_origNESiCA_Card_GetDetailCharacterWinCountTotal();
-	info(true, "NESiCA_Card_GetDetailCharacterWinCountTotal result: %08X", result);
+	info("NESiCA_Card_GetDetailCharacterWinCountTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailControlType()
 {
 	auto result = g_origNESiCA_Card_GetDetailControlType();
-	info(true, "NESiCA_Card_GetDetailControlType result: %08X", result);
+	info("NESiCA_Card_GetDetailControlType result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailCurrentWins()
 {
 	auto result = g_origNESiCA_Card_GetDetailCurrentWins();
-	info(true, "NESiCA_Card_GetDetailCurrentWins result: %08X", result);
+	info("NESiCA_Card_GetDetailCurrentWins result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailHighScore()
 {
 	auto result = g_origNESiCA_Card_GetDetailHighScore();
-	info(true, "NESiCA_Card_GetDetailHighScore result: %08X", result);
+	info("NESiCA_Card_GetDetailHighScore result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailHighScoreCharacterID()
 {
 	auto result = g_origNESiCA_Card_GetDetailHighScoreCharacterID();
-	info(true, "NESiCA_Card_GetDetailHighScoreCharacterID result: %08X", result);
+	info("NESiCA_Card_GetDetailHighScoreCharacterID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigHK()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigHK();
-	info(true, "NESiCA_Card_GetDetailKeyConfigHK result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigHK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigHP()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigHP();
-	info(true, "NESiCA_Card_GetDetailKeyConfigHP result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigHP result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigHPHK()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigHPHK();
-	info(true, "NESiCA_Card_GetDetailKeyConfigHPHK result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigHPHK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigK3()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigK3();
-	info(true, "NESiCA_Card_GetDetailKeyConfigK3 result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigK3 result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigLK()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigLK();
-	info(true, "NESiCA_Card_GetDetailKeyConfigLK result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigLK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigLKMK()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigLKMK();
-	info(true, "NESiCA_Card_GetDetailKeyConfigLKMK result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigLKMK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigLP()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigLP();
-	info(true, "NESiCA_Card_GetDetailKeyConfigLP result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigLP result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigLPLK()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigLPLK();
-	info(true, "NESiCA_Card_GetDetailKeyConfigLPLK result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigLPLK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigLPMK()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigLPMK();
-	info(true, "NESiCA_Card_GetDetailKeyConfigLPMK result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigLPMK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigLPMP()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigLPMP();
-	info(true, "NESiCA_Card_GetDetailKeyConfigLPMP result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigLPMP result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigMK()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigMK();
-	info(true, "NESiCA_Card_GetDetailKeyConfigMK result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigMK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigMP()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigMP();
-	info(true, "NESiCA_Card_GetDetailKeyConfigMP result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigMP result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigMPLK()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigMPLK();
-	info(true, "NESiCA_Card_GetDetailKeyConfigMPLK result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigMPLK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigMPMK()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigMPMK();
-	info(true, "NESiCA_Card_GetDetailKeyConfigMPMK result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigMPMK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailKeyConfigP3()
 {
 	auto result = g_origNESiCA_Card_GetDetailKeyConfigP3();
-	info(true, "NESiCA_Card_GetDetailKeyConfigP3 result: %08X", result);
+	info("NESiCA_Card_GetDetailKeyConfigP3 result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailLastCharacterID()
 {
 	auto result = g_origNESiCA_Card_GetDetailLastCharacterID();
-	info(true, "NESiCA_Card_GetDetailLastCharacterID result: %08X", result);
+	info("NESiCA_Card_GetDetailLastCharacterID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailLeaguePoint()
 {
 	auto result = g_origNESiCA_Card_GetDetailLeaguePoint();
-	info(true, "NESiCA_Card_GetDetailLeaguePoint result: %08X", result);
+	info("NESiCA_Card_GetDetailLeaguePoint result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailMaxWins()
 {
 	auto result = g_origNESiCA_Card_GetDetailMaxWins();
-	info(true, "NESiCA_Card_GetDetailMaxWins result: %08X", result);
+	info("NESiCA_Card_GetDetailMaxWins result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailPlayerPointMonth()
 {
 	auto result = g_origNESiCA_Card_GetDetailPlayerPointMonth();
-	info(true, "NESiCA_Card_GetDetailPlayerPointMonth result: %08X", result);
+	info("NESiCA_Card_GetDetailPlayerPointMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetDetailPlayerPointTotal()
 {
 	auto result = g_origNESiCA_Card_GetDetailPlayerPointTotal();
-	info(true, "NESiCA_Card_GetDetailPlayerPointTotal result: %08X", result);
+	info("NESiCA_Card_GetDetailPlayerPointTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetPlayerComment()
 {
 	auto result = g_origNESiCA_Card_GetPlayerComment();
-	info(true, "NESiCA_Card_GetPlayerComment result: %08X", result);
+	info("NESiCA_Card_GetPlayerComment result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetPlayerCommentUTF16()
 {
 	auto result = g_origNESiCA_Card_GetPlayerCommentUTF16();
-	info(true, "NESiCA_Card_GetPlayerCommentUTF16 result: %08X", result);
+	info("NESiCA_Card_GetPlayerCommentUTF16 result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetPlayerMyStoreID()
 {
 	auto result = g_origNESiCA_Card_GetPlayerMyStoreID();
-	info(true, "NESiCA_Card_GetPlayerMyStoreID result: %08X", result);
+	info("NESiCA_Card_GetPlayerMyStoreID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetPlayerName()
 {
 	auto result = g_origNESiCA_Card_GetPlayerName();
-	info(true, "NESiCA_Card_GetPlayerName result: %08X", result);
+	info("NESiCA_Card_GetPlayerName result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetPlayerNameUTF16()
 {
 	auto result = g_origNESiCA_Card_GetPlayerNameUTF16();
-	info(true, "NESiCA_Card_GetPlayerNameUTF16 result: %08X", result);
+	info("NESiCA_Card_GetPlayerNameUTF16 result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_GetPlayerTitleID()
 {
 	auto result = g_origNESiCA_Card_GetPlayerTitleID();
-	info(true, "NESiCA_Card_GetPlayerTitleID result: %08X", result);
+	info("NESiCA_Card_GetPlayerTitleID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterBattlePointMonth()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterBattlePointMonth();
-	info(true, "NESiCA_Card_SetDetailCharacterBattlePointMonth result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterBattlePointMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterBattlePointTotal()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterBattlePointTotal();
-	info(true, "NESiCA_Card_SetDetailCharacterBattlePointTotal result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterBattlePointTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterDrawCountMonth()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterDrawCountMonth();
-	info(true, "NESiCA_Card_SetDetailCharacterDrawCountMonth result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterDrawCountMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterDrawCountTotal()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterDrawCountTotal();
-	info(true, "NESiCA_Card_SetDetailCharacterDrawCountTotal result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterDrawCountTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterLastColorID()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterLastColorID();
-	info(true, "NESiCA_Card_SetDetailCharacterLastColorID result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterLastColorID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterLastComment()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterLastComment();
-	info(true, "NESiCA_Card_SetDetailCharacterLastComment result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterLastComment result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterLastCostumeID()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterLastCostumeID();
-	info(true, "NESiCA_Card_SetDetailCharacterLastCostumeID result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterLastCostumeID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterLastVTrigger()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterLastVTrigger();
-	info(true, "NESiCA_Card_SetDetailCharacterLastVTrigger result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterLastVTrigger result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterLoseCountMonth()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterLoseCountMonth();
-	info(true, "NESiCA_Card_SetDetailCharacterLoseCountMonth result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterLoseCountMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterLoseCountTotal()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterLoseCountTotal();
-	info(true, "NESiCA_Card_SetDetailCharacterLoseCountTotal result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterLoseCountTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterUseCountMonth()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterUseCountMonth();
-	info(true, "NESiCA_Card_SetDetailCharacterUseCountMonth result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterUseCountMonth result : % 08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterUseCountTotal()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterUseCountTotal();
-	info(true, "NESiCA_Card_SetDetailCharacterUseCountTotal result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterUseCountTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterWinCountMonth()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterWinCountMonth();
-	info(true, "NESiCA_Card_SetDetailCharacterWinCountMonth result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterWinCountMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCharacterWinCountTotal()
 {
 	auto result = g_origNESiCA_Card_SetDetailCharacterWinCountTotal();
-	info(true, "NESiCA_Card_SetDetailCharacterWinCountTotal result: %08X", result);
+	info("NESiCA_Card_SetDetailCharacterWinCountTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailControlType()
 {
 	auto result = g_origNESiCA_Card_SetDetailControlType();
-	info(true, "NESiCA_Card_SetDetailControlType result: %08X", result);
+	info("NESiCA_Card_SetDetailControlType result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailCurrentWins()
 {
 	auto result = g_origNESiCA_Card_SetDetailCurrentWins();
-	info(true, "NESiCA_Card_SetDetailCurrentWins result: %08X", result);
+	info("NESiCA_Card_SetDetailCurrentWins result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailHighScore()
 {
 	auto result = g_origNESiCA_Card_SetDetailHighScore();
-	info(true, "NESiCA_Card_SetDetailHighScore result: %08X", result);
+	info("NESiCA_Card_SetDetailHighScore result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailHighScoreCharacterID()
 {
 	auto result = g_origNESiCA_Card_SetDetailHighScoreCharacterID();
-	info(true, "NESiCA_Card_SetDetailHighScoreCharacterID result: %08X", result);
+	info("NESiCA_Card_SetDetailHighScoreCharacterID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigHK()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigHK();
-	info(true, "NESiCA_Card_SetDetailKeyConfigHK result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigHK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigHP()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigHP();
-	info(true, "NESiCA_Card_SetDetailKeyConfigHP result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigHP result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigHPHK()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigHPHK();
-	info(true, "NESiCA_Card_SetDetailKeyConfigHPHK result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigHPHK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigK3()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigK3();
-	info(true, "NESiCA_Card_SetDetailKeyConfigK3 result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigK3 result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigLK()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigLK();
-	info(true, "NESiCA_Card_SetDetailKeyConfigLK result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigLK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigLKMK()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigLKMK();
-	info(true, "NESiCA_Card_SetDetailKeyConfigLKMK result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigLKMK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigLP()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigLP();
-	info(true, "NESiCA_Card_SetDetailKeyConfigLP result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigLP result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigLPLK()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigLPLK();
-	info(true, "NESiCA_Card_SetDetailKeyConfigLPLK result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigLPLK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigLPMK()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigLPMK();
-	info(true, "NESiCA_Card_SetDetailKeyConfigLPMK result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigLPMK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigLPMP()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigLPMP();
-	info(true, "NESiCA_Card_SetDetailKeyConfigLPMP result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigLPMP result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigMK()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigMK();
-	info(true, "NESiCA_Card_SetDetailKeyConfigMK result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigMK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigMP()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigMP();
-	info(true, "NESiCA_Card_SetDetailKeyConfigMP result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigMP result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigMPLK()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigMPLK();
-	info(true, "NESiCA_Card_SetDetailKeyConfigMPLK result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigMPLK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigMPMK()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigMPMK();
-	info(true, "NESiCA_Card_SetDetailKeyConfigMPMK result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigMPMK result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailKeyConfigP3()
 {
 	auto result = g_origNESiCA_Card_SetDetailKeyConfigP3();
-	info(true, "NESiCA_Card_SetDetailKeyConfigP3 result: %08X", result);
+	info("NESiCA_Card_SetDetailKeyConfigP3 result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailLastCharacterID()
 {
 	auto result = g_origNESiCA_Card_SetDetailLastCharacterID();
-	info(true, "NESiCA_Card_SetDetailLastCharacterID result: %08X", result);
+	info("NESiCA_Card_SetDetailLastCharacterID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailLeaguePoint()
 {
 	auto result = g_origNESiCA_Card_SetDetailLeaguePoint();
-	info(true, "NESiCA_Card_SetDetailLeaguePoint result: %08X", result);
+	info("NESiCA_Card_SetDetailLeaguePoint result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailMaxWins()
 {
 	auto result = g_origNESiCA_Card_SetDetailMaxWins();
-	info(true, "NESiCA_Card_SetDetailMaxWins result: %08X", result);
+	info("NESiCA_Card_SetDetailMaxWins result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailPlayerPointMonth()
 {
 	auto result = g_origNESiCA_Card_SetDetailPlayerPointMonth();
-	info(true, "NESiCA_Card_SetDetailPlayerPointMonth result: %08X", result);
+	info("NESiCA_Card_SetDetailPlayerPointMonth result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetDetailPlayerPointTotal()
 {
 	auto result = g_origNESiCA_Card_SetDetailPlayerPointTotal();
-	info(true, "NESiCA_Card_SetDetailPlayerPointTotal result: %08X", result);
+	info("NESiCA_Card_SetDetailPlayerPointTotal result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetPlayerComment()
 {
 	auto result = g_origNESiCA_Card_SetPlayerComment();
-	info(true, "NESiCA_Card_SetPlayerComment result: %08X", result);
+	info("NESiCA_Card_SetPlayerComment result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetPlayerCommentUTF16()
 {
 	auto result = g_origNESiCA_Card_SetPlayerCommentUTF16();
-	info(true, "NESiCA_Card_SetPlayerCommentUTF16 result: %08X", result);
+	info("NESiCA_Card_SetPlayerCommentUTF16 result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetPlayerMyStoreID()
 {
 	auto result = g_origNESiCA_Card_SetPlayerMyStoreID();
-	info(true, "NESiCA_Card_SetPlayerMyStoreID result: %08X", result);
+	info("NESiCA_Card_SetPlayerMyStoreID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetPlayerName()
 {
 	auto result = g_origNESiCA_Card_SetPlayerName();
-	info(true, "NESiCA_Card_SetPlayerName result: %08X", result);
+	info("NESiCA_Card_SetPlayerName result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetPlayerNameUTF16()
 {
 	auto result = g_origNESiCA_Card_SetPlayerNameUTF16();
-	info(true, "NESiCA_Card_SetPlayerNameUTF16 result: %08X", result);
+	info("NESiCA_Card_SetPlayerNameUTF16 result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Card_SetPlayerTitleID()
 {
 	auto result = g_origNESiCA_Card_SetPlayerTitleID();
-	info(true, "NESiCA_Card_SetPlayerTitleID result: %08X", result);
+	info("NESiCA_Card_SetPlayerTitleID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_GetNESiCAID()
 {
 	auto result = g_origNESiCA_GetNESiCAID();
-	info(true, "NESiCA_GetNESiCAID result: %08X", result);
+	info("NESiCA_GetNESiCAID result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_GetNESiCAType()
 {
 	auto result = g_origNESiCA_GetNESiCAType();
-	info(true, "NESiCA_GetNESiCAType result: %08X", result);
+	info("NESiCA_GetNESiCAType result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_IsCardPlayer()
 {
 	auto result = g_origNESiCA_IsCardPlayer();
-	info(true, "NESiCA_IsCardPlayer result: %08X", result);
+	info("NESiCA_IsCardPlayer result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Rank_GetBattlePointRank()
 {
 	auto result = g_origNESiCA_Rank_GetBattlePointRank();
-	info(true, "NESiCA_Rank_GetBattlePointRank result: %08X", result);
+	info("NESiCA_Rank_GetBattlePointRank result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Rank_GetBattlePointRankPref()
 {
 	auto result = g_origNESiCA_Rank_GetBattlePointRankPref();
-	info(true, "NESiCA_Rank_GetBattlePointRankPref result: %08X", result);
+	info("NESiCA_Rank_GetBattlePointRankPref result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Rank_GetBattlePointRankPrefId()
 {
 	auto result = g_origNESiCA_Rank_GetBattlePointRankPrefId();
-	info(true, "NESiCA_Rank_GetBattlePointRankPrefId result: %08X", result);
+	info("NESiCA_Rank_GetBattlePointRankPrefId result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Rank_GetBattlePointRankPrefName()
 {
 	auto result = g_origNESiCA_Rank_GetBattlePointRankPrefName();
-	info(true, "NESiCA_Rank_GetBattlePointRankPrefName result: %08X", result);
+	info("NESiCA_Rank_GetBattlePointRankPrefName result: %08X", result);
 	return result;
 }
 
 __int64 NESiCA_Rank_GetBattlePointRankPrefNameUTF16()
 {
 	auto result = g_origNESiCA_Rank_GetBattlePointRankPrefNameUTF16();
-	info(true, "NESiCA_Rank_GetBattlePointRankPrefNameUTF16 result: %08X", result);
+	info("NESiCA_Rank_GetBattlePointRankPrefNameUTF16 result: %08X", result);
 	return result;
 }
 
 __int64 Reconnect()
 {
 	auto result = g_origReconnect();
-	info(true, "Reconnect result: %08X", result);
+	info("Reconnect result: %08X", result);
 	return result;
 }
 
 __int64 SaveOnTheWay()
 {
 	auto result = g_origSaveOnTheWay();
-	info(true, "SaveOnTheWay result: %08X", result);
+	info("SaveOnTheWay result: %08X", result);
 	return result;
 }
 
 __int64 SetCharacterID()
 {
 	auto result = g_origSetCharacterID();
-	info(true, "SetCharacterID result: %08X", result);
+	info("SetCharacterID result: %08X", result);
 	return result;
 }
 
 __int64 SetEventMode()
 {
 	auto result = g_origSetEventMode();
-	info(true, "SetEventMode result: %08X", result);
+	info("SetEventMode result: %08X", result);
 	return result;
 }
 
 __int64 SetEventModeResult()
 {
 	auto result = g_origSetEventModeResult();
-	info(true, "SetEventModeResult result: %08X", result);
+	info("SetEventModeResult result: %08X", result);
 	return result;
 }
 
 __int64 SetOpenCloseTime()
 {
 	auto result = g_origSetOpenCloseTime();
-	info(true, "SetOpenCloseTime result: %08X", result);
+	info("SetOpenCloseTime result: %08X", result);
 	return result;
 }
 
 __int64 StartTestMode()
 {
 	auto result = g_origStartTestMode();
-	info(true, "StartTestMode result: %08X", result);
+	info("StartTestMode result: %08X", result);
 	return result;
 }
 
 __int64 TypeXGetTelop()
 {
 	auto result = g_origTypeXGetTelop();
-	info(true, "TypeXGetTelop result: %08X", result);
+	info("TypeXGetTelop result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_ChangeWinLimit()
 {
 	auto result = g_origTypeXMatching_ChangeWinLimit();
-	info(true, "TypeXMatching_ChangeWinLimit result: %08X", result);
+	info("TypeXMatching_ChangeWinLimit result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_CreateInstance()
 {
 	auto result = g_origTypeXMatching_CreateInstance();
-	info(true, "TypeXMatching_CreateInstance result: %08X", result);
+	info("TypeXMatching_CreateInstance result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_DeleteInstance()
 {
 	auto result = g_origTypeXMatching_DeleteInstance();
-	info(true, "TypeXMatching_DeleteInstance result: %08X", result);
+	info("TypeXMatching_DeleteInstance result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetEnemyAddr()
 {
 	auto result = g_origTypeXMatching_GetEnemyAddr();
-	info(true, "TypeXMatching_GetEnemyAddr result: %08X", result);
+	info("TypeXMatching_GetEnemyAddr result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetEnemyEntryId()
 {
 	auto result = g_origTypeXMatching_GetEnemyEntryId();
-	info(true, "TypeXMatching_GetEnemyEntryId result: %08X", result);
+	info("TypeXMatching_GetEnemyEntryId result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetEnemyOption()
 {
 	auto result = g_origTypeXMatching_GetEnemyOption();
-	info(true, "TypeXMatching_GetEnemyOption result: %08X", result);
+	info("TypeXMatching_GetEnemyOption result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetEnemyPlayerName()
 {
 	auto result = g_origTypeXMatching_GetEnemyPlayerName();
-	info(true, "TypeXMatching_GetEnemyPlayerName result: %08X", result);
+	info("TypeXMatching_GetEnemyPlayerName result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetEnemyPlayerNameUTF16()
 {
 	auto result = g_origTypeXMatching_GetEnemyPlayerNameUTF16();
-	info(true, "TypeXMatching_GetEnemyPlayerNameUTF16 result: %08X", result);
+	info("TypeXMatching_GetEnemyPlayerNameUTF16 result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetEnemyTenpoName()
 {
 	auto result = g_origTypeXMatching_GetEnemyTenpoName();
-	info(true, "TypeXMatching_GetEnemyTenpoName result: %08X", result);
+	info("TypeXMatching_GetEnemyTenpoName result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetEnemyTenpoNameUTF16()
 {
 	auto result = g_origTypeXMatching_GetEnemyTenpoNameUTF16();
-	info(true, "TypeXMatching_GetEnemyTenpoNameUTF16 result: %08X", result);
+	info("TypeXMatching_GetEnemyTenpoNameUTF16 result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetFighterInfoInStore()
 {
 	auto result = g_origTypeXMatching_GetFighterInfoInStore();
-	info(true, "TypeXMatching_GetFighterInfoInStore result: %08X", result);
+	info("TypeXMatching_GetFighterInfoInStore result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetMyAddr()
 {
 	auto result = g_origTypeXMatching_GetMyAddr();
-	info(true, "TypeXMatching_GetMyAddr result: %08X", result);
+	info("TypeXMatching_GetMyAddr result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetMyEntryId()
 {
 	auto result = g_origTypeXMatching_GetMyEntryId();
-	info(true, "TypeXMatching_GetMyEntryId result: %08X", result);
+	info("TypeXMatching_GetMyEntryId result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetRTT()
 {
 	auto result = g_origTypeXMatching_GetRTT();
-	info(true, "TypeXMatching_GetRTT result: %08X", result);
+	info("TypeXMatching_GetRTT result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetStatus()
 {
 	auto result = g_origTypeXMatching_GetStatus();
-	info(true, "TypeXMatching_GetStatus result: %08X", result);
+	info("TypeXMatching_GetStatus result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetWinLimit()
 {
 	auto result = g_origTypeXMatching_GetWinLimit();
-	info(true, "TypeXMatching_GetWinLimit result: %08X", result);
+	info("TypeXMatching_GetWinLimit result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetWins()
 {
 	auto result = g_origTypeXMatching_GetWins();
-	info(true, "TypeXMatching_GetWins result: %08X", result);
+	info("TypeXMatching_GetWins result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_GetWinsAll()
 {
 	auto result = g_origTypeXMatching_GetWinsAll();
-	info(true, "TypeXMatching_GetWinsAll result: %08X", result);
+	info("TypeXMatching_GetWinsAll result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_IsMatchingDesignatedFailed()
 {
 	auto result = g_origTypeXMatching_IsMatchingDesignatedFailed();
-	info(true, "TypeXMatching_IsMatchingDesignatedFailed result: %08X", result);
+	info("TypeXMatching_IsMatchingDesignatedFailed result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_Register_NESiCAUtilLibCancelRequestRFID()
 {
 	auto result = g_origTypeXMatching_Register_NESiCAUtilLibCancelRequestRFID();
-	info(true, "TypeXMatching_Register_NESiCAUtilLibCancelRequestRFID result: %08X", result);
+	info("TypeXMatching_Register_NESiCAUtilLibCancelRequestRFID result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_Register_NESiCAUtilLibGetRFIDID()
 {
 	auto result = g_origTypeXMatching_Register_NESiCAUtilLibGetRFIDID();
-	info(true, "TypeXMatching_Register_NESiCAUtilLibGetRFIDID result: %08X", result);
+	info("TypeXMatching_Register_NESiCAUtilLibGetRFIDID result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_Register_NESiCAUtilLibIsRFIDRead()
 {
 	auto result = g_origTypeXMatching_Register_NESiCAUtilLibIsRFIDRead();
-	info(true, "TypeXMatching_Register_NESiCAUtilLibIsRFIDRead result: %08X", result);
+	info("TypeXMatching_Register_NESiCAUtilLibIsRFIDRead result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_Register_NESiCAUtilLibIsRFIDReadSuccess()
 {
 	auto result = g_origTypeXMatching_Register_NESiCAUtilLibIsRFIDReadSuccess();
-	info(true, "TypeXMatching_Register_NESiCAUtilLibIsRFIDReadSuccess result: %08X", result);
+	info("TypeXMatching_Register_NESiCAUtilLibIsRFIDReadSuccess result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_Register_NESiCAUtilLibRequestRFID()
 {
 	auto result = g_origTypeXMatching_Register_NESiCAUtilLibRequestRFID();
-	info(true, "TypeXMatching_Register_NESiCAUtilLibRequestRFID result: %08X", result);
+	info("TypeXMatching_Register_NESiCAUtilLibRequestRFID result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_ResetWins()
 {
 	auto result = g_origTypeXMatching_ResetWins();
-	info(true, "TypeXMatching_ResetWins result: %08X", result);
+	info("TypeXMatching_ResetWins result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_Resume()
 {
 	auto result = g_origTypeXMatching_Resume();
-	info(true, "TypeXMatching_Resume result: %08X", result);
+	info("TypeXMatching_Resume result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_StartMatchingDesignated()
 {
 	auto result = g_origTypeXMatching_StartMatchingDesignated();
-	info(true, "TypeXMatching_StartMatchingDesignated result: %08X", result);
+	info("TypeXMatching_StartMatchingDesignated result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_StartMathingInternetOnly()
 {
 	auto result = g_origTypeXMatching_StartMathingInternetOnly();
-	info(true, "TypeXMatching_StartMathingInternetOnly result: %08X", result);
+	info("TypeXMatching_StartMathingInternetOnly result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_StartMathingStoreOnly()
 {
 	auto result = g_origTypeXMatching_StartMathingStoreOnly();
-	info(true, "TypeXMatching_StartMathingStoreOnly result: %08X", result);
+	info("TypeXMatching_StartMathingStoreOnly result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_StartMathingStorePriority()
 {
 	auto result = g_origTypeXMatching_StartMathingStorePriority();
-	info(true, "TypeXMatching_StartMathingStorePriority result: %08X", result);
+	info("TypeXMatching_StartMathingStorePriority result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_StopMatching()
 {
 	auto result = g_origTypeXMatching_StopMatching();
-	info(true, "TypeXMatching_StopMatching result: %08X", result);
+	info("TypeXMatching_StopMatching result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_Suspend()
 {
 	auto result = g_origTypeXMatching_Suspend();
-	info(true, "TypeXMatching_Suspend result: %08X", result);
+	info("TypeXMatching_Suspend result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_Update()
 {
 	auto result = g_origTypeXMatching_Update();
-	info(true, "TypeXMatching_Update result: %08X", result);
+	info("TypeXMatching_Update result: %08X", result);
 	return result;
 }
 
 __int64 TypeXMatching_UpdateWins()
 {
 	auto result = g_origTypeXMatching_UpdateWins();
-	info(true, "TypeXMatching_UpdateWins result: %08X", result);
+	info("TypeXMatching_UpdateWins result: %08X", result);
 	return result;
 }
 
 __int64 TypeXPlayRecordAddToSend()
 {
 	auto result = g_origTypeXPlayRecordAddToSend();
-	info(true, "TypeXPlayRecordAddToSend result: %08X", result);
+	info("TypeXPlayRecordAddToSend result: %08X", result);
 	return result;
 }
 
 __int64 TypeXPlayRecordReset()
 {
 	auto result = g_origTypeXPlayRecordReset();
-	info(true, "TypeXPlayRecordReset result: %08X", result);
+	info("TypeXPlayRecordReset result: %08X", result);
 	return result;
 }
 
 __int64 TypeXPlayRecordResetRevenge()
 {
 	auto result = g_origTypeXPlayRecordResetRevenge();
-	info(true, "TypeXPlayRecordResetRevenge result: %08X", result);
+	info("TypeXPlayRecordResetRevenge result: %08X", result);
 	return result;
 }
 
 __int64 TypeXPlayRecordSetPlayerInfo()
 {
 	auto result = g_origTypeXPlayRecordSetPlayerInfo();
-	info(true, "TypeXPlayRecordSetPlayerInfo result: %08X", result);
+	info("TypeXPlayRecordSetPlayerInfo result: %08X", result);
 	return result;
 }
 
 __int64 TypeXPlayRecordSetRoundResult()
 {
 	auto result = g_origTypeXPlayRecordSetRoundResult();
-	info(true, "TypeXPlayRecordSetRoundResult result: %08X", result);
+	info("TypeXPlayRecordSetRoundResult result: %08X", result);
 	return result;
 }
 
 __int64 TypeXSafeFileIsFinished()
 {
 	auto result = g_origTypeXSafeFileIsFinished();
-	info(true, "TypeXSafeFileIsFinished result: %08X", result);
+	info("TypeXSafeFileIsFinished result: %08X", result);
 	return result;
 }
 
 __int64 TypeXSafeFileRead()
 {
 	auto result = g_origTypeXSafeFileRead();
-	info(true, "TypeXSafeFileRead result: %08X", result);
+	info("TypeXSafeFileRead result: %08X", result);
 	return result;
 }
 
 __int64 TypeXSafeFileWrite()
 {
 	auto result = g_origTypeXSafeFileWrite();
-	info(true, "TypeXSafeFileWrite result: %08X", result);
+	info("TypeXSafeFileWrite result: %08X", result);
 	return result;
 }
 
 __int64 TypeXSafeFileWriteUpdate()
 {
 	auto result = g_origTypeXSafeFileWriteUpdate();
-	info(true, "TypeXSafeFileWriteUpdate result: %08X", result);
+	info("TypeXSafeFileWriteUpdate result: %08X", result);
 	return result;
 }
 
 __int64 UnlockProcess()
 {
 	auto result = g_origUnlockProcess();
-	info(true, "UnlockProcess result: %08X", result);
+	info("UnlockProcess result: %08X", result);
 	return result;
 }
 

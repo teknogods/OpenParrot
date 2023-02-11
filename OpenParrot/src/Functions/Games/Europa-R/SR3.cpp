@@ -39,7 +39,7 @@ DWORD(__stdcall* GetPrivateProfileIntAOri)(LPCSTR lpAppName, LPCSTR lpKeyName, I
 DWORD WINAPI GetPrivateProfileIntAHook(LPCSTR lpAppName, LPCSTR lpKeyName, INT nDefault, LPCSTR lpFileName)
 {
 #ifdef _DEBUG
-	info(true, "GetPrivateProfileIntAHook %s", lpKeyName);
+	info("GetPrivateProfileIntAHook %s", lpKeyName);
 #endif
 
 	if (_stricmp(lpKeyName, "HorizontalResolution") == 0)
@@ -57,7 +57,7 @@ DWORD(__stdcall* GetPrivateProfileStringAOri)(LPCSTR lpAppName, LPCSTR lpKeyName
 DWORD WINAPI GetPrivateProfileStringAHook(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
 {
 #ifdef _DEBUG
-	info(true, "GetPrivateProfileStringAHook %s", lpKeyName);
+	info("GetPrivateProfileStringAHook %s", lpKeyName);
 #endif
 
 	if (_stricmp(lpKeyName, "LANGUAGE") == 0)

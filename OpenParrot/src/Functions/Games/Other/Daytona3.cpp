@@ -140,7 +140,7 @@ static int ThreadLoop()
 	{
 		BYTE track1 = *(BYTE*)(track + 0x4);
 #ifdef _DEBUG
-		info(true, "%02X %02X", track1, gamestate);
+		info("%02X %02X", track1, gamestate);
 #endif
 		if ((track1 == 2 || track1 == 4) && (gamestate == 0x16))
 		{
@@ -150,14 +150,14 @@ static int ThreadLoop()
 			else
 				*(BYTE*)(imageBase + 0x15B4678) = reverse;
 #ifdef _DEBUG
-			info(true, "Reverse wheel");
+			info("Reverse wheel");
 #endif
 		}
 		else
 		{
 			*(BYTE*)(imageBase + 0x15B4678) = wheel;
 #ifdef _DEBUG
-			info(true, "Normal wheel1");
+			info("Normal wheel1");
 #endif
 		}
 	}
@@ -165,7 +165,7 @@ static int ThreadLoop()
 	{
 		*(BYTE*)(imageBase + 0x15B4678) = wheel;
 #ifdef _DEBUG
-		info(true, "Normal wheel2");
+		info("Normal wheel2");
 #endif
 	}
 

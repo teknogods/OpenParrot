@@ -186,12 +186,12 @@ u_short(PASCAL FAR* htons_orig)(u_short hostshort);
 static u_short htonsHook(u_short hostshort)
 {
 #if _DEBUG
-	info(true, "htons: %i", hostshort);
+	info("htons: %i", hostshort);
 #endif
 
 	if (hostshort == 80) {
 #ifdef _DEBUG
-		info(true, "replacing port...");
+		info("replacing port...");
 #endif
 		return htons_orig(HttpPort);
 	}
@@ -205,7 +205,7 @@ int(WSAAPI* g_origgetaddrinfoo)(PCSTR pNodeName, PCSTR pServiceName, const ADDRI
 int WSAAPI getaddrinfoHookAMAuth(PCSTR pNodeName, PCSTR pServiceName, const ADDRINFOA* pHints, PADDRINFOA* ppResult)
 {
 #if _DEBUG
-	info(true, "getaddrinfo: %s, %s", pNodeName, pServiceName);
+	info("getaddrinfo: %s, %s", pNodeName, pServiceName);
 #endif
 	if (strcmp(pNodeName, "tenporouter.loc") == 0)
 	{

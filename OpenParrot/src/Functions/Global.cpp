@@ -243,7 +243,7 @@ HWND hwndWindowW;
 HWND WINAPI CreateWindowExAHk(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
 #ifdef _DEBUG
-	info(true, "CreateWindowExAHk called");
+	info("CreateWindowExAHk called");
 #endif
 	if (lpWindowName)
 	{
@@ -283,7 +283,7 @@ HWND WINAPI CreateWindowExAHk(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWind
 HWND WINAPI CreateWindowExWHk(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
 #ifdef _DEBUG
-	info(true, "CreateWindowExWHk called");
+	info("CreateWindowExWHk called");
 #endif
 	// Calculate window pos centered
 	g_x = (GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2;
@@ -323,7 +323,7 @@ HWND WINAPI CreateWindowExWHk(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWi
 BOOL WINAPI AdjustWindowRectHk(LPRECT lpRect, DWORD dwStyle, BOOL bMenu)
 {
 #ifdef _DEBUG
-	info(true, "AdjustWindowRectHk called");
+	info("AdjustWindowRectHk called");
 #endif
 	dwStyle = g_windowStyle;
 
@@ -333,7 +333,7 @@ BOOL WINAPI AdjustWindowRectHk(LPRECT lpRect, DWORD dwStyle, BOOL bMenu)
 BOOL WINAPI AdjustWindowRectExHk(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle)
 {
 #ifdef _DEBUG
-	info(true, "AdjustWindowRectExHk called");
+	info("AdjustWindowRectExHk called");
 #endif
 	dwStyle = g_windowStyle;
 	dwExStyle = 0;
@@ -344,7 +344,7 @@ BOOL WINAPI AdjustWindowRectExHk(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD
 BOOL WINAPI SetWindowPosHk(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
 {
 #ifdef _DEBUG
-	info(true, "SetWindowPosHk called");
+	info("SetWindowPosHk called");
 #endif
 	// Make window pos centered
 	int xPos = (GetSystemMetrics(SM_CXSCREEN) - cx) / 2;
@@ -366,7 +366,7 @@ BOOL WINAPI SetWindowPosHk(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx
 LONG __stdcall ChangeDisplaySettingsHk(DEVMODEA *lpDevMode, DWORD dwFlags)
 {
 #ifdef _DEBUG
-	info(true, "ChangeDisplaySettingsHk called");
+	info("ChangeDisplaySettingsHk called");
 #endif
 	lpDevMode = NULL; // retain original changes instead of applying modified values
 
@@ -376,7 +376,7 @@ LONG __stdcall ChangeDisplaySettingsHk(DEVMODEA *lpDevMode, DWORD dwFlags)
 LONG __stdcall ChangeDisplaySettingsExWHk(LPCWSTR lpszDeviceName, DEVMODEW* lpDevMode, HWND hwnd, DWORD dwflags, LPVOID lParam)
 {
 #ifdef _DEBUG
-	info(true, "ChangeDisplaySettingsExWHk called");
+	info("ChangeDisplaySettingsExWHk called");
 #endif
 	lpDevMode = NULL; // retain original changes instead of applying modified values
 

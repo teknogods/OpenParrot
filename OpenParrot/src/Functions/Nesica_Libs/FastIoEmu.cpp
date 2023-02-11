@@ -162,7 +162,7 @@ int __cdecl iDmacDrvRegisterRead(int DeviceId, DWORD CommandCode, LPVOID OutBuff
 		break;
 	default:
 #ifdef _DEBUG
-		info(true, "Unknown Fast I/O Request: %08X", CommandCode);
+		info("Unknown Fast I/O Request: %08X", CommandCode);
 #endif
 		break;
 	}

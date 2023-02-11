@@ -1,9 +1,8 @@
 #pragma once
 
 #include <string>
-#ifdef _DEBUG
-void info(bool unused, const char* format, ...);
-#endif
+void info(const char* format, ...);
+
 #include <MinHook.h>
 
 inline void safeJMP(injector::memory_pointer_tr at, injector::memory_pointer_raw dest, bool vp = true)

@@ -832,9 +832,9 @@ void GameDetect::DetectCurrentGame()
 #endif
 		default:
 #ifdef _DEBUG
-			info(true, "---------------------------------");
-			info(true, "New CRC: %08x not implemented", newCrcResult);
-			info(true, "---------------------------------");
+			info("---------------------------------");
+			info("New CRC: %08x not implemented", newCrcResult);
+			info("---------------------------------");
 #else
 			memset(errorBuffer, 0, 256);
 			sprintf_s(errorBuffer, 256, "Unsupported Executable, NEW CRC: %08X!", newCrcResult);
@@ -853,9 +853,9 @@ void GameDetect::SetGameId(GameID gameId, char* name)
 	currentGame = gameId;
 	printf("Detected game: %s\n", name);
 #ifdef _DEBUG
-	info(true, "---------------------------------");
-	info(true, "Game CRC %s detected", name);
-	info(true, "---------------------------------");
+	info("---------------------------------");
+	info("Game CRC %s detected", name);
+	info("---------------------------------");
 #endif
 }
 
