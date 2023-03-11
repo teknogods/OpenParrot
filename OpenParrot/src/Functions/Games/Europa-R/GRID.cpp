@@ -118,6 +118,7 @@ static DWORD ReplayButton;
 static DWORD LookLeftButton;
 static DWORD LookRightButton;
 static DWORD SelectButton;
+static DWORD InitialsButton;
 static DWORD Gear1Button;
 static DWORD Gear2Button;
 static DWORD Gear3Button;
@@ -211,6 +212,9 @@ static int __fastcall ButtonInputsHook(int a1, __int64 a2)
 		case 39:
 			StartButton = InputsAddress + 16;
 			break;
+		case 43:
+			InitialsButton = InputsAddress + 16;
+			break;
 		case 46:
 			InputsInit = true;
 			break;
@@ -260,6 +264,14 @@ static int __fastcall ButtonInputsHook(int a1, __int64 a2)
 			*(DWORD*)(SelectButton) = 0x01;
 		else
 			*(DWORD*)(SelectButton) = 0x00;
+	}
+
+	if (InitialsButton)
+	{
+		if (*ffbOffset3 > 0x10)
+			*(DWORD*)(InitialsButton) = 0x01;
+		else
+			*(DWORD*)(InitialsButton) = 0x00;
 	}
 
 	return 0;
