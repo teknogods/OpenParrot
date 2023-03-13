@@ -277,9 +277,18 @@ static int __fastcall ButtonInputsHook(int a1, __int64 a2)
 	return 0;
 }
 
+static int(__fastcall* EnableFFBOri)(int a1, double a2);
+static int __fastcall EnableFFBHook(int a1, double a2)
+{
+	*(BYTE*)(a1 + 92) = 1;
+
+	return EnableFFBOri(a1, a2);
+}
 
 static InitFunction GRIDFunc([]()
 {
+	DWORD ImageBase = (DWORD)GetModuleHandleA(0);
+
 	// Crash fix
 	injector::MakeNOP(0x005AB9E5, 2);
 
@@ -305,6 +314,7 @@ static InitFunction GRIDFunc([]()
 
 	MH_Initialize();
 	MH_CreateHook((void*)0xB8CDD0, ButtonInputsHook, (void**)&ButtonInputsOri);
+	MH_CreateHook((void*)(ImageBase + 0x79CDE0), EnableFFBHook, (void**)&EnableFFBOri);
 	MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateGRID, NULL);
 	MH_EnableHook(MH_ALL_HOOKS);
 
