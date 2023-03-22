@@ -21,6 +21,15 @@ static bool keybdleft = false;
 static bool keybdright = false;
 static bool keybdup = false;
 
+static BOOL(WINAPI* SetWindowPosOri)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
+static BOOL WINAPI SetWindowPosHook(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
+{
+	int w = GetSystemMetrics(SM_CXSCREEN);
+	int h = GetSystemMetrics(SM_CYSCREEN);
+
+	return SetWindowPosOri(hWnd, HWND_TOP, 0, 0, w, h, SWP_FRAMECHANGED);
+}
+
 float Cubic(const float x, const float weight) 
 {
 	return weight * x * x * x + (1.0 - weight) * x;
@@ -329,6 +338,13 @@ static InitFunction Daytona3Func([]()
 		injector::MakeNOP(imageBase + 0x1DE10D, 6);
 		injector::MakeNOP(imageBase + 0x29B481, 3);
 		injector::MakeNOP(imageBase + 0x29B513, 4);
+
+		if (ToBool(config["General"]["Borderless Fullscreen"]))
+		{
+			MH_Initialize();
+			MH_CreateHookApi(L"user32.dll", "SetWindowPos", SetWindowPosHook, (void**)&SetWindowPosOri);
+			MH_EnableHook(MH_ALL_HOOKS);
+		}
 
 		if (ToBool(config["General"]["MSAA4X Disable"]))
 			injector::WriteMemoryRaw(imageBase + 0x17CD3D, "\x00", 1, true);
