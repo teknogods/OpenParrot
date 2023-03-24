@@ -306,6 +306,16 @@ static InitFunction initFunc([]()
 
 	DisableVSync = ToBool(config["General"]["DisableVSync"]);
 
+	if (GameDetect::currentGame == GameID::Daytona3)
+	{
+		if (ToBool(config["General"]["Borderless Fullscreen"]))
+		{
+			Windowed = true;
+			FpsLimiterEnable = true;
+			FpsLimiterSet(60.0f);
+		}
+	}
+
 	if (Windowed || FpsLimiterEnable || DisableVSync)
 		InitDXGIWindowHook();
 });

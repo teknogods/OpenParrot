@@ -13,21 +13,36 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 int FFBDeadzoneMaxMin;
 bool daytonaPressStart = false;
-uintptr_t imageBase;
-bool shiftup = false;
-bool shiftdown = false;
+static uintptr_t imageBase;
+static bool shiftup = false;
+static bool shiftdown = false;
 static bool viewchange = false;
 static bool keybdleft = false;
 static bool keybdright = false;
 static bool keybdup = false;
 
-static BOOL(WINAPI* SetWindowPosOri)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
-static BOOL WINAPI SetWindowPosHook(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
+static const char* DaytonaGameName = "Daytona Championship USA";
+
+static HWND(WINAPI* CreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+static HWND WINAPI CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
 	int w = GetSystemMetrics(SM_CXSCREEN);
 	int h = GetSystemMetrics(SM_CYSCREEN);
 
-	return SetWindowPosOri(hWnd, HWND_TOP, 0, 0, w, h, SWP_FRAMECHANGED);
+	dwStyle = SWP_FRAMECHANGED | SWP_SHOWWINDOW | WS_POPUP | SWP_NOSIZE;
+
+	return CreateWindowExAOri(dwExStyle, lpClassName, lpWindowName, dwStyle, 0, 0, w, h, hWndParent, hMenu, hInstance, lpParam);
+}
+
+static HWND(WINAPI* CreateWindowExWOri)(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+static HWND WINAPI CreateWindowExWHook(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+{
+	int w = GetSystemMetrics(SM_CXSCREEN);
+	int h = GetSystemMetrics(SM_CYSCREEN);
+
+	dwStyle = SWP_FRAMECHANGED | SWP_SHOWWINDOW | WS_POPUP | SWP_NOSIZE;
+
+	return CreateWindowExWOri(dwExStyle, lpClassName, lpWindowName, dwStyle, 0, 0, w, h, hWndParent, hMenu, hInstance, lpParam);
 }
 
 float Cubic(const float x, const float weight) 
@@ -75,7 +90,7 @@ static int ThreadLoop()
 	*(BYTE*)(imageBase + 0x15B4679) = gas;
 	*(BYTE*)(imageBase + 0x15B467A) = brake;
 
-	HWND hWnd = FindWindowA(0, ("Daytona Championship USA"));
+	HWND hWnd = FindWindowA(0, DaytonaGameName);
 
 	if (ToBool(config["General"]["Cubic Scaled Deadband"]))
 	{
@@ -342,7 +357,8 @@ static InitFunction Daytona3Func([]()
 		if (ToBool(config["General"]["Borderless Fullscreen"]))
 		{
 			MH_Initialize();
-			MH_CreateHookApi(L"user32.dll", "SetWindowPos", SetWindowPosHook, (void**)&SetWindowPosOri);
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExW", CreateWindowExWHook, (void**)&CreateWindowExWOri);
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", CreateWindowExAHook, (void**)&CreateWindowExAOri);
 			MH_EnableHook(MH_ALL_HOOKS);
 		}
 
