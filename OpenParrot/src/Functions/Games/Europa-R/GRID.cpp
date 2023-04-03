@@ -12,8 +12,8 @@ extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
 
-DWORD jOffset = 0x0081D64E;
-DWORD myPointer = 0;
+static DWORD jOffset = 0x0081D64E;
+static DWORD myPointer = 0;
 
 typedef struct
 {
@@ -21,7 +21,7 @@ typedef struct
 	float ControlValue;
 } ControlStruct, *PControlStruct;
 
-void __declspec(naked) FixMissingData()
+static void __declspec(naked) FixMissingData()
 {
 	__asm
 	{
@@ -36,7 +36,7 @@ void __declspec(naked) FixMissingData()
 	}
 }
 
-void __declspec(naked) GetControlOffset()
+static void __declspec(naked) GetControlOffset()
 {
 	__asm
 	{
@@ -51,56 +51,9 @@ void __declspec(naked) GetControlOffset()
 	}
 }
 
-bool inputInitialized = false;
-
-float toFloatGRID(uint8_t x)
+static float toFloatGRID(uint8_t x)
 {
 	return x / 255.0;
-}
-
-DWORD WINAPI XInputGetStateGRID
-(
-	__in  DWORD         dwUserIndex,						// Index of the gamer associated with the device
-	__out DWORD* pState								// Receives the current state
-)
-{
-	if (myPointer != 0)
-	{
-		// Write control injector here
-		if (!inputInitialized)
-		{
-			//info(true, "The Page is at: %08X", myPointer);
-			inputInitialized = true;
-		}
-
-		BYTE wheel = *ffbOffset2;
-		BYTE gas = *ffbOffset3;
-		BYTE brake = *ffbOffset4;
-
-		float wheelFloat = toFloatGRID(wheel);
-		float gasFloat = toFloatGRID(gas);
-		float brakeFloat = toFloatGRID(brake);
-
-		// Wheel Float
-		memcpy((void *)(myPointer + 0x484), &wheelFloat, 4);
-
-		// Gas Float
-		memcpy((void *)(myPointer + 0x49C), &gasFloat, 4);
-
-		// Brake Float
-		memcpy((void *)(myPointer + 0x494), &brakeFloat, 4);
-
-		// FFB Wheel Float
-		memcpy((void*)(myPointer + 0x4), &wheelFloat, 4);
-	}
-	if (GameDetect::currentGame == GameID::GRID)
-	{
-		return ERROR_SUCCESS;
-	}
-	else
-	{
-		return ERROR_DEVICE_NOT_CONNECTED;
-	}
 }
 
 static bool InputsInit;
@@ -274,6 +227,29 @@ static int __fastcall ButtonInputsHook(int a1, __int64 a2)
 			*(DWORD*)(InitialsButton) = 0x00;
 	}
 
+	if (myPointer != 0)
+	{
+		BYTE wheel = *ffbOffset2;
+		BYTE gas = *ffbOffset3;
+		BYTE brake = *ffbOffset4;
+
+		float wheelFloat = toFloatGRID(wheel);
+		float gasFloat = toFloatGRID(gas);
+		float brakeFloat = toFloatGRID(brake);
+
+		// Wheel Float
+		memcpy((void*)(myPointer + 0x484), &wheelFloat, 4);
+
+		// Gas Float
+		memcpy((void*)(myPointer + 0x49C), &gasFloat, 4);
+
+		// Brake Float
+		memcpy((void*)(myPointer + 0x494), &brakeFloat, 4);
+
+		// FFB Wheel Float
+		memcpy((void*)(myPointer + 0x4), &wheelFloat, 4);
+	}
+
 	return 0;
 }
 
@@ -304,7 +280,6 @@ static InitFunction GRIDFunc([]()
 
 	MH_Initialize();
 	MH_CreateHook((void*)0xB8CDD0, ButtonInputsHook, (void**)&ButtonInputsOri);
-	MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateGRID, NULL);
 	MH_EnableHook(MH_ALL_HOOKS);
 
 }, GameID::GRID);
