@@ -170,11 +170,14 @@ void MusicGunGun2Inputs(Helpers* helpers)
 		}
 	}
 
-	bool P1SceenIn = !(*ffbOffset2 <= 1 || *ffbOffset2 >= 254 || *ffbOffset3 <= 1 || *ffbOffset3 >= 254);
-	bool P2SceenIn = !(*ffbOffset4 <= 1 || *ffbOffset4 >= 254 || *ffbOffset5 <= 1 || *ffbOffset5 >= 254);
+	bool P1SceenOut = (*ffbOffset2 <= 1 || *ffbOffset2 >= 254 || *ffbOffset3 <= 1 || *ffbOffset3 >= 254);
+	bool P2SceenOut = (*ffbOffset4 <= 1 || *ffbOffset4 >= 254 || *ffbOffset5 <= 1 || *ffbOffset5 >= 254);
 
 	(*ffbOffset & 0x01) ? *(BYTE*)(imageBase + 0x2B8108) = 0x01 : *(BYTE*)(imageBase + 0x2B8108) = 0x00; // P1 Trigger
 	(*ffbOffset & 0x04) ? *(BYTE*)(imageBase + 0x2B8112) = 0x01 : *(BYTE*)(imageBase + 0x2B8112) = 0x00; // P2 Trigger
+
+	P1SceenOut ? *(BYTE*)(imageBase + 0x2B8102) = 0x01 : *(BYTE*)(imageBase + 0x2B8102) = 0x00; // P1 Offscreen
+	P2SceenOut ? *(BYTE*)(imageBase + 0x2B810C) = 0x01 : *(BYTE*)(imageBase + 0x2B810C) = 0x00; // P2 Offscreen
 
 	*(WORD*)(imageBase + 0x2B8104) = (*ffbOffset2 / 255.0) * 16384; // P1 X Axis
 	*(WORD*)(imageBase + 0x2B8106) = (*ffbOffset3 / 255.0) * 16384; // P1 Y Axis
