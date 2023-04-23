@@ -24,6 +24,21 @@ UINT8 MusicGunGun2Volume;
 static char VolPercentChar[256];
 static char INIChar[256];
 
+static DWORD windowStyle;
+
+HWND(WINAPI* MusicGunGun2CreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+HWND WINAPI MusicGunGun2CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+{
+	windowStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+
+		if (strcmp(lpWindowName, "CriSmpSoundOutput") == 0)
+			dwStyle = windowStyle;
+		else
+			lpWindowName = "OpenParrot - Music GunGun 2";	
+
+	return MusicGunGun2CreateWindowExAOri(dwExStyle, lpClassName, lpWindowName, dwStyle, 0, 0, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+}
+
 static void WriteVol()
 {
 	sprintf_s(INIChar, "%d", MusicGunGun2Volume);

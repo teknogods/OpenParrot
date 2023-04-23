@@ -43,6 +43,8 @@ extern int(__cdecl* MusicGunGun2VolumeSetupOri)(float a1);
 extern int __cdecl MusicGunGun2VolumeSetup(float a1);
 extern char* (__cdecl* MusicGunGun2strncpyOri)(char* Destination, const char* Source, size_t Count);
 extern char* __cdecl MusicGunGun2strncpy(char* Destination, const char* Source, size_t Count);
+extern HWND(WINAPI* MusicGunGun2CreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+extern HWND WINAPI MusicGunGun2CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 
 extern bool EADPCenter3D;
 extern bool EADPCenter2D;
@@ -1277,6 +1279,8 @@ static InitFunction initFunction([]()
 		MH_Initialize();
 		MH_CreateHook((void*)(imageBase + 0x1ADA90), MusicGunGun2VolumeSetup, (void**)&MusicGunGun2VolumeSetupOri);
 		MH_CreateHook((void*)(imageBase + 0x1143B0), MusicGunGun2strncpy, (void**)&MusicGunGun2strncpyOri);
+		if (!(ToBool(config["General"]["Windowed"])))
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", MusicGunGun2CreateWindowExAHook, (void**)&MusicGunGun2CreateWindowExAOri);
 		MH_EnableHook(MH_ALL_HOOKS);
 
 		injector::MakeJMP(imageBase + 0x137C70, ReturnsTrue); 
