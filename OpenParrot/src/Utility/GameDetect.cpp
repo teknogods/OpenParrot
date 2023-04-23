@@ -349,9 +349,6 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::BG4;
 		X2Type = X2Type::BG4;
 		break;
-	case 0xf5d90f01: // Music GunGun 2
-		currentGame = GameID::TypeXGeneric;
-		break;
 	case 0xabcebc43: // Lupin 3
 		currentGame = GameID::TypeXGeneric;
 		X2Type = X2Type::Lupin3;
@@ -680,6 +677,10 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::ElevatorActionDeathParade;
 			X2Type = X2Type::ElevatorActionDeathParade;
 			break;
+		case 0xf36d354a:
+			currentGame = GameID::MusicGunGun2;
+			X2Type = X2Type::MusicGunGun2;
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
@@ -902,6 +903,7 @@ bool GameDetect::IsTypeX()
 	case GameID::MB4:
 	case GameID::BG4_Eng:
 	case GameID::ElevatorActionDeathParade:
+	case GameID::MusicGunGun2:
 		return true;
 	default:
 		return false;

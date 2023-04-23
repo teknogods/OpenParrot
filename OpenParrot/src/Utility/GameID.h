@@ -140,5 +140,6 @@ enum class GameID
 	ElevatorActionDeathParade,
 	FrenzyExpress,
 	AmAuthD64,
-	WMMT6LEGACY
+	WMMT6LEGACY,
+	MusicGunGun2
 };

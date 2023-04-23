@@ -16,9 +16,11 @@ extern void BG4ManualHack(Helpers* helpers);
 extern void BG4ProInputs(Helpers* helpers);
 extern void KOFSkyStageInputs(Helpers* helpers);
 extern void EADPInputs(Helpers* helpers);
+extern void MusicGunGun2Inputs(Helpers* helpers);
 static bool ProMode;
 extern bool BG4EnableTracks;
 
+// EADP
 extern int(__fastcall* EADPVolumeSetupOri)(void* ECX, void* EDX, float a2);
 extern int __fastcall EADPVolumeSetup(void* ECX, void* EDX, float a2);
 extern int(__fastcall* EADP3DCenterOri)(void* ECX, void* EDX, float a2, float a3, float a4, float a5);
@@ -36,10 +38,18 @@ extern int __cdecl VibrationDoorHook(float a1, int a2, int a3);
 extern int(__fastcall* ResultsCenterOri)(void* ECX, void* EDX, int a2, int a3);
 extern int __fastcall ResultsCenterHook(void* ECX, void* EDX, int a2, int a3);
 
+// Music GunGun 2
+extern int(__cdecl* MusicGunGun2VolumeSetupOri)(float a1);
+extern int __cdecl MusicGunGun2VolumeSetup(float a1);
+extern char* (__cdecl* MusicGunGun2strncpyOri)(char* Destination, const char* Source, size_t Count);
+extern char* __cdecl MusicGunGun2strncpy(char* Destination, const char* Source, size_t Count);
+
 extern bool EADPCenter3D;
 extern bool EADPCenter2D;
 extern bool EADPNameEntry;
 static DWORD EADPmonitors = 1;
+
+extern UINT8 MusicGunGun2Volume;
 
 extern UINT8 EADPVolume;
 extern bool EADPAttractVidPlay;
@@ -253,7 +263,7 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 	DWORD dwFlagsAndAttributes,
 	HANDLE hTemplateFile)
 {
-	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL || GameDetect::X2Type == X2Type::ElevatorActionDeathParade)
+	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL || GameDetect::X2Type == X2Type::ElevatorActionDeathParade || GameDetect::X2Type == X2Type::MusicGunGun2)
 	{
 		if (strncmp(lpFileName, "COM1", 4) == 0)
 		{
@@ -464,6 +474,10 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 			break;
 		case GameID::ElevatorActionDeathParade:
 			EADPInputs(0);
+			break;
+		case GameID::MusicGunGun2:
+			MusicGunGun2Inputs(0);
+			break;
 		}
 		Sleep(16);
 	}
@@ -1241,6 +1255,31 @@ static InitFunction initFunction([]()
 
 		if (ToBool(config["General"]["Scale Test Menu"]))
 			injector::WriteMemory<DWORD>(imageBase + 0xCDDEA, imageBase + 0x212708, true);
+
+		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
+	}
+
+	if (GameDetect::currentGame == GameID::MusicGunGun2)
+	{
+		DWORD oldPageProtection = 0;
+		
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			VirtualProtect((LPVOID)(imageBase + 0X1FA298), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+			windowHooks hooks = { 0 };
+			hooks.createWindowExA = imageBase + 0X1FA298;
+			init_windowHooks(&hooks);
+			VirtualProtect((LPVOID)(imageBase + 0X1FA298), 4, oldPageProtection, &oldPageProtection);
+		}
+
+		MusicGunGun2Volume = GetPrivateProfileIntA("Settings", "Volume", 100, ".\\OpenParrot\\Settings.ini");
+
+		MH_Initialize();
+		MH_CreateHook((void*)(imageBase + 0x1ADA90), MusicGunGun2VolumeSetup, (void**)&MusicGunGun2VolumeSetupOri);
+		MH_CreateHook((void*)(imageBase + 0x1143B0), MusicGunGun2strncpy, (void**)&MusicGunGun2strncpyOri);
+		MH_EnableHook(MH_ALL_HOOKS);
+
+		injector::MakeJMP(imageBase + 0x137C70, ReturnsTrue); 
 
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 	}

@@ -266,6 +266,14 @@ HWND WINAPI CreateWindowExAHk(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWind
 		}
 	}
 
+	if (GameDetect::currentGame == GameID::MusicGunGun2)
+	{
+		if (strcmp(lpWindowName, "CriSmpSoundOutput") == 0)
+			dwStyle = EADP_windowStyle;
+		else
+			lpWindowName = "OpenParrot - Music GunGun 2";
+	}
+
 	// Make window pos centered
 	g_x = (GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2;
 	g_y = (GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2;
@@ -402,7 +410,7 @@ void init_windowHooks(windowHooks* data)
 {
 	g_windowStyle = WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
 
-	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
+	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade || GameDetect::currentGame == GameID::MusicGunGun2)
 		EADP_windowStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
 
 	int rx, ry;
