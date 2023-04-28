@@ -164,6 +164,11 @@ void GaiaAttack4Inputs(Helpers* helpers)
 	(*ffbOffset & 0x40) ? *(BYTE*)(imageBase + 0xB3B898) = 0x01 : *(BYTE*)(imageBase + 0xB3B898) = 0x00; // P3 Trigger
 	(*ffbOffset & 0x80) ? *(BYTE*)(imageBase + 0xB3B89C) = 0x01 : *(BYTE*)(imageBase + 0xB3B89C) = 0x00; // P4 Trigger
 
+	(*ffbOffset & 0x01) ? *(BYTE*)(imageBase + 0xB3B838) = 0x01 : *(BYTE*)(imageBase + 0xB3B838) = 0x00; // P1 Auto Fire
+	(*ffbOffset & 0x04) ? *(BYTE*)(imageBase + 0xB3B842) = 0x01 : *(BYTE*)(imageBase + 0xB3B842) = 0x00; // P2 Auto Fire
+	(*ffbOffset & 0x40) ? *(BYTE*)(imageBase + 0xB3B84C) = 0x01 : *(BYTE*)(imageBase + 0xB3B84C) = 0x00; // P3 Auto Fire
+	(*ffbOffset & 0x80) ? *(BYTE*)(imageBase + 0xB3B856) = 0x01 : *(BYTE*)(imageBase + 0xB3B856) = 0x00; // P4 Auto Fire
+
 	P1SceenOut ? *(BYTE*)(imageBase + 0xB3B830) = 0x01 : *(BYTE*)(imageBase + 0xB3B830) = 0x00; // P1 Offscreen
 	P2SceenOut ? *(BYTE*)(imageBase + 0xB3B83A) = 0x01 : *(BYTE*)(imageBase + 0xB3B83A) = 0x00; // P2 Offscreen
 	P3SceenOut ? *(BYTE*)(imageBase + 0xB3B844) = 0x01 : *(BYTE*)(imageBase + 0xB3B844) = 0x00; // P3 Offscreen
