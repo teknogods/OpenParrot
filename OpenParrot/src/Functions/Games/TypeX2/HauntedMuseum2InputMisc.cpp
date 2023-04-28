@@ -156,6 +156,9 @@ void HauntedMuseum2Inputs(Helpers* helpers)
 		(*ffbOffset & 0x01) ? *(BYTE*)(imageBase + 0xC4E580) = 0x01 : *(BYTE*)(imageBase + 0xC4E580) = 0x00; // P1 Trigger
 		(*ffbOffset & 0x04) ? *(BYTE*)(imageBase + 0xC4E584) = 0x01 : *(BYTE*)(imageBase + 0xC4E584) = 0x00; // P2 Trigger
 
+		(*ffbOffset & 0x01) ? *(BYTE*)(imageBase + 0xC4E500) = 0x01 : *(BYTE*)(imageBase + 0xC4E500) = 0x00; // P1 Auto Fire
+		(*ffbOffset & 0x04) ? *(BYTE*)(imageBase + 0xC4E50A) = 0x01 : *(BYTE*)(imageBase + 0xC4E50A) = 0x00; // P2 Auto Fire
+
 		if (*ffbOffset & 0x01)
 		{
 			if (!GunTrig1P)
@@ -296,6 +299,9 @@ void HauntedMuseum2Inputs(Helpers* helpers)
 
 		(*ffbOffset & 0x01) ? *(BYTE*)(imageBase + 0xAE54B8) = 0x01 : *(BYTE*)(imageBase + 0xAE54B8) = 0x00; // P1 Trigger
 		(*ffbOffset & 0x04) ? *(BYTE*)(imageBase + 0xAE54BC) = 0x01 : *(BYTE*)(imageBase + 0xAE54BC) = 0x00; // P2 Trigger
+
+		(*ffbOffset & 0x01) ? *(BYTE*)(imageBase + 0xAE5438) = 0x01 : *(BYTE*)(imageBase + 0xAE5438) = 0x00; // P1 Auto Fire
+		(*ffbOffset & 0x04) ? *(BYTE*)(imageBase + 0xAE5442) = 0x01 : *(BYTE*)(imageBase + 0xAE5442) = 0x00; // P2 Auto Fire
 
 		if (*ffbOffset & 0x01)
 		{
