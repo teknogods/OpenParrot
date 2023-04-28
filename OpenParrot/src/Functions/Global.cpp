@@ -13,6 +13,16 @@
 
 #pragma optimize("", off)
 
+extern int* ffbOffset;
+extern int* ffbOffset2;
+extern int* ffbOffset3;
+extern int* ffbOffset4;
+extern int* ffbOffset5;
+extern int* ffbOffset6;
+extern int* ffbOffset7;
+extern int* ffbOffset8;
+extern int* ffbOffset9;
+
 static DWORD xdbg;
 static HWND g_HWND = NULL;
 static DWORD ProcessID;
@@ -229,7 +239,7 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 /* WINDOW HOOKS */
 
 DWORD g_windowStyle;
-DWORD EADP_windowStyle;
+DWORD hide_windowStyle;
 
 int g_x = 0;
 int g_y = 0;
@@ -258,7 +268,7 @@ HWND WINAPI CreateWindowExAHk(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWind
 	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
 	{
 		if (strcmp(lpWindowName, "CriSmpSoundOutput") == 0)
-			dwStyle = EADP_windowStyle;
+			dwStyle = hide_windowStyle;
 		else
 		{
 			nWidth = 720;
@@ -269,9 +279,33 @@ HWND WINAPI CreateWindowExAHk(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWind
 	if (GameDetect::currentGame == GameID::MusicGunGun2)
 	{
 		if (strcmp(lpWindowName, "CriSmpSoundOutput") == 0)
-			dwStyle = EADP_windowStyle;
+			dwStyle = hide_windowStyle;
 		else
 			lpWindowName = "OpenParrot - Music GunGun 2";
+	}
+
+	if (GameDetect::currentGame == GameID::HauntedMuseum)
+	{
+		if (strcmp(lpWindowName, "CriDSoundOutput") == 0)
+			dwStyle = hide_windowStyle;
+		else
+			lpWindowName = "OpenParrot - Haunted Museum";
+	}
+
+	if (GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J)
+	{
+		if (strcmp(lpWindowName, "CriDSoundOutput") == 0)
+			dwStyle = hide_windowStyle;
+		else
+			lpWindowName = "OpenParrot - Haunted Museum II";
+	}
+
+	if (GameDetect::currentGame == GameID::GaiaAttack4)
+	{
+		if (strcmp(lpWindowName, "CriDSoundOutput") == 0)
+			dwStyle = hide_windowStyle;
+		else
+			lpWindowName = "OpenParrot - Gaia Attack 4";
 	}
 
 	// Make window pos centered
@@ -409,9 +443,7 @@ BOOL WINAPI SetCursorPosHk(int X, int Y)
 void init_windowHooks(windowHooks* data)
 {
 	g_windowStyle = WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-
-	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade || GameDetect::currentGame == GameID::MusicGunGun2)
-		EADP_windowStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+	hide_windowStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
 
 	int rx, ry;
 	GetDesktopResolution(rx, ry);
@@ -490,9 +522,24 @@ DWORD FetchDwordInformation(const char* setting, const char* subkey, DWORD defau
 	return defaultValue;
 }
 
+static void ResetffbOffset()
+{
+	*ffbOffset = 0;
+	*ffbOffset2 = 0;
+	*ffbOffset3 = 0;
+	*ffbOffset4 = 0;
+	*ffbOffset5 = 0;
+	*ffbOffset6 = 0;
+	*ffbOffset7 = 0;
+	*ffbOffset8 = 0;
+	*ffbOffset9 = 0;
+}
+
 static InitFunction globalFunc([]()
 {
 	hook::pattern::InitializeHints();
+
+	ResetffbOffset();
 	
 	GetPrivateProfileStringA("GlobalHotkeys", "PauseKey", "", PauseKeyChar, 256, ".\\teknoparrot.ini");
 	GetPrivateProfileStringA("GlobalHotkeys", "ExitKey", "", ExitKeyChar, 256, ".\\teknoparrot.ini");

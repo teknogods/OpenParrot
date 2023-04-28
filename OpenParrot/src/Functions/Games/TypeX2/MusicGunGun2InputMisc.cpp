@@ -24,12 +24,10 @@ UINT8 MusicGunGun2Volume;
 static char VolPercentChar[256];
 static char INIChar[256];
 
-static DWORD windowStyle;
-
 HWND(WINAPI* MusicGunGun2CreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 HWND WINAPI MusicGunGun2CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
-	windowStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+	DWORD windowStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
 
 		if (strcmp(lpWindowName, "CriSmpSoundOutput") == 0)
 			dwStyle = windowStyle;
@@ -139,13 +137,11 @@ void MusicGunGun2Inputs(Helpers* helpers)
 		imageBase = (DWORD)GetModuleHandleA(0);
 	}
 
-	*(BYTE*)(imageBase + 0x2B8128) = 0x02; // Enable Inputs
+	*(BYTE*)(imageBase + 0x2B8128) = 0x02; // Gun Board Connected
 	*(BYTE*)(imageBase + 0x2B3708) = 0x03; // Force JVS Type
 
 	DWORD CoinButtonBase = helpers->ReadInt32(0x2B36F8, true);
 	UINT8 CoinButtonPressed = helpers->ReadByte(CoinButtonBase + 0x29, false);
-
-	DWORD CoinCountBase = helpers->ReadInt32(0x2B36F8, true);
 
 	if (CoinButtonPressed & 0x01)
 	{
@@ -166,7 +162,7 @@ void MusicGunGun2Inputs(Helpers* helpers)
 		if (!CoinPressed)
 		{
 			CoinPressed = true;
-			++*(BYTE*)(CoinCountBase + 0x18);
+			++*(BYTE*)(CoinButtonBase + 0x18);
 		}
 	}
 

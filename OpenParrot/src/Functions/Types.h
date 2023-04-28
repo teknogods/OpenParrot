@@ -15,5 +15,8 @@ enum class X2Type {
 	BG4_Eng,
 	BlazBlue,
 	ElevatorActionDeathParade,
-	MusicGunGun2
+	MusicGunGun2,
+	HauntedMuseum,
+	HauntedMuseum2100,
+	HauntedMuseum2101J
 };

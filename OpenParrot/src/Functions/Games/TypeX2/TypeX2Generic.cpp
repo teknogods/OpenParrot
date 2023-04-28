@@ -17,6 +17,9 @@ extern void BG4ProInputs(Helpers* helpers);
 extern void KOFSkyStageInputs(Helpers* helpers);
 extern void EADPInputs(Helpers* helpers);
 extern void MusicGunGun2Inputs(Helpers* helpers);
+extern void HauntedMuseumInputs(Helpers* helpers);
+extern void HauntedMuseum2Inputs(Helpers* helpers);
+extern void GaiaAttack4Inputs(Helpers* helpers);
 static bool ProMode;
 extern bool BG4EnableTracks;
 
@@ -37,6 +40,12 @@ extern int(__cdecl* VibrationDoorOri)(float a1, int a2, int a3);
 extern int __cdecl VibrationDoorHook(float a1, int a2, int a3);
 extern int(__fastcall* ResultsCenterOri)(void* ECX, void* EDX, int a2, int a3);
 extern int __fastcall ResultsCenterHook(void* ECX, void* EDX, int a2, int a3);
+extern bool EADPCenter3D;
+extern bool EADPCenter2D;
+extern bool EADPNameEntry;
+static DWORD EADPmonitors = 1;
+extern UINT8 EADPVolume;
+extern bool EADPAttractVidPlay;
 
 // Music GunGun 2
 extern int(__cdecl* MusicGunGun2VolumeSetupOri)(float a1);
@@ -45,16 +54,29 @@ extern char* (__cdecl* MusicGunGun2strncpyOri)(char* Destination, const char* So
 extern char* __cdecl MusicGunGun2strncpy(char* Destination, const char* Source, size_t Count);
 extern HWND(WINAPI* MusicGunGun2CreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 extern HWND WINAPI MusicGunGun2CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
-
-extern bool EADPCenter3D;
-extern bool EADPCenter2D;
-extern bool EADPNameEntry;
-static DWORD EADPmonitors = 1;
-
 extern UINT8 MusicGunGun2Volume;
 
-extern UINT8 EADPVolume;
-extern bool EADPAttractVidPlay;
+// Haunted Museum
+extern HWND(WINAPI* HauntedMuseumCreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+extern HWND WINAPI HauntedMuseumCreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+extern BOOL(__stdcall* HauntedMuseumGetKeyboardStateOri)(PBYTE lpKeyState);
+extern BOOL WINAPI HauntedMuseumGetKeyboardStateHook(PBYTE lpKeyState);
+extern UINT8 HauntedMuseumVolume;
+
+// Haunted Museum 2
+extern HWND(WINAPI* HauntedMuseum2CreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+extern HWND WINAPI HauntedMuseum2CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+extern BOOL(__stdcall* HauntedMuseum2GetKeyboardStateOri)(PBYTE lpKeyState);
+extern BOOL WINAPI HauntedMuseum2GetKeyboardStateHook(PBYTE lpKeyState);
+extern UINT8 HauntedMuseum2Volume;
+
+// Gaia Attack 4
+extern HWND(WINAPI* GaiaAttack4CreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+extern HWND WINAPI GaiaAttack4CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+extern BOOL(__stdcall* GaiaAttack4GetKeyboardStateOri)(PBYTE lpKeyState);
+extern BOOL WINAPI GaiaAttack4GetKeyboardStateHook(PBYTE lpKeyState);
+extern UINT8 GaiaAttack4Volume;
+
 void AddCommOverride(HANDLE hFile);
 
 static char moveBuf[256];
@@ -265,7 +287,7 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 	DWORD dwFlagsAndAttributes,
 	HANDLE hTemplateFile)
 {
-	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL || GameDetect::X2Type == X2Type::ElevatorActionDeathParade || GameDetect::X2Type == X2Type::MusicGunGun2)
+	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL || GameDetect::X2Type == X2Type::ElevatorActionDeathParade || GameDetect::X2Type == X2Type::MusicGunGun2 || GameDetect::X2Type == X2Type::HauntedMuseum2100 || GameDetect::X2Type == X2Type::HauntedMuseum2101J || GameDetect::X2Type == X2Type::GaiaAttack4)
 	{
 		if (strncmp(lpFileName, "COM1", 4) == 0)
 		{
@@ -375,7 +397,6 @@ static BOOL __stdcall GetDiskFreeSpaceWWrap(LPCWSTR lpRootPathName, LPDWORD lpSe
 	return GetDiskFreeSpaceW(NULL, lpSectorsPerCluster, lpBytesPerSector, lpNumberOfFreeClusters, lpTotalNumberOfClusters);
 }
 
-
 #include <deque>
 #include <iphlpapi.h>
 
@@ -479,6 +500,16 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 			break;
 		case GameID::MusicGunGun2:
 			MusicGunGun2Inputs(0);
+			break;
+		case GameID::HauntedMuseum:
+			HauntedMuseumInputs(0);
+			break;
+		case GameID::HauntedMuseum2100:
+		case GameID::HauntedMuseum2101J:
+			HauntedMuseum2Inputs(0);
+			break;
+		case GameID::GaiaAttack4:
+			GaiaAttack4Inputs(0);
 			break;
 		}
 		Sleep(16);
@@ -1284,6 +1315,122 @@ static InitFunction initFunction([]()
 		MH_EnableHook(MH_ALL_HOOKS);
 
 		injector::MakeJMP(imageBase + 0x137C70, ReturnsTrue); 
+
+		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
+	}
+
+	if (GameDetect::currentGame == GameID::HauntedMuseum)
+	{
+		DWORD oldPageProtection = 0;
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			VirtualProtect((LPVOID)(imageBase + 0X2772BC), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+			windowHooks hooks = { 0 };
+			hooks.createWindowExA = imageBase + 0X2772BC;
+			init_windowHooks(&hooks);
+			VirtualProtect((LPVOID)(imageBase + 0X2772BC), 4, oldPageProtection, &oldPageProtection);
+		}
+
+		HauntedMuseumVolume = GetPrivateProfileIntA("Settings", "Volume", 255, ".\\OpenParrot\\Settings.ini");
+
+		MH_Initialize();
+		if (!(ToBool(config["General"]["Windowed"])))
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", HauntedMuseumCreateWindowExAHook, (void**)&HauntedMuseumCreateWindowExAOri);
+		MH_CreateHookApi(L"user32.dll", "GetKeyboardState", &HauntedMuseumGetKeyboardStateHook, (void**)&HauntedMuseumGetKeyboardStateOri); // Disable Native Keyboard
+		MH_EnableHook(MH_ALL_HOOKS);
+
+		injector::MakeJMP(imageBase + 0x9E410, ReturnsTrue); // Disable Gun Writes
+		injector::MakeJMP(imageBase + 0x9E3B0, ReturnsTrue); // Disable Gun Writes
+
+		injector::MakeNOP(imageBase + 0x9F778, 4); // Volume Write (Uses Analog0 from JVS which we use for inputs)
+		
+		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
+	}
+
+	if (GameDetect::currentGame == GameID::HauntedMuseum2100)
+	{
+		DWORD oldPageProtection = 0;
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			VirtualProtect((LPVOID)(imageBase + 0X2D63A4), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+			windowHooks hooks = { 0 };
+			hooks.createWindowExA = imageBase + 0X2D63A4;
+			init_windowHooks(&hooks);
+			VirtualProtect((LPVOID)(imageBase + 0X2D63A4), 4, oldPageProtection, &oldPageProtection);
+		}
+
+		HauntedMuseum2Volume = GetPrivateProfileIntA("Settings", "Volume", 255, ".\\OpenParrot\\Settings.ini");
+
+		MH_Initialize();
+		if (!(ToBool(config["General"]["Windowed"])))
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", HauntedMuseum2CreateWindowExAHook, (void**)&HauntedMuseum2CreateWindowExAOri);
+		MH_CreateHookApi(L"user32.dll", "GetKeyboardState", &HauntedMuseum2GetKeyboardStateHook, (void**)&HauntedMuseum2GetKeyboardStateOri); // Disable Native Keyboard
+		MH_EnableHook(MH_ALL_HOOKS);
+
+		injector::MakeJMP(imageBase + 0x9D970, ReturnsTrue); // Disable Gun Writes
+
+		injector::MakeNOP(imageBase + 0x1391, 1); // Stupid crash caused by this sometimes??
+		injector::MakeNOP(imageBase + 0x9E66C, 5); // Stops JVS working
+		injector::MakeNOP(imageBase + 0x9FD68, 4); // Volume Write (Uses Analog0 from JVS which we use for inputs)
+
+		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
+	}
+
+	if (GameDetect::currentGame == GameID::HauntedMuseum2101J)
+	{
+		DWORD oldPageProtection = 0;
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			VirtualProtect((LPVOID)(imageBase + 0X263364), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+			windowHooks hooks = { 0 };
+			hooks.createWindowExA = imageBase + 0X263364;
+			init_windowHooks(&hooks);
+			VirtualProtect((LPVOID)(imageBase + 0X263364), 4, oldPageProtection, &oldPageProtection);
+		}
+
+		HauntedMuseum2Volume = GetPrivateProfileIntA("Settings", "Volume", 255, ".\\OpenParrot\\Settings.ini");
+
+		MH_Initialize();
+		if (!(ToBool(config["General"]["Windowed"])))
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", HauntedMuseum2CreateWindowExAHook, (void**)&HauntedMuseum2CreateWindowExAOri);
+		MH_CreateHookApi(L"user32.dll", "GetKeyboardState", &HauntedMuseum2GetKeyboardStateHook, (void**)&HauntedMuseum2GetKeyboardStateOri); // Disable Native Keyboard
+		MH_EnableHook(MH_ALL_HOOKS);
+
+		injector::MakeJMP(imageBase + 0x9B920, ReturnsTrue); // Disable Gun Writes
+
+		injector::MakeNOP(imageBase + 0x1105, 6); // MessageBox Firmware Update Error
+		injector::MakeNOP(imageBase + 0x9DA08, 4); // Volume Write (Uses Analog0 from JVS which we use for inputs)
+
+		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
+	}
+
+	if (GameDetect::currentGame == GameID::GaiaAttack4)
+	{
+		DWORD oldPageProtection = 0;
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			VirtualProtect((LPVOID)(imageBase + 0X2642F0), 4, PAGE_EXECUTE_READWRITE, &oldPageProtection);
+			windowHooks hooks = { 0 };
+			hooks.createWindowExA = imageBase + 0x2642F0;
+			init_windowHooks(&hooks);
+			VirtualProtect((LPVOID)(imageBase + 0x2642F0), 4, oldPageProtection, &oldPageProtection);
+		}
+
+		GaiaAttack4Volume = GetPrivateProfileIntA("Settings", "Volume", 255, ".\\OpenParrot\\Settings.ini");
+
+		MH_Initialize();
+		if (!(ToBool(config["General"]["Windowed"])))
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", HauntedMuseum2CreateWindowExAHook, (void**)&HauntedMuseum2CreateWindowExAOri);
+		MH_CreateHookApi(L"user32.dll", "GetKeyboardState", &HauntedMuseum2GetKeyboardStateHook, (void**)&HauntedMuseum2GetKeyboardStateOri); // Disable Native Keyboard
+		MH_EnableHook(MH_ALL_HOOKS);
+
+		injector::MakeJMP(imageBase + 0x113E80, ReturnsTrue); // Disable Gun Writes
+
+		injector::MakeNOP(imageBase + 0x1156C8, 4); // Volume Write (Uses Analog0 from JVS which we use for inputs)
 
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 	}

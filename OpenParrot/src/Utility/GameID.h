@@ -141,5 +141,9 @@ enum class GameID
 	FrenzyExpress,
 	AmAuthD64,
 	WMMT6LEGACY,
-	MusicGunGun2
+	MusicGunGun2,
+	HauntedMuseum,
+	HauntedMuseum2100,
+	HauntedMuseum2101J,
+	GaiaAttack4
 };

@@ -451,7 +451,7 @@ void EADPInputs(Helpers* helpers)
 		MultiScreen = ToBool(config["General"]["Multi Screen"]);
 	}
 
-	*(BYTE*)(imageBase + 0x201C10) = 0x02; // Enable Inputs
+	*(BYTE*)(imageBase + 0x201C10) = 0x02; // Gun Board Connected
 
 	DWORD VolBase = helpers->ReadInt32(0x212CDC, true);
 

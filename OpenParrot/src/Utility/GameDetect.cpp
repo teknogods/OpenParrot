@@ -681,6 +681,24 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::MusicGunGun2;
 			X2Type = X2Type::MusicGunGun2;
 			break;
+#ifdef _DEBUG
+		case 0x3fed1b24:
+			currentGame = GameID::HauntedMuseum;
+			X2Type = X2Type::HauntedMuseum;
+			break;
+		case 0x5a7fa241: // USA 1.00
+			currentGame = GameID::HauntedMuseum2100;
+			X2Type = X2Type::HauntedMuseum2100;
+			break;
+		case 0x42d54499: // JP 1.01
+			currentGame = GameID::HauntedMuseum2101J;
+			X2Type = X2Type::HauntedMuseum2101J;
+			break;
+		case 0xad310e21:
+			currentGame = GameID::GaiaAttack4;
+			X2Type = X2Type::GaiaAttack4;
+			break;
+#endif
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
@@ -904,6 +922,10 @@ bool GameDetect::IsTypeX()
 	case GameID::BG4_Eng:
 	case GameID::ElevatorActionDeathParade:
 	case GameID::MusicGunGun2:
+	case GameID::HauntedMuseum:
+	case GameID::HauntedMuseum2100:
+	case GameID::HauntedMuseum2101J:
+	case GameID::GaiaAttack4:
 		return true;
 	default:
 		return false;
