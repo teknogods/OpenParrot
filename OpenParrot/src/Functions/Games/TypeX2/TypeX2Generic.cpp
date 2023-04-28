@@ -270,6 +270,11 @@ static BOOL __stdcall SetCurrentDirectoryAWrap(LPCSTR lpPathName)
 		// info(true, "Redirect: %s", (pathRoot + ""s + "\\sh").c_str());
 		return SetCurrentDirectoryA((pathRoot + ""s + "\\sh").c_str());
 	}
+	if (!strncmp(lpPathName, ".\\data\\sh", 4)) // Haunted Museum/Gaia Attack 4
+	{
+		// info(true, "Redirect: %s", (pathRoot + ""s + "\\sh").c_str());
+		return SetCurrentDirectoryA((pathRoot + ""s + "\\data\\sh").c_str());
+	}
 
 	if (!strncmp(lpPathName, "data", 4) && GameDetect::currentGame == GameID::TetrisGM3)
 	{
