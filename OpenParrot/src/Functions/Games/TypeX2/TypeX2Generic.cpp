@@ -287,7 +287,7 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 	DWORD dwFlagsAndAttributes,
 	HANDLE hTemplateFile)
 {
-	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL || GameDetect::X2Type == X2Type::ElevatorActionDeathParade || GameDetect::X2Type == X2Type::MusicGunGun2 || GameDetect::X2Type == X2Type::HauntedMuseum2100 || GameDetect::X2Type == X2Type::HauntedMuseum2101J || GameDetect::X2Type == X2Type::GaiaAttack4)
+	if (GameDetect::X2Type == X2Type::BG4 || GameDetect::X2Type == X2Type::BG4_Eng || GameDetect::X2Type == X2Type::VRL || GameDetect::X2Type == X2Type::ElevatorActionDeathParade || GameDetect::X2Type == X2Type::MusicGunGun2 || GameDetect::X2Type == X2Type::HauntedMuseum || GameDetect::X2Type == X2Type::HauntedMuseum2100 || GameDetect::X2Type == X2Type::HauntedMuseum2101J || GameDetect::X2Type == X2Type::GaiaAttack4)
 	{
 		if (strncmp(lpFileName, "COM1", 4) == 0)
 		{
