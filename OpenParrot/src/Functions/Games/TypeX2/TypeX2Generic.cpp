@@ -1377,7 +1377,7 @@ static InitFunction initFunction([]()
 		injector::MakeJMP(imageBase + 0x9D970, ReturnsTrue); // Disable Gun Writes
 
 		injector::MakeNOP(imageBase + 0x1391, 1); // Stupid crash caused by this sometimes??
-		injector::MakeNOP(imageBase + 0x9E66C, 5); // Stops JVS working
+
 		injector::MakeNOP(imageBase + 0x9FD68, 4); // Volume Write (Uses Analog0 from JVS which we use for inputs)
 
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);

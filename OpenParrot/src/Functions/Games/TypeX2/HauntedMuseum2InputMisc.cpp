@@ -62,6 +62,22 @@ void HauntedMuseum2Inputs(Helpers* helpers)
 	{
 		Init = true;
 		imageBase = (DWORD)GetModuleHandleA(0);
+
+		if (GameDetect::currentGame == GameID::HauntedMuseum2100) // Fix hex edited exe
+		{
+			helpers->WriteIntPtr(0x9E625, imageBase + 0x30EAEC, true);
+			injector::WriteMemoryRaw(imageBase + 0x9E62D, "\xE8\x3E\x4A\x01\x00", 5, true);
+			injector::WriteMemoryRaw(imageBase + 0x9E6E4, "\x50", 1, true);
+			injector::WriteMemoryRaw(imageBase + 0x9E6E5, "\xB8\xE0\xEA\x58\x00", 5, true);
+			helpers->WriteIntPtr(0x9E6E6, imageBase + 0x3070D0, true);
+			injector::WriteMemoryRaw(imageBase + 0x9E6EA, "\x89\x7C\x24\x14", 4, true);
+			injector::WriteMemoryRaw(imageBase + 0x9E6EE, "\x89\x7C\x24\x18", 4, true);
+			injector::WriteMemoryRaw(imageBase + 0x9E6F2, "\xE8\x79\x49\x01\x00", 5, true);
+			injector::WriteMemoryRaw(imageBase + 0x9E6F7, "\x83\xC4\x04", 3, true);
+			injector::WriteMemoryRaw(imageBase + 0x9E70C, "\xB8\xE0\xEA\x58\x00", 5, true);
+			helpers->WriteIntPtr(0x9E70D, imageBase + 0x30EB08, true);
+			injector::WriteMemoryRaw(imageBase + 0x9E711, "\xE8\x5A\x49\x01\x00", 5, true);
+		}
 	}
 
 	if (!D3D9hWnd)
