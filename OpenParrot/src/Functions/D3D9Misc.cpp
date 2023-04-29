@@ -24,6 +24,19 @@ extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
+extern int* ffbOffset6;
+extern int* ffbOffset7;
+extern int* ffbOffset8;
+extern int* ffbOffset9;
+
+static int oldffbOffset2;
+static int oldffbOffset3;
+static int oldffbOffset4;
+static int oldffbOffset5;
+static int oldffbOffset6;
+static int oldffbOffset7;
+static int oldffbOffset8;
+static int oldffbOffset9;
 
 static char RenderHookChar[256];
 static bool PresentHook;
@@ -36,6 +49,13 @@ DWORD resHeightD3D9;
 
 int Player1Active;
 int Player2Active;
+int Player3Active;
+int Player4Active;
+
+static int P1CrosshairCount;
+static int P2CrosshairCount;
+static int P3CrosshairCount;
+static int P4CrosshairCount;
 
 static bool D3D9Init;
 static bool Windowed;
@@ -61,6 +81,8 @@ extern float DoorFloatRight;
 
 static std::ifstream P1Size{};
 static std::ifstream P2Size{};
+static std::ifstream P3Size{};
+static std::ifstream P4Size{};
 static std::ifstream BezelSize{};
 static std::ifstream BorderSize{};
 static std::ifstream DoorLeftSize{};
@@ -69,6 +91,8 @@ static std::ifstream DoorBezelSize{};
 
 static wchar_t P1buf[MAX_PATH];
 static wchar_t P2buf[MAX_PATH];
+static wchar_t P3buf[MAX_PATH];
+static wchar_t P4buf[MAX_PATH];
 static wchar_t Bezelbuf[MAX_PATH];
 static wchar_t Borderbuf[MAX_PATH];
 static wchar_t DoorLeftbuf[MAX_PATH];
@@ -77,6 +101,8 @@ static wchar_t DoorBezelbuf[MAX_PATH];
 
 static unsigned int P1Width, P1Height;
 static unsigned int P2Width, P2Height;
+static unsigned int P3Width, P3Height;
+static unsigned int P4Width, P4Height;
 static unsigned int BezelWidth, BezelHeight;
 static unsigned int BorderWidth, BorderHeight;
 static unsigned int DoorLeftWidth, DoorLeftHeight;
@@ -95,6 +121,16 @@ static LPDIRECT3DTEXTURE9 Texture2P = NULL;
 static LPD3DXSPRITE Sprite2P = NULL;
 static D3DXVECTOR3 vPos2P;
 static D3DXVECTOR3 vCen2P;
+
+static LPDIRECT3DTEXTURE9 Texture3P = NULL;
+static LPD3DXSPRITE Sprite3P = NULL;
+static D3DXVECTOR3 vPos3P;
+static D3DXVECTOR3 vCen3P;
+
+static LPDIRECT3DTEXTURE9 Texture4P = NULL;
+static LPD3DXSPRITE Sprite4P = NULL;
+static D3DXVECTOR3 vPos4P;
+static D3DXVECTOR3 vCen4P;
 
 static LPDIRECT3DTEXTURE9 TextureBezel = NULL;
 static LPD3DXSPRITE SpriteBezel = NULL;
@@ -124,8 +160,13 @@ static D3DXVECTOR3 vCenDoorRight;
 static IDirect3DSwapChain9* SwapChainMain;
 static IDirect3DSurface9* SurfaceMain;
 
+static RECT rect;
+HWND D3D9hWnd;
+
 static bool P1SceenOut;
 static bool P2SceenOut;
+static bool P3SceenOut;
+static bool P4SceenOut;
 
 static bool DoorInit;
 
@@ -220,6 +261,26 @@ static void EADPCrosshairCalculations()
 	P2SceenOut = (P2XAxis <= LeftMaxWidth || P2XAxis >= RightMaxWidth || P2YAxis <= TopMaxHeight || P2YAxis >= BottomMaxHeight);
 }
 
+static void CrosshairCalculations()
+{
+	vPos1P.x = (int)round((float)(*ffbOffset2) / 255.0f * (float)resWidthD3D9); // P1 X axis
+	vPos1P.y = (int)round((float)(*ffbOffset3) / 255.0f * (float)resHeightD3D9); // P1 Y axis
+
+	vPos2P.x = (int)round((float)(*ffbOffset4) / 255.0f * (float)resWidthD3D9); // P2 X axis
+	vPos2P.y = (int)round((float)(*ffbOffset5) / 255.0f * (float)resHeightD3D9); // P2 Y axis
+
+	vPos3P.x = (int)round((float)(*ffbOffset6) / 255.0f * (float)resWidthD3D9); // P3 X axis
+	vPos3P.y = (int)round((float)(*ffbOffset7) / 255.0f * (float)resHeightD3D9); // P3 Y axis
+
+	vPos4P.x = (int)round((float)(*ffbOffset8) / 255.0f * (float)resWidthD3D9); // P4 X axis
+	vPos4P.y = (int)round((float)(*ffbOffset9) / 255.0f * (float)resHeightD3D9); // P4 Y axis
+
+	P1SceenOut = (*ffbOffset2 <= 1 || *ffbOffset2 >= 254 || *ffbOffset3 <= 1 || *ffbOffset3 >= 254);
+	P2SceenOut = (*ffbOffset4 <= 1 || *ffbOffset4 >= 254 || *ffbOffset5 <= 1 || *ffbOffset5 >= 254);
+	P3SceenOut = (*ffbOffset6 <= 1 || *ffbOffset6 >= 254 || *ffbOffset7 <= 1 || *ffbOffset7 >= 254);
+	P4SceenOut = (*ffbOffset8 <= 1 || *ffbOffset8 >= 254 || *ffbOffset9 <= 1 || *ffbOffset9 >= 254);
+}
+
 static void RenderOurItems(LPDIRECT3DDEVICE9 Device)
 {
 	if (!D3D9Init)
@@ -256,17 +317,55 @@ static void RenderOurItems(LPDIRECT3DDEVICE9 Device)
 			P2Width = ntohl(P2Width);
 			P2Height = ntohl(P2Height);
 
+			GetModuleFileName(NULL, P3buf, MAX_PATH);
+			PathRemoveFileSpec(P3buf);
+			wcscat(P3buf, L"\\P3.png");
+
+			P3Size.open(P3buf);
+
+			P3Size.seekg(16);
+			P3Size.read((char*)&P3Width, 4);
+			P3Size.read((char*)&P3Height, 4);
+
+			P3Width = ntohl(P3Width);
+			P3Height = ntohl(P3Height);
+
+			GetModuleFileName(NULL, P4buf, MAX_PATH);
+			PathRemoveFileSpec(P4buf);
+			wcscat(P4buf, L"\\P4.png");
+
+			P4Size.open(P4buf);
+
+			P4Size.seekg(16);
+			P4Size.read((char*)&P4Width, 4);
+			P4Size.read((char*)&P4Height, 4);
+
+			P4Width = ntohl(P4Width);
+			P4Height = ntohl(P4Height);
+
 			vCen1P.x = P1Width / 2.0; // P1 X Center
 			vCen1P.y = P1Height / 2.0; // P1 Y Center
 
 			vCen2P.x = P2Width / 2.0; // P2 X Center
 			vCen2P.y = P2Height / 2.0; // P2 Y Center
 
+			vCen3P.x = P3Width / 2.0; // P3 X Center
+			vCen3P.y = P3Height / 2.0; // P3 Y Center
+
+			vCen4P.x = P4Width / 2.0; // P4 X Center
+			vCen4P.y = P4Height / 2.0; // P4 Y Center
+
 			D3DXCreateTextureFromFileEx(Device, P1buf, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &Texture1P);
 			D3DXCreateSprite(Device, &Sprite1P);
 
 			D3DXCreateTextureFromFileEx(Device, P2buf, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &Texture2P);
 			D3DXCreateSprite(Device, &Sprite2P);
+
+			D3DXCreateTextureFromFileEx(Device, P3buf, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &Texture3P);
+			D3DXCreateSprite(Device, &Sprite3P);
+
+			D3DXCreateTextureFromFileEx(Device, P4buf, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &Texture4P);
+			D3DXCreateSprite(Device, &Sprite4P);
 		}
 
 		if (EnableD3D9Bezel)
@@ -378,6 +477,15 @@ static void RenderOurItems(LPDIRECT3DDEVICE9 Device)
 		}
 	}
 
+	if (GameDetect::currentGame == GameID::HauntedMuseum || GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J || GameDetect::currentGame == GameID::GaiaAttack4)
+	{
+		if (GetClientRect(D3D9hWnd, &rect))
+		{
+			resWidthD3D9 = (rect.right - rect.left);
+			resHeightD3D9 = (rect.bottom - rect.top);
+		}
+	}
+
 	if (EnableD3D9Doors)
 	{
 		EADPAttractionDoorsCalculations();
@@ -397,7 +505,61 @@ static void RenderOurItems(LPDIRECT3DDEVICE9 Device)
 
 	if (EnableD3D9Crosshairs)
 	{
-		EADPCrosshairCalculations();
+		if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
+			EADPCrosshairCalculations();
+
+		if (GameDetect::currentGame == GameID::HauntedMuseum || GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J || GameDetect::currentGame == GameID::GaiaAttack4)
+		{
+			CrosshairCalculations();
+
+			if (P1CrosshairCount > 4)
+				Player1Active = true;
+
+			if (P2CrosshairCount > 4)
+				Player2Active = true;
+
+			if (P3CrosshairCount > 4)
+				Player3Active = true;
+
+			if (P4CrosshairCount > 4)
+				Player4Active = true;
+
+			if (!Player1Active)
+			{
+				if (oldffbOffset2 != *ffbOffset2 && oldffbOffset2 && oldffbOffset3 != *ffbOffset3 && oldffbOffset3)
+					++P1CrosshairCount;
+
+				oldffbOffset2 = *ffbOffset2;
+				oldffbOffset3 = *ffbOffset3;
+			}
+
+			if (!Player2Active)
+			{
+				if (oldffbOffset4 != *ffbOffset4 && oldffbOffset4 && oldffbOffset5 != *ffbOffset5 && oldffbOffset5)
+					++P2CrosshairCount;
+
+				oldffbOffset4 = *ffbOffset4;
+				oldffbOffset5 = *ffbOffset5;
+			}
+
+			if (!Player3Active)
+			{
+				if (oldffbOffset6 != *ffbOffset6 && oldffbOffset6 && oldffbOffset7 != *ffbOffset7 && oldffbOffset7)
+					++P3CrosshairCount;
+
+				oldffbOffset6 = *ffbOffset6;
+				oldffbOffset7 = *ffbOffset7;
+			}
+
+			if (!Player4Active)
+			{
+				if (oldffbOffset8 != *ffbOffset8 && oldffbOffset8 && oldffbOffset9 != *ffbOffset9 && oldffbOffset9)
+					++P2CrosshairCount;
+
+				oldffbOffset8 = *ffbOffset8;
+				oldffbOffset9 = *ffbOffset9;
+			}
+		}
 
 		Sprite1P->Begin(0);
 		if (Player1Active && !P1SceenOut)
@@ -408,6 +570,16 @@ static void RenderOurItems(LPDIRECT3DDEVICE9 Device)
 		if (Player2Active && !P2SceenOut)
 			Sprite2P->Draw(Texture2P, NULL, &vCen2P, &vPos2P, 0xFFFFFFFF);
 		Sprite2P->End();
+
+		Sprite3P->Begin(0);
+		if (Player3Active && !P3SceenOut)
+			Sprite3P->Draw(Texture3P, NULL, &vCen3P, &vPos3P, 0xFFFFFFFF);
+		Sprite3P->End();
+
+		Sprite4P->Begin(0);
+		if (Player4Active && !P4SceenOut)
+			Sprite4P->Draw(Texture4P, NULL, &vCen4P, &vPos4P, 0xFFFFFFFF);
+		Sprite4P->End();
 	}
 
 	if (EnableD3D9Bezel)
@@ -529,9 +701,12 @@ static HRESULT APIENTRY Present_hook(LPDIRECT3DDEVICE9 Device, CONST RECT* pSrcR
 
 DWORD WINAPI D3D9MiscHook(__in  LPVOID lpParameter)
 {
-	while (!FindWindowA("Eva", "OpenParrot - Elevator Action: Death Parade"))
+	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
 	{
-		Sleep(8);
+		while (!FindWindowA("Eva", "OpenParrot - Elevator Action: Death Parade"))
+		{
+			Sleep(8);
+		}
 	}
 
 	FpsLimiterSet(60.0f);
@@ -616,6 +791,19 @@ static InitFunction initFunc([]()
 				PresentHook = true;
 
 			if (EnableD3D9Crosshairs || EnableD3D9Bezel || EnableD3D9Border)
+				CreateThread(NULL, 0, D3D9MiscHook, NULL, 0, NULL);
+		}
+
+		if (GameDetect::currentGame == GameID::HauntedMuseum || GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J || GameDetect::currentGame == GameID::GaiaAttack4)
+		{
+			EnableD3D9Crosshairs = (ToBool(config["Custom Crosshairs"]["Enable"]));
+
+			GetPrivateProfileStringA("General", "Render Hook", "", RenderHookChar, 256, ".\\teknoparrot.ini");
+
+			if (strcmpi(RenderHookChar, "Present") == 0)
+				PresentHook = true;
+
+			if (EnableD3D9Crosshairs)
 				CreateThread(NULL, 0, D3D9MiscHook, NULL, 0, NULL);
 		}
 	});

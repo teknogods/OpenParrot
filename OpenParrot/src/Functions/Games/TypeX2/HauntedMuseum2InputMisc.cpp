@@ -10,6 +10,8 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
+extern HWND D3D9hWnd;
+
 static bool Init;
 static bool VolInit;
 static bool GunTrig1P;
@@ -27,6 +29,8 @@ static DWORD imageBase;
 static char INIChar[256];
 UINT8 HauntedMuseum2Volume;
 
+static const char* HauntedMuseum2Name = "OpenParrot - Haunted Museum II";
+
 BOOL(__stdcall* HauntedMuseum2GetKeyboardStateOri)(PBYTE lpKeyState);
 BOOL WINAPI HauntedMuseum2GetKeyboardStateHook(PBYTE lpKeyState)
 {
@@ -41,7 +45,7 @@ HWND WINAPI HauntedMuseum2CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassNam
 	if (strcmp(lpWindowName, "CriDSoundOutput") == 0)
 		dwStyle = windowStyle;
 	else
-		lpWindowName = "OpenParrot - Haunted Museum II";
+		lpWindowName = HauntedMuseum2Name;
 
 	return HauntedMuseum2CreateWindowExAOri(dwExStyle, lpClassName, lpWindowName, dwStyle, 0, 0, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 }
@@ -59,6 +63,9 @@ void HauntedMuseum2Inputs(Helpers* helpers)
 		Init = true;
 		imageBase = (DWORD)GetModuleHandleA(0);
 	}
+
+	if (!D3D9hWnd)
+		D3D9hWnd = FindWindowA(0, HauntedMuseum2Name);
 
 	if (GameDetect::currentGame == GameID::HauntedMuseum2100)
 	{

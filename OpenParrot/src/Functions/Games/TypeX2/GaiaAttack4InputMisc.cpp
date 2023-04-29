@@ -14,6 +14,8 @@ extern int* ffbOffset7;
 extern int* ffbOffset8;
 extern int* ffbOffset9;
 
+extern HWND D3D9hWnd;
+
 static bool Init;
 static bool VolInit;
 static bool VolUp;
@@ -35,6 +37,8 @@ UINT8 GaiaAttack4Volume;
 static char VolPercentChar[256];
 static char INIChar[256];
 
+static const char* GaiaAttack4Name = "OpenParrot - Gaia Attack 4";
+
 BOOL(__stdcall* GaiaAttack4GetKeyboardStateOri)(PBYTE lpKeyState);
 BOOL WINAPI GaiaAttack4GetKeyboardStateHook(PBYTE lpKeyState)
 {
@@ -49,7 +53,7 @@ HWND WINAPI GaiaAttack4CreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName, 
 	if (strcmp(lpWindowName, "CriDSoundOutput") == 0)
 		dwStyle = windowStyle;
 	else
-		lpWindowName = "OpenParrot - Gaia Attack 4";
+		lpWindowName = GaiaAttack4Name;
 
 	return GaiaAttack4CreateWindowExAOri(dwExStyle, lpClassName, lpWindowName, dwStyle, 0, 0, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 }
@@ -67,6 +71,9 @@ void GaiaAttack4Inputs(Helpers* helpers)
 		Init = true;
 		imageBase = (DWORD)GetModuleHandleA(0);
 	}
+
+	if (!D3D9hWnd)
+		D3D9hWnd = FindWindowA(0, GaiaAttack4Name);
 
 	*(BYTE*)(imageBase + 0x32F068) = 0x02; // Gun Board Connected
 	*(BYTE*)(imageBase + 0xB3B820) = 0x04; // Set 4 Players

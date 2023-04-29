@@ -10,6 +10,8 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
+extern HWND D3D9hWnd;
+
 static bool Init;
 static bool VolInit;
 static bool GunTrig1P;
@@ -27,6 +29,8 @@ static DWORD imageBase;
 static char INIChar[256];
 UINT8 HauntedMuseumVolume;
 
+static const char* HauntedMuseumName = "OpenParrot - Haunted Museum";
+
 BOOL(__stdcall* HauntedMuseumGetKeyboardStateOri)(PBYTE lpKeyState);
 BOOL WINAPI HauntedMuseumGetKeyboardStateHook(PBYTE lpKeyState)
 {
@@ -41,7 +45,7 @@ HWND WINAPI HauntedMuseumCreateWindowExAHook(DWORD dwExStyle, LPCSTR lpClassName
 		if (strcmp(lpWindowName, "CriDSoundOutput") == 0)
 			dwStyle = windowStyle;
 		else
-			lpWindowName = "OpenParrot - Haunted Museum";	
+			lpWindowName = HauntedMuseumName;
 
 	return HauntedMuseumCreateWindowExAOri(dwExStyle, lpClassName, lpWindowName, dwStyle, 0, 0, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 }
@@ -59,6 +63,9 @@ void HauntedMuseumInputs(Helpers* helpers)
 		Init = true;
 		imageBase = (DWORD)GetModuleHandleA(0);	
 	}
+
+	if (!D3D9hWnd)
+		D3D9hWnd = FindWindowA(0, HauntedMuseumName);
 
 	*(DWORD*)(imageBase + 0x32797C) = 0x02; // Gun Board Connected
 	*(DWORD*)(imageBase + 0x32796C) = 0xEEEEEEEE;
