@@ -798,7 +798,7 @@ static InitFunction initFunc([]()
 		{
 			EnableD3D9Crosshairs = (ToBool(config["Custom Crosshairs"]["Enable"]));
 
-			GetPrivateProfileStringA("General", "Render Hook", "", RenderHookChar, 256, ".\\teknoparrot.ini");
+			GetPrivateProfileStringA("Custom Crosshairs", "Render Hook", "", RenderHookChar, 256, ".\\teknoparrot.ini");
 
 			if (strcmpi(RenderHookChar, "Present") == 0)
 				PresentHook = true;

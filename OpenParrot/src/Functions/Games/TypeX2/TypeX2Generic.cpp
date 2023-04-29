@@ -1429,8 +1429,8 @@ static InitFunction initFunction([]()
 
 		MH_Initialize();
 		if (!(ToBool(config["General"]["Windowed"])))
-			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", HauntedMuseum2CreateWindowExAHook, (void**)&HauntedMuseum2CreateWindowExAOri);
-		MH_CreateHookApi(L"user32.dll", "GetKeyboardState", &HauntedMuseum2GetKeyboardStateHook, (void**)&HauntedMuseum2GetKeyboardStateOri); // Disable Native Keyboard
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", GaiaAttack4CreateWindowExAHook, (void**)&GaiaAttack4CreateWindowExAOri);
+		MH_CreateHookApi(L"user32.dll", "GetKeyboardState", &GaiaAttack4GetKeyboardStateHook, (void**)&GaiaAttack4GetKeyboardStateOri); // Disable Native Keyboard
 		MH_EnableHook(MH_ALL_HOOKS);
 
 		injector::MakeJMP(imageBase + 0x113E80, ReturnsTrue); // Disable Gun Writes
