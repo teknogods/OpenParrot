@@ -109,14 +109,16 @@ HANDLE __stdcall Hook_CreateFileA(LPCSTR lpFileName,
 		info("CreateFileA JVS: %s", lpFileName);
 		info("--------------------------------------------");
 #endif
-
-		if (jvsHandle != INVALID_HANDLE_VALUE)
+		if (GameDetect::currentGame != GameID::HauntedMuseum2100 && GameDetect::currentGame != GameID::HauntedMuseum2101J && GameDetect::currentGame != GameID::GaiaAttack4) // intermittently throws io error if we have this on these games
 		{
+			if (jvsHandle != INVALID_HANDLE_VALUE)
+			{
 #ifdef _DEBUG
-			info("Closing JVS handle!");
+				info("Closing JVS handle!");
 #endif
-			CloseHandle(jvsHandle);
-			jvsHandle = INVALID_HANDLE_VALUE;
+				CloseHandle(jvsHandle);
+				jvsHandle = INVALID_HANDLE_VALUE;
+			}
 		}
 
 		HANDLE hResult = __CreateFileA(emuPort,
