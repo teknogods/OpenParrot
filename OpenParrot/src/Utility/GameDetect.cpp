@@ -681,7 +681,6 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::MusicGunGun2;
 			X2Type = X2Type::MusicGunGun2;
 			break;
-#ifdef _DEBUG
 		case 0x3fed1b24:
 			currentGame = GameID::HauntedMuseum;
 			X2Type = X2Type::HauntedMuseum;
@@ -698,7 +697,6 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::GaiaAttack4;
 			X2Type = X2Type::GaiaAttack4;
 			break;
-#endif
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
