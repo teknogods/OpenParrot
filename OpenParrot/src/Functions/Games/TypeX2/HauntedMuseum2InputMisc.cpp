@@ -87,6 +87,11 @@ void HauntedMuseum2Inputs(Helpers* helpers)
 	{
 		*(BYTE*)(imageBase + 0x3BB448) = 0x02; // Gun Board Connected
 
+		DWORD CoinLimit = helpers->ReadByte(0xC4D748, true);
+
+		if (CoinLimit == 9)
+			helpers->WriteByte(0xC4D748, 0, true);
+
 		DWORD VolBase = helpers->ReadInt32(0x2B140D0, true);
 		UINT8 VolRead = helpers->ReadByte(VolBase + 0x25, false);
 
@@ -230,6 +235,11 @@ void HauntedMuseum2Inputs(Helpers* helpers)
 	if (GameDetect::currentGame == GameID::HauntedMuseum2101J)
 	{
 		*(BYTE*)(imageBase + 0x32F048) = 0x02; // Gun Board Connected
+
+		DWORD CoinLimit = helpers->ReadByte(0xAE47D0, true);
+
+		if (CoinLimit == 9)
+			helpers->WriteByte(0xAE47D0, 0, true);
 
 		DWORD VolBase = helpers->ReadInt32(0x29AAFCC, true);
 		UINT8 VolRead = helpers->ReadByte(VolBase + 0x25, false);

@@ -78,6 +78,11 @@ void GaiaAttack4Inputs(Helpers* helpers)
 	*(BYTE*)(imageBase + 0x32F068) = 0x02; // Gun Board Connected
 	*(BYTE*)(imageBase + 0xB3B820) = 0x04; // Set 4 Players
 
+	DWORD CoinLimit = helpers->ReadByte(0xB3B7B8, true);
+
+	if (CoinLimit == 9)
+		helpers->WriteByte(0xB3B7B8, 0, true);
+
 	DWORD VolBase = helpers->ReadInt32(0x1FE720C, true);
 	UINT8 VolRead = helpers->ReadByte(VolBase + 0x21, false);
 

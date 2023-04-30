@@ -70,6 +70,11 @@ void HauntedMuseumInputs(Helpers* helpers)
 	*(DWORD*)(imageBase + 0x32797C) = 0x02; // Gun Board Connected
 	*(DWORD*)(imageBase + 0x32796C) = 0xEEEEEEEE;
 
+	DWORD CoinLimit = helpers->ReadByte(0x98B3E8, true);
+
+	if (CoinLimit == 9)
+		helpers->WriteByte(0x98B3E8, 0, true);
+
 	DWORD VolBase = helpers->ReadInt32(0x1E2702C, true);
 	UINT8 VolRead = helpers->ReadByte(VolBase + 0x21, false);
 
