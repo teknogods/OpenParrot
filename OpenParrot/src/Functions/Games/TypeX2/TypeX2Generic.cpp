@@ -1326,6 +1326,8 @@ static InitFunction initFunction([]()
 
 	if (GameDetect::currentGame == GameID::HauntedMuseum)
 	{
+		CreateDirectoryA(".\\OpenParrot\\HM", nullptr);
+
 		DWORD oldPageProtection = 0;
 
 		if (ToBool(config["General"]["Windowed"]))
@@ -1355,6 +1357,8 @@ static InitFunction initFunction([]()
 
 	if (GameDetect::currentGame == GameID::HauntedMuseum2100)
 	{
+		CreateDirectoryA(".\\OpenParrot\\HM2", nullptr);
+
 		DWORD oldPageProtection = 0;
 
 		if (ToBool(config["General"]["Windowed"]))
@@ -1385,6 +1389,8 @@ static InitFunction initFunction([]()
 
 	if (GameDetect::currentGame == GameID::HauntedMuseum2101J)
 	{
+		CreateDirectoryA(".\\OpenParrot\\HM2", nullptr);
+
 		DWORD oldPageProtection = 0;
 
 		if (ToBool(config["General"]["Windowed"]))
@@ -1414,6 +1420,8 @@ static InitFunction initFunction([]()
 
 	if (GameDetect::currentGame == GameID::GaiaAttack4)
 	{
+		CreateDirectoryA(".\\OpenParrot\\GA4", nullptr);
+
 		DWORD oldPageProtection = 0;
 
 		if (ToBool(config["General"]["Windowed"]))
