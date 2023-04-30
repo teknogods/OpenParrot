@@ -208,9 +208,19 @@ void HauntedMuseumInputs(Helpers* helpers)
 		}
 	}
 
-	*(WORD*)(imageBase + 0x98B418) = (*ffbOffset2 / 255.0) * 16384; // P1 X Axis
-	*(WORD*)(imageBase + 0x98B41A) = (*ffbOffset3 / 255.0) * 16384; // P1 Y Axis
+	*(WORD*)(imageBase + 0x98B418) = (*ffbOffset2 / 255.0) * 16384; // P1 X Raw Axis
+	*(WORD*)(imageBase + 0x98B42C) = (*ffbOffset2 / 255.0) * 16384; // P1 X Axis
+	*(WORD*)(imageBase + 0x98B4A4) = (*ffbOffset2 / 255.0) * 16384; // P1 X Axis
 
-	*(WORD*)(imageBase + 0x98B422) = (*ffbOffset4 / 255.0) * 16384; // P2 X Axis
-	*(WORD*)(imageBase + 0x98B424) = (*ffbOffset5 / 255.0) * 16384; // P2 Y Axis
+	*(WORD*)(imageBase + 0x98B41A) = (*ffbOffset3 / 255.0) * 16384; // P1 Y Raw Axis
+	*(WORD*)(imageBase + 0x98B42E) = (*ffbOffset3 / 255.0) * 16384; // P1 Y Axis
+	*(WORD*)(imageBase + 0x98B4AC) = (*ffbOffset3 / 255.0) * 16384; // P1 Y Axis
+
+	*(WORD*)(imageBase + 0x98B422) = (*ffbOffset4 / 255.0) * 16384; // P2 X Raw Axis
+	*(WORD*)(imageBase + 0x98B436) = (*ffbOffset4 / 255.0) * 16384; // P2 X Axis
+	*(WORD*)(imageBase + 0x98B4A8) = (*ffbOffset4 / 255.0) * 16384; // P2 X Axis
+
+	*(WORD*)(imageBase + 0x98B424) = (*ffbOffset5 / 255.0) * 16384; // P2 Y Raw Axis
+	*(WORD*)(imageBase + 0x98B438) = (*ffbOffset5 / 255.0) * 16384; // P2 Y Axis
+	*(WORD*)(imageBase + 0x98B4B0) = (*ffbOffset5 / 255.0) * 16384; // P2 Y Axis
 }
