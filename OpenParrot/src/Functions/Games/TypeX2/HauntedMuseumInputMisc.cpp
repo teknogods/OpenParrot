@@ -12,6 +12,7 @@ extern int* ffbOffset5;
 
 extern HWND D3D9hWnd;
 
+static bool Init2DFix;
 static bool Init;
 static bool VolInit;
 static bool GunTrig1P;
@@ -61,7 +62,19 @@ void HauntedMuseumInputs(Helpers* helpers)
 	if (!Init)
 	{
 		Init = true;
-		imageBase = (DWORD)GetModuleHandleA(0);	
+		imageBase = (DWORD)GetModuleHandleA(0);
+	}
+
+	if (!Init2DFix)
+	{
+		DWORD ResolutionY = helpers->ReadInt32(0x48E3A8, true);
+
+		if (ResolutionY)
+		{
+			Init2DFix = true;
+			injector::WriteMemory<float>(imageBase + 0x2AACFC, ResolutionY - 61.0, true);
+			injector::WriteMemory<double>(imageBase + 0x2AACE0, ResolutionY - 61.0, true);
+		}
 	}
 
 	if (!D3D9hWnd)
