@@ -1351,6 +1351,11 @@ static InitFunction initFunction([]()
 		injector::MakeJMP(imageBase + 0x9E3B0, ReturnsTrue); // Disable Gun Writes
 
 		injector::MakeNOP(imageBase + 0x9F778, 4); // Volume Write (Uses Analog0 from JVS which we use for inputs)
+
+		DWORD ResHeight = GetPrivateProfileIntA("General", "ResolutionHeight", 768, ".\\TeknoParrot.ini");
+
+		injector::WriteMemory<float>(imageBase + 0x2AACFC, ResHeight - 61.0, true); // Change 2D Health Bars to sit at correct height with new resolution
+		injector::WriteMemory<double>(imageBase + 0x2AACE0, ResHeight - 61.0, true); // Change 2D Health Bars to sit at correct height with new resolution
 		
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 	}
