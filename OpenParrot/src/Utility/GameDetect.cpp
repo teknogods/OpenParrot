@@ -697,6 +697,9 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::GaiaAttack4;
 			X2Type = X2Type::GaiaAttack4;
 			break;
+		case 0x8e59a4b3:
+			currentGame = GameID::Friction;
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:

@@ -145,5 +145,6 @@ enum class GameID
 	HauntedMuseum,
 	HauntedMuseum2100,
 	HauntedMuseum2101J,
-	GaiaAttack4
+	GaiaAttack4,
+	Friction
 };

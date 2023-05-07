@@ -477,7 +477,7 @@ static void RenderOurItems(LPDIRECT3DDEVICE9 Device)
 		}
 	}
 
-	if (GameDetect::currentGame == GameID::HauntedMuseum || GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J || GameDetect::currentGame == GameID::GaiaAttack4)
+	if (GameDetect::currentGame == GameID::HauntedMuseum || GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J || GameDetect::currentGame == GameID::GaiaAttack4 || GameDetect::currentGame == GameID::Friction)
 	{
 		if (GetClientRect(D3D9hWnd, &rect))
 		{
@@ -508,7 +508,7 @@ static void RenderOurItems(LPDIRECT3DDEVICE9 Device)
 		if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
 			EADPCrosshairCalculations();
 
-		if (GameDetect::currentGame == GameID::HauntedMuseum || GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J || GameDetect::currentGame == GameID::GaiaAttack4)
+		if (GameDetect::currentGame == GameID::HauntedMuseum || GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J || GameDetect::currentGame == GameID::GaiaAttack4 || GameDetect::currentGame == GameID::Friction)
 		{
 			CrosshairCalculations();
 
@@ -794,7 +794,7 @@ static InitFunction initFunc([]()
 				CreateThread(NULL, 0, D3D9MiscHook, NULL, 0, NULL);
 		}
 
-		if (GameDetect::currentGame == GameID::HauntedMuseum || GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J || GameDetect::currentGame == GameID::GaiaAttack4)
+		if (GameDetect::currentGame == GameID::HauntedMuseum || GameDetect::currentGame == GameID::HauntedMuseum2100 || GameDetect::currentGame == GameID::HauntedMuseum2101J || GameDetect::currentGame == GameID::GaiaAttack4 || GameDetect::currentGame == GameID::Friction)
 		{
 			EnableD3D9Crosshairs = (ToBool(config["Custom Crosshairs"]["Enable"]));
 
