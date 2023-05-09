@@ -11,12 +11,14 @@ extern int* ffbOffset4;
 extern int* ffbOffset5;
 
 static bool Coin;
+static bool Coin2;
 static bool Test;
 static bool InTestMenu;
 static bool SoundUp;
 static bool SoundDown;
 static bool SoundSelect;
 static bool SoundCoin;
+static bool SoundCoin2;
 static bool MenuUp;
 static bool MenuDown;
 static bool MenuSelect;
@@ -27,16 +29,22 @@ static bool P1Continue;
 static bool P2Continue;
 static bool P1Trigger;
 static bool P2Trigger;
-static bool LevelSelectTrigger;
+static bool P1LevelSelectTrigger;
+static bool P2LevelSelectTrigger;
 static bool P1Reload;
 static bool P2Reload;
-static bool P2asPlayer1;
+static bool P1HighScoreTrigger;
+static bool P2HighScoreTrigger;
 
 static int P1TrigCount;
 static int P2TrigCount;
 static int MainMenuPosition;
 static int ResX;
 static int ResY;
+static int P1Name;
+static int P2Name;
+static int P1Position = 1;
+static int P2Position = 1;
 
 static UINT8 P1Gun;
 static UINT8 P2Gun;
@@ -70,8 +78,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	return 0;
 }
 
-static int ret0()
+static int ExitGameAfterChangingGoreSetting()
 {
+	TerminateProcess(GetCurrentProcess(), 0);
 	return 0;
 }
 
@@ -233,6 +242,34 @@ static void Inputs(Helpers* helpers)
 		if (Coin)
 			Coin = false;
 	}
+
+	if (*ffbOffset & 0x800)
+	{
+		if (!Coin2)
+		{
+			Coin2 = true;
+
+			if (CoinBase)
+				++*(DWORD*)(CoinBase + 0x00);
+		}
+	}
+	else
+	{
+		if (Coin2)
+			Coin2 = false;
+	}
+
+	if (!(*ffbOffset & 0x04))
+	{
+		if (P1LevelSelectTrigger)
+			P1LevelSelectTrigger = false;
+	}
+
+	if (!(*ffbOffset & 0x08))
+	{
+		if (P2LevelSelectTrigger)
+			P2LevelSelectTrigger = false;
+	}
 }
 
 static DWORD WINAPI RunningLoop(LPVOID lpParam)
@@ -247,18 +284,212 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 static int(__fastcall* LevelSelectAxisOri)(DWORD* a1, void* EDX, int a2, int a3);
 static int __fastcall LevelSelectAxisHook(DWORD* a1, void* EDX, int a2, int a3)
 {
-	if (P2asPlayer1)
-	{
-		a2 = (*ffbOffset4 / 255.0) * 640;
-		a3 = (*ffbOffset5 / 255.0) * 480;
-	}
-	else
+	if (P1LevelSelectTrigger)
 	{
 		a2 = (*ffbOffset2 / 255.0) * 640;
 		a3 = (*ffbOffset3 / 255.0) * 480;
 	}
+	else
+	{
+		a2 = (*ffbOffset4 / 255.0) * 640;
+		a3 = (*ffbOffset5 / 255.0) * 480;
+	}
 
 	return LevelSelectAxisOri(a1, EDX, a2, a3);
+}
+
+static int(__fastcall* HighScoreTriggerOri)(int a1, void* EDX, float a2);
+static int __fastcall HighScoreTriggerHook(int a1, void* EDX, float a2)
+{
+	HighScoreTriggerOri(a1, EDX, a2);
+
+	if (*(BYTE*)(a1 + 740)) // P1 Target Visible
+	{
+		int P1XAxis = (*ffbOffset2 / 255.0) * 640;
+		int P1YAxis = (*ffbOffset3 / 255.0) * 480;
+
+		*(WORD*)(a1 + 724) = P1XAxis; // P1 X Axis
+		*(WORD*)(a1 + 732) = P1YAxis; // P1 Y Axis
+
+		if (*ffbOffset & 0x04)
+		{
+			if (!P1HighScoreTrigger)
+			{
+				P1HighScoreTrigger = true;
+
+				*(BYTE*)(a1 + 108) = 0x01;
+
+				if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 0; }
+				else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 1; }
+				else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 2; }
+				else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 3; }
+				else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 4; }
+				else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 5; }
+				else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 6; }
+				else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 7; }
+				else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 8; }
+				else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 9; }
+				else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 10; }
+				else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 11; }
+				else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 12; }
+				else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 13; }
+				else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 14; }
+				else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 15; }
+				else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 16; }
+				else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 17; }
+				else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 18; }
+				else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 19; }
+				else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 20; }
+				else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 21; }
+				else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 22; }
+				else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 23; }
+				else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 24; }
+				else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 25; }
+				else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 26; }
+				else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 27; }
+				else if (P1XAxis >= 0xCE && P1XAxis <= 0x1B1 && P1YAxis >= 0x18E && P1YAxis <= 0x1B3) { *(float*)(a1 + 44) = 0; }
+				else
+					P1Name = 255;
+
+				switch (P1Position)
+				{
+				case 1:
+					if (P1Name < 255 && P1Name != 27)
+					{
+						*(DWORD*)(a1 + 76) = P1Name;
+						P1Position = 2;
+					}
+
+					if (P1Name == 27)
+						*(DWORD*)(a1 + 76) = 0xFFFFFFFF;
+					break;
+				case 2:
+					if (P1Name < 255 && P1Name != 27)
+					{
+						*(DWORD*)(a1 + 80) = P1Name;
+						P1Position = 3;
+					}
+
+					if (P1Name == 27)
+					{
+						*(DWORD*)(a1 + 80) = 0xFFFFFFFF;
+						P1Position = 1;
+					}
+					break;
+				case 3:
+					if (P1Name < 255 && P1Name != 27)
+						*(DWORD*)(a1 + 84) = P1Name;
+
+					if (P1Name == 27)
+					{
+						*(DWORD*)(a1 + 84) = 0xFFFFFFFF;
+						P1Position = 2;
+					}
+					break;
+				}
+			}
+		}
+		else
+		{
+			if (P1HighScoreTrigger)
+				P1HighScoreTrigger = false;
+		}
+	}
+
+	if (*(BYTE*)(a1 + 741))
+	{
+		int P2XAxis = (*ffbOffset4 / 255.0) * 640;
+		int P2YAxis = (*ffbOffset5 / 255.0) * 480;
+
+		*(WORD*)(a1 + 728) = P2XAxis; // P2 X Axis
+		*(WORD*)(a1 + 736) = P2YAxis; // P2 Y Axis
+
+		if (*ffbOffset & 0x08)
+		{
+			if (!P2HighScoreTrigger)
+			{
+				P2HighScoreTrigger = true;
+
+				*(BYTE*)(a1 + 108) = 0x01;
+
+				if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 0; }
+				else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 1; }
+				else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 2; }
+				else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 3; }
+				else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 4; }
+				else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 5; }
+				else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 6; }
+				else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 7; }
+				else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 8; }
+				else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 9; }
+				else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 10; }
+				else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 11; }
+				else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 12; }
+				else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 13; }
+				else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 14; }
+				else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 15; }
+				else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 16; }
+				else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 17; }
+				else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 18; }
+				else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 19; }
+				else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 20; }
+				else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 21; }
+				else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 22; }
+				else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 23; }
+				else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 24; }
+				else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 25; }
+				else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 26; }
+				else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 27; }
+				else if (P2XAxis >= 0xCE && P2XAxis <= 0x1B1 && P2YAxis >= 0x18E && P2YAxis <= 0x1B3) { *(float*)(a1 + 44) = 0; }
+				else
+					P2Name = 255;
+
+				switch (P2Position)
+				{
+				case 1:
+					if (P2Name < 255 && P2Name != 27)
+					{
+						*(DWORD*)(a1 + 88) = P2Name;
+						P2Position = 2;
+					}
+
+					if (P2Name == 27)
+						*(DWORD*)(a1 + 88) = 0xFFFFFFFF;
+					break;
+				case 2:
+					if (P2Name < 255 && P2Name != 27)
+					{
+						*(DWORD*)(a1 + 92) = P2Name;
+						P2Position = 3;
+					}
+
+					if (P2Name == 27)
+					{
+						*(DWORD*)(a1 + 92) = 0xFFFFFFFF;
+						P2Position = 1;
+					}
+					break;
+				case 3:
+					if (P2Name < 255 && P2Name != 27)
+						*(DWORD*)(a1 + 96) = P2Name;
+
+					if (P2Name == 27)
+					{
+						*(DWORD*)(a1 + 96) = 0xFFFFFFFF;
+						P2Position = 2;
+					}
+					break;
+				}
+			}
+		}
+		else
+		{
+			if (P2HighScoreTrigger)
+				P2HighScoreTrigger = false;
+		}
+	}
+
+	return 0;
 }
 
 static int(__fastcall* LevelSelectTriggerOri)(int a1, void* EDX, int a2);
@@ -266,46 +497,44 @@ static int __fastcall LevelSelectTriggerHook(int a1, void* EDX, int a2)
 {
 	LevelSelectTriggerOri(a1, EDX, a2);
 
-	if (P2asPlayer1)
+	if (*ffbOffset & 0x04)
 	{
-		if (*ffbOffset & 0x08)
+		if (!P1LevelSelectTrigger)
 		{
-			if (!LevelSelectTrigger)
-			{
-				LevelSelectTrigger = true;
+			P1LevelSelectTrigger = true;
 
-				if (*(DWORD*)(a1 + 32))
-					*(DWORD*)(a1 + 32) = 0;
-				else
-					*(DWORD*)(a1 + 32) = 0xFFFFFFFF;
-			}
-		}
-		else
-		{
-			if (LevelSelectTrigger)
-				LevelSelectTrigger = false;
+			if (*(DWORD*)(a1 + 32))
+				*(DWORD*)(a1 + 32) = 0;
+			else
+				*(DWORD*)(a1 + 32) = 0xFFFFFFFF;
 		}
 	}
 	else
 	{
-		if (*ffbOffset & 0x04)
-		{
-			if (!LevelSelectTrigger)
-			{
-				LevelSelectTrigger = true;
+		if (P1LevelSelectTrigger)
+			P1LevelSelectTrigger = false;
+	}
 
-				if (*(DWORD*)(a1 + 32))
-					*(DWORD*)(a1 + 32) = 0;
-				else
-					*(DWORD*)(a1 + 32) = 0xFFFFFFFF;
-			}
-		}
-		else
+	if (*ffbOffset & 0x08)
+	{
+		if (!P2LevelSelectTrigger)
 		{
-			if (LevelSelectTrigger)
-				LevelSelectTrigger = false;
+			P2LevelSelectTrigger = true;
+
+			if (*(DWORD*)(a1 + 32))
+				*(DWORD*)(a1 + 32) = 0;
+			else
+				*(DWORD*)(a1 + 32) = 0xFFFFFFFF;
 		}
 	}
+	else
+	{
+		if (P2LevelSelectTrigger)
+			P2LevelSelectTrigger = false;
+	}
+
+	P1Position = 1;
+	P2Position = 1;
 
 	return 0;
 }
@@ -437,6 +666,9 @@ static int __fastcall AxisTriggersHook(int a1, void* EDX, int a2)
 	return 0;
 }
 
+static bool P1isActive;
+static bool P2isActive;
+
 static int(__fastcall* ButtonsOri)(BYTE* a1, void* EDX, float a2);
 static int __fastcall ButtonsHook(BYTE* a1, void* EDX, float a2)
 {
@@ -445,23 +677,33 @@ static int __fastcall ButtonsHook(BYTE* a1, void* EDX, float a2)
 	if (*ffbOffset & 0x20) // P1 Start
 	{
 		if (!P1Active && !P2Active && !P1Continue && !P2Continue)
-		{
 			a1[401] = 1;
-			P2asPlayer1 = false;
-		}
 		else
-			a1[403] = 1;
+			P1isActive = true;
 	}
 
 	if (*ffbOffset & 0x40) // P2 Start
 	{
 		if (!P1Active && !P2Active && !P1Continue && !P2Continue)
-		{
 			a1[402] = 1;
-			P2asPlayer1 = true;
-		}
 		else
+			P2isActive = true;
+	}
+
+	if (P1isActive)
+	{
+		if (!P1Active)
+			a1[403] = 1;
+		else
+			P1isActive = false;
+	}
+
+	if (P2isActive)
+	{
+		if (!P2Active)
 			a1[404] = 1;
+		else
+			P2isActive = false;
 	}
 
 	if (*ffbOffset & 0x01)
@@ -491,6 +733,20 @@ static int __fastcall ButtonsHook(BYTE* a1, void* EDX, float a2)
 	{
 		if (SoundCoin)
 			SoundCoin = false;
+	}
+
+	if (*ffbOffset & 0x800)
+	{
+		if (!SoundCoin2)
+		{
+			SoundCoin2 = true;
+			a1[128] = 1;
+		}
+	}
+	else
+	{
+		if (SoundCoin2)
+			SoundCoin2 = false;
 	}
 
 	if (InTestMenu)
@@ -995,7 +1251,7 @@ static int __fastcall TestMenuControlsHook(DWORD* a1, void* EDX)
 	(*ffbOffset & 0x04) ? *(BYTE*)(GunTrigger1) = 1 : *(BYTE*)(GunTrigger1) = 0;
 	(*ffbOffset & 0x08) ? *(BYTE*)(GunTrigger2) = 1 : *(BYTE*)(GunTrigger2) = 0;
 	(*ffbOffset & 0x02) ? *(BYTE*)(Coin1) = 1 : *(BYTE*)(Coin1) = 0;
-	//(*ffbOffset & 0x20) ? *(BYTE*)(Coin2) = 1 : *(BYTE*)(Coin2) = 0; // Unused atm
+	(*ffbOffset & 0x800) ? *(BYTE*)(Coin2) = 1 : *(BYTE*)(Coin2) = 0;
 	(*ffbOffset & 0x20) ? *(BYTE*)(StartButton1) = 1 : *(BYTE*)(StartButton1) = 0;
 	(*ffbOffset & 0x40) ? *(BYTE*)(StartButton2) = 1 : *(BYTE*)(StartButton2) = 0;
 
@@ -1388,9 +1644,10 @@ static InitFunction FrictionFunc([]()
 
 		injector::MakeNOP(imageBase + 0x1018, 6); // Remove Sleep when game first launched
 
-		injector::MakeJMP(imageBase + 0x4BFF3, ret0); // Stop game rebooting windows
+		injector::MakeJMP(imageBase + 0x4BFF3, ExitGameAfterChangingGoreSetting); // Exit game when changing gore settings etc, usually windows reboots!!
 
 		injector::WriteMemoryRaw(imageBase + 0x1180B4, "\x4F\x70\x65\x6E\x50\x61\x72\x72\x6F\x74\x2E\x64\x6C\x6C", 14, true); // Set dll name to OpenParrot.dll
+		injector::WriteMemoryRaw(imageBase + 0x114FAC, "\x47\x41\x4D\x45\x20\x57\x49\x4C\x4C\x20\x45\x58\x49\x54\x20\x49\x46\x20\x47\x4F\x52\x45\x20\x53\x45\x54\x54\x49\x4E\x47\x20\x49\x53\x20\x43\x48\x41\x4E\x47\x45\x44", 41, true); // Change Gore Message
 		
 		MH_Initialize();
 		MH_CreateHookApi(L"Kernel32.dll", "GetProcAddress", GetProcAddressHook, (void**)&GetProcAddressOri);
@@ -1399,6 +1656,7 @@ static InitFunction FrictionFunc([]()
 		MH_CreateHook((void*)(imageBase + 0x29EBD), AxisTriggersHook, (void**)&AxisTriggersOri);
 		MH_CreateHook((void*)(imageBase + 0x23CC5), LevelSelectTriggerHook, (void**)&LevelSelectTriggerOri);
 		MH_CreateHook((void*)(imageBase + 0x1DC8C), LevelSelectAxisHook, (void**)&LevelSelectAxisOri);
+		MH_CreateHook((void*)(imageBase + 0x1E388), HighScoreTriggerHook, (void**)&HighScoreTriggerOri);
 		MH_CreateHook((void*)(imageBase + 0x228F5), TestMenuMainHook, (void**)&TestMenuMainOri);
 		MH_CreateHook((void*)(imageBase + 0x22D76), TestMenuMainSelectHook, (void**)&TestMenuMainSelectOri);
 		MH_CreateHook((void*)(imageBase + 0x352B9), TestMenuCoinSettingsHook, (void**)&TestMenuCoinSettingsOri);
