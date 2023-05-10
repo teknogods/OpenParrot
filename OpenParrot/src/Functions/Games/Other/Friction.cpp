@@ -35,6 +35,10 @@ static bool P1Reload;
 static bool P2Reload;
 static bool P1HighScoreTrigger;
 static bool P2HighScoreTrigger;
+static bool P1IsLead;
+static bool P2IsLead;
+static bool P1isActive;
+static bool P2isActive;
 
 static int P1TrigCount;
 static int P2TrigCount;
@@ -211,12 +215,24 @@ static void Inputs(Helpers* helpers)
 	DWORD CoinBase = helpers->ReadInt32(0x1450C4, true);
 	DWORD PlayerBase = helpers->ReadInt32(0x145088, true);
 
-	P1Active = helpers->ReadByte(PlayerBase + 0x461, false);
-	P2Active = helpers->ReadByte(PlayerBase + 0x462, false);
-	P1Continue = helpers->ReadByte(PlayerBase + 0x467, false);
-	P2Continue = helpers->ReadByte(PlayerBase + 0x468, false);
-	P1Gun = helpers->ReadByte(PlayerBase + 0x494, false);
-	P2Gun = helpers->ReadByte(PlayerBase + 0x498, false);
+	if (P2IsLead)
+	{
+		P2Active = helpers->ReadByte(PlayerBase + 0x461, false);
+		P1Active = helpers->ReadByte(PlayerBase + 0x462, false);
+		P2Continue = helpers->ReadByte(PlayerBase + 0x467, false);
+		P1Continue = helpers->ReadByte(PlayerBase + 0x468, false);
+		P2Gun = helpers->ReadByte(PlayerBase + 0x494, false);
+		P1Gun = helpers->ReadByte(PlayerBase + 0x498, false);
+	}
+	else
+	{
+		P1Active = helpers->ReadByte(PlayerBase + 0x461, false);
+		P2Active = helpers->ReadByte(PlayerBase + 0x462, false);
+		P1Continue = helpers->ReadByte(PlayerBase + 0x467, false);
+		P2Continue = helpers->ReadByte(PlayerBase + 0x468, false);
+		P1Gun = helpers->ReadByte(PlayerBase + 0x494, false);
+		P2Gun = helpers->ReadByte(PlayerBase + 0x498, false);
+	}
 
 	if (!D3D9hWnd)
 		D3D9hWnd = FindWindowA(0, WindowTitle);
@@ -303,189 +319,380 @@ static int __fastcall HighScoreTriggerHook(int a1, void* EDX, float a2)
 {
 	HighScoreTriggerOri(a1, EDX, a2);
 
-	if (*(BYTE*)(a1 + 740)) // P1 Target Visible
+	if (P2IsLead)
 	{
-		int P1XAxis = (*ffbOffset2 / 255.0) * 640;
-		int P1YAxis = (*ffbOffset3 / 255.0) * 480;
-
-		*(WORD*)(a1 + 724) = P1XAxis; // P1 X Axis
-		*(WORD*)(a1 + 732) = P1YAxis; // P1 Y Axis
-
-		if (*ffbOffset & 0x04)
+		if (*(BYTE*)(a1 + 741))
 		{
-			if (!P1HighScoreTrigger)
+			int P1XAxis = (*ffbOffset2 / 255.0) * 640;
+			int P1YAxis = (*ffbOffset3 / 255.0) * 480;
+
+			*(WORD*)(a1 + 728) = P1XAxis; // P1 X Axis
+			*(WORD*)(a1 + 736) = P1YAxis; // P1 Y Axis
+
+			if (*ffbOffset & 0x04)
 			{
-				P1HighScoreTrigger = true;
-
-				*(BYTE*)(a1 + 108) = 0x01;
-
-				if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 0; }
-				else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 1; }
-				else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 2; }
-				else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 3; }
-				else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 4; }
-				else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 5; }
-				else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 6; }
-				else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 7; }
-				else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 8; }
-				else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 9; }
-				else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 10; }
-				else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 11; }
-				else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 12; }
-				else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 13; }
-				else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 14; }
-				else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 15; }
-				else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 16; }
-				else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 17; }
-				else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 18; }
-				else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 19; }
-				else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 20; }
-				else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 21; }
-				else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 22; }
-				else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 23; }
-				else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 24; }
-				else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 25; }
-				else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 26; }
-				else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 27; }
-				else if (P1XAxis >= 0xCE && P1XAxis <= 0x1B1 && P1YAxis >= 0x18E && P1YAxis <= 0x1B3) { *(float*)(a1 + 44) = 0; }
-				else
-					P1Name = 255;
-
-				switch (P1Position)
+				if (!P1HighScoreTrigger)
 				{
-				case 1:
-					if (P1Name < 255 && P1Name != 27)
-					{
-						*(DWORD*)(a1 + 76) = P1Name;
-						P1Position = 2;
-					}
+					P1HighScoreTrigger = true;
 
-					if (P1Name == 27)
-						*(DWORD*)(a1 + 76) = 0xFFFFFFFF;
-					break;
-				case 2:
-					if (P1Name < 255 && P1Name != 27)
-					{
-						*(DWORD*)(a1 + 80) = P1Name;
-						P1Position = 3;
-					}
+					*(BYTE*)(a1 + 108) = 0x01;
 
-					if (P1Name == 27)
-					{
-						*(DWORD*)(a1 + 80) = 0xFFFFFFFF;
-						P1Position = 1;
-					}
-					break;
-				case 3:
-					if (P1Name < 255 && P1Name != 27)
-						*(DWORD*)(a1 + 84) = P1Name;
+					if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 0; }
+					else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 1; }
+					else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 2; }
+					else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 3; }
+					else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 4; }
+					else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 5; }
+					else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 6; }
+					else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 7; }
+					else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 8; }
+					else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 9; }
+					else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 10; }
+					else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 11; }
+					else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 12; }
+					else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 13; }
+					else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 14; }
+					else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 15; }
+					else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 16; }
+					else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 17; }
+					else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 18; }
+					else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 19; }
+					else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 20; }
+					else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 21; }
+					else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 22; }
+					else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 23; }
+					else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 24; }
+					else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 25; }
+					else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 26; }
+					else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 27; }
+					else if (P1XAxis >= 0xCE && P1XAxis <= 0x1B1 && P1YAxis >= 0x18E && P1YAxis <= 0x1B3) { *(float*)(a1 + 44) = 0; }
+					else
+						P1Name = 0xFFFFFFFF;
 
-					if (P1Name == 27)
+					switch (P1Position)
 					{
-						*(DWORD*)(a1 + 84) = 0xFFFFFFFF;
-						P1Position = 2;
+					case 1:
+						if (P1Name < 0xFFFFFFFF && P1Name != 27)
+						{
+							*(DWORD*)(a1 + 88) = P1Name;
+							P1Position = 2;
+						}
+
+						if (P1Name == 27)
+							*(DWORD*)(a1 + 88) = 0xFFFFFFFF;
+						break;
+					case 2:
+						if (P1Name < 0xFFFFFFFF && P1Name != 27)
+						{
+							*(DWORD*)(a1 + 92) = P1Name;
+							P1Position = 3;
+						}
+
+						if (P1Name == 27)
+						{
+							*(DWORD*)(a1 + 92) = 0xFFFFFFFF;
+							P1Position = 1;
+						}
+						break;
+					case 3:
+						if (P1Name < 0xFFFFFFFF && P1Name != 27)
+							*(DWORD*)(a1 + 96) = P1Name;
+
+						if (P1Name == 27)
+						{
+							*(DWORD*)(a1 + 96) = 0xFFFFFFFF;
+							P1Position = 2;
+						}
+						break;
 					}
-					break;
 				}
 			}
+			else
+			{
+				if (P1HighScoreTrigger)
+					P1HighScoreTrigger = false;
+			}
 		}
-		else
+
+		if (*(BYTE*)(a1 + 740))
 		{
-			if (P1HighScoreTrigger)
-				P1HighScoreTrigger = false;
+			int P2XAxis = (*ffbOffset4 / 255.0) * 640;
+			int P2YAxis = (*ffbOffset5 / 255.0) * 480;
+
+			*(WORD*)(a1 + 724) = P2XAxis; // P2 X Axis
+			*(WORD*)(a1 + 732) = P2YAxis; // P2 Y Axis
+
+			if (*ffbOffset & 0x08)
+			{
+				if (!P2HighScoreTrigger)
+				{
+					P2HighScoreTrigger = true;
+
+					*(BYTE*)(a1 + 108) = 0x01;
+
+					if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 0; }
+					else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 1; }
+					else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 2; }
+					else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 3; }
+					else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 4; }
+					else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 5; }
+					else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 6; }
+					else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 7; }
+					else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 8; }
+					else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 9; }
+					else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 10; }
+					else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 11; }
+					else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 12; }
+					else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 13; }
+					else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 14; }
+					else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 15; }
+					else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 16; }
+					else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 17; }
+					else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 18; }
+					else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 19; }
+					else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 20; }
+					else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 21; }
+					else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 22; }
+					else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 23; }
+					else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 24; }
+					else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 25; }
+					else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 26; }
+					else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 27; }
+					else if (P2XAxis >= 0xCE && P2XAxis <= 0x1B1 && P2YAxis >= 0x18E && P2YAxis <= 0x1B3) { *(float*)(a1 + 44) = 0; }
+					else
+						P2Name = 0xFFFFFFFF;
+
+					switch (P2Position)
+					{
+					case 1:
+						if (P2Name < 0xFFFFFFFF && P2Name != 27)
+						{
+							*(DWORD*)(a1 + 76) = P2Name;
+							P2Position = 2;
+						}
+
+						if (P2Name == 27)
+							*(DWORD*)(a1 + 76) = 0xFFFFFFFF;
+						break;
+					case 2:
+						if (P2Name < 0xFFFFFFFF && P2Name != 27)
+						{
+							*(DWORD*)(a1 + 80) = P2Name;
+							P2Position = 3;
+						}
+
+						if (P2Name == 27)
+						{
+							*(DWORD*)(a1 + 80) = 0xFFFFFFFF;
+							P2Position = 1;
+						}
+						break;
+					case 3:
+						if (P2Name < 0xFFFFFFFF && P2Name != 27)
+							*(DWORD*)(a1 + 84) = P2Name;
+
+						if (P2Name == 27)
+						{
+							*(DWORD*)(a1 + 84) = 0xFFFFFFFF;
+							P2Position = 2;
+						}
+						break;
+					}
+				}
+			}
+			else
+			{
+				if (P2HighScoreTrigger)
+					P2HighScoreTrigger = false;
+			}
 		}
 	}
-
-	if (*(BYTE*)(a1 + 741))
+	else
 	{
-		int P2XAxis = (*ffbOffset4 / 255.0) * 640;
-		int P2YAxis = (*ffbOffset5 / 255.0) * 480;
-
-		*(WORD*)(a1 + 728) = P2XAxis; // P2 X Axis
-		*(WORD*)(a1 + 736) = P2YAxis; // P2 Y Axis
-
-		if (*ffbOffset & 0x08)
+		if (*(BYTE*)(a1 + 740))
 		{
-			if (!P2HighScoreTrigger)
+			int P1XAxis = (*ffbOffset2 / 255.0) * 640;
+			int P1YAxis = (*ffbOffset3 / 255.0) * 480;
+
+			*(WORD*)(a1 + 724) = P1XAxis; // P1 X Axis
+			*(WORD*)(a1 + 732) = P1YAxis; // P1 Y Axis
+
+			if (*ffbOffset & 0x04)
 			{
-				P2HighScoreTrigger = true;
-
-				*(BYTE*)(a1 + 108) = 0x01;
-
-				if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 0; }
-				else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 1; }
-				else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 2; }
-				else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 3; }
-				else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 4; }
-				else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 5; }
-				else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 6; }
-				else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 7; }
-				else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 8; }
-				else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 9; }
-				else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 10; }
-				else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 11; }
-				else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 12; }
-				else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 13; }
-				else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 14; }
-				else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 15; }
-				else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 16; }
-				else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 17; }
-				else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 18; }
-				else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 19; }
-				else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 20; }
-				else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 21; }
-				else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 22; }
-				else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 23; }
-				else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 24; }
-				else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 25; }
-				else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 26; }
-				else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 27; }
-				else if (P2XAxis >= 0xCE && P2XAxis <= 0x1B1 && P2YAxis >= 0x18E && P2YAxis <= 0x1B3) { *(float*)(a1 + 44) = 0; }
-				else
-					P2Name = 255;
-
-				switch (P2Position)
+				if (!P1HighScoreTrigger)
 				{
-				case 1:
-					if (P2Name < 255 && P2Name != 27)
-					{
-						*(DWORD*)(a1 + 88) = P2Name;
-						P2Position = 2;
-					}
+					P1HighScoreTrigger = true;
 
-					if (P2Name == 27)
-						*(DWORD*)(a1 + 88) = 0xFFFFFFFF;
-					break;
-				case 2:
-					if (P2Name < 255 && P2Name != 27)
-					{
-						*(DWORD*)(a1 + 92) = P2Name;
-						P2Position = 3;
-					}
+					*(BYTE*)(a1 + 108) = 0x01;
 
-					if (P2Name == 27)
-					{
-						*(DWORD*)(a1 + 92) = 0xFFFFFFFF;
-						P2Position = 1;
-					}
-					break;
-				case 3:
-					if (P2Name < 255 && P2Name != 27)
-						*(DWORD*)(a1 + 96) = P2Name;
+					if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 0; }
+					else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 1; }
+					else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 2; }
+					else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 3; }
+					else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 4; }
+					else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 5; }
+					else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x99 && P1YAxis <= 0xCC) { P1Name = 6; }
+					else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 7; }
+					else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 8; }
+					else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 9; }
+					else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 10; }
+					else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 11; }
+					else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 12; }
+					else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0xD5 && P1YAxis <= 0x108) { P1Name = 13; }
+					else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 14; }
+					else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 15; }
+					else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 16; }
+					else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 17; }
+					else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 18; }
+					else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 19; }
+					else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x111 && P1YAxis <= 0x144) { P1Name = 20; }
+					else if (P1XAxis >= 0x54 && P1XAxis <= 0x87 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 21; }
+					else if (P1XAxis >= 0x9A && P1XAxis <= 0xCD && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 22; }
+					else if (P1XAxis >= 0xE0 && P1XAxis <= 0x113 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 23; }
+					else if (P1XAxis >= 0x126 && P1XAxis <= 0x159 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 24; }
+					else if (P1XAxis >= 0x16C && P1XAxis <= 0x19F && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 25; }
+					else if (P1XAxis >= 0x1B2 && P1XAxis <= 0x1E5 && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 26; }
+					else if (P1XAxis >= 0x1F8 && P1XAxis <= 0x22B && P1YAxis >= 0x14D && P1YAxis <= 0x180) { P1Name = 27; }
+					else if (P1XAxis >= 0xCE && P1XAxis <= 0x1B1 && P1YAxis >= 0x18E && P1YAxis <= 0x1B3) { *(float*)(a1 + 44) = 0; }
+					else
+						P1Name = 0xFFFFFFFF;
 
-					if (P2Name == 27)
+					switch (P1Position)
 					{
-						*(DWORD*)(a1 + 96) = 0xFFFFFFFF;
-						P2Position = 2;
+					case 1:
+						if (P1Name < 0xFFFFFFFF && P1Name != 27)
+						{
+							*(DWORD*)(a1 + 76) = P1Name;
+							P1Position = 2;
+						}
+
+						if (P1Name == 27)
+							*(DWORD*)(a1 + 76) = 0xFFFFFFFF;
+						break;
+					case 2:
+						if (P1Name < 0xFFFFFFFF && P1Name != 27)
+						{
+							*(DWORD*)(a1 + 80) = P1Name;
+							P1Position = 3;
+						}
+
+						if (P1Name == 27)
+						{
+							*(DWORD*)(a1 + 80) = 0xFFFFFFFF;
+							P1Position = 1;
+						}
+						break;
+					case 3:
+						if (P1Name < 0xFFFFFFFF && P1Name != 27)
+							*(DWORD*)(a1 + 84) = P1Name;
+
+						if (P1Name == 27)
+						{
+							*(DWORD*)(a1 + 84) = 0xFFFFFFFF;
+							P1Position = 2;
+						}
+						break;
 					}
-					break;
 				}
 			}
+			else
+			{
+				if (P1HighScoreTrigger)
+					P1HighScoreTrigger = false;
+			}
 		}
-		else
+
+		if (*(BYTE*)(a1 + 741))
 		{
-			if (P2HighScoreTrigger)
-				P2HighScoreTrigger = false;
+			int P2XAxis = (*ffbOffset4 / 255.0) * 640;
+			int P2YAxis = (*ffbOffset5 / 255.0) * 480;
+
+			*(WORD*)(a1 + 728) = P2XAxis; // P2 X Axis
+			*(WORD*)(a1 + 736) = P2YAxis; // P2 Y Axis
+
+			if (*ffbOffset & 0x08)
+			{
+				if (!P2HighScoreTrigger)
+				{
+					P2HighScoreTrigger = true;
+
+					*(BYTE*)(a1 + 108) = 0x01;
+
+					if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 0; }
+					else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 1; }
+					else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 2; }
+					else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 3; }
+					else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 4; }
+					else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 5; }
+					else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x99 && P2YAxis <= 0xCC) { P2Name = 6; }
+					else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 7; }
+					else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 8; }
+					else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 9; }
+					else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 10; }
+					else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 11; }
+					else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 12; }
+					else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0xD5 && P2YAxis <= 0x108) { P2Name = 13; }
+					else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 14; }
+					else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 15; }
+					else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 16; }
+					else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 17; }
+					else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 18; }
+					else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 19; }
+					else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x111 && P2YAxis <= 0x144) { P2Name = 20; }
+					else if (P2XAxis >= 0x54 && P2XAxis <= 0x87 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 21; }
+					else if (P2XAxis >= 0x9A && P2XAxis <= 0xCD && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 22; }
+					else if (P2XAxis >= 0xE0 && P2XAxis <= 0x113 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 23; }
+					else if (P2XAxis >= 0x126 && P2XAxis <= 0x159 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 24; }
+					else if (P2XAxis >= 0x16C && P2XAxis <= 0x19F && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 25; }
+					else if (P2XAxis >= 0x1B2 && P2XAxis <= 0x1E5 && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 26; }
+					else if (P2XAxis >= 0x1F8 && P2XAxis <= 0x22B && P2YAxis >= 0x14D && P2YAxis <= 0x180) { P2Name = 27; }
+					else if (P2XAxis >= 0xCE && P2XAxis <= 0x1B1 && P2YAxis >= 0x18E && P2YAxis <= 0x1B3) { *(float*)(a1 + 44) = 0; }
+					else
+						P2Name = 0xFFFFFFFF;
+
+					switch (P2Position)
+					{
+					case 1:
+						if (P2Name < 0xFFFFFFFF && P2Name != 27)
+						{
+							*(DWORD*)(a1 + 88) = P2Name;
+							P2Position = 2;
+						}
+
+						if (P2Name == 27)
+							*(DWORD*)(a1 + 88) = 0xFFFFFFFF;
+						break;
+					case 2:
+						if (P2Name < 0xFFFFFFFF && P2Name != 27)
+						{
+							*(DWORD*)(a1 + 92) = P2Name;
+							P2Position = 3;
+						}
+
+						if (P2Name == 27)
+						{
+							*(DWORD*)(a1 + 92) = 0xFFFFFFFF;
+							P2Position = 1;
+						}
+						break;
+					case 3:
+						if (P2Name < 0xFFFFFFFF && P2Name != 27)
+							*(DWORD*)(a1 + 96) = P2Name;
+
+						if (P2Name == 27)
+						{
+							*(DWORD*)(a1 + 96) = 0xFFFFFFFF;
+							P2Position = 2;
+						}
+						break;
+					}
+				}
+			}
+			else
+			{
+				if (P2HighScoreTrigger)
+					P2HighScoreTrigger = false;
+			}
 		}
 	}
 
@@ -497,40 +704,46 @@ static int __fastcall LevelSelectTriggerHook(int a1, void* EDX, int a2)
 {
 	LevelSelectTriggerOri(a1, EDX, a2);
 
-	if (*ffbOffset & 0x04)
+	if (P1IsLead || P1isActive)
 	{
-		if (!P1LevelSelectTrigger)
+		if (*ffbOffset & 0x04)
 		{
-			P1LevelSelectTrigger = true;
+			if (!P1LevelSelectTrigger)
+			{
+				P1LevelSelectTrigger = true;
 
-			if (*(DWORD*)(a1 + 32))
-				*(DWORD*)(a1 + 32) = 0;
-			else
-				*(DWORD*)(a1 + 32) = 0xFFFFFFFF;
+				if (*(DWORD*)(a1 + 32))
+					*(DWORD*)(a1 + 32) = 0;
+				else
+					*(DWORD*)(a1 + 32) = 0xFFFFFFFF;
+			}
+		}
+		else
+		{
+			if (P1LevelSelectTrigger)
+				P1LevelSelectTrigger = false;
 		}
 	}
-	else
-	{
-		if (P1LevelSelectTrigger)
-			P1LevelSelectTrigger = false;
-	}
 
-	if (*ffbOffset & 0x08)
+	if (P2IsLead || P2isActive)
 	{
-		if (!P2LevelSelectTrigger)
+		if (*ffbOffset & 0x08)
 		{
-			P2LevelSelectTrigger = true;
+			if (!P2LevelSelectTrigger)
+			{
+				P2LevelSelectTrigger = true;
 
-			if (*(DWORD*)(a1 + 32))
-				*(DWORD*)(a1 + 32) = 0;
-			else
-				*(DWORD*)(a1 + 32) = 0xFFFFFFFF;
+				if (*(DWORD*)(a1 + 32))
+					*(DWORD*)(a1 + 32) = 0;
+				else
+					*(DWORD*)(a1 + 32) = 0xFFFFFFFF;
+			}
 		}
-	}
-	else
-	{
-		if (P2LevelSelectTrigger)
-			P2LevelSelectTrigger = false;
+		else
+		{
+			if (P2LevelSelectTrigger)
+				P2LevelSelectTrigger = false;
+		}
 	}
 
 	P1Position = 1;
@@ -555,7 +768,7 @@ static int __fastcall AxisTriggersHook(int a1, void* EDX, int a2)
 			*(BYTE*)(a1 + 18) = 0x01;
 
 			if (P1SceenOut)
-				*(BYTE*)(a1 + 14) = 0x01;
+				*(BYTE*)(a1 + 16) = 0x01;
 		}
 		else
 		{
@@ -628,7 +841,7 @@ static int __fastcall AxisTriggersHook(int a1, void* EDX, int a2)
 		if (!P1Reload)
 		{
 			P1Reload = true;
-			*(BYTE*)(a1 + 14) = 0x01;
+			*(BYTE*)(a1 + 16) = 0x01;
 		}
 	}
 	else
@@ -636,7 +849,7 @@ static int __fastcall AxisTriggersHook(int a1, void* EDX, int a2)
 		if (P1Reload)
 		{
 			P1Reload = false;
-			*(BYTE*)(a1 + 14) = 0x00;
+			*(BYTE*)(a1 + 16) = 0x00;
 		}
 	}
 
@@ -666,9 +879,6 @@ static int __fastcall AxisTriggersHook(int a1, void* EDX, int a2)
 	return 0;
 }
 
-static bool P1isActive;
-static bool P2isActive;
-
 static int(__fastcall* ButtonsOri)(BYTE* a1, void* EDX, float a2);
 static int __fastcall ButtonsHook(BYTE* a1, void* EDX, float a2)
 {
@@ -677,7 +887,11 @@ static int __fastcall ButtonsHook(BYTE* a1, void* EDX, float a2)
 	if (*ffbOffset & 0x20) // P1 Start
 	{
 		if (!P1Active && !P2Active && !P1Continue && !P2Continue)
+		{
 			a1[401] = 1;
+			P2IsLead = false;
+			P1IsLead = true;
+		}
 		else
 			P1isActive = true;
 	}
@@ -685,7 +899,11 @@ static int __fastcall ButtonsHook(BYTE* a1, void* EDX, float a2)
 	if (*ffbOffset & 0x40) // P2 Start
 	{
 		if (!P1Active && !P2Active && !P1Continue && !P2Continue)
+		{
 			a1[402] = 1;
+			P2IsLead = true;
+			P1IsLead = false;
+		}
 		else
 			P2isActive = true;
 	}
