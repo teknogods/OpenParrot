@@ -299,5 +299,8 @@ int wmain(int argc, wchar_t* argv[])
 	Sleep(2000);
 	ResumeThread(pi.hThread);
 	while (GetThreadContext(pi.hThread, &mycontext)) Sleep(2000);
-	return 1;
+	DWORD lpExitCode = 1;
+	::GetExitCodeThread(pi.hThread, &lpExitCode);
+
+	return lpExitCode;
 }
