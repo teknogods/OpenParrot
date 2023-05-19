@@ -205,13 +205,13 @@ static InitFunction sr3Func([]()
 		MH_CreateHookApi(L"User32.dll", "CreateWindowExA", &CreateWindowExAHook, (void**)&CreateWindowExAOrg);
 	}
 
-	if (ToBool(config["General"]["Windowed"]) || (ToBool(config["Score"]["Enable Submission (Patreon Only)"]) && ToBool(config["Score"]["Enable GUI"]))) // don't clip cursor
+	if (ToBool(config["General"]["Windowed"]) || (ToBool(config["Score"]["Enable Submission"]) && ToBool(config["Score"]["Enable GUI"]))) // don't clip cursor
 	{
 		MH_CreateHookApi(L"User32.dll", "ClipCursor", &ClipCursorHook, (void**)&ClipCursorOrg);
 		MH_CreateHookApi(L"User32.dll", "GetClipCursor", &GetClipCursorHook, (void**)&GetClipCursorOrg);
 	}
 
-	if ((ToBool(config["Score"]["Enable Submission (Patreon Only)"]) && ToBool(config["Score"]["Enable GUI"]) && ToBool(config["Score"]["Hide Cursor"])))
+	if ((ToBool(config["Score"]["Enable Submission"]) && ToBool(config["Score"]["Enable GUI"]) && ToBool(config["Score"]["Hide Cursor"])))
 	{
 		ShowCursor(false);
 	}
