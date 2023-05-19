@@ -574,8 +574,8 @@ static InitFunction globalFunc([]()
 			printf("Failed to Load OutputBlaster!");
 		}
 	}
-#ifdef _DEBUG
-	if (ToBool(config["Score"]["Enable Submission (Patreon Only)"]))
+
+	if (ToBool(config["Score"]["Enable Submission"]))
 	{
 		if (ToBool(config["Score"]["Enable Capture"]))
 			WritePrivateProfileStringA("Score", "Enable Capture", "1", ".\\ScoreSubmission.ini");
@@ -610,6 +610,6 @@ static InitFunction globalFunc([]()
 			printf("Failed to load Score Submission!");
 		}
 	}
-#endif
+
 }, GameID::Global);
 #pragma optimize("", on)
