@@ -554,7 +554,7 @@ static void RenderOurItems(LPDIRECT3DDEVICE9 Device)
 			if (!Player4Active)
 			{
 				if (oldffbOffset8 != *ffbOffset8 && oldffbOffset8 && oldffbOffset9 != *ffbOffset9 && oldffbOffset9)
-					++P2CrosshairCount;
+					++P4CrosshairCount;
 
 				oldffbOffset8 = *ffbOffset8;
 				oldffbOffset9 = *ffbOffset9;
