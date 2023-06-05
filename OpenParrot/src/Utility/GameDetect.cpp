@@ -357,6 +357,9 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::TypeXGeneric;
 		X2Type = X2Type::BattleFantasia;
 		break;
+	case 0x802f621b: // Arcana Heart 2
+		currentGame = GameID::ExBoardGeneric;
+		break;
 	case 0x521d6765: // Arcana Heart 3
 		currentGame = GameID::ExBoardGeneric;
 		break;
