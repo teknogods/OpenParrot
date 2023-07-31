@@ -1794,6 +1794,12 @@ HANDLE WINAPI FindFirstFileWSFV(LPCWSTR lpFileName, LPWIN32_FIND_DATAW lpFindFil
 	return original_FindFirstFileWSFV(lpFileName, lpFindFileData);
 }
 
+UINT (WINAPI *original_GetRawInputDeviceListSFV)(PRAWINPUTDEVICELIST pRawInputDeviceList, UINT* puiNumDevices, UINT cbSize);
+UINT WINAPI GetRawInputDeviceListSFV(PRAWINPUTDEVICELIST pRawInputDeviceList, UINT* puiNumDevices, UINT cbSize) {
+	*puiNumDevices = 0;
+	return 0;
+}
+
 DWORD WINAPI XInputGetStateSFV(__int64 a1, __int64 a2)
 {
 	return ERROR_DEVICE_NOT_CONNECTED;
@@ -1873,6 +1879,19 @@ void SetCommandLineSFV()
 	LPWSTR FullPathWithArgsTemp = (LPWSTR)(FullPathWithArgs.c_str());
 	wcscpy(FullPathWithArgsFinal, FullPathWithArgsTemp);
 	return;
+}
+
+LRESULT(WINAPI* g_origWndProc)
+(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+static LRESULT Hook_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	if (msg == WM_KEYDOWN || msg == WM_KEYUP)
+	{
+		// lets swallow key presses.
+		return 0;
+	}
+
+	return g_origWndProc(hWnd, msg, wParam, lParam);
 }
 
 static InitFunction SFVFunc([]()
@@ -2098,7 +2117,7 @@ static InitFunction SFVFunc([]()
 	// SET COMMAND LINE SWITCHES FOR FULLSCREEN/WINDOWED MODE
 		GetModuleFileNameW(NULL, FullPathWithExeName, MAX_PATH);
 		SetCommandLineSFV();
-
+		
 		MH_Initialize();
 		MH_CreateHookApi(L"kernel32.dll", "CreateFileW", &CreateFileWSFV, (void**)&original_CreateFileWSFV);
 		MH_CreateHookApi(L"kernel32.dll", "DeleteFileW", &DeleteFileWSFV, (void**)&original_DeleteFileWSFV);
@@ -2106,6 +2125,8 @@ static InitFunction SFVFunc([]()
 		MH_CreateHookApi(L"shell32.dll", "SHGetFolderPathW", &SHGetFolderPathWSFV, (void**)&original_SHGetFolderPathWSFV);
 		MH_CreateHookApi(L"kernel32.dll", "GetCommandLineW", &GetCommandLineWSFV, (void**)&original_GetCommandLineWSFV);
 		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateSFV, NULL);
+		MH_CreateHookApi(L"user32.dll", "GetRawInputDeviceList", &GetRawInputDeviceListSFV, NULL);
+		MH_CreateHook((void*)(imageBase + 0xf52860), Hook_WndProc, (void**)&g_origWndProc);
 		MH_EnableHook(MH_ALL_HOOKS); 
 	}, GameID::SFV);
 #endif
