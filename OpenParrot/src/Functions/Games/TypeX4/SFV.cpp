@@ -1981,7 +1981,7 @@ static InitFunction SFVFunc([]()
 	//	MH_CreateHookApi(L"NESiCAUtilLib.dll", "GetLibraryVersion", GetLibraryVersion, (void**)&g_origGetLibraryVersion);
 	//	MH_CreateHookApi(L"NESiCAUtilLib.dll", "GetNWInfo", GetNWInfo, (void**)&g_origGetNWInfo);
 	//	MH_CreateHookApi(L"NESiCAUtilLib.dll", "GetNewsImagePath", GetNewsImagePath, (void**)&g_origGetNewsImagePath);
-		MH_CreateHookApi(L"NESiCAUtilLib.dll", "GetRanking", GetRanking, (void**)&g_origGetRanking);
+		//MH_CreateHookApi(L"NESiCAUtilLib.dll", "GetRanking", GetRanking, (void**)&g_origGetRanking);
 	//	MH_CreateHookApi(L"NESiCAUtilLib.dll", "GetResponseTime", GetResponseTime, (void**)&g_origGetResponseTime);
 	//	MH_CreateHookApi(L"NESiCAUtilLib.dll", "GetServerInfo", GetServerInfo, (void**)&g_origGetServerInfo);
 	//	MH_CreateHookApi(L"NESiCAUtilLib.dll", "GetServiceVersion", GetServiceVersion, (void**)&g_origGetServiceVersion);
@@ -2148,6 +2148,9 @@ static InitFunction SFVFunc([]()
 		if (ToBool(config["General"]["RemoveNesysMessages"]))
 		injector::WriteMemoryRaw((nesysbase + 0x1EBE2), "\xE9\xE4\x01\x00\x00", 5, true);
  
+	// funny test
+		//injector::WriteMemoryRaw((nesysbase + 0x65790), "\x50\x4F\x43\x4B\x59\x21\x21", 7, true);
+
 	// NESYS INIT
 		init_RegHooks();
 		init_NesysEmu(false);
@@ -2158,7 +2161,6 @@ static InitFunction SFVFunc([]()
 	// SET COMMAND LINE SWITCHES FOR FULLSCREEN/WINDOWED MODE
 		GetModuleFileNameW(NULL, FullPathWithExeName, MAX_PATH);
 		SetCommandLineSFV();
-		
 		
 		MH_Initialize();
 		MH_CreateHookApi(L"kernel32.dll", "CreateFileW", &CreateFileWSFV, (void**)&original_CreateFileWSFV);
