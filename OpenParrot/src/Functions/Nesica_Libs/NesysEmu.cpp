@@ -248,6 +248,20 @@ NesysEmu::NesysEmu()
 		SendResponse(SCOMMAND_INCOME_STATUS_REPLY, &r);
 	};
 
+	m_commandHandlers[LCOMMAND_INCOME_END_REQUEST] = [=](const uint8_t* data, size_t length)
+	{
+		struct reply
+		{
+			int playerid;
+			int status;
+		} r;
+
+		r.playerid = 0;
+		r.status = 1;
+
+		SendResponse(SCOMMAND_INCOME_STATUS_REPLY, &r);
+	};
+
 	m_commandHandlers[LCOMMAND_RANKING_DATA_REQUEST] = [=](const uint8_t* dataa, size_t length)
 	{
 		struct ranking
