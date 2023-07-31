@@ -1728,7 +1728,7 @@ HANDLE WINAPI CreateFileWSFV(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dw
 	{
 		std::wstring tempFileName = lpFileName;
 		std::wstring exePath = FullPathWithExeName;
-		ReplaceStringInPlaceWSFV(exePath, L"\\StreetFighterV.exe", L"\\");
+		ReplaceStringInPlaceWSFV(exePath, L"\\StreetFighterV.exe", L"\\OpenParrot\\");
 		ReplaceStringInPlaceWSFV(exePath, L"\\", L"/");
 		ReplaceStringInPlaceWSFV(tempFileName, L"D:\\", exePath);
 		LPCWSTR finalFileName = tempFileName.c_str();
@@ -1757,7 +1757,7 @@ BOOL WINAPI DeleteFileWSFV(LPCWSTR lpFileName)
 	{
 		std::wstring tempFileName = lpFileName;
 		std::wstring exePath = FullPathWithExeName;
-		ReplaceStringInPlaceWSFV(exePath, L"\\StreetFighterV.exe", L"\\");
+		ReplaceStringInPlaceWSFV(exePath, L"\\StreetFighterV.exe", L"\\OpenParrot\\");
 		ReplaceStringInPlaceWSFV(exePath, L"\\", L"/");
 		ReplaceStringInPlaceWSFV(tempFileName, L"D:\\", exePath);
 		LPCWSTR finalFileName = tempFileName.c_str();
@@ -1785,13 +1785,53 @@ HANDLE WINAPI FindFirstFileWSFV(LPCWSTR lpFileName, LPWIN32_FIND_DATAW lpFindFil
 	{
 		std::wstring tempFileName = lpFileName;
 		std::wstring exePath = FullPathWithExeName;
-		ReplaceStringInPlaceWSFV(exePath, L"\\StreetFighterV.exe", L"\\NesicaData");
+		ReplaceStringInPlaceWSFV(exePath, L"\\StreetFighterV.exe", L"\\OpenParrot\\");
 		ReplaceStringInPlaceWSFV(tempFileName, L"D:", exePath);
 		LPCWSTR finalFileName = tempFileName.c_str();
 		return original_FindFirstFileWSFV(finalFileName, lpFindFileData);
 	}
 
 	return original_FindFirstFileWSFV(lpFileName, lpFindFileData);
+}
+
+static BOOL(__stdcall* g_origCreateDirectoryW)(LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+static BOOL __stdcall CreateDirectoryWWrap(
+	LPCWSTR                lpPathName,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes
+)
+{
+	if (wcsncmp(lpPathName, L"D:\\db", 5) == 0)
+	{
+		std::wstring tempFileName = lpPathName;
+		std::wstring exePath = FullPathWithExeName;
+		ReplaceStringInPlaceWSFV(exePath, L"\\StreetFighterV.exe", L"\\OpenParrot\\");
+		ReplaceStringInPlaceWSFV(exePath, L"\\", L"/");
+		ReplaceStringInPlaceWSFV(tempFileName, L"D:\\", exePath);
+		LPCWSTR finalFileName = tempFileName.c_str();
+		return g_origCreateDirectoryW(finalFileName, lpSecurityAttributes);
+	}
+	return g_origCreateDirectoryW(lpPathName, lpSecurityAttributes);
+}
+
+static DWORD(__stdcall* g_origGetFileAttributesExW)(LPCWSTR lpFileName, GET_FILEEX_INFO_LEVELS fInfoLevelId, LPVOID lpFileInformation);
+static DWORD __stdcall GetFileAttributesExWWrap(LPCWSTR lpFileName, GET_FILEEX_INFO_LEVELS fInfoLevelId, LPVOID lpFileInformation)
+{
+	if (wcsncmp(lpFileName, L"D:\\db", 5) == 0)
+	{
+		std::wstring tempFileName = lpFileName;
+		std::wstring exePath = FullPathWithExeName;
+		ReplaceStringInPlaceWSFV(exePath, L"\\StreetFighterV.exe", L"\\OpenParrot\\");
+		ReplaceStringInPlaceWSFV(tempFileName, L"D:", exePath);
+		LPCWSTR finalFileName = tempFileName.c_str();
+		return g_origGetFileAttributesExW(finalFileName, fInfoLevelId, lpFileInformation);
+	}
+	return g_origGetFileAttributesExW(lpFileName, fInfoLevelId, lpFileInformation);
+}
+
+UINT (WINAPI *original_GetRawInputDeviceListSFV)(PRAWINPUTDEVICELIST pRawInputDeviceList, UINT* puiNumDevices, UINT cbSize);
+UINT WINAPI GetRawInputDeviceListSFV(PRAWINPUTDEVICELIST pRawInputDeviceList, UINT* puiNumDevices, UINT cbSize) {
+	*puiNumDevices = 0;
+	return 0;
 }
 
 DWORD WINAPI XInputGetStateSFV(__int64 a1, __int64 a2)
@@ -1875,10 +1915,30 @@ void SetCommandLineSFV()
 	return;
 }
 
+LRESULT(WINAPI* g_origWndProc)
+(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+static LRESULT Hook_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	if (msg == WM_KEYDOWN || msg == WM_KEYUP)
+	{
+		// lets swallow key presses.
+		return 0;
+	}
+
+	return g_origWndProc(hWnd, msg, wParam, lParam);
+}
+
+// Check the drive tp/the game is on, instead of D:/
+static BOOL(__stdcall* g_origGetDiskFreeSpaceExW)(LPCWSTR lpDirectoryName, PULARGE_INTEGER lpFreeBytesAvailableToCaller, PULARGE_INTEGER lpTotalNumberOfBytes, PULARGE_INTEGER lpTotalNumberOfFreeBytes);
+static BOOL __stdcall GetDiskFreeSpaceExWWrap(LPCWSTR lpDirectoryName, PULARGE_INTEGER lpFreeBytesAvailableToCaller, PULARGE_INTEGER lpTotalNumberOfBytes, PULARGE_INTEGER lpTotalNumberOfFreeBytes)
+{
+	return g_origGetDiskFreeSpaceExW(NULL, lpFreeBytesAvailableToCaller, lpTotalNumberOfBytes, lpTotalNumberOfFreeBytes);
+}
+
 static InitFunction SFVFunc([]()
 	{
 		imageBase = (DWORD_PTR)GetModuleHandleA(0);
-
+		CreateDirectoryA("OpenParrot", nullptr);
 		DWORD_PTR iobase = (DWORD_PTR)LoadLibraryA("..\\..\\Plugins\\USBIOPlugin\\UIO_AMIC.dll");
 		MH_Initialize();
 		MH_CreateHookApi(L"UIO_AMIC.dll", "UIO_AMIC_Close", UIO_AMIC_Close, (void**)&g_origUIO_AMIC_Close);
@@ -2098,7 +2158,8 @@ static InitFunction SFVFunc([]()
 	// SET COMMAND LINE SWITCHES FOR FULLSCREEN/WINDOWED MODE
 		GetModuleFileNameW(NULL, FullPathWithExeName, MAX_PATH);
 		SetCommandLineSFV();
-
+		
+		
 		MH_Initialize();
 		MH_CreateHookApi(L"kernel32.dll", "CreateFileW", &CreateFileWSFV, (void**)&original_CreateFileWSFV);
 		MH_CreateHookApi(L"kernel32.dll", "DeleteFileW", &DeleteFileWSFV, (void**)&original_DeleteFileWSFV);
@@ -2106,6 +2167,11 @@ static InitFunction SFVFunc([]()
 		MH_CreateHookApi(L"shell32.dll", "SHGetFolderPathW", &SHGetFolderPathWSFV, (void**)&original_SHGetFolderPathWSFV);
 		MH_CreateHookApi(L"kernel32.dll", "GetCommandLineW", &GetCommandLineWSFV, (void**)&original_GetCommandLineWSFV);
 		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputGetStateSFV, NULL);
+		MH_CreateHookApi(L"user32.dll", "GetRawInputDeviceList", &GetRawInputDeviceListSFV, NULL);
+		MH_CreateHook((void*)(imageBase + 0xf52860), Hook_WndProc, (void**)&g_origWndProc);
+		MH_CreateHookApi(L"kernel32.dll", "GetDiskFreeSpaceExW", GetDiskFreeSpaceExWWrap, (void**)&g_origGetDiskFreeSpaceExW);
+		MH_CreateHookApi(L"kernel32.dll", "CreateDirectoryW", CreateDirectoryWWrap, (void**)&g_origCreateDirectoryW);
+		MH_CreateHookApi(L"kernel32.dll", "GetFileAttributesExW", &GetFileAttributesExWWrap, (void**)&g_origGetFileAttributesExW);
 		MH_EnableHook(MH_ALL_HOOKS); 
 	}, GameID::SFV);
 #endif
