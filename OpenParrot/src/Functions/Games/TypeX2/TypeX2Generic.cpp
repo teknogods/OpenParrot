@@ -209,9 +209,9 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 	return lpFileName;
 }
 
-static wchar_t moveBufW[256];
 static LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 {
+	static wchar_t moveBufW[256];
 #ifdef _DEBUG
 	info("ParseFileNamesW original: %ls", lpFileName);
 #endif
