@@ -79,9 +79,9 @@ extern UINT8 GaiaAttack4Volume;
 
 void AddCommOverride(HANDLE hFile);
 
-static char moveBuf[256];
 static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 {
+	char moveBuf[256];
 #ifdef _DEBUG
 	info("ParseFileNamesA original: %s", lpFileName);
 #endif
@@ -211,7 +211,7 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 
 static LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
 {
-	static wchar_t moveBufW[256];
+	wchar_t moveBufW[256];
 #ifdef _DEBUG
 	info("ParseFileNamesW original: %ls", lpFileName);
 #endif
