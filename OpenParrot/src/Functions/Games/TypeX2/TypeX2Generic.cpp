@@ -668,6 +668,22 @@ static InitFunction initFunction([]()
 				injector::MakeNOP(imageBase + 0x1E880, 6);
 				injector::MakeNOP(imageBase + 0x27447, 3);
 			
+				//
+				if (!ToBool(config["General"]["Custom Resolution (Professional Edition)"]))
+				{
+					injector::WriteMemory<DWORD>(imageBase + 0x1f4c6d, 1366, true);
+					injector::WriteMemory<DWORD>(imageBase + 0xa0536, 1366, true);
+				}
+				else 
+				{
+					int resWidth = ToInt(config["General"]["Custom Resolution Width"]);
+					int resHeight = ToInt(config["General"]["Custom Resolution Height"]);
+					injector::WriteMemory<DWORD>(imageBase + 0x1f4c6d, resWidth, true);
+					injector::WriteMemory<DWORD>(imageBase + 0xa0536, resWidth, true);
+					injector::WriteMemory<DWORD>(imageBase + 0x1f4c77, resHeight, true);
+					injector::WriteMemory<DWORD>(imageBase + 0xa0531, resHeight, true);
+				}
+
 				// Fix 6MT warning upon key entry
 				injector::WriteMemoryRaw(imageBase + 0xD4AC3, "\xE9\x0E\x01\x00", 4, true);
 
