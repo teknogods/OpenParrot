@@ -68,7 +68,7 @@ static void BG4General(Helpers* helpers)
 }
 
 void BG4ManualHack(Helpers* helpers) //Hack to allow us to select Manual	
-{	
+{
 	INT_PTR MenuTimerBase = helpers->ReadIntPtr(0x4C2924, true);
 	INT_PTR MenuTimerBaseA = helpers->ReadIntPtr(MenuTimerBase + 0x08, false);
 	INT_PTR MenuTime = helpers->ReadIntPtr(MenuTimerBaseA + 0x45C, false);
@@ -102,11 +102,12 @@ void BG4ManualHack(Helpers* helpers) //Hack to allow us to select Manual
 }
 
 static void BG4ProManualHack(Helpers* helpers) //Hack to allow us to select Manual and Manual with Clutch
-{	
+{
 	INT_PTR MenuTimerBase = helpers->ReadIntPtr(0x4C2924, true);
 	INT_PTR MenuTimerBaseA = helpers->ReadIntPtr(MenuTimerBase + 0x08, false);
 	INT_PTR MenuTime = helpers->ReadIntPtr(MenuTimerBaseA + 0x45C, false);
 
+	/*
 	INT_PTR VehicleSelectionBase = helpers->ReadIntPtr(0x42D4A0, true);
 	INT_PTR VehicleSelectionOff1 = helpers->ReadIntPtr(VehicleSelectionBase + 0x78, false);
 	INT_PTR VehicleSelectionOff2 = helpers->ReadIntPtr(VehicleSelectionOff1 + 0x190, false);
@@ -114,29 +115,50 @@ static void BG4ProManualHack(Helpers* helpers) //Hack to allow us to select Manu
 
 	if (VehicleSelection)
 	{
+		//info("MENU HACK SELECT");
+		if (!MenuHack)
+		{
+			MenuHack = true;
+		}
+	}
+	*/
+
+	if (MenuTime == 0x1194)
+	{
 		if (!MenuHack)
 			MenuHack = true;
 	}
 
 	if (MenuTime == 0x00)
 	{
+		//info("MENU HACK NOOO");
 		if (MenuHack)
+		{
 			MenuHack = false;
+			MenuHackDelay = false;
+		}
 	}
 
 	if (MenuHack)
 	{
+		if (!MenuHackDelay)
+		{
+			MenuHackDelay = true;
+			Sleep(2500);
+		}
 		helpers->WriteByte(MenuTimerBaseA + 0x454, 0x04, false);
 		BYTE This = helpers->ReadByte(MenuTimerBaseA + 0x44C, false);
-
+		//info("MENU HACK");
 		switch (This)
 		{
-			case 0x02:
-				helpers->WriteByte(0x42E341, 0xD0, true);  //Set Shift SEN 2 to ON or error
-				break;
-			case 0x03:
-				helpers->WriteByte(0x42E341, 0xE0, true);  //Set Shift SEN 1 to ON or error
-				break;
+		case 0x02:
+			//info("Case 2");
+			helpers->WriteByte(0x42E341, 0xD0, true);  //Set Shift SEN 2 to ON or error
+			break;
+		case 0x03:
+			//info("Case 2");
+			helpers->WriteByte(0x42E341, 0xE0, true);  //Set Shift SEN 1 to ON or error
+			break;
 		}
 	}
 }
@@ -159,7 +181,7 @@ void BG4ProInputs(Helpers* helpers)
 
 	BG4General(0);
 	BG4ProManualHack(0);
-	
+
 	UINT8 KeyInput = helpers->ReadByte(0x42E296, true);
 
 	if (*ffbOffset & 0x01) //Test
