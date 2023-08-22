@@ -77,6 +77,15 @@ extern BOOL(__stdcall* GaiaAttack4GetKeyboardStateOri)(PBYTE lpKeyState);
 extern BOOL WINAPI GaiaAttack4GetKeyboardStateHook(PBYTE lpKeyState);
 extern UINT8 GaiaAttack4Volume;
 
+
+int (WINAPI*SkyStageRenderSettingsOri)();
+int SkyStageRenderSettingsHook()
+{
+	DWORD imageBase = (DWORD)GetModuleHandleA(0);
+	injector::WriteMemory<DWORD>(imageBase + 0x40b9f0, 0x1, true); // ScreenRes
+	return SkyStageRenderSettingsOri();
+}
+
 void AddCommOverride(HANDLE hFile);
 static std::string ParseFileNamesA(LPCSTR lpFileName)
 {
@@ -1015,6 +1024,11 @@ static InitFunction initFunction([]()
 			// change window title
 			static const char* title = "OpenParrot - The King of Fighters Sky Stage";
 			injector::WriteMemory<DWORD>(imageBase + 0xBE812, (DWORD)title, true);
+
+			MH_Initialize();
+			MH_CreateHook((void*)(imageBase + 0xce1b0), SkyStageRenderSettingsHook, (void**)&SkyStageRenderSettingsOri);
+			MH_EnableHook(MH_ALL_HOOKS);
+
 		}
 	}
 
