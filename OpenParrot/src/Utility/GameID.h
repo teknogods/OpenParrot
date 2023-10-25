@@ -120,6 +120,7 @@ enum class GameID
 	Aleste,
 	TaikoV0,
 	TaikoV8,
+	TaikoV32,
 	WMMT5DX,
 	Aleste11,
 	Aleste12,
