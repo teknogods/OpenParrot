@@ -735,16 +735,6 @@ static InitFunction TaikoV32Func([]()
 	injector::WriteMemoryRaw(imageBase + 0xC7B2B8, ".\\SettingChina1.bin", 15, true); // f:\\SettingChina1.bin
 	injector::WriteMemoryRaw(imageBase + 0xC7B158, ".\\SettingChina1.bin", 15, true); // f:\\SettingChina1.bin
 
-
-	injector::WriteMemory<BYTE>(amBase + 0x33EF7, 0xEB, true); // ErrorLogPathA
-	injector::WriteMemory<BYTE>(amBase + 0x3404A, 0xEB, true); // ErrorLogPathB
-	injector::WriteMemory<BYTE>(amBase + 0x34429, 0xEB, true); // CommonLogPathA
-	injector::WriteMemory<BYTE>(amBase + 0x3457C, 0xEB, true); // CommonLogPathB
-	injector::WriteMemory<BYTE>(amBase + 0x3497A, 0xEB, true); // BackupDataPathA
-	injector::WriteMemory<BYTE>(amBase + 0x34ACD, 0xEB, true); // BackupDataPathB
-	injector::WriteMemory<BYTE>(amBase + 0x148AF, 0xEB, true); // CreditLogPathA
-	injector::WriteMemory<BYTE>(amBase + 0x14A1A, 0xEB, true); // CreditLogPathB
-
 	// Skip errors
 	injector::WriteMemory<BYTE>(imageBase + 0x3F690, 0xC3, true);
 
