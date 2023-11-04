@@ -381,9 +381,9 @@ unsigned char starDataDxp[0x40];
 
 //set system date patch by pockywitch
 typedef bool (WINAPI* SETSYSTEMTIME)(SYSTEMTIME* in);
-SETSYSTEMTIME pSetSystemTime = NULL;
+static SETSYSTEMTIME pSetSystemTime = NULL;
 
-bool WINAPI Hook_SetSystemTime(SYSTEMTIME* in)
+static bool WINAPI Hook_SetSystemTime(SYSTEMTIME* in)
 {
 	return TRUE;
 }
