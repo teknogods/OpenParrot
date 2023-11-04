@@ -852,9 +852,9 @@ static DWORD WINAPI Wmmt5FfbCollector(void* ctx)
 
 //stop the game from changing the time...
 typedef bool (WINAPI* SETSYSTEMTIME)(SYSTEMTIME* in);
-SETSYSTEMTIME pSetSystemTime = NULL;
+static SETSYSTEMTIME pSetSystemTime = NULL;
 
-bool WINAPI Hook_SetSystemTime(SYSTEMTIME* in)
+static bool WINAPI Hook_SetSystemTime(SYSTEMTIME* in)
 {
 	return TRUE;
 }
