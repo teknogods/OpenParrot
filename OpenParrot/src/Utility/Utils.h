@@ -149,3 +149,6 @@ const wchar_t* va(const wchar_t* string, ...);
 
 std::wstring ToWide(const std::string& narrow);
 std::string ToNarrow(const std::wstring& wide);
+
+std::tuple <int, int> CalculateWindowSize(int width, int height, DWORD dwStyle, DWORD dwStyleEx);
+std::tuple <int, int> CalculateWindowCenterPosition(int width, int height);
