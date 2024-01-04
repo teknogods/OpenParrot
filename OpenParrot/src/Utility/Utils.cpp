@@ -170,3 +170,21 @@ std::wstring ToWide(const std::string& narrow)
 {
 	return m_converter.from_bytes(narrow);
 }
+
+// Calculates the correct size for a specific window size so the specified size is the
+// size of the client area (aka a 1280x720 game will actually have a 1280x720 client size, etc
+std::tuple <int, int> CalculateWindowSize(int width, int height, DWORD dwStyle, DWORD dwStyleEx)
+{
+	RECT rc = { 0, 0, width, height };
+	BOOL adjusted = AdjustWindowRectEx(&rc, dwStyle, false, dwStyleEx);
+	int cx = rc.right - rc.left;
+	int cy = rc.bottom - rc.top;
+	return std::make_tuple(cx, cy);
+}
+
+std::tuple <int, int> CalculateWindowCenterPosition(int width, int height)
+{
+	int xPos = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
+	int yPos = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
+	return std::make_tuple(xPos, yPos);
+}
