@@ -23,9 +23,6 @@ void GameDetect::DetectCurrentGame()
 	switch (crcResult)
 	{
 #if _M_IX86
-	case 0xb8f2836d:
-		currentGame = GameID::Daytona3;
-		break;
 	case 0x4bcfbc4f:
 		currentGame = GameID::GrooveCoaster2;
 		isNesica = true;
@@ -402,12 +399,6 @@ void GameDetect::DetectCurrentGame()
 		if (*(uint32_t*)(moduleBase + 0x2182) == 0xE995C969)
 		{
 			currentGame = GameID::MachStorm;
-			break;
-		}
-		if (*(uint32_t*)(moduleBase + 0xABB7) == 0x00E445C7 &&
-			*(uint32_t*)(moduleBase + 0xABB7 + 4) == 0xC7000100)
-		{
-			currentGame = GameID::Daytona3;
 			break;
 		}
 #else

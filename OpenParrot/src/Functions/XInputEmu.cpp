@@ -81,7 +81,7 @@ DWORD WINAPI XInputGetState
 	}
 	if (controllerInit && dwUserIndex == 0)
 	{
-		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26)
+		if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26)
 		{
 			gamepadState.wButtons = *ffbOffset;
 		}
@@ -140,32 +140,6 @@ DWORD WINAPI XInputGetState
 		}
 
 #ifdef _M_IX86
-		if (GameDetect::currentGame == GameID::Daytona3)
-		{
-			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
-
-			int Wheel = 0;
-
-			if ((*ffbOffset2 >= (128 - FFBDeadzoneMaxMin)) && (*ffbOffset2 <= 128 + FFBDeadzoneMaxMin)) //Deadzone for FFB
-			{
-				gamepadState.sThumbLX = 0;
-			}
-			else if (*ffbOffset2 > 128)
-			{
-				Wheel = -(-32767 + -(*ffbOffset2 * 255.9921875));
-
-				if (*ffbOffset2 >= 254)
-					Wheel = 32767;
-			}
-			else
-			{
-				Wheel = (-32767 - -(*ffbOffset2 * 255.9921875));
-
-				if (*ffbOffset2 >= 254)
-					Wheel = -32767;
-			}
-			gamepadState.sThumbLX = Wheel;
-		}
 #endif
 		if (pState->dwPacketNumber == UINT_MAX)
 			pState->dwPacketNumber = 0;
@@ -364,18 +338,11 @@ DWORD WINAPI XInputGetStateEx
 	{
 		XINPUT_GAMEPAD gamepadState = { 0 };
 
-		if (GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26)
+		if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26)
 			gamepadState.wButtons = *ffbOffset;
 		else
 			gamepadState.wButtons = 0;
 
-#ifdef _M_IX86
-		if (GameDetect::currentGame == GameID::Daytona3)
-		{
-			gamepadState.bRightTrigger = daytonaPressStart ? 0xFF : 0x00;
-			gamepadState.sThumbLX |= (-(33024 - *ffbOffset2) * 255);
-		}
-#endif
 		if (pState->dwPacketNumber == UINT_MAX)
 			pState->dwPacketNumber = 0;
 		else
@@ -416,21 +383,17 @@ DWORD WINAPI XInputSetStateEx
 }
 
 LPCWSTR libName = L"xinput1_3.dll";
-LPCWSTR daytonalibName = L"xinput9_1_0.dll";
 LPCWSTR ptrToUse;
 
 static InitFunction XInputHook([]()
 	{
-		if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26 || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::Daytona3 || GameDetect::currentGame == GameID::GHA || GameDetect::currentGame == GameID::JLeague)
+		if (GameDetect::currentGame == GameID::PokkenTournament || GameDetect::currentGame == GameID::PokkenTournament26 || GameDetect::currentGame == GameID::SchoolOfRagnarok || GameDetect::currentGame == GameID::GHA || GameDetect::currentGame == GameID::JLeague)
 		{
 			controllerInit = true;
 
 			MH_Initialize();
 
-			if (GameDetect::currentGame == GameID::Daytona3)
-				ptrToUse = daytonalibName;
-			else
-				ptrToUse = libName;
+			ptrToUse = libName;
 
 			MH_CreateHookApi(ptrToUse, "XInputGetState", &XInputGetState, NULL);
 			MH_CreateHookApi(ptrToUse, "XInputSetState", &XInputSetState, NULL);

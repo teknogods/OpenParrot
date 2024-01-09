@@ -62,16 +62,27 @@ static HRESULT WINAPI ResetWrap(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* p
 	return g_oldReset(self, pPresentationParameters);
 }
 
+static bool useXRGB = false;
 static HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface)
 {
+	UINT originalBBW = pPresentationParameters->BackBufferWidth;
+	UINT originalBBH = pPresentationParameters->BackBufferHeight;
+
 	if (Windowed)
 	{
 		pPresentationParameters->Windowed = TRUE;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 		pPresentationParameters->BackBufferWidth = 0;
 		pPresentationParameters->BackBufferHeight = 0;
-		pPresentationParameters->BackBufferFormat = D3DFMT_A8R8G8B8; // TODO: query current desktop format and use it
 		pPresentationParameters->Flags = 0;
+		if (useXRGB)
+		{
+			pPresentationParameters->BackBufferFormat = D3DFMT_X8R8G8B8; // TODO: query current desktop format and use it
+		}
+		else {
+			pPresentationParameters->BackBufferFormat = D3DFMT_A8R8G8B8; // TODO: query current desktop format and use it
+		}
+
 		pPresentationParameters->FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 	}
 
@@ -82,7 +93,7 @@ static HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYP
 
 	if (*ppReturnedDeviceInterface)
 	{
-		if (Windowed)
+	if (Windowed)
 		{
 			auto old = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->Reset, ResetWrap);
 			g_oldReset = (old) ? old : g_oldReset;
@@ -118,33 +129,37 @@ static void InitD3D8WindowHook()
 extern linb::ini config;
 
 static InitFunction initFunc([]()
-{
-	if (GameDetect::currentGame == GameID::BG4)
-		return;
-	if (GameDetect::currentGame == GameID::BG4_Eng)
-		return;
-	if (GameDetect::currentGame == GameID::TER)
-		return;
-
-	// Make local variables for speed
-	Windowed = ToBool(config["General"]["Windowed"]);
-
-	// Old boolean based limit of 60 fps (keep this for backward compatibility)
-	if (ToBool(config["General"]["Framelimiter"]))
 	{
-		FpsLimiterEnable = true;
-		FpsLimiterSet(60.0f);
-	}
-	// New configurable fps limit
-	else if (ToBool(config["General"]["FpsLimitEnable"]))
-	{
-		FpsLimiterEnable = true;
-		FpsLimiterSet((float)FetchDwordInformation("General", "FpsLimit", 60));
-	}
+		if (GameDetect::currentGame == GameID::BG4)
+			return;
+		if (GameDetect::currentGame == GameID::BG4_Eng)
+			return;
+		if (GameDetect::currentGame == GameID::TER)
+			return;
+		if (GameDetect::currentGame == GameID::FNF || GameDetect::currentGame == GameID::FNFSB)
+		{
+			useXRGB = true;
+		}
 
-	SoftwareShaderHack = ToBool(config["General"]["SoftwareVertexShaders"]);
+		// Make local variables for speed
+		Windowed = ToBool(config["General"]["Windowed"]);
 
-	if (Windowed || FpsLimiterEnable || SoftwareShaderHack)
-		InitD3D8WindowHook();
-});
+		// Old boolean based limit of 60 fps (keep this for backward compatibility)
+		if (ToBool(config["General"]["Framelimiter"]))
+		{
+			FpsLimiterEnable = true;
+			FpsLimiterSet(60.0f);
+		}
+		// New configurable fps limit
+		else if (ToBool(config["General"]["FpsLimitEnable"]))
+		{
+			FpsLimiterEnable = true;
+			FpsLimiterSet((float)FetchDwordInformation("General", "FpsLimit", 60));
+		}
+
+		SoftwareShaderHack = ToBool(config["General"]["SoftwareVertexShaders"]);
+
+		if (Windowed || FpsLimiterEnable || SoftwareShaderHack)
+			InitD3D8WindowHook();
+	});
 #pragma optimize("", on)

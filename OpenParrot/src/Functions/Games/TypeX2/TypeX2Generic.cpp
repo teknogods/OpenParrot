@@ -77,37 +77,45 @@ extern BOOL(__stdcall* GaiaAttack4GetKeyboardStateOri)(PBYTE lpKeyState);
 extern BOOL WINAPI GaiaAttack4GetKeyboardStateHook(PBYTE lpKeyState);
 extern UINT8 GaiaAttack4Volume;
 
-void AddCommOverride(HANDLE hFile);
 
-static char moveBuf[256];
-static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
+int (WINAPI*SkyStageRenderSettingsOri)();
+int SkyStageRenderSettingsHook()
 {
+	DWORD imageBase = (DWORD)GetModuleHandleA(0);
+	injector::WriteMemory<DWORD>(imageBase + 0x40b9f0, 0x1, true); // ScreenRes
+	return SkyStageRenderSettingsOri();
+}
+
+void AddCommOverride(HANDLE hFile);
+static std::string ParseFileNamesA(LPCSTR lpFileName)
+{
+	char moveBufA[256]{};
 #ifdef _DEBUG
 	info("ParseFileNamesA original: %s", lpFileName);
 #endif
 	// Tetris ram folder redirect
 	if (!strncmp(lpFileName, ".\\TGM3\\", 7)) 
 	{
-		memset(moveBuf, 0, 256);
-		sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 2);
-		return moveBuf;
+		memset(moveBufA, 0, 256);
+		sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName + 2);
+		return moveBufA;
 	}
 
 	// KOF98 test menu
 	if (!strncmp(lpFileName, "Ranking*.txt", 8) || !strncmp(lpFileName, "Setting*.txt", 7)
 		|| !strncmp(lpFileName, "CoinFile*.txt", 8))
 	{
-		memset(moveBuf, 0, 256);
-		sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName);
-		return moveBuf;
+		memset(moveBufA, 0, 256);
+		sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName);
+		return moveBufA;
 	}
 
 	// KOFMIRA test menu
 	if (!strncmp(lpFileName, "*.txt", 5))
 	{
-		memset(moveBuf, 0, 256);
-		sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName);
-		return moveBuf;
+		memset(moveBufA, 0, 256);
+		sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName);
+		return moveBufA;
 	}
 
 	if (GameDetect::currentGame == GameID::ElevatorActionDeathParade)
@@ -153,7 +161,7 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 				EADPAttractVidPlay = false;
 		}
 
-		memset(moveBuf, 0, 256);
+		memset(moveBufA, 0, 256);
 
 		char pathRoot[MAX_PATH];
 		GetModuleFileNameA(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot));
@@ -161,14 +169,14 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 
 		if (lpFileName[2] == '\\' || lpFileName[2] == '/')
 		{
-			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 3);
+			sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName + 3);
 #ifdef _DEBUG
 			info("PathRoot: %s", pathRoot);
 			info("ParseFileNamesA - 3: %s", lpFileName + 3);
-			info("ParseFileNamesA movBuf: %s", moveBuf);
+			info("ParseFileNamesA movBuf: %s", moveBufA);
 #endif
 			// convert char to string, and replace '/' to '\\'
-			std::string movBufOP = moveBuf;
+			std::string movBufOP = moveBufA;
 			std::replace(movBufOP.begin(), movBufOP.end(), '/', '\\');
 
 			// if redirected path contains the full path, don't redirect, fixes running games from D:
@@ -184,34 +192,34 @@ static LPCSTR ParseFileNamesA(LPCSTR lpFileName)
 		{
 			if (!strncmp(lpFileName, "D:data", 6)) // needed for ChaseHQ, KOFMIRA
 			{
-				sprintf(moveBuf, ".\\%s", lpFileName + 2);
+				sprintf(moveBufA, ".\\%s", lpFileName + 2);
 #ifdef _DEBUG
-				info("D:data redirect: %s", moveBuf);
+				info("D:data redirect: %s", moveBufA);
 #endif
-				return moveBuf;
+				return moveBufA;
 			}
 
-			if (!strncmp(lpFileName, "D:.\\data", 8)) // BG4
+			if (!strncmp(lpFileName + 1, ":.\\data", 7)) // BG4
 			{
-				sprintf(moveBuf, ".\\%s", lpFileName + 4);
+				sprintf(moveBufA, ".\\%s", lpFileName + 4);
 #ifdef _DEBUG
-				info("D:.\\data redirect: %s", moveBuf);
+				info("D:.\\data redirect: %s", moveBufA);
 #endif
-				return moveBuf;
+				return moveBufA;
 			}
 
 			// Magical Beat has d: WTF?
-			sprintf(moveBuf, ".\\OpenParrot\\%s", lpFileName + 2);
+			sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName + 2);
 		}
-		return moveBuf;
+		return moveBufA;
 	}
 
 	return lpFileName;
 }
 
-static wchar_t moveBufW[256];
-static LPCWSTR ParseFileNamesW(LPCWSTR lpFileName)
+static std::wstring ParseFileNamesW(LPCWSTR lpFileName)
 {
+	wchar_t moveBufW[256];
 #ifdef _DEBUG
 	info("ParseFileNamesW original: %ls", lpFileName);
 #endif
@@ -304,7 +312,7 @@ static HANDLE __stdcall CreateFileAWrap(LPCSTR lpFileName,
 		}
 	}
 
-	return CreateFileA(ParseFileNamesA(lpFileName),
+	return CreateFileA(ParseFileNamesA(lpFileName).c_str(),
 		dwDesiredAccess,
 		dwShareMode,
 		lpSecurityAttributes,
@@ -333,7 +341,7 @@ static HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 		}
 	}
 
-	return CreateFileW(ParseFileNamesW(lpFileName),
+	return CreateFileW(ParseFileNamesW(lpFileName).c_str(),
 		dwDesiredAccess,
 		dwShareMode,
 		lpSecurityAttributes,
@@ -344,42 +352,42 @@ static HANDLE __stdcall CreateFileWWrap(LPCWSTR lpFileName,
 
 static BOOL __stdcall CreateDirectoryAWrap(LPCSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	return CreateDirectoryA(ParseFileNamesA(lpPathName), nullptr);
+	return CreateDirectoryA(ParseFileNamesA(lpPathName).c_str(), nullptr);
 }
 
 static BOOL __stdcall CreateDirectoryWWrap(LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	return CreateDirectoryW(ParseFileNamesW(lpPathName), nullptr);
+	return CreateDirectoryW(ParseFileNamesW(lpPathName).c_str(), nullptr);
 }
 
 static HANDLE __stdcall FindFirstFileAWrap(LPCSTR lpFileName, LPWIN32_FIND_DATAA lpFindFileData)
 {
-	return FindFirstFileA(ParseFileNamesA(lpFileName), lpFindFileData);
+	return FindFirstFileA(ParseFileNamesA(lpFileName).c_str(), lpFindFileData);
 }
 
 static HANDLE __stdcall FindFirstFileWWrap(LPCWSTR lpFileName, LPWIN32_FIND_DATAW lpFindFileData)
 {
-	return FindFirstFileW(ParseFileNamesW(lpFileName), lpFindFileData);
+	return FindFirstFileW(ParseFileNamesW(lpFileName).c_str(), lpFindFileData);
 }
 
 static HANDLE __stdcall FindFirstFileExAWrap(LPCSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS  fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
 {
-	return FindFirstFileExA(ParseFileNamesA(lpFileName), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+	return FindFirstFileExA(ParseFileNamesA(lpFileName).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
 }
 
 static HANDLE __stdcall FindFirstFileExWWrap(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPWIN32_FIND_DATAW lpFindFileData, FINDEX_SEARCH_OPS  fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
 {
-	return FindFirstFileExW(ParseFileNamesW(lpFileName), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+	return FindFirstFileExW(ParseFileNamesW(lpFileName).c_str(), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
 }
 
 static DWORD __stdcall GetFileAttributesAWrap(LPCSTR lpFileName)
 {
-	return GetFileAttributesA(ParseFileNamesA(lpFileName));
+	return GetFileAttributesA(ParseFileNamesA(lpFileName).c_str());
 }
 
 static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
 {
-	return GetFileAttributesW(ParseFileNamesW(lpFileName));
+	return GetFileAttributesW(ParseFileNamesW(lpFileName).c_str());
 }
 
 static BOOL __stdcall GetDiskFreeSpaceExAWrap(LPCSTR lpDirectoryName, PULARGE_INTEGER lpFreeBytesAvailableToCaller, PULARGE_INTEGER lpTotalNumberOfBytes, PULARGE_INTEGER lpTotalNumberOfFreeBytes)
@@ -669,6 +677,22 @@ static InitFunction initFunction([]()
 				injector::MakeNOP(imageBase + 0x1E880, 6);
 				injector::MakeNOP(imageBase + 0x27447, 3);
 			
+				//
+				if (!ToBool(config["General"]["Custom Resolution (Professional Edition)"]))
+				{
+					injector::WriteMemory<DWORD>(imageBase + 0x1f4c6d, 1366, true);
+					injector::WriteMemory<DWORD>(imageBase + 0xa0536, 1366, true);
+				}
+				else 
+				{
+					int resWidth = ToInt(config["General"]["Custom Resolution Width"]);
+					int resHeight = ToInt(config["General"]["Custom Resolution Height"]);
+					injector::WriteMemory<DWORD>(imageBase + 0x1f4c6d, resWidth, true);
+					injector::WriteMemory<DWORD>(imageBase + 0xa0536, resWidth, true);
+					injector::WriteMemory<DWORD>(imageBase + 0x1f4c77, resHeight, true);
+					injector::WriteMemory<DWORD>(imageBase + 0xa0531, resHeight, true);
+				}
+
 				// Fix 6MT warning upon key entry
 				injector::WriteMemoryRaw(imageBase + 0xD4AC3, "\xE9\x0E\x01\x00", 4, true);
 
@@ -1000,6 +1024,11 @@ static InitFunction initFunction([]()
 			// change window title
 			static const char* title = "OpenParrot - The King of Fighters Sky Stage";
 			injector::WriteMemory<DWORD>(imageBase + 0xBE812, (DWORD)title, true);
+
+			MH_Initialize();
+			MH_CreateHook((void*)(imageBase + 0xce1b0), SkyStageRenderSettingsHook, (void**)&SkyStageRenderSettingsOri);
+			MH_EnableHook(MH_ALL_HOOKS);
+
 		}
 	}
 
