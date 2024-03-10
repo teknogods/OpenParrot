@@ -31,8 +31,8 @@ extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
 // hooks ori
-BOOL(__stdcall *original_SetWindowPos)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
-BOOL(__stdcall *original_CreateWindowExA)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+BOOL(__stdcall* original_SetWindowPos)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
+BOOL(__stdcall* original_CreateWindowExA)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 
 DWORD WINAPI InputRT(LPVOID lpParam)
 {
@@ -57,9 +57,9 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		{
 			if (button1pressed == false)
 			{
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
-			button1pressed = true;
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
+				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
+				button1pressed = true;
 			}
 		}
 		else
@@ -186,7 +186,7 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 		}
 		// WHEEL
 		int iWheel = (((float)*ffbOffset2) - 128);
-		float wheel = (iWheel * 0.0078125f);	
+		float wheel = (iWheel * 0.0078125f);
 		injector::WriteMemory<float>((0x19A300 + BaseAddress), wheel, true);
 		injector::WriteMemory<BYTE>((0x41B85B0 + BaseAddress), iWheel, true);
 		// GAS
@@ -205,66 +205,13 @@ DWORD WINAPI InputRT(LPVOID lpParam)
 
 		Sleep(deltaTimer);
 	}
-	
+
 	return 0;
-}
-
-DWORD WINAPI WindowRT(LPVOID lpParam)
-{
-	while (true)
-	{
-			// LEFT-CLICK MOVES WINDOW FROM TOP-LEFT CORNER
-		if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
-		{
-			HWND hWndTMP = GetForegroundWindow();
-			if (hWndRT == 0)
-			{
-				hWndRT = FindWindowA(NULL, "FNF Drift");
-			}
-			if (hWndTMP == hWndRT)
-			{
-				POINT point;
-				GetCursorPos(&point);
-				RECT rect;
-				GetWindowRect(hWndRT, &rect);
-				int width = rect.right - rect.left;
-				int height = rect.bottom - rect.top;
-				LPARAM blah = MAKELPARAM(point.x, point.y);
-				int xClick = LOWORD(blah) + 10;
-				int yClick = HIWORD(blah);
-				if ((xClick + width) > horizontal)
-				{
-					xClick = ((horizontal - width) + 10);
-				}
-				if ((yClick + height) > vertical)
-				{
-					yClick = (vertical - height);
-				}
-				original_SetWindowPos(hWndRT, HWND_TOP, xClick, yClick, width, height, SWP_NOSIZE);
-				SetForegroundWindow(hWndRT);
-
-			}
-		}
-			// RIGHT-CLICK MINIMIZES WINDOW
-			if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
-			{
-				HWND hWndTMP = GetForegroundWindow();
-				if (hWndRT == 0)
-				{
-					hWndRT = FindWindowA(NULL, "FNF Drift");
-				}
-				if (hWndTMP == hWndRT)
-				{
-					original_SetWindowPos(hWndRT, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE);
-					ShowWindow(hWndRT, SW_MINIMIZE);
-				}
-			}
-	}
 }
 
 DWORD WINAPI CreateWindowExART(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
-	return original_CreateWindowExA(dwExStyle, lpClassName, "FNF Drift", 0x96C60000, X, Y, (nWidth+16), (nHeight+39), hWndParent, hMenu, hInstance, lpParam);
+	return original_CreateWindowExA(dwExStyle, lpClassName, "FNF Drift", 0x96C60000, X, Y, (nWidth + 16), (nHeight + 39), hWndParent, hMenu, hInstance, lpParam);
 }
 
 HCURSOR WINAPI SetCursorRT(int X, int Y)
@@ -282,73 +229,78 @@ DWORD WINAPI SetWindowPosRT(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int c
 	return 1;
 }
 
-static InitFunction FNFDriftFunc([]()
+static DWORD genericRetZero()
 {
-	GetDesktopResolution(horizontal, vertical);
-	cursorhndle = GetCursor();
+	return 0;
+}
 
-	// DISABLE MOUSE AND JOYSTICK
-	injector::WriteMemory<BYTE>((0x553FD + BaseAddress), 0x13, true);
-
-	// PATCH CODE FOR GAS AND BRAKE
-	injector::WriteMemoryRaw((0x67E44 + BaseAddress), "\xA1\x10\xA3\x59\x00\x89\x86\xD4\x00\x00\x00\xEB\x17", 13, true);
-	injector::MakeNOP((0x67E85 + BaseAddress), 10);
-	injector::MakeNOP((0x67EB8 + BaseAddress), 6);
-
-	// FIX FOCUS CRASH
-	injector::MakeNOP((0x63E17 + BaseAddress), 6);
-
-	// REPLACE SPACE KEY WITH ESC TO PREVENT EXITING LEVEL PREMATURELY
-	injector::WriteMemory<BYTE>((0x58E8A + BaseAddress), DIK_ESCAPE, true);
-
-	// REMOVE ERROR MESSAGEBOX ON CLOSE
-	injector::WriteMemory<BYTE>((0x6431D + BaseAddress), 0xEB, true);
-
-	// FIX file write on D:
-	injector::WriteMemoryRaw((0x1411F0 + BaseAddress), "\x2E\x5C\x65\x72\x72\x6F\x72\x6C\x6F\x67\x2E\x74\x78\x74\x00", 15, true);
-
-	// TEST KEY FIX (uses BACKSPACE now)
-	injector::MakeNOP((0x57B35 + BaseAddress), 14);
-	injector::WriteMemory<BYTE>((0x57B44 + BaseAddress), DIK_BACK, true);
-
-	// REMOVE ESC BOX
-	injector::MakeNOP((0x455FC8), 5, true);
-
-	CreateThread(NULL, 0, InputRT, NULL, 0, NULL);
-
-	if (ToBool(config["General"]["Windowed"]))
+static InitFunction FNFDriftFunc([]()
 	{
-	// CURSOR NOT HIDDEN
-	injector::WriteMemory<BYTE>((0x63F6F + BaseAddress), 0x01, true);
-	// SETWINDOWPOS DISABLE
-	injector::WriteMemory<BYTE>((0xCB596 + BaseAddress), 0x74, true);
-		
-	CreateThread(NULL, 0, WindowRT, NULL, 0, NULL);
+		GetDesktopResolution(horizontal, vertical);
+		cursorhndle = GetCursor();
 
-	MH_Initialize();
-	MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART, (void**)&original_CreateWindowExA);
-	MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT, NULL);
-	MH_CreateHookApi(L"user32.dll", "SetCursor", &SetCursorRT, NULL);
-	MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT, (void**)&original_SetWindowPos);
-	MH_EnableHook(MH_ALL_HOOKS);
-	}
+		// DISABLE MOUSE AND JOYSTICK
+		injector::WriteMemory<BYTE>((0x553FD + BaseAddress), 0x13, true);
 
-	// MACHINE ID setting
-	if ((strcmp(config["Network"]["MachineID"].c_str(), "2") == 0))
-	{
-		injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x01, true);
-	}
-	else if ((strcmp(config["Network"]["MachineID"].c_str(), "3") == 0))
-	{
-		injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x02, true);
-	}
-	else if ((strcmp(config["Network"]["MachineID"].c_str(), "4") == 0))
-	{
-		injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x03, true);
-	}
-	else // MACHINE ID = 1
-	{
-		injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x00, true);
-	}
+		// PATCH CODE FOR GAS AND BRAKE
+		injector::WriteMemoryRaw((0x67E44 + BaseAddress), "\xA1\x10\xA3\x59\x00\x89\x86\xD4\x00\x00\x00\xEB\x17", 13, true);
+		injector::MakeNOP((0x67E85 + BaseAddress), 10);
+		injector::MakeNOP((0x67EB8 + BaseAddress), 6);
 
-}, GameID::FNFDrift);
+		// FIX FOCUS CRASH
+		injector::MakeNOP((0x63E17 + BaseAddress), 6);
+
+		// REPLACE SPACE KEY WITH ESC TO PREVENT EXITING LEVEL PREMATURELY
+		injector::WriteMemory<BYTE>((0x58E8A + BaseAddress), DIK_ESCAPE, true);
+
+		// REMOVE ERROR MESSAGEBOX ON CLOSE
+		injector::WriteMemory<BYTE>((0x6431D + BaseAddress), 0xEB, true);
+
+		// FIX file write on D:
+		injector::WriteMemoryRaw((0x1411F0 + BaseAddress), "\x2E\x5C\x65\x72\x72\x6F\x72\x6C\x6F\x67\x2E\x74\x78\x74\x00", 15, true);
+
+		// TEST KEY FIX (uses BACKSPACE now)
+		injector::MakeNOP((0x57B35 + BaseAddress), 14);
+		injector::WriteMemory<BYTE>((0x57B44 + BaseAddress), DIK_BACK, true);
+
+		// REMOVE ESC BOX
+		injector::MakeNOP((0x455FC8), 5, true);
+
+		CreateThread(NULL, 0, InputRT, NULL, 0, NULL);
+
+		safeJMP(0x4c7c60, genericRetZero);
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			// CURSOR NOT HIDDEN
+			injector::WriteMemory<BYTE>((0x63F6F + BaseAddress), 0x01, true);
+			// SETWINDOWPOS DISABLE
+			injector::WriteMemory<BYTE>((0xCB596 + BaseAddress), 0x74, true);
+
+			MH_Initialize();
+			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART, (void**)&original_CreateWindowExA);
+			MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT, NULL);
+			MH_CreateHookApi(L"user32.dll", "SetCursor", &SetCursorRT, NULL);
+			MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT, (void**)&original_SetWindowPos);
+			MH_EnableHook(MH_ALL_HOOKS);
+		}
+
+		// MACHINE ID setting
+		if ((strcmp(config["Network"]["MachineID"].c_str(), "2") == 0))
+		{
+			injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x01, true);
+		}
+		else if ((strcmp(config["Network"]["MachineID"].c_str(), "3") == 0))
+		{
+			injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x02, true);
+		}
+		else if ((strcmp(config["Network"]["MachineID"].c_str(), "4") == 0))
+		{
+			injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x03, true);
+		}
+		else // MACHINE ID = 1
+		{
+			injector::WriteMemory<DWORD>((0x137F88 + BaseAddress), 0x00, true);
+		}
+
+	}, GameID::FNFDrift);
