@@ -11,17 +11,20 @@
 static bool Windowed = false;
 static bool FpsLimiterEnable = false;
 static bool SoftwareShaderHack = false;
+static bool useSoftwareTextures = false;
 
 // Prototypes
 static HRESULT(WINAPI* g_oldPresent)(IDirect3DDevice8* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
 static HRESULT(WINAPI* g_oldReset)(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresentationParameters);
 static HRESULT(WINAPI* g_oldCreateDevice)(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface);
 static IDirect3D8* (WINAPI* g_origDirect3DCreate8)(UINT SDKVersion);
+static HRESULT(WINAPI* g_oldCreateTexture)(IDirect3DDevice8* self, UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DTexture8** ppTexture);
 
 static HRESULT WINAPI PresentWrap(IDirect3DDevice8* self, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
 static HRESULT WINAPI ResetWrap(IDirect3DDevice8* self, D3DPRESENT_PARAMETERS* pPresentationParameters);
 static HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice8** ppReturnedDeviceInterface);
 static IDirect3D8* WINAPI Direct3DCreate8Wrap(UINT SDKVersion);
+static HRESULT WINAPI CreateTextureWrap(IDirect3DDevice8* self, UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DTexture8** ppTexture);
 
 // Functions
 template<typename T>
@@ -93,7 +96,7 @@ static HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYP
 
 	if (*ppReturnedDeviceInterface)
 	{
-	if (Windowed)
+		if (Windowed)
 		{
 			auto old = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->Reset, ResetWrap);
 			g_oldReset = (old) ? old : g_oldReset;
@@ -104,9 +107,25 @@ static HRESULT WINAPI CreateDeviceWrap(IDirect3D8* self, UINT Adapter, D3DDEVTYP
 			auto old2 = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->Present, PresentWrap);
 			g_oldPresent = (old2) ? old2 : g_oldPresent;
 		}
+
+		if (useSoftwareTextures)
+		{
+			auto old3 = HookVtableFunction(&(*ppReturnedDeviceInterface)->lpVtbl->CreateTexture, CreateTextureWrap);
+			g_oldCreateTexture = (old3) ? old3 : g_oldCreateTexture;
+		}
 	}
 
 	return hr;
+}
+
+static HRESULT WINAPI CreateTextureWrap(IDirect3DDevice8* self, UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DTexture8** ppTexture)
+{
+	if (Usage == D3DUSAGE_DYNAMIC)
+	{
+		Usage = D3DUSAGE_SOFTWAREPROCESSING | D3DUSAGE_DYNAMIC;
+	}
+
+	return g_oldCreateTexture(self, Width, Height, Levels, Usage, Format, Pool, ppTexture);
 }
 
 static IDirect3D8* WINAPI Direct3DCreate8Wrap(UINT SDKVersion)
@@ -139,6 +158,7 @@ static InitFunction initFunc([]()
 		if (GameDetect::currentGame == GameID::FNF || GameDetect::currentGame == GameID::FNFSB)
 		{
 			useXRGB = true;
+			useSoftwareTextures = true;
 		}
 
 		// Make local variables for speed
