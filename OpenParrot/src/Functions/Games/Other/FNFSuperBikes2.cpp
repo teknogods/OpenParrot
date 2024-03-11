@@ -521,31 +521,6 @@ DWORD WINAPI FullscreenRT5(LPVOID lpParam)
 	}
 }
 
-DWORD WINAPI WindowRT5(LPVOID lpParam)
-{
-	while (true)
-	{
-		// RIGHT-CLICK MINIMIZES WINDOW
-		if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
-		{
-			HWND hWndTMP = GetForegroundWindow();
-			if (hWndRT5 == 0)
-			{
-				hWndRT5 = FindWindowA(NULL, "FNF SuperBikes 2");
-			}
-			if (hWndTMP == hWndRT5)
-			{
-				RECT rect;
-				GetWindowRect(hWndRT5, &rect);
-				int currentwidth = rect.right - rect.left;
-				int currentheight = rect.bottom - rect.top;
-				original_SetWindowPos5(hWndRT5, HWND_BOTTOM, 0, 0, 1366, 768, SWP_NOSIZE);
-				ShowWindow(hWndRT5, SW_MINIMIZE);
-			}
-		}
-	}
-}
-
 BOOL(__stdcall* original_DefWindowProcA5)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 DWORD WINAPI DefWindowProcART5(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -637,6 +612,9 @@ static InitFunction FNFSB2Func([]()
 
 		CreateThread(NULL, 0, InputRT5, NULL, 0, NULL);
 
+		// run from any path (using relative paths instead of absolute)
+		safeJMP(0x4aa8a0, genericRetZero, true);
+
 		MH_Initialize();
 		MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART5, (void**)& original_CreateWindowExA5);
 		MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT5, (void**)& original_SetWindowPos5);
@@ -645,9 +623,7 @@ static InitFunction FNFSB2Func([]()
 		if (ToBool(config["General"]["Windowed"]))
 		{
 			// NO HIDE CURSOR
-			injector::WriteMemory<BYTE>((0x11515 + BaseAddress5), 0x01, true);
-
-			CreateThread(NULL, 0, WindowRT5, NULL, 0, NULL);
+			//injector::WriteMemory<BYTE>((0x11515 + BaseAddress5), 0x01, true);
 
 			MH_Initialize();
 			MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcART5, (void**)& original_DefWindowProcA5);

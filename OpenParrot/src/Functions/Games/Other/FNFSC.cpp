@@ -33,8 +33,8 @@ extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
 // hooks ori
-BOOL(__stdcall *original_SetWindowPos2)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
-BOOL(__stdcall *original_CreateWindowExA2)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
+BOOL(__stdcall* original_SetWindowPos2)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
+BOOL(__stdcall* original_CreateWindowExA2)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 
 DWORD WINAPI InputRT2(LPVOID lpParam)
 {
@@ -228,7 +228,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 
 		Sleep(deltaTimer);
 	}
-	
+
 	return 0;
 }
 
@@ -261,28 +261,7 @@ DWORD WINAPI FullscreenRT2(LPVOID lpParam)
 	}
 }
 
-DWORD WINAPI WindowRT2(LPVOID lpParam)
-{
-	while (true)
-	{
-			// RIGHT-CLICK MINIMIZES WINDOW
-			if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
-			{
-				HWND hWndTMP = GetForegroundWindow();
-				if (hWndRT2 == 0)
-				{
-					hWndRT2 = FindWindowA(NULL, "FNF SuperCars");
-				}
-				if (hWndTMP == hWndRT2)
-				{
-					original_SetWindowPos2(hWndRT2, HWND_BOTTOM, 0, 0, 1360, 768, SWP_NOSIZE);
-					ShowWindow(hWndRT2, SW_MINIMIZE);
-				}
-			}
-	}
-}
-
-BOOL(__stdcall *original_DefWindowProcA2)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+BOOL(__stdcall* original_DefWindowProcA2)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 DWORD WINAPI DefWindowProcART2(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static int xClick;
@@ -318,14 +297,14 @@ DWORD WINAPI DefWindowProcART2(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		}
 		break;
 	}
-	
+
 	}
 	return original_DefWindowProcA2(hWnd, message, wParam, lParam);
 }
 
 DWORD WINAPI CreateWindowExART2(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
-		return original_CreateWindowExA2(dwExStyle, lpClassName, "FNF SuperCars", 0x96000000, 0, 0, 1360, 768, hWndParent, hMenu, hInstance, lpParam);
+	return original_CreateWindowExA2(dwExStyle, lpClassName, "FNF SuperCars", 0x96000000, 0, 0, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 }
 
 DWORD WINAPI SetCursorPosRT2(int X, int Y)
@@ -339,59 +318,64 @@ DWORD WINAPI SetWindowPosRT2(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int 
 }
 
 static InitFunction FNFSCFunc([]()
-{
-	GetDesktopResolution(horizontal2, vertical2);
-	cursorhndle2 = GetCursor();
-
-	// REMOVE ERROR MESSAGEBOX ON CLOSE
-	injector::WriteMemory<BYTE>((0x73794 + BaseAddress2), 0xEB, true);
-	
-	// REMOVE CMD WATSON nonsense
-	injector::MakeNOP((0x5F3882), 2, true);
-
-	// REMOVE ESC BOX
-	injector::MakeNOP((0x464A58), 5, true);
-
-	CreateThread(NULL, 0, InputRT2, NULL, 0, NULL);
-
-	MH_Initialize();
-	MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART2, (void**)&original_CreateWindowExA2);
-	MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT2, (void**)&original_SetWindowPos2);
-	MH_EnableHook(MH_ALL_HOOKS);
-
-	if (ToBool(config["General"]["Windowed"]))
 	{
-	// NO HIDE CURSOR
-	injector::WriteMemory<BYTE>((0x72FCF + BaseAddress2), 0x01, true);
+		GetDesktopResolution(horizontal2, vertical2);
+		cursorhndle2 = GetCursor();
 
-	CreateThread(NULL, 0, WindowRT2, NULL, 0, NULL);
+		// REMOVE ERROR MESSAGEBOX ON CLOSE
+		injector::WriteMemory<BYTE>((0x73794 + BaseAddress2), 0xEB, true);
 
-	MH_Initialize();
-	MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcART2, (void**)&original_DefWindowProcA2);
-	MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT2, NULL);
-	MH_EnableHook(MH_ALL_HOOKS);
-	}
-	else
-	{
-		CreateThread(NULL, 0, FullscreenRT2, NULL, 0, NULL);
-	}
+		// REMOVE CMD WATSON nonsense
+		injector::MakeNOP((0x5F3882), 2, true);
 
-	// MACHINE ID setting
-	if ((strcmp(config["Network"]["MachineID"].c_str(), "2") == 0))
-	{
-		injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x01, true);
-	}
-	else if ((strcmp(config["Network"]["MachineID"].c_str(), "3") == 0))
-	{
-		injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x02, true);
-	}
-	else if ((strcmp(config["Network"]["MachineID"].c_str(), "4") == 0))
-	{
-		injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x03, true);
-	}
-	else // MACHINE ID = 1
-	{
-		injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x00, true);
-	}
+		// REMOVE ESC BOX
+		injector::MakeNOP((0x464A58), 5, true);
 
-}, GameID::FNFSC);
+		CreateThread(NULL, 0, InputRT2, NULL, 0, NULL);
+
+		MH_Initialize();
+		MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART2, (void**)&original_CreateWindowExA2);
+		MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT2, (void**)&original_SetWindowPos2);
+		MH_EnableHook(MH_ALL_HOOKS);
+
+		if (ToBool(config["General"]["Windowed"]))
+		{
+			// NO HIDE CURSOR
+			//injector::WriteMemory<BYTE>((0x72FCF + BaseAddress2), 0x01, true);
+
+			MH_Initialize();
+			MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcART2, (void**)&original_DefWindowProcA2);
+			MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT2, NULL);
+			MH_EnableHook(MH_ALL_HOOKS);
+		}
+		else
+		{
+			CreateThread(NULL, 0, FullscreenRT2, NULL, 0, NULL);
+		}
+
+		// use relative paths instead of absolute paths 
+		safeJMP(0x4a7ee0, genericRetZero, true);
+		
+		// Changing the res breaks any sort of 2D UI T_T
+		//injector::WriteMemory<DWORD>(0x730f24, 1920, true);
+		//injector::WriteMemory<DWORD>(0x730f28, 1080, true);
+
+		// MACHINE ID setting
+		if ((strcmp(config["Network"]["MachineID"].c_str(), "2") == 0))
+		{
+			injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x01, true);
+		}
+		else if ((strcmp(config["Network"]["MachineID"].c_str(), "3") == 0))
+		{
+			injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x02, true);
+		}
+		else if ((strcmp(config["Network"]["MachineID"].c_str(), "4") == 0))
+		{
+			injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x03, true);
+		}
+		else // MACHINE ID = 1
+		{
+			injector::WriteMemory<DWORD>((0x3036A8 + BaseAddress2), 0x00, true);
+		}
+
+	}, GameID::FNFSC);

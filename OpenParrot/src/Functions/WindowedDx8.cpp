@@ -155,7 +155,9 @@ static InitFunction initFunc([]()
 			return;
 		if (GameDetect::currentGame == GameID::TER)
 			return;
-		if (GameDetect::currentGame == GameID::FNF || GameDetect::currentGame == GameID::FNFSB || GameDetect::currentGame == GameID::FNFDrift)
+		if (GameDetect::currentGame == GameID::FNF || GameDetect::currentGame == GameID::FNFSB || 
+			GameDetect::currentGame == GameID::FNFDrift || GameDetect::currentGame == GameID::FNFSC ||
+			GameDetect::currentGame == GameID::FNFSB2)
 		{
 			useXRGB = true;
 			useSoftwareTextures = true;
