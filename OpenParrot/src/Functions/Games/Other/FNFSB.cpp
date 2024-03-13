@@ -9,9 +9,10 @@
 #include <string>
 #include <atlstr.h>
 
-#pragma comment(lib, "Ws2_32.lib")
+// Helper to clean up code
+#define Check2Keys(key1, key2) (GetAsyncKeyState(key1) & 0x8000 || GetAsyncKeyState(key2) & 0x8000)
 
-DWORD BaseAddress4 = 0x00400000;
+static DWORD mainModuleBase = 0x00400000;
 int horizontal4 = 0;
 int vertical4 = 0;
 HWND hWndRT4 = 0;
@@ -101,224 +102,63 @@ DWORD WINAPI DefWindowProcART4(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 DWORD WINAPI InputRT4(LPVOID lpParam)
 {
-	int deltaTimer = 16;
-	//INT_PTR keyboardBuffer = (0x31943C8 + BaseAddress4);
+	// We write directly into this struct in memory to bypass having to use debug stuff
+	DWORD* keypadStruct = (DWORD*)(0x3597688);
+	bool keypadPressed[12] = {};
 
+	int deltaTimer = 16;
 	while (true)
 	{
-		// buttons see bitwise values in TPui//RawThrills.cs
-		// START 
-		//if (*ffbOffset & 0x08)
-		//{
-		//	injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
-		//}
-		//// TEST
-		//if (*ffbOffset & 0x01)
-		//{
-		//	injector::WriteMemory<BYTE>((0x4C424 + BaseAddress4), 0xEB, true);
-		//}
-		//// NITRO ( = START too)
-		//if (*ffbOffset & 0x100)
-		//{
-		//	if (button1pressed == false)
-		//	{
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_N), 2, true);
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_SPACE), 2, true);
-		//		button1pressed = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (button1pressed == true)
-		//	{
-		//		button1pressed = false;
-		//	}
-		//}
-		//// SHIFT DOWN
-		//if (*ffbOffset & 0x2000)
-		//{
-		//	if (previousDown == false)
-		//	{
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
-		//		previousDown = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (previousDown == true)
-		//	{
-		//		previousDown = false;
-		//	}
-		//}
-		//// SHIFT UP
-		//if (*ffbOffset & 0x1000)
-		//{
-		//	if (previousUp == false)
-		//	{
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
-		//		previousUp = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (previousUp == true)
-		//	{
-		//		previousUp = false;
-		//	}
-		//}
-		//// BUTTON 1/ VIEW
-		//if (*ffbOffset & 0x200)
-		//{
-		//	if (button2pressed == false)
-		//	{
-		//		injector::MakeNOP((0x35BA5 + BaseAddress4), 2);
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_F), 2, true);
-		//		keybd_event(0x70, MapVirtualKey(0x70, MAPVK_VK_TO_VSC), 0, 0);
-		//		button2pressed = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (button2pressed == true)
-		//	{
-		//		injector::WriteMemoryRaw((0x35BA5 + BaseAddress4), "\x74\x46", 2, true);
-		//		keybd_event(0x70, MapVirtualKey(0x70, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-		//		button2pressed = false;
-		//	}
-		//}
-		//// BUTTON 2/ MUSIC
-		//if (*ffbOffset & 0x400)
-		//{
-		//	if (button3pressed == false)
-		//	{
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_B), 2, true);
-		//		keybd_event(0xDC, MapVirtualKey(0xDC, MAPVK_VK_TO_VSC), 0, 0);
-		//		button3pressed = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (button3pressed == true)
-		//	{
-		//		keybd_event(0xDC, MapVirtualKey(0xDC, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-		//		button3pressed = false;
-		//	}
-		//}
-		//// BUTTON 3/ OTHER
-		//if (*ffbOffset & 0x800)
-		//{
-		//	if (button4pressed == false)
-		//	{
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_E), 2, true);
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_J), 2, true);
-		//		button4pressed = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (button4pressed == true)
-		//	{
-		//		button4pressed = false;
-		//	}
-		//}
-		//// MENU LEFT
-		//if (*ffbOffset & 0x4000)
-		//{
-		//	if (previousLeft == false)
-		//	{
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
-		//		previousLeft = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (previousLeft == true)
-		//	{
-		//		previousLeft = false;
-		//	}
-		//}
-		//// MENU RIGHT
-		//if (*ffbOffset & 0x8000)
-		//{
-		//	if (previousRight == false)
-		//	{
-		//		injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
-		//		previousRight = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (previousRight == true)
-		//	{
-		//		previousRight = false;
-		//	}
-		//}
+		// I wish this was a bit cleaner but for now this will suffice
+		if (Check2Keys('0', VK_NUMPAD0)) {
+			if (!keypadPressed[10]) {
+				keypadStruct[10] = 1;
+				keypadPressed[10] = true;
+			}
+		}
+		else {
+			keypadStruct[10] = 0;
+			keypadPressed[10] = false;
+		}
 
-		//RECT rect;
-		//GetWindowRect(hWndRT4, &rect);
-		//int width = rect.right - rect.left;
-		//int height = rect.bottom - rect.top;
-		//int windowcenterx = (rect.left + (width * 0.5));
-		//int windowcentery = (rect.top + (height * 0.5));
-		//// WHEEL
-		//int iWheel0 = (((float)*ffbOffset2) - 128);
-		//float wheel = (iWheel0 * 0.0078125f);
-		//int iWheel = (int)((width - 20) * 0.5 * wheel);
-		//double fx = (float)((wheel) * (65535.0f / horizontal4));
+		if (Check2Keys(VK_OEM_MINUS, VK_DECIMAL)) {
+			if (!keypadPressed[9]) {
+				keypadStruct[9] = 1;
+				keypadPressed[9] = true;
+			}
+		}
+		else {
+			keypadStruct[9] = 0;
+			keypadPressed[9] = false;
+		}
 
-		//if (movable4 == false)
-		//{
-		//	polling4 = true;
-		//	mouse_event(MOUSEEVENTF_MOVE, fx, 0, 0, 0);
-		//	polling4 = false;
-		//}
+		if (Check2Keys(VK_OEM_PLUS, VK_RETURN)) {
+			if (!keypadPressed[11]) {
+				keypadStruct[11] = 1;
+				keypadPressed[11] = true;
+			}
+		}
+		else {
+			keypadStruct[11] = 0;
+			keypadPressed[11] = false;
+		}
 
-		//// GAS
-		//if (*ffbOffset3 >= 5)
-		//{
-		//	if (gaspressed == false)
-		//	{
-		//		keybd_event(0x51, MapVirtualKey(0x51, MAPVK_VK_TO_VSC), 0, 0); // Q key (qwerty A)
-		//		keybd_event(0x41, MapVirtualKey(0x41, MAPVK_VK_TO_VSC), 0, 0); // A key
-		//		gaspressed = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (gaspressed == true)
-		//	{
-		//		keybd_event(0x51, MapVirtualKey(0x51, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-		//		keybd_event(0x41, MapVirtualKey(0x41, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-		//		gaspressed = false;
-		//	}
-		//}
-
-		//// BRAKE
-		//if (*ffbOffset4 >= 5)
-		//{
-		//	if (brakepressed == false)
-		//	{
-		//		keybd_event(0x57, MapVirtualKey(0x57, MAPVK_VK_TO_VSC), 0, 0); // W key (qwerty Z)
-		//		keybd_event(0x5A, MapVirtualKey(0x5A, MAPVK_VK_TO_VSC), 0, 0); // Z key
-		//		brakepressed = true;
-		//	}
-		//}
-		//else
-		//{
-		//	if (brakepressed == true)
-		//	{
-		//		keybd_event(0x57, MapVirtualKey(0x57, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-		//		keybd_event(0x5A, MapVirtualKey(0x5A, MAPVK_VK_TO_VSC), KEYEVENTF_KEYUP, 0);
-		//		brakepressed = false;
-		//	}
-		//}
-
+		for (int key = 1; key <= 9; ++key) {
+			if (Check2Keys('0' + key, VK_NUMPAD0 + key)) {
+				if (!keypadPressed[key - 1]) {
+					keypadStruct[key - 1] = 1;
+					keypadPressed[key - 1] = true;
+				}
+			}
+			else {
+				keypadStruct[key - 1] = 0;
+				keypadPressed[key - 1] = false;
+			}
+		}
 
 		// WHEEL
 		int iWheel = (*ffbOffset2 - 128);
 		float wheel = (iWheel * 0.0078125f);
-		////injector::WriteMemory<float>((0x31b672c + mainModuleBase), wheel, true); // THIS MESSES UP GAS AND IS NOT NEEDED, DO NOT UNCOMMENT
-		//// add 128 back to iWheel, somehow the game wants 0 to 255 for the byte
 		injector::WriteMemory<BYTE>(0x35975c8, iWheel + 128, true);
 		//// GAS
 		float gas = ((float)*ffbOffset3) / 255.0f;
@@ -333,10 +173,6 @@ DWORD WINAPI InputRT4(LPVOID lpParam)
 			brakepressed = false;
 			brakepressedlastframe = false;
 		}
-
-		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//	info(true, "test values *ffbOffset2=0x%02X /  *iWheel=%d / *wheel=%f ", *ffbOffset2, iWheel, fx);
-		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		SleepEx(deltaTimer, 1);
 	}
@@ -525,28 +361,22 @@ static InitFunction FNFSBFunc([]()
 	{
 		GetDesktopResolution(horizontal4, vertical4);
 		uintptr_t mainModuleBase = (uintptr_t)GetModuleHandleA(0);
-		// BUTTON VIEW 1 HACK
-		//injector::WriteMemory<BYTE>((0x3A51E + BaseAddress4), DIK_F1, true);
-
-		//// BUTTON VIEW 3 HACK
-		//injector::WriteMemory<BYTE>((0xB7BC9 + BaseAddress4), DIK_F4, true);
-
 		// DISABLE CURSOR RESET
-		injector::WriteMemory<BYTE>((0x57C19 + BaseAddress4), 0xEB, true);
+		injector::WriteMemory<BYTE>((0x57C19 + mainModuleBase), 0xEB, true);
 
 		// REMOVE ERROR MESSAGEBOX ON CLOSE
-		injector::WriteMemory<BYTE>((0x584AA + BaseAddress4), 0xEB, true);
+		injector::WriteMemory<BYTE>((0x584AA + mainModuleBase), 0xEB, true);
 
 		// REPLACE SPACE KEY WITH ESC TO PREVENT EXITING LEVEL PREMATURELY
-		injector::WriteMemory<BYTE>((0x4D1C5 + BaseAddress4), DIK_ESCAPE, true);
+		injector::WriteMemory<BYTE>((0x4D1C5 + mainModuleBase), DIK_ESCAPE, true);
 
 		// FIX file write on D:
-		injector::WriteMemoryRaw((0x125B50 + BaseAddress4), "\x2E\x5C\x65\x72\x72\x6F\x72\x6C\x6F\x67\x2E\x74\x78\x74\x00", 15, true);
-		injector::WriteMemoryRaw((0x11FAD4 + BaseAddress4), "\x2E\x5C\x76\x65\x72\x73\x69\x6F\x6E\x2E\x74\x78\x74\x00", 14, true);
+		injector::WriteMemoryRaw((0x125B50 + mainModuleBase), "\x2E\x5C\x65\x72\x72\x6F\x72\x6C\x6F\x67\x2E\x74\x78\x74\x00", 15, true);
+		injector::WriteMemoryRaw((0x11FAD4 + mainModuleBase), "\x2E\x5C\x76\x65\x72\x73\x69\x6F\x6E\x2E\x74\x78\x74\x00", 14, true);
 
 		// TEST KEY FIX (uses BACKSPACE now)
-		injector::MakeNOP((0x4C426 + BaseAddress4), 14);
-		injector::WriteMemory<BYTE>((0x4C435 + BaseAddress4), DIK_BACK, true);
+		injector::MakeNOP((0x4C426 + mainModuleBase), 14);
+		injector::WriteMemory<BYTE>((0x4C435 + mainModuleBase), DIK_BACK, true);
 
 		// REMOVE ESC BOX
 		injector::MakeNOP((0x44B4B5), 5, true);
@@ -595,26 +425,26 @@ static InitFunction FNFSBFunc([]()
 		else if (ToBool(config["General"]["HDPatch"]))
 		{
 			// BROKEN RESOLUTION PATCH WHEN FULLSCREEN
-			injector::WriteMemory<DWORD>((0x1522F8 + BaseAddress4), horizontal4, true);
-			injector::WriteMemory<DWORD>((0x1522FC + BaseAddress4), vertical4, true);
+			injector::WriteMemory<DWORD>((0x1522F8 + mainModuleBase), horizontal4, true);
+			injector::WriteMemory<DWORD>((0x1522FC + mainModuleBase), vertical4, true);
 		}
 
 		// MACHINE ID setting
 		if ((strcmp(config["Network"]["MachineID"].c_str(), "2") == 0))
 		{
-			injector::WriteMemory<DWORD>((0x11FA18 + BaseAddress4), 0x01, true);
+			injector::WriteMemory<DWORD>((0x11FA18 + mainModuleBase), 0x01, true);
 		}
 		else if ((strcmp(config["Network"]["MachineID"].c_str(), "3") == 0))
 		{
-			injector::WriteMemory<DWORD>((0x11FA18 + BaseAddress4), 0x02, true);
+			injector::WriteMemory<DWORD>((0x11FA18 + mainModuleBase), 0x02, true);
 		}
 		else if ((strcmp(config["Network"]["MachineID"].c_str(), "4") == 0))
 		{
-			injector::WriteMemory<DWORD>((0x11FA18 + BaseAddress4), 0x03, true);
+			injector::WriteMemory<DWORD>((0x11FA18 + mainModuleBase), 0x03, true);
 		}
 		else // MACHINE ID = 1
 		{
-			injector::WriteMemory<DWORD>((0x11FA18 + BaseAddress4), 0x00, true);
+			injector::WriteMemory<DWORD>((0x11FA18 + mainModuleBase), 0x00, true);
 		}
 
 	}, GameID::FNFSB);
