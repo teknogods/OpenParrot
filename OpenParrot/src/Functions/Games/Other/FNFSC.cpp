@@ -26,7 +26,8 @@ static bool button2pressed = false;
 static bool button3pressed = false;
 static bool button4pressed = false;
 static bool musicpressed = false;
-
+static bool testPressed = false;
+static bool servicePressed = false;
 // controls
 extern int* ffbOffset;
 extern int* ffbOffset2;
@@ -44,6 +45,8 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 
 	while (true)
 	{
+	
+		
 		// buttons see bitwise values in TPui//RawThrills.cs
 		// START ( = NITRO too)
 		if (*ffbOffset & 0x08)
@@ -55,7 +58,35 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		// TEST
 		if (*ffbOffset & 0x01)
 		{
-			injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x0B * sizeof(U32), 2, true);
+			if (testPressed == false)
+			{
+				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x0B * sizeof(U32), 2, true);
+				testPressed = true;
+			}
+		}
+		else
+		{
+			if (testPressed == true)
+			{
+				testPressed = false;
+			}
+		}
+
+		//SERVICE
+		if (*ffbOffset & 0x02)
+		{
+			if (servicePressed == false)
+			{
+				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x0A * sizeof(U32), 2, true);
+				servicePressed = true;
+			}
+		}	
+		else
+		{
+			if (servicePressed == true)
+			{
+				servicePressed = false;
+			}
 		}
 		// NITRO ( = START too)
 		if (*ffbOffset & 0x100)
