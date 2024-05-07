@@ -65,7 +65,7 @@ BOOL WINAPI ReadFileHooked(_In_ HANDLE hFile, _Out_writes_bytes_to_opt_(nNumberO
 	return TRUE;
 }
 
-std::wstring utf8_decode(const std::string& str)
+std::wstring utf8_decode(const std::string &str)
 {
 	if (str.empty()) return std::wstring();
 	int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
@@ -107,9 +107,9 @@ static void SuspendThreads(DWORD ProcessId, DWORD ThreadId, bool Suspend)
 						if (thread != NULL)
 						{
 							if (Suspend)
-								SuspendThread(thread);
+							SuspendThread(thread);
 							else
-								ResumeThread(thread);
+							ResumeThread(thread);
 
 							CloseHandle(thread);
 						}
@@ -234,7 +234,7 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 		Sleep(16);
 	}
 }
-
+	
 /* WINDOW HOOKS */
 
 DWORD g_windowStyle;
@@ -404,7 +404,7 @@ BOOL WINAPI SetWindowPosHk(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx
 	return SetWindowPos(hWnd, hWndInsertAfter, X, Y, cx, cy, uFlags);
 }
 
-LONG __stdcall ChangeDisplaySettingsHk(DEVMODEA* lpDevMode, DWORD dwFlags)
+LONG __stdcall ChangeDisplaySettingsHk(DEVMODEA *lpDevMode, DWORD dwFlags)
 {
 #ifdef _DEBUG
 	info("ChangeDisplaySettingsHk called");
@@ -434,7 +434,7 @@ BOOL WINAPI ClipCursorHk(const RECT* lpRect)
 	return false;
 }
 
-BOOL WINAPI SetCursorPosHk(int X, int Y)
+BOOL WINAPI SetCursorPosHk(int X, int Y) 
 {
 	return true;
 }
@@ -565,6 +565,7 @@ static InitFunction globalFunc([]()
 	ProcessID = MyGetProcessId(tchar);
 
 	CreateThread(NULL, 0, GlobalGameThread, NULL, 0, NULL);
+
 	if (ToBool(config["General"]["Enable Outputs"]))
 	{
 		blaster = LoadLibraryA("OutputBlaster.dll");
@@ -577,82 +578,42 @@ static InitFunction globalFunc([]()
 			printf("Failed to Load OutputBlaster!");
 		}
 	}
-	
+
 	if (ToBool(config["Score"]["Enable Submission"]))
 	{
-		hook::pattern::InitializeHints();
+		if (ToBool(config["Score"]["Enable Capture"]))
+			WritePrivateProfileStringA("Score", "Enable Capture", "1", ".\\ScoreSubmission.ini");
+		else
+			WritePrivateProfileStringA("Score", "Enable Capture", "0", ".\\ScoreSubmission.ini");
 
-		ResetffbOffset();
-
-		GetPrivateProfileStringA("GlobalHotkeys", "PauseKey", "", PauseKeyChar, 256, ".\\teknoparrot.ini");
-		GetPrivateProfileStringA("GlobalHotkeys", "ExitKey", "", ExitKeyChar, 256, ".\\teknoparrot.ini");
-
-		std::string PauseKeyStr = PauseKeyChar;
-		if (PauseKeyStr.find('0x') != std::string::npos)
-			PauseKeyValue = stoi(PauseKeyStr, 0, 16);
-
-		std::string ExitKeyStr = ExitKeyChar;
-		if (ExitKeyStr.find('0x') != std::string::npos)
-			ExitKeyValue = stoi(ExitKeyStr, 0, 16);
-
-		GetModuleFileNameA(NULL, SuspendBuf, MAX_PATH);
-
-		std::string ExeName = getFileName(SuspendBuf);
-		std::basic_string<TCHAR> converted(ExeName.begin(), ExeName.end());
-		const TCHAR* tchar = converted.c_str();
-
-		ProcessID = MyGetProcessId(tchar);
-
-		CreateThread(NULL, 0, GlobalGameThread, NULL, 0, NULL);
-
-		if (ToBool(config["General"]["Enable Outputs"]))
-		{
-			blaster = LoadLibraryA("OutputBlaster.dll");
-			if (blaster)
-			{
-				printf("OutputBlaster loaded!");
-			}
-			else
-			{
-				printf("Failed to Load OutputBlaster!");
-			}
-		}
-
-		if (ToBool(config["Score"]["Enable Submission"]))
-		{
-			if (ToBool(config["Score"]["Enable Capture"]))
-				WritePrivateProfileStringA("Score", "Enable Capture", "1", ".\\ScoreSubmission.ini");
-			else
-				WritePrivateProfileStringA("Score", "Enable Capture", "0", ".\\ScoreSubmission.ini");
-
-			static char buf[MAX_PATH];
-			HMODULE hMod;
+		static char buf[MAX_PATH];
+		HMODULE hMod;
 #if defined(_M_IX86)
-			hMod = LoadLibrary(L"OpenParrot.dll");
+		hMod = LoadLibrary(L"OpenParrot.dll");
 #else
-			hMod = LoadLibrary(L"OpenParrot64.dll");
+		hMod = LoadLibrary(L"OpenParrot64.dll");
 #endif
-			GetModuleFileNameA(hMod, buf, MAX_PATH);
-			PathRemoveFileSpecA(buf);
-			PathAppendA(buf, (".."));
+		GetModuleFileNameA(hMod, buf, MAX_PATH);
+		PathRemoveFileSpecA(buf);
+		PathAppendA(buf, (".."));
 #if defined(_M_IX86)
-			strcat(buf, "\\TeknoParrot\\ScoreSubmission.dll");
+		strcat(buf, "\\TeknoParrot\\ScoreSubmission.dll");
 #else
-			strcat(buf, "\\TeknoParrot\\ScoreSubmission64.dll");
+		strcat(buf, "\\TeknoParrot\\ScoreSubmission64.dll");
 #endif
-			HMODULE hModA = LoadLibraryA(buf);
+		HMODULE hModA = LoadLibraryA(buf);
 
-			if (hModA)
-			{
-				printf("Score Submission loaded!");
-				void(*fn)() = (void(*)())GetProcAddress(hModA, "Score_Submit_Init");
-				fn();
-			}
-			else
-			{
-				printf("Failed to load Score Submission!");
-			}
+		if (hModA)
+		{
+			printf("Score Submission loaded!");
+			void(*fn)() = (void(*)())GetProcAddress(hModA, "Score_Submit_Init");
+			fn();
 		}
+		else
+		{
+			printf("Failed to load Score Submission!");
+		}
+	}
 
-	}, GameID::Global);
+}, GameID::Global);
 #pragma optimize("", on)
