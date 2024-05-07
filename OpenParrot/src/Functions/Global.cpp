@@ -53,8 +53,6 @@ void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 	return 0;
 }
 
-static HMODULE teknoIO;
-static HMODULE sdl2;
 
 // used in SR3 and Ford Racing
 BOOL WINAPI ReadFileHooked(_In_ HANDLE hFile, _Out_writes_bytes_to_opt_(nNumberOfBytesToRead, *lpNumberOfBytesRead) __out_data_source(FILE) LPVOID lpBuffer, _In_ DWORD nNumberOfBytesToRead, _Out_opt_ LPDWORD lpNumberOfBytesRead, _Inout_opt_ LPOVERLAPPED lpOverlapped)
@@ -566,37 +564,6 @@ static InitFunction globalFunc([]()
 	ProcessID = MyGetProcessId(tchar);
 
 	CreateThread(NULL, 0, GlobalGameThread, NULL, 0, NULL);
-
-
-	if (ToBool(config["GameInfo"]["EmulatorFolder"]))
-	{
-		std::string workingDir = config["GameInfo"]["EmulatorFolder"];
-		std::string teknoioPath = workingDir + "\\libs\\teknoio.dll";
-		std::string sdl2Path = workingDir + "\\libs\\SDL2.dll";
-
-		//load SDL2.dll
-		sdl2 = LoadLibraryA(sdl2Path.c_str());
-		if (sdl2)
-		{
-			printf("Loaded SDL2.dll from %s\n", sdl2Path.c_str());
-		}
-		else
-		{
-			printf("Failed to load SDL2.dll from %s\n", sdl2Path.c_str());	
-		}
-
-		//load teknoio.dll
-		teknoIO = LoadLibraryA(teknoioPath.c_str());
-		if (teknoIO)
-		{
-			printf("Loaded teknoio.dll from %s\n", teknoioPath.c_str());
-		}
-		else
-		{
-			printf("Failed to load teknoio.dll from %s\n", teknoioPath.c_str());
-		}
-	}
-	
 	if (ToBool(config["Score"]["Enable Submission"]))
 	{
 		if (ToBool(config["Score"]["Enable Capture"]))
