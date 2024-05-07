@@ -53,6 +53,8 @@ void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 	return 0;
 }
 
+static HMODULE blaster;
+
 // used in SR3 and Ford Racing
 BOOL WINAPI ReadFileHooked(_In_ HANDLE hFile, _Out_writes_bytes_to_opt_(nNumberOfBytesToRead, *lpNumberOfBytesRead) __out_data_source(FILE) LPVOID lpBuffer, _In_ DWORD nNumberOfBytesToRead, _Out_opt_ LPDWORD lpNumberOfBytesRead, _Inout_opt_ LPOVERLAPPED lpOverlapped)
 {
@@ -563,7 +565,19 @@ static InitFunction globalFunc([]()
 	ProcessID = MyGetProcessId(tchar);
 
 	CreateThread(NULL, 0, GlobalGameThread, NULL, 0, NULL);
-
+	if (ToBool(config["General"]["Enable Outputs"]))
+	{
+		blaster = LoadLibraryA("OutputBlaster.dll");
+		if (blaster)
+		{
+			printf("OutputBlaster loaded!");
+		}
+		else
+		{
+			printf("Failed to Load OutputBlaster!");
+		}
+	}
+	
 	if (ToBool(config["Score"]["Enable Submission"]))
 	{
 		if (ToBool(config["Score"]["Enable Capture"]))
