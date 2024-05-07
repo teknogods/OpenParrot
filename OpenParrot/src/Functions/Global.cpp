@@ -540,6 +540,45 @@ DWORD genericRetZero()
 }
 
 static InitFunction globalFunc([]()
+{
+	hook::pattern::InitializeHints();
+
+	ResetffbOffset();
+	
+	GetPrivateProfileStringA("GlobalHotkeys", "PauseKey", "", PauseKeyChar, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("GlobalHotkeys", "ExitKey", "", ExitKeyChar, 256, ".\\teknoparrot.ini");
+
+	std::string PauseKeyStr = PauseKeyChar;
+	if (PauseKeyStr.find('0x') != std::string::npos)
+		PauseKeyValue = stoi(PauseKeyStr, 0, 16);
+
+	std::string ExitKeyStr = ExitKeyChar;
+	if (ExitKeyStr.find('0x') != std::string::npos)
+		ExitKeyValue = stoi(ExitKeyStr, 0, 16);
+
+	GetModuleFileNameA(NULL, SuspendBuf, MAX_PATH);
+
+	std::string ExeName = getFileName(SuspendBuf);
+	std::basic_string<TCHAR> converted(ExeName.begin(), ExeName.end());
+	const TCHAR* tchar = converted.c_str();
+
+	ProcessID = MyGetProcessId(tchar);
+
+	CreateThread(NULL, 0, GlobalGameThread, NULL, 0, NULL);
+	if (ToBool(config["General"]["Enable Outputs"]))
+	{
+		blaster = LoadLibraryA("OutputBlaster.dll");
+		if (blaster)
+		{
+			printf("OutputBlaster loaded!");
+		}
+		else
+		{
+			printf("Failed to Load OutputBlaster!");
+		}
+	}
+	
+	if (ToBool(config["Score"]["Enable Submission"]))
 	{
 		hook::pattern::InitializeHints();
 
