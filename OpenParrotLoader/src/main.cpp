@@ -165,7 +165,7 @@ static void loadTeknoIoDll(std::filesystem::path gamePathTP)
 	}
 	//pass in gamePathTP
 	teknoIoInit(gamePathTP.string().c_str());
-	wprintf(L"Loaded TeknoIO - FFB + Outputs are GO!\n");
+	wprintf(L"TeknoIO: Loaded\n");
 }
 
 int wmain(int argc, wchar_t* argv[])
