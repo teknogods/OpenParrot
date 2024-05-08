@@ -127,47 +127,6 @@ int RunTo(DWORD_PTR Address, DWORD Mode, DWORD_PTR Eip)
 	return 1;
 }
 
-
-static void loadTeknoIoDll(std::filesystem::path gamePathTP)
-{
-	std::string currentPath = std::filesystem::current_path().string();
-	std::string sdl2Path = currentPath + "\\libs\\sdl2.dll";
-	bool sdlLoaded = false;
-	if (!std::filesystem::exists(sdl2Path))
-	{
-		return;
-	}
-	std::string teknoioPath = currentPath + "\\libs\\teknoio.dll";
-	if (!std::filesystem::exists(teknoioPath))
-	{
-		return;
-	}
-	HMODULE sdl2 = LoadLibraryA(sdl2Path.c_str());
-	if (sdl2 == NULL)
-	{
-		wprintf(L"Problem loading SDL2.dll\n");
-		return;
-	}
-	HMODULE teknoio = LoadLibraryA(teknoioPath.c_str());
-	if (teknoio == NULL)
-	{
-		wprintf(L"Problem loading TeknoIO.dll\n");
-		return;
-	}
-
-	//pass the game directory into the teknoio.dll
-	typedef void (*TeknoIoInit)(const char* gameDir);
-	TeknoIoInit teknoIoInit = (TeknoIoInit)GetProcAddress(teknoio, "TeknoIoInit");
-	if (teknoIoInit == NULL)
-	{
-		wprintf(L"Problem loading TeknoIoInit\n");
-		return;
-	}
-	//pass in gamePathTP
-	teknoIoInit(gamePathTP.string().c_str());
-	wprintf(L"TeknoIO: Loaded\n");
-}
-
 int wmain(int argc, wchar_t* argv[])
 {
 	// Set stdout to wide chars, as a result you can only use wprintf!
@@ -219,8 +178,6 @@ int wmain(int argc, wchar_t* argv[])
 	wprintf(L"Loader: %ls (%ls)\n", loaderPathW, GetFileVersion(loaderPathW));
 	wprintf(L"Core:   %ls (%ls)\n", corePathW, GetFileVersion(corePathW));
 	wprintf(L"Game:   %ls (%ls)\n", gamePathW, GetFileVersion(gamePathW));
-
-	loadTeknoIoDll(gamePath);
 
 	if (argc == 4)
 		wprintf(L"Arguments: %ls\n", argv[3]);
