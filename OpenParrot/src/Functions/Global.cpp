@@ -571,16 +571,21 @@ static InitFunction globalFunc([]()
 	if (ToBool(config["GameInfo"]["EmulatorPath"]))
 	{
 		std::string emulatorPath = config["GameInfo"]["EmulatorPath"];
-		std::string teknoioPath = emulatorPath + "\\libs\\TeknoIO.dll";	
-		TeknoIO = LoadLibraryA(teknoioPath.c_str());
-		if (TeknoIO)
+		std::string sdl2Path = emulatorPath + "\\libs\\sdl2.dll";
+		Sdl2 = LoadLibraryA(sdl2Path.c_str());
+		if (Sdl2)
 		{
-			printf("TeknoIO loaded!");
-		}
-		else
-		{
-			printf("Failed to Load TeknoIO!");
+			std::string teknoioPath = emulatorPath + "\\libs\\TeknoIO.dll";
+			TeknoIO = LoadLibraryA(teknoioPath.c_str());
+			if (TeknoIO)
+			{
+				printf("TeknoIO loaded!");
 			}
+			else
+			{
+				printf("Failed to Load TeknoIO!");
+			}
+		}
 	}
 
 	if (!TeknoIO && ToBool(config["General"]["Enable Outputs"]))
