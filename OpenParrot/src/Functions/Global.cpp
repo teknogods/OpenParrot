@@ -54,7 +54,7 @@ void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 }
 
 static HMODULE blaster;
-static HMODULE TeknoIO;
+static HMODULE FFBBlaster;
 static HMODULE Sdl2;
 
 // used in SR3 and Ford Racing
@@ -574,21 +574,41 @@ static InitFunction globalFunc([]()
 		std::string sdl2Path = emulatorPath + "\\libs\\sdl2.dll";
 		Sdl2 = LoadLibraryA(sdl2Path.c_str());
 		if (Sdl2)
-		{
-			std::string teknoioPath = emulatorPath + "\\libs\\TeknoIO.dll";
-			TeknoIO = LoadLibraryA(teknoioPath.c_str());
-			if (TeknoIO)
+		{ 
+			OutputDebugStringA("ATTEMPTING FFBBlaster 32");
+			std::string FFBBlasterPath = emulatorPath + "\\libs\\FFBBlaster.dll";
+			FFBBlaster = LoadLibraryA(FFBBlasterPath.c_str());
+			if (FFBBlaster)
 			{
-				printf("TeknoIO loaded!");
-			}
-			else
-			{
-				printf("Failed to Load TeknoIO!");
+				OutputDebugStringA("FFBBlaster: Loaded");
+				printf("FFBBlaster: Loaded");
 			}
 		}
+		else
+		{
+			//try 64 bit dll
+			std::string sdl2Path = emulatorPath + "\\libs\\sdl2_64.dll";
+			//out put sdl2path to debugstringa
+			Sdl2 = LoadLibraryA(sdl2Path.c_str());
+			if (Sdl2)
+			{
+				OutputDebugStringA("ATTEMPTING FFBBlaster 64");
+				std::string FFBBlasterPath = emulatorPath + "\\libs\\FFBBlaster64.dll";
+				//load the 64bit library
+				FFBBlaster = LoadLibraryA(FFBBlasterPath.c_str());
+				if (FFBBlaster)
+				{
+					OutputDebugStringA("FFBBlaster: Loaded");
+					printf("FFBBlaster: Found");
+				}
+			}
+		}
+
+		
 	}
 
-	if (!TeknoIO && ToBool(config["General"]["Enable Outputs"]))
+
+	if (!FFBBlaster && ToBool(config["General"]["Enable Outputs"]))
 	{
 		blaster = LoadLibraryA("OutputBlaster.dll");
 		if (blaster)
