@@ -54,6 +54,8 @@ void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3)
 }
 
 static HMODULE blaster;
+static HMODULE FFBBlaster;
+static HMODULE Sdl2;
 
 // used in SR3 and Ford Racing
 BOOL WINAPI ReadFileHooked(_In_ HANDLE hFile, _Out_writes_bytes_to_opt_(nNumberOfBytesToRead, *lpNumberOfBytesRead) __out_data_source(FILE) LPVOID lpBuffer, _In_ DWORD nNumberOfBytesToRead, _Out_opt_ LPDWORD lpNumberOfBytesRead, _Inout_opt_ LPOVERLAPPED lpOverlapped)
@@ -566,7 +568,47 @@ static InitFunction globalFunc([]()
 
 	CreateThread(NULL, 0, GlobalGameThread, NULL, 0, NULL);
 
-	if (ToBool(config["General"]["Enable Outputs"]))
+	if (ToBool(config["GameInfo"]["EmulatorPath"]))
+	{
+		std::string emulatorPath = config["GameInfo"]["EmulatorPath"];
+		std::string sdl2Path = emulatorPath + "\\libs\\sdl2.dll";
+		Sdl2 = LoadLibraryA(sdl2Path.c_str());
+		if (Sdl2)
+		{ 
+			OutputDebugStringA("ATTEMPTING FFBBlaster 32");
+			std::string FFBBlasterPath = emulatorPath + "\\libs\\FFBBlaster.dll";
+			FFBBlaster = LoadLibraryA(FFBBlasterPath.c_str());
+			if (FFBBlaster)
+			{
+				OutputDebugStringA("FFBBlaster: Loaded");
+				printf("FFBBlaster: Loaded");
+			}
+		}
+		else
+		{
+			//try 64 bit dll
+			std::string sdl2Path = emulatorPath + "\\libs\\sdl2_64.dll";
+			//out put sdl2path to debugstringa
+			Sdl2 = LoadLibraryA(sdl2Path.c_str());
+			if (Sdl2)
+			{
+				OutputDebugStringA("ATTEMPTING FFBBlaster 64");
+				std::string FFBBlasterPath = emulatorPath + "\\libs\\FFBBlaster64.dll";
+				//load the 64bit library
+				FFBBlaster = LoadLibraryA(FFBBlasterPath.c_str());
+				if (FFBBlaster)
+				{
+					OutputDebugStringA("FFBBlaster: Loaded");
+					printf("FFBBlaster: Found");
+				}
+			}
+		}
+
+		
+	}
+
+
+	if (!FFBBlaster && ToBool(config["General"]["Enable Outputs"]))
 	{
 		blaster = LoadLibraryA("OutputBlaster.dll");
 		if (blaster)
