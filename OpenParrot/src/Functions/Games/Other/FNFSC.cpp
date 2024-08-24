@@ -22,6 +22,33 @@ extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
+
+static char Key0Char[256];
+static char Key1Char[256];
+static char Key2Char[256];
+static char Key3Char[256];
+static char Key4Char[256];
+static char Key5Char[256];
+static char Key6Char[256];
+static char Key7Char[256];
+static char Key8Char[256];
+static char Key9Char[256];
+static char KeyDelChar[256];
+static char KeyEndChar[256];
+
+static int Keypad0 = 96;
+static int Keypad1 = 97;
+static int Keypad2 = 98;
+static int Keypad3 = 99;
+static int Keypad4 = 100;
+static int Keypad5 = 101;
+static int Keypad6 = 102;
+static int Keypad7 = 103;
+static int Keypad8 = 104;
+static int Keypad9 = 105;
+static int KeypadDel = 106;
+static int KeypadEnd = 111;
+
 // hooks ori
 BOOL(__stdcall* original_SetWindowPos2)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
 BOOL(__stdcall* original_CreateWindowExA2)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
@@ -37,6 +64,92 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 	int deltaTimer = 16;
 	INT_PTR keyboardBuffer = (0x437F6F8 + BaseAddress2);
 	INT_PTR keyboardBuffer2 = (0x437FC08 + BaseAddress2);
+
+	GetPrivateProfileStringA("Keypad", "0 Key", "", Key0Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "1 Key", "", Key1Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "2 Key", "", Key2Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "3 Key", "", Key3Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "4 Key", "", Key4Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "5 Key", "", Key5Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "6 Key", "", Key6Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "7 Key", "", Key7Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "8 Key", "", Key8Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "9 Key", "", Key9Char, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "Del Key", "", KeyDelChar, 256, ".\\teknoparrot.ini");
+	GetPrivateProfileStringA("Keypad", "End Key", "", KeyEndChar, 256, ".\\teknoparrot.ini");
+
+	std::string Key0 = Key0Char;
+	if (Key0.find('0x') != std::string::npos)
+	{
+		std::string Key0_string = Key0Char;
+		Keypad0 = std::stoi(Key0_string, nullptr, 16);
+	}
+	std::string Key1 = Key1Char;
+	if (Key1.find('0x') != std::string::npos)
+	{
+		std::string Key1_string = Key1Char;
+		Keypad1 = std::stoi(Key1_string, nullptr, 16);
+	}
+	std::string Key2 = Key2Char;
+	if (Key2.find('0x') != std::string::npos)
+	{
+		std::string Key2_string = Key2Char;
+		Keypad2 = std::stoi(Key2_string, nullptr, 16);
+	}
+	std::string Key3 = Key3Char;
+	if (Key3.find('0x') != std::string::npos)
+	{
+		std::string Key3_string = Key3Char;
+		Keypad3 = std::stoi(Key3_string, nullptr, 16);
+	}
+	std::string Key4 = Key4Char;
+	if (Key4.find('0x') != std::string::npos)
+	{
+		std::string Key4_string = Key4Char;
+		Keypad4 = std::stoi(Key4_string, nullptr, 16);
+	}
+	std::string Key5 = Key5Char;
+	if (Key5.find('0x') != std::string::npos)
+	{
+		std::string Key5_string = Key5Char;
+		Keypad5 = std::stoi(Key5_string, nullptr, 16);
+	}
+	std::string Key6 = Key6Char;
+	if (Key6.find('0x') != std::string::npos)
+	{
+		std::string Key6_string = Key6Char;
+		Keypad6 = std::stoi(Key6_string, nullptr, 16);
+	}
+	std::string Key7 = Key7Char;
+	if (Key7.find('0x') != std::string::npos)
+	{
+		std::string Key7_string = Key7Char;
+		Keypad7 = std::stoi(Key7_string, nullptr, 16);
+	}
+	std::string Key8 = Key8Char;
+	if (Key8.find('0x') != std::string::npos)
+	{
+		std::string Key8_string = Key8Char;
+		Keypad8 = std::stoi(Key8_string, nullptr, 16);
+	}
+	std::string Key9 = Key9Char;
+	if (Key9.find('0x') != std::string::npos)
+	{
+		std::string Key9_string = Key9Char;
+		Keypad9 = std::stoi(Key9_string, nullptr, 16);
+	}
+	std::string KeyDel = KeyDelChar;
+	if (KeyDel.find('0x') != std::string::npos)
+	{
+		std::string KeyDel_string = KeyDelChar;
+		KeypadDel = std::stoi(KeyDel_string, nullptr, 16);
+	}
+	std::string KeyEnd = KeyEndChar;
+	if (KeyEnd.find('0x') != std::string::npos)
+	{
+		std::string KeyEnd_string = KeyEndChar;
+		KeypadEnd = std::stoi(KeyEnd_string, nullptr, 16);
+	}
 
 	bool startPressed = false;
 	bool button1Pressed = false;
@@ -77,7 +190,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 	while (true)
 	{
 
-		if (GetAsyncKeyState(VK_NUMPAD0) & 1)
+		if (GetKeyState(Keypad0) & 0x8000)
 		{
 			SetControlOrig(0x10080, 0x1);
 			numpad0Pressed = true;
@@ -87,7 +200,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad0Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_NUMPAD1) & 1)
+		if (GetKeyState(Keypad1) & 0x8000)
 		{
 			SetControlOrig(0x10081, 0x1);
 			numpad1Pressed = true;
@@ -97,7 +210,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad1Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
+		if (GetKeyState(Keypad2) & 0x8000)
 		{
 			SetControlOrig(0x10082, 0x1);
 			numpad2Pressed = true;
@@ -107,7 +220,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad2Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_NUMPAD3) & 1)
+		if (GetKeyState(Keypad3) & 0x8000)
 		{
 			SetControlOrig(0x10083, 0x1);
 			numpad3Pressed = true;
@@ -117,7 +230,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad3Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_NUMPAD4) & 1)
+		if (GetKeyState(Keypad4) & 0x8000)
 		{
 			SetControlOrig(0x10084, 0x1);
 			numpad4Pressed = true;
@@ -127,7 +240,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad4Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_NUMPAD5) & 1)
+		if (GetKeyState(Keypad5) & 0x8000)
 		{
 			SetControlOrig(0x10085, 0x1);
 			numpad5Pressed = true;
@@ -137,7 +250,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad5Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_NUMPAD6) & 1)
+		if (GetKeyState(Keypad6) & 0x8000)
 		{
 			SetControlOrig(0x10086, 0x1);
 			numpad6Pressed = true;
@@ -147,7 +260,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad6Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_NUMPAD7) & 1)
+		if (GetKeyState(Keypad7) & 0x8000)
 		{
 			SetControlOrig(0x10087, 0x1);
 			numpad7Pressed = true;
@@ -157,7 +270,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad7Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_NUMPAD8) & 1)
+		if (GetKeyState(Keypad8) & 0x8000)
 		{
 			SetControlOrig(0x10088, 0x1);
 			numpad8Pressed = true;
@@ -167,7 +280,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad8Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_NUMPAD9) & 1)
+		if (GetKeyState(Keypad9) & 0x8000)
 		{
 			SetControlOrig(0x10089, 0x1);
 			numpad9Pressed = true;
@@ -177,7 +290,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpad9Pressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_MULTIPLY) & 1)
+		if (GetKeyState(KeypadDel) & 0x8000)
 		{
 			SetControlOrig(0x1008A, 0x1);
 			numpadStarPressed = true;
@@ -187,7 +300,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			numpadStarPressed = false;
 		}
 
-		if (GetAsyncKeyState(VK_DIVIDE) & 1)
+		if (GetKeyState(KeypadEnd) & 0x8000)
 		{
 			SetControlOrig(0x1008B, 0x1);
 			numpadSlashPressed = true;
