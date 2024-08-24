@@ -36,18 +36,53 @@ static char Key9Char[256];
 static char KeyDelChar[256];
 static char KeyEndChar[256];
 
-static int Keypad0 = 96;
-static int Keypad1 = 97;
-static int Keypad2 = 98;
-static int Keypad3 = 99;
-static int Keypad4 = 100;
-static int Keypad5 = 101;
-static int Keypad6 = 102;
-static int Keypad7 = 103;
-static int Keypad8 = 104;
-static int Keypad9 = 105;
-static int KeypadDel = 106;
-static int KeypadEnd = 111;
+static int Keypad0 = 0;
+static int Keypad1 = 0;
+static int Keypad2 = 0;
+static int Keypad3 = 0;
+static int Keypad4 = 0;
+static int Keypad5 = 0;
+static int Keypad6 = 0;
+static int Keypad7 = 0;
+static int Keypad8 = 0;
+static int Keypad9 = 0;
+static int KeypadDel = 0;
+static int KeypadEnd = 0;
+
+static bool startPressed = false;
+static bool button1Pressed = false;
+static bool button2Pressed = false;
+static bool button3Pressed = false;
+static bool buttonMusicPressed = false;
+static bool buttonCoin1Pressed = false;
+static bool buttonCoin2Pressed = false;
+static bool buttonBillPressed = false;
+static bool buttonTestPressed = false;
+static bool buttonVolumeUpPressed = false;
+static bool buttonVolumeDownPressed = false;
+static bool buttonCreditPressed = false;
+
+static bool buttonGear1Pressed = false;
+static bool buttonGear2Pressed = false;
+static bool buttonGear3Pressed = false;
+static bool buttonGear4Pressed = false;
+static bool buttonGear5Pressed = false;
+static bool buttonGear6Pressed = false;
+
+static bool buttonBrakePressed = false;
+
+static bool numpad0Pressed = false;
+static bool numpad1Pressed = false;
+static bool numpad2Pressed = false;
+static bool numpad3Pressed = false;
+static bool numpad4Pressed = false;
+static bool numpad5Pressed = false;
+static bool numpad6Pressed = false;
+static bool numpad7Pressed = false;
+static bool numpad8Pressed = false;
+static bool numpad9Pressed = false;
+static bool numpadStarPressed = false;
+static bool numpadSlashPressed = false;
 
 // hooks ori
 BOOL(__stdcall* original_SetWindowPos2)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
@@ -151,45 +186,10 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		KeypadEnd = std::stoi(KeyEnd_string, nullptr, 16);
 	}
 
-	bool startPressed = false;
-	bool button1Pressed = false;
-	bool button2Pressed = false;
-	bool button3Pressed = false;
-	bool buttonMusicPressed = false;
-	bool buttonCoin1Pressed = false;
-	bool buttonCoin2Pressed = false;
-	bool buttonBillPressed = false;
-	bool buttonTestPressed = false;
-	bool buttonVolumeUpPressed = false;
-	bool buttonVolumeDownPressed = false;
-	bool buttonCreditPressed = false;
-
-	bool buttonGear1Pressed = false;
-	bool buttonGear2Pressed = false;
-	bool buttonGear3Pressed = false;
-	bool buttonGear4Pressed = false;
-	bool buttonGear5Pressed = false;
-	bool buttonGear6Pressed = false;
-
-	bool buttonBrakePressed = false;
-
-	bool numpad0Pressed = false;
-	bool numpad1Pressed = false;
-	bool numpad2Pressed = false;
-	bool numpad3Pressed = false;
-	bool numpad4Pressed = false;
-	bool numpad5Pressed = false;
-	bool numpad6Pressed = false;
-	bool numpad7Pressed = false;
-	bool numpad8Pressed = false;
-	bool numpad9Pressed = false;
-	bool numpadStarPressed = false;
-	bool numpadSlashPressed = false;
 
 
 	while (true)
 	{
-
 		if (GetKeyState(Keypad0) & 0x8000)
 		{
 			SetControlOrig(0x10080, 0x1);
