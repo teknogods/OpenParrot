@@ -22,6 +22,7 @@ extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
 extern int* ffbOffset4;
+extern int* ffbOffset5;
 // hooks ori
 BOOL(__stdcall* original_SetWindowPos2)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
 BOOL(__stdcall* original_CreateWindowExA2)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
@@ -51,7 +52,6 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 	bool buttonVolumeDownPressed = false;
 	bool buttonCreditPressed = false;
 
-
 	bool buttonGear1Pressed = false;
 	bool buttonGear2Pressed = false;
 	bool buttonGear3Pressed = false;
@@ -61,6 +61,18 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 	
 	bool buttonBrakePressed = false;
 	
+	bool numpad0Pressed = false;
+	bool numpad1Pressed = false;
+	bool numpad2Pressed = false;
+	bool numpad3Pressed = false;
+	bool numpad4Pressed = false;
+	bool numpad5Pressed = false;
+	bool numpad6Pressed = false;
+	bool numpad7Pressed = false;
+	bool numpad8Pressed = false;
+	bool numpad9Pressed = false;
+	bool numpadStarPressed = false;
+	bool numpadSlashPressed = false;
 
 
 	while (true)
@@ -68,63 +80,122 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 	
 		if (GetAsyncKeyState(VK_NUMPAD0) & 1)
 		{
-			SetControlOrig(0x10080, 0x0);
 			SetControlOrig(0x10080, 0x1);
+			numpad0Pressed = true;
 		}
+		else if (numpad0Pressed) {
+			SetControlOrig(0x10080, 0x0);
+			numpad0Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_NUMPAD1) & 1)
 		{
-			SetControlOrig(0x10081, 0x0);
 			SetControlOrig(0x10081, 0x1);
+			numpad1Pressed = true;
 		}
+		else if (numpad1Pressed) {
+			SetControlOrig(0x10081, 0x0);
+			numpad1Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 		{
-			SetControlOrig(0x10082, 0x0);
 			SetControlOrig(0x10082, 0x1);
+			numpad2Pressed = true;
 		}
+		else if (numpad2Pressed) {
+			SetControlOrig(0x10082, 0x0);
+			numpad2Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_NUMPAD3) & 1)
 		{
-			SetControlOrig(0x10083, 0x0);
 			SetControlOrig(0x10083, 0x1);
+			numpad3Pressed = true;
 		}
+		else if (numpad3Pressed) {
+			SetControlOrig(0x10083, 0x0);
+			numpad3Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_NUMPAD4) & 1)
 		{
-			SetControlOrig(0x10084, 0x0);
 			SetControlOrig(0x10084, 0x1);
+			numpad4Pressed = true;
 		}
+		else if (numpad4Pressed) {
+			SetControlOrig(0x10084, 0x0);
+			numpad4Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_NUMPAD5) & 1)
 		{
-			SetControlOrig(0x10085, 0x0);
 			SetControlOrig(0x10085, 0x1);
+			numpad5Pressed = true;
 		}
+		else if (numpad5Pressed) {
+			SetControlOrig(0x10085, 0x0);
+			numpad5Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_NUMPAD6) & 1)
 		{
-			SetControlOrig(0x10086, 0x0);
 			SetControlOrig(0x10086, 0x1);
+			numpad6Pressed = true;
 		}
+		else if (numpad6Pressed) {
+			SetControlOrig(0x10086, 0x0);
+			numpad6Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_NUMPAD7) & 1)
 		{
-			SetControlOrig(0x10087, 0x0);
 			SetControlOrig(0x10087, 0x1);
+			numpad7Pressed = true;
 		}
+		else if (numpad7Pressed) {
+			SetControlOrig(0x10087, 0x0);
+			numpad7Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_NUMPAD8) & 1)
 		{
-			SetControlOrig(0x10088, 0x0);
 			SetControlOrig(0x10088, 0x1);
+			numpad8Pressed = true;
 		}
+		else if (numpad8Pressed) {
+			SetControlOrig(0x10088, 0x0);
+			numpad8Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_NUMPAD9) & 1)
 		{
-			SetControlOrig(0x10089, 0x0);
 			SetControlOrig(0x10089, 0x1);
+			numpad9Pressed = true;
 		}
+		else if (numpad9Pressed) {
+			SetControlOrig(0x10089, 0x0);
+			numpad9Pressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_MULTIPLY) & 1)
 		{
-			SetControlOrig(0x1008A, 0x0);
 			SetControlOrig(0x1008A, 0x1);
+			numpadStarPressed = true;
 		}
+		else if (numpadStarPressed) {
+			SetControlOrig(0x1008A, 0x0);
+			numpadStarPressed = false;
+		}
+
 		if (GetAsyncKeyState(VK_DIVIDE) & 1)
 		{
-			SetControlOrig(0x1008B, 0x0);
 			SetControlOrig(0x1008B, 0x1);
+			numpadSlashPressed = true;
+		}
+		else if (numpadSlashPressed) {
+			SetControlOrig(0x1008B, 0x0);
+			numpadSlashPressed = false;
 		}
 
 		//START
@@ -211,22 +282,8 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			buttonTestPressed = false;
 		}
 
-		//BUTTON SERVICE
-		if (*ffbOffset & 0x02)
-		{
-			if (!buttonTestPressed)
-			{
-				SetControlOrig(0x1000a, 0x1);
-				buttonTestPressed = true;
-			}
-		}
-		else if (buttonTestPressed) {
-			SetControlOrig(0x1000a, 0x0);
-			buttonTestPressed = false;
-		}
-
 		//BUTTON COIN 1
-		if (*ffbOffset & 0x02)
+		if (*ffbOffset & 0x0004)
 		{
 			if (!buttonCoin1Pressed)
 			{
@@ -239,36 +296,9 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			buttonCoin1Pressed = false;
 		}
 
-		//BUTTON COIN 2 TODO
-		if (1 == 2 && *ffbOffset & 0x9999999)
-		{
-			if (!buttonCoin2Pressed)
-			{
-				SetControlOrig(0x1000a, 0x1);
-				buttonCoin2Pressed = true;
-			}
-		}
-		else if (buttonCoin2Pressed) {
-			SetControlOrig(0x1000a, 0x0);
-			buttonCoin2Pressed = false;
-		}
-
-		//BUTTON BILL TODO
-		if (1 == 2 && *ffbOffset & 0x9999999)
-		{
-			if (!buttonBillPressed)
-			{
-				SetControlOrig(0x1000d, 0x1);
-				buttonBillPressed = true;
-			}
-		}
-		else if (buttonBillPressed) {
-			SetControlOrig(0x1000d, 0x0);
-			buttonBillPressed = false;
-		}
-
-		//BUTTON VOLUME UP TODO
-		if (1 == 2 && *ffbOffset & 0x9999999)
+		
+		//BUTTON VOLUME UP
+		if (*ffbOffset & 0x4000)
 		{
 			if (!buttonVolumeUpPressed)
 			{
@@ -281,8 +311,8 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			buttonVolumeUpPressed = false;
 		}
 
-		//BUTTON VOLUME DOWN TODO
-		if (1 == 2 && *ffbOffset & 0x9999999)
+		//BUTTON VOLUME DOWN
+		if (*ffbOffset & 0x8000)
 		{
 			if (!buttonVolumeDownPressed)
 			{
@@ -294,27 +324,18 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			SetControlOrig(0x1000f, 0x0);
 			buttonVolumeDownPressed = false;
 		}
+		
 
-		//BUTTON CREDIT TODO
-		if (1 == 2 && *ffbOffset & 0x9999999)
-		{
-			if (!buttonCreditPressed)
-			{
-				SetControlOrig(0x1000c, 0x1);
-				buttonCreditPressed = true;
-			}
-		}
-		else if (buttonCreditPressed) {
-			SetControlOrig(0x1000c, 0x0);
-			buttonCreditPressed = false;
-		}
 
-		//GEAR 1 TOD
-		if (1 == 2 && *ffbOffset & 0x9999999)
+		//GEAR 1 
+		if (*ffbOffset5 & 0x1)
 		{
 			if (!buttonGear1Pressed)
 			{
 				SetControlOrig(0x10005, 0x1);
+				SetControlOrig(0x10006, 0x0);
+				SetControlOrig(0x10007, 0x0);
+				SetControlOrig(0x10008, 0x0);
 				buttonGear1Pressed = true;
 			}
 		}
@@ -323,12 +344,15 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			buttonGear1Pressed = false;
 		}
 
-		//GEAR 2 TODO
-		if (1 == 2 && *ffbOffset & 0x9999999)
+		//GEAR 2
+		if (*ffbOffset5 & 0x2)
 		{
 			if (!buttonGear2Pressed)
 			{
 				SetControlOrig(0x10006, 0x1);
+				SetControlOrig(0x10005, 0x0);
+				SetControlOrig(0x10007, 0x0);
+				SetControlOrig(0x10008, 0x0);
 				buttonGear2Pressed = true;
 			}
 		}
@@ -337,12 +361,15 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			buttonGear2Pressed = false;
 		}
 
-		//GEAR 3 TODO
-		if (1 == 2 && *ffbOffset & 0x9999999)
+		//GEAR 3
+		if (*ffbOffset5 & 0x4)
 		{
 			if (!buttonGear3Pressed)
 			{
 				SetControlOrig(0x10007, 0x1);
+				SetControlOrig(0x10005, 0x0);
+				SetControlOrig(0x10006, 0x0);
+				SetControlOrig(0x10008, 0x0);
 				buttonGear3Pressed = true;
 			}
 		}
@@ -352,11 +379,14 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		}
 
 		//GEAR 4 TODO
-		if (1 == 2 && *ffbOffset & 0x9999999)
+		if (*ffbOffset5 & 0x8)
 		{
 			if (!buttonGear4Pressed)
 			{
 				SetControlOrig(0x10008, 0x1);
+				SetControlOrig(0x10005, 0x0);
+				SetControlOrig(0x10006, 0x0);
+				SetControlOrig(0x10007, 0x0);
 				buttonGear4Pressed = true;
 			}
 		}
@@ -365,7 +395,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 			buttonGear4Pressed = false;
 		}
 
-		/*
+		
 		// Need to do this in a mo
 		
 		// WHEEL
@@ -384,7 +414,7 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		int iBrake = (int)(brake * 4095);
 		injector::WriteMemory<DWORD>((0x437F808 + BaseAddress2) + 0x22 * sizeof(U32), iBrake, true);
 		injector::WriteMemory<float>((0x438020C + BaseAddress2), brake, true);
-		*/
+		
 		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//	info(true, "test value %f ", test);
 		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -481,6 +511,11 @@ DWORD WINAPI SetWindowPosRT2(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int 
 }
 
 
+static int(__cdecl* SetUSBIOOnOrig)();
+static int __cdecl SetUSBIOOn()
+{
+	return 1;
+}
 
 
 static InitFunction FNFSCFunc([]()
@@ -506,6 +541,7 @@ static InitFunction FNFSCFunc([]()
 		MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART2, (void**)&original_CreateWindowExA2);
 		MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT2, (void**)&original_SetWindowPos2);
 		MH_CreateHook((void*)0x04a9510, SetControl, (void**)&SetControlOrig);
+		MH_CreateHook((void*)0x0401ab0, SetUSBIOOn, (void**)&SetUSBIOOnOrig);
 		
 
 		MH_EnableHook(MH_ALL_HOOKS);
