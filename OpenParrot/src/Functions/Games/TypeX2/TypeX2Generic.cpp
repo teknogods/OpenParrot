@@ -50,6 +50,8 @@ extern bool EADPAttractVidPlay;
 // Music GunGun 2
 extern int(__cdecl* MusicGunGun2VolumeSetupOri)(float a1);
 extern int __cdecl MusicGunGun2VolumeSetup(float a1);
+extern int(__fastcall* MusicGunGun2MultiHeadFixOri)(void* ECX, void* EDX);
+extern int __fastcall MusicGunGun2MultiHeadFixHook(void* ECX, void* EDX);
 extern char* (__cdecl* MusicGunGun2strncpyOri)(char* Destination, const char* Source, size_t Count);
 extern char* __cdecl MusicGunGun2strncpy(char* Destination, const char* Source, size_t Count);
 extern HWND(WINAPI* MusicGunGun2CreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
@@ -1344,6 +1346,7 @@ static InitFunction initFunction([]()
 		MH_Initialize();
 		MH_CreateHook((void*)(imageBase + 0x1ADA90), MusicGunGun2VolumeSetup, (void**)&MusicGunGun2VolumeSetupOri);
 		MH_CreateHook((void*)(imageBase + 0x1143B0), MusicGunGun2strncpy, (void**)&MusicGunGun2strncpyOri);
+		MH_CreateHook((void*)(imageBase + 0x12E70), MusicGunGun2MultiHeadFixHook, (void**)&MusicGunGun2MultiHeadFixOri);
 		if (!(ToBool(config["General"]["Windowed"])))
 			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", MusicGunGun2CreateWindowExAHook, (void**)&MusicGunGun2CreateWindowExAOri);
 		MH_EnableHook(MH_ALL_HOOKS);

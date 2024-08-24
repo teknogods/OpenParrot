@@ -5,6 +5,8 @@
 #include "Functions/Global.h"
 #include "Utility/GameDetect.h"
 
+static bool BorderlessFullscreen;
+
 DWORD WINAPI XInputStateStarWars
 (
 	__in  DWORD  dwUserIndex,	// Index of the gamer associated with the device
@@ -209,6 +211,20 @@ int _mkdirHook(
 	return g_orig_mkdir(dirname);
 }
 
+static void(__fastcall* WindowResOri)(char* lpParam, unsigned int a2, unsigned int a3, unsigned int a4, int a5, int a6);
+static void __fastcall WindowResHook(char* lpParam, unsigned int a2, unsigned int a3, unsigned int a4, int a5, int a6)
+{
+	int w = GetSystemMetrics(SM_CXSCREEN);
+	int h = GetSystemMetrics(SM_CYSCREEN);
+
+	a2 = w;
+	a3 = h;
+	a5 = w;
+	a6 = h;
+
+	WindowResOri(lpParam, a2, a3, a4, a5, a6);
+}
+
 extern LPCSTR hookPort;
 
 static InitFunction StarWarsJapEs3XFunc([]()
@@ -216,6 +232,8 @@ static InitFunction StarWarsJapEs3XFunc([]()
 		uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
 
 		hookPort = "COM3";
+
+		BorderlessFullscreen = GetPrivateProfileIntA("General", "Borderless Fullscreen", 0, ".\\teknoparrot.ini");
 
 		GenerateDongleData();
 
@@ -228,6 +246,8 @@ static InitFunction StarWarsJapEs3XFunc([]()
 		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
 		MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
 		MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputStateStarWars, NULL);
+		if (BorderlessFullscreen)
+			MH_CreateHook((void*)(imageBase + 0x9DDC90), WindowResHook, (void**)&WindowResOri);
 		if (ToBool(config["General"]["Disable Rumble"]))
 		{
 			MH_CreateHookApi(L"xinput1_3.dll", "XInputSetState", &XInputStateStarWars, NULL);
@@ -248,6 +268,8 @@ static InitFunction StarWarsEs3XFunc([]()
 	hookPort = "COM3";
 	
 	GenerateDongleData();
+
+	BorderlessFullscreen = GetPrivateProfileIntA("General", "Borderless Fullscreen", 0, ".\\teknoparrot.ini");
 	
 	MH_Initialize();
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_write", Hook_hasp_write, NULL);
@@ -258,6 +280,8 @@ static InitFunction StarWarsEs3XFunc([]()
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_logout", Hook_hasp_logout, NULL);
 	MH_CreateHookApi(L"hasp_windows_x64_100610.dll", "hasp_login", Hook_hasp_login, NULL);
 	MH_CreateHookApi(L"xinput1_3.dll", "XInputGetState", &XInputStateStarWars, NULL);
+	if (BorderlessFullscreen)
+		MH_CreateHook((void*)(imageBase + 0x9DEC50), WindowResHook, (void**)&WindowResOri);
 	if (ToBool(config["General"]["Disable Rumble"]))
 	{
 		MH_CreateHookApi(L"xinput1_3.dll", "XInputSetState", &XInputStateStarWars, NULL);
