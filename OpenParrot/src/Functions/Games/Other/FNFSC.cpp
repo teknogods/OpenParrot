@@ -5,7 +5,6 @@
 #include <Xinput.h>
 #include <math.h>
 #include <dinput.h>
-#include "MinHook.h"
 #pragma comment(lib, "Ws2_32.lib")
 
 #define clamp( x, xmin, xmax ) min( xmax, max( x, xmin ) )
