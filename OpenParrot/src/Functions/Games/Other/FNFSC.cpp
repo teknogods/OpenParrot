@@ -5,7 +5,7 @@
 #include <Xinput.h>
 #include <math.h>
 #include <dinput.h>
-
+#include "MinHook.h"
 #pragma comment(lib, "Ws2_32.lib")
 
 #define clamp( x, xmin, xmax ) min( xmax, max( x, xmin ) )
@@ -17,17 +17,6 @@ int vertical2 = 0;
 HWND hWndRT2 = 0;
 HCURSOR cursorhndle2;
 
-static bool previousLeft = false;
-static bool previousRight = false;
-static bool previousUp = false;
-static bool previousDown = false;
-static bool button1pressed = false;
-static bool button2pressed = false;
-static bool button3pressed = false;
-static bool button4pressed = false;
-static bool musicpressed = false;
-static bool testPressed = false;
-static bool servicePressed = false;
 // controls
 extern int* ffbOffset;
 extern int* ffbOffset2;
@@ -37,205 +26,348 @@ extern int* ffbOffset4;
 BOOL(__stdcall* original_SetWindowPos2)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
 BOOL(__stdcall* original_CreateWindowExA2)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
 
+static int(__cdecl* SetControlOrig)(u_int param_1, u_int param_2);
+static int __cdecl SetControl(u_int param_1, u_int param_2)
+{
+	return SetControlOrig(param_1, param_2);
+}
+
 DWORD WINAPI InputRT2(LPVOID lpParam)
 {
 	int deltaTimer = 16;
 	INT_PTR keyboardBuffer = (0x437F6F8 + BaseAddress2);
 	INT_PTR keyboardBuffer2 = (0x437FC08 + BaseAddress2);
 
+	bool startPressed = false;
+	bool button1Pressed = false;
+	bool button2Pressed = false;
+	bool button3Pressed = false;
+	bool buttonMusicPressed = false;
+	bool buttonCoin1Pressed = false;
+	bool buttonCoin2Pressed = false;
+	bool buttonBillPressed = false;
+	bool buttonTestPressed = false;
+	bool buttonVolumeUpPressed = false;
+	bool buttonVolumeDownPressed = false;
+	bool buttonCreditPressed = false;
+
+
+	bool buttonGear1Pressed = false;
+	bool buttonGear2Pressed = false;
+	bool buttonGear3Pressed = false;
+	bool buttonGear4Pressed = false;
+	bool buttonGear5Pressed = false;
+	bool buttonGear6Pressed = false;
+	
+	bool buttonBrakePressed = false;
+	
+
+
 	while (true)
 	{
 	
-		
-		// buttons see bitwise values in TPui//RawThrills.cs
-		// START ( = NITRO too)
+		if (GetAsyncKeyState(VK_NUMPAD0) & 1)
+		{
+			SetControlOrig(0x10080, 0x0);
+			SetControlOrig(0x10080, 0x1);
+		}
+		if (GetAsyncKeyState(VK_NUMPAD1) & 1)
+		{
+			SetControlOrig(0x10081, 0x0);
+			SetControlOrig(0x10081, 0x1);
+		}
+		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
+		{
+			SetControlOrig(0x10082, 0x0);
+			SetControlOrig(0x10082, 0x1);
+		}
+		if (GetAsyncKeyState(VK_NUMPAD3) & 1)
+		{
+			SetControlOrig(0x10083, 0x0);
+			SetControlOrig(0x10083, 0x1);
+		}
+		if (GetAsyncKeyState(VK_NUMPAD4) & 1)
+		{
+			SetControlOrig(0x10084, 0x0);
+			SetControlOrig(0x10084, 0x1);
+		}
+		if (GetAsyncKeyState(VK_NUMPAD5) & 1)
+		{
+			SetControlOrig(0x10085, 0x0);
+			SetControlOrig(0x10085, 0x1);
+		}
+		if (GetAsyncKeyState(VK_NUMPAD6) & 1)
+		{
+			SetControlOrig(0x10086, 0x0);
+			SetControlOrig(0x10086, 0x1);
+		}
+		if (GetAsyncKeyState(VK_NUMPAD7) & 1)
+		{
+			SetControlOrig(0x10087, 0x0);
+			SetControlOrig(0x10087, 0x1);
+		}
+		if (GetAsyncKeyState(VK_NUMPAD8) & 1)
+		{
+			SetControlOrig(0x10088, 0x0);
+			SetControlOrig(0x10088, 0x1);
+		}
+		if (GetAsyncKeyState(VK_NUMPAD9) & 1)
+		{
+			SetControlOrig(0x10089, 0x0);
+			SetControlOrig(0x10089, 0x1);
+		}
+		if (GetAsyncKeyState(VK_MULTIPLY) & 1)
+		{
+			SetControlOrig(0x1008A, 0x0);
+			SetControlOrig(0x1008A, 0x1);
+		}
+		if (GetAsyncKeyState(VK_DIVIDE) & 1)
+		{
+			SetControlOrig(0x1008B, 0x0);
+			SetControlOrig(0x1008B, 0x1);
+		}
+
+		//START
 		if (*ffbOffset & 0x08)
 		{
-			injector::WriteMemory<BYTE>((keyboardBuffer2 + 4 * 0x00), 2, true);
-			injector::WriteMemory<BYTE>((keyboardBuffer + DIK_NUMPADENTER), 2, true);
-
-		}
-		// TEST
-		if (*ffbOffset & 0x01)
-		{
-			if (testPressed == false)
+			if (!startPressed)
 			{
-				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x0B * sizeof(U32), 2, true);
-				testPressed = true;
+				SetControlOrig(0x10000, 0x1);
+				startPressed = true;
 			}
 		}
-		else
-		{
-			if (testPressed == true)
-			{
-				testPressed = false;
-			}
+		else if(startPressed){
+			SetControlOrig(0x10000, 0x0);
+			startPressed = false;
 		}
 
-		//SERVICE
-		if (*ffbOffset & 0x02)
-		{
-			if (servicePressed == false)
-			{
-				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x0A * sizeof(U32), 2, true);
-				servicePressed = true;
-			}
-		}	
-		else
-		{
-			if (servicePressed == true)
-			{
-				servicePressed = false;
-			}
-		}
-		// NITRO ( = START too)
-		if (*ffbOffset & 0x100)
-		{
-			if (button1pressed == false)
-			{
-				injector::WriteMemory<BYTE>((keyboardBuffer2 + 4 * 0x00), 2, true);
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_NUMPADENTER), 2, true);
-				button1pressed = true;
-			}
-		}
-		else
-		{
-			if (button1pressed == true)
-			{
-				button1pressed = false;
-			}
-		}
-		// SHIFT DOWN
-		if (*ffbOffset & 0x2000)
-		{
-			if (previousDown == false)
-			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_DOWN), 2, true);
-				previousDown = true;
-			}
-		}
-		else
-		{
-			if (previousDown == true)
-			{
-				previousDown = false;
-			}
-		}
-		// SHIFT UP
-		if (*ffbOffset & 0x1000)
-		{
-			if (previousUp == false)
-			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_UP), 2, true);
-				previousUp = true;
-			}
-		}
-		else
-		{
-			if (previousUp == true)
-			{
-				previousUp = false;
-			}
-		}
-		// BUTTON 1/ VIEW 1
+		//BUTTON 1
 		if (*ffbOffset & 0x200)
 		{
-			if (button2pressed == false)
+			if (!button1Pressed)
 			{
-				injector::WriteMemory<BYTE>(keyboardBuffer + DIK_A, 2, true);
-				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x01 * sizeof(U32), 2, true);
-				button2pressed = true;
+				SetControlOrig(0x10001, 0x1);
+				button1Pressed = true;
 			}
 		}
-		else
-		{
-			if (button2pressed == true)
-			{
-				button2pressed = false;
-			}
+		else if (button1Pressed) {
+			SetControlOrig(0x10001, 0x0);
+			button1Pressed = false;
 		}
-		// BUTTON 2/ VIEW 2
+
+		//BUTTON 2
 		if (*ffbOffset & 0x400)
 		{
-			if (button3pressed == false)
+			if (!button2Pressed)
 			{
-				injector::WriteMemory<BYTE>(keyboardBuffer + DIK_B, 2, true);
-				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x02 * sizeof(U32), 2, true);
-				button3pressed = true;
+				SetControlOrig(0x10002, 0x1);
+				button2Pressed = true;
 			}
 		}
-		else
-		{
-			if (button3pressed == true)
-			{
-				button3pressed = false;
-			}
+		else if (button2Pressed) {
+			SetControlOrig(0x10002, 0x0);
+			button2Pressed = false;
 		}
-		// BUTTON 3/ VIEW 3
+
+		//BUTTON 3
 		if (*ffbOffset & 0x800)
 		{
-			if (button4pressed == false)
+			if (!button3Pressed)
 			{
-				injector::WriteMemory<BYTE>(keyboardBuffer + DIK_E, 2, true);
-				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x03 * sizeof(U32), 2, true);
-				button4pressed = true;
+				SetControlOrig(0x10003, 0x1);
+				button3Pressed = true;
 			}
 		}
-		else
-		{
-			if (button4pressed == true)
-			{
-				button4pressed = false;
-			}
+		else if (button3Pressed) {
+			SetControlOrig(0x10003, 0x0);
+			button3Pressed = false;
 		}
-		// BUTTON MUSIC
+
+		//BUTTON MUSIC
 		if (*ffbOffset & 0x10)
 		{
-			if (musicpressed == false)
+			if (!buttonMusicPressed)
 			{
-				injector::WriteMemory<BYTE>(keyboardBuffer2 + 0x04 * sizeof(U32), 2, true);
-				musicpressed = true;
+				SetControlOrig(0x10004, 0x1);
+				buttonMusicPressed = true;
 			}
 		}
-		else
+		else if (buttonMusicPressed) {
+			SetControlOrig(0x10004, 0x0);
+			buttonMusicPressed = false;
+		}
+
+		//BUTTON TEST
+		if (*ffbOffset & 0x01)
 		{
-			if (musicpressed == true)
+			if (!buttonTestPressed)
 			{
-				musicpressed = false;
+				SetControlOrig(0x1000b, 0x1);
+				buttonTestPressed = true;
 			}
 		}
-		// MENU LEFT
-		if (*ffbOffset & 0x4000)
+		else if (buttonTestPressed) {
+			SetControlOrig(0x1000b, 0x0);
+			buttonTestPressed = false;
+		}
+
+		//BUTTON SERVICE
+		if (*ffbOffset & 0x02)
 		{
-			if (previousLeft == false)
+			if (!buttonTestPressed)
 			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_LEFT), 2, true);
-				previousLeft = true;
+				SetControlOrig(0x1000a, 0x1);
+				buttonTestPressed = true;
 			}
 		}
-		else
+		else if (buttonTestPressed) {
+			SetControlOrig(0x1000a, 0x0);
+			buttonTestPressed = false;
+		}
+
+		//BUTTON COIN 1
+		if (*ffbOffset & 0x02)
 		{
-			if (previousLeft == true)
+			if (!buttonCoin1Pressed)
 			{
-				previousLeft = false;
+				SetControlOrig(0x10009, 0x1);
+				buttonCoin1Pressed = true;
 			}
 		}
-		// MENU RIGHT
-		if (*ffbOffset & 0x8000)
+		else if (buttonCoin1Pressed) {
+			SetControlOrig(0x10009, 0x0);
+			buttonCoin1Pressed = false;
+		}
+
+		//BUTTON COIN 2 TODO
+		if (1 == 2 && *ffbOffset & 0x9999999)
 		{
-			if (previousRight == false)
+			if (!buttonCoin2Pressed)
 			{
-				injector::WriteMemory<BYTE>((keyboardBuffer + DIK_RIGHT), 2, true);
-				previousRight = true;
+				SetControlOrig(0x1000a, 0x1);
+				buttonCoin2Pressed = true;
 			}
 		}
-		else
+		else if (buttonCoin2Pressed) {
+			SetControlOrig(0x1000a, 0x0);
+			buttonCoin2Pressed = false;
+		}
+
+		//BUTTON BILL TODO
+		if (1 == 2 && *ffbOffset & 0x9999999)
 		{
-			if (previousRight == true)
+			if (!buttonBillPressed)
 			{
-				previousRight = false;
+				SetControlOrig(0x1000d, 0x1);
+				buttonBillPressed = true;
 			}
 		}
+		else if (buttonBillPressed) {
+			SetControlOrig(0x1000d, 0x0);
+			buttonBillPressed = false;
+		}
+
+		//BUTTON VOLUME UP TODO
+		if (1 == 2 && *ffbOffset & 0x9999999)
+		{
+			if (!buttonVolumeUpPressed)
+			{
+				SetControlOrig(0x1000e, 0x1);
+				buttonVolumeUpPressed = true;
+			}
+		}
+		else if (buttonVolumeUpPressed) {
+			SetControlOrig(0x1000e, 0x0);
+			buttonVolumeUpPressed = false;
+		}
+
+		//BUTTON VOLUME DOWN TODO
+		if (1 == 2 && *ffbOffset & 0x9999999)
+		{
+			if (!buttonVolumeDownPressed)
+			{
+				SetControlOrig(0x1000f, 0x1);
+				buttonVolumeDownPressed = true;
+			}
+		}
+		else if (buttonVolumeDownPressed) {
+			SetControlOrig(0x1000f, 0x0);
+			buttonVolumeDownPressed = false;
+		}
+
+		//BUTTON CREDIT TODO
+		if (1 == 2 && *ffbOffset & 0x9999999)
+		{
+			if (!buttonCreditPressed)
+			{
+				SetControlOrig(0x1000c, 0x1);
+				buttonCreditPressed = true;
+			}
+		}
+		else if (buttonCreditPressed) {
+			SetControlOrig(0x1000c, 0x0);
+			buttonCreditPressed = false;
+		}
+
+		//GEAR 1 TOD
+		if (1 == 2 && *ffbOffset & 0x9999999)
+		{
+			if (!buttonGear1Pressed)
+			{
+				SetControlOrig(0x10005, 0x1);
+				buttonGear1Pressed = true;
+			}
+		}
+		else if (buttonGear1Pressed) {
+			SetControlOrig(0x10005, 0x0);
+			buttonGear1Pressed = false;
+		}
+
+		//GEAR 2 TODO
+		if (1 == 2 && *ffbOffset & 0x9999999)
+		{
+			if (!buttonGear2Pressed)
+			{
+				SetControlOrig(0x10006, 0x1);
+				buttonGear2Pressed = true;
+			}
+		}
+		else if (buttonGear2Pressed) {
+			SetControlOrig(0x10006, 0x0);
+			buttonGear2Pressed = false;
+		}
+
+		//GEAR 3 TODO
+		if (1 == 2 && *ffbOffset & 0x9999999)
+		{
+			if (!buttonGear3Pressed)
+			{
+				SetControlOrig(0x10007, 0x1);
+				buttonGear3Pressed = true;
+			}
+		}
+		else if (buttonGear3Pressed) {
+			SetControlOrig(0x10007, 0x0);
+			buttonGear3Pressed = false;
+		}
+
+		//GEAR 4 TODO
+		if (1 == 2 && *ffbOffset & 0x9999999)
+		{
+			if (!buttonGear4Pressed)
+			{
+				SetControlOrig(0x10008, 0x1);
+				buttonGear4Pressed = true;
+			}
+		}
+		else if (buttonGear4Pressed) {
+			SetControlOrig(0x10008, 0x0);
+			buttonGear4Pressed = false;
+		}
+
+		/*
+		// Need to do this in a mo
+		
 		// WHEEL
 		int iWheel0 = (((float)*ffbOffset2) - 128);
 		float wheel = (iWheel0 * 0.0078125f);
@@ -252,11 +384,11 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		int iBrake = (int)(brake * 4095);
 		injector::WriteMemory<DWORD>((0x437F808 + BaseAddress2) + 0x22 * sizeof(U32), iBrake, true);
 		injector::WriteMemory<float>((0x438020C + BaseAddress2), brake, true);
-
+		*/
 		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//	info(true, "test value %f ", test);
 		//DEBUG//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	
 		Sleep(deltaTimer);
 	}
 
@@ -348,6 +480,9 @@ DWORD WINAPI SetWindowPosRT2(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int 
 	return 1;
 }
 
+
+
+
 static InitFunction FNFSCFunc([]()
 	{
 		GetDesktopResolution(horizontal2, vertical2);
@@ -362,12 +497,20 @@ static InitFunction FNFSCFunc([]()
 		// REMOVE ESC BOX
 		injector::MakeNOP((0x464A58), 5, true);
 
+		//TURN OFF hack for keyboard + dinput, we'll do it ourselves above.
+		injector::MakeNOP((0x04741db), 5, true);
+
 		CreateThread(NULL, 0, InputRT2, NULL, 0, NULL);
 
 		MH_Initialize();
 		MH_CreateHookApi(L"user32.dll", "CreateWindowExA", &CreateWindowExART2, (void**)&original_CreateWindowExA2);
 		MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT2, (void**)&original_SetWindowPos2);
+		MH_CreateHook((void*)0x04a9510, SetControl, (void**)&SetControlOrig);
+		
+
 		MH_EnableHook(MH_ALL_HOOKS);
+
+
 
 		if (ToBool(config["General"]["Windowed"]))
 		{
