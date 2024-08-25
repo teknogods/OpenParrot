@@ -629,6 +629,12 @@ static int __cdecl SetUSBIOOn()
 	return 1;
 }
 
+//004c27f0 void h2oBoardSendMessages(void)
+static void(__cdecl* h2oBoardSendMessagesOrig)();
+static void __cdecl h2oBoardSendMessages()
+{
+	return;
+}
 
 static InitFunction FNFSCFunc([]()
 	{
@@ -654,6 +660,7 @@ static InitFunction FNFSCFunc([]()
 		MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT2, (void**)&original_SetWindowPos2);
 		MH_CreateHook((void*)0x04a9510, SetControl, (void**)&SetControlOrig);
 		MH_CreateHook((void*)0x0401ab0, SetUSBIOOn, (void**)&SetUSBIOOnOrig);
+		MH_CreateHook((void*)0x04c27f0, h2oBoardSendMessages, (void**)&h2oBoardSendMessagesOrig);
 
 
 		MH_EnableHook(MH_ALL_HOOKS);
