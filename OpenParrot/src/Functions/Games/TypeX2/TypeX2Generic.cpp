@@ -99,7 +99,7 @@ static std::string ParseFileNamesA(LPCSTR lpFileName)
 	if (!strncmp(lpFileName, ".\\TGM3\\", 7)) 
 	{
 		memset(moveBufA, 0, 256);
-		sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName + 2);
+		sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName);
 		return moveBufA;
 	}
 
