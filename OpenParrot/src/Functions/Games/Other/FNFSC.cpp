@@ -68,7 +68,9 @@ static bool buttonGear3Pressed = false;
 static bool buttonGear4Pressed = false;
 static bool buttonGear5Pressed = false;
 static bool buttonGear6Pressed = false;
-
+static int currentGearPressed = 1;
+static bool previousDown = false;
+static bool previousUp = false;
 static bool buttonBrakePressed = false;
 
 static bool numpad0Pressed = false;
@@ -92,6 +94,38 @@ static int(__cdecl* SetControlOrig)(u_int param_1, u_int param_2);
 static int __cdecl SetControl(u_int param_1, u_int param_2)
 {
 	return SetControlOrig(param_1, param_2);
+}
+
+static void ChangeGear(int gearNo)
+{
+	if (gearNo == 1)
+	{
+		SetControlOrig(0x10005, 0x1);
+		SetControlOrig(0x10006, 0x0);
+		SetControlOrig(0x10007, 0x0);
+		SetControlOrig(0x10008, 0x0);
+	}
+	else if (gearNo == 2)
+	{
+		SetControlOrig(0x10005, 0x0);
+		SetControlOrig(0x10006, 0x1);
+		SetControlOrig(0x10007, 0x0);
+		SetControlOrig(0x10008, 0x0);
+	}
+	else if (gearNo == 3)
+	{
+		SetControlOrig(0x10005, 0x0);
+		SetControlOrig(0x10006, 0x0);
+		SetControlOrig(0x10007, 0x1);
+		SetControlOrig(0x10008, 0x0);
+	}
+	else if (gearNo == 4)
+	{
+		SetControlOrig(0x10005, 0x0);
+		SetControlOrig(0x10006, 0x0);
+		SetControlOrig(0x10007, 0x0);
+		SetControlOrig(0x10008, 0x1);
+	}
 }
 
 DWORD WINAPI InputRT2(LPVOID lpParam)
@@ -438,78 +472,110 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 		}
 
 
-
 		//GEAR 1 
 		if (*ffbOffset5 & 0x1)
 		{
-			if (!buttonGear1Pressed)
+			if (buttonGear1Pressed == false)
 			{
-				SetControlOrig(0x10005, 0x1);
-				SetControlOrig(0x10006, 0x0);
-				SetControlOrig(0x10007, 0x0);
-				SetControlOrig(0x10008, 0x0);
 				buttonGear1Pressed = true;
+				currentGearPressed = 1;
+				ChangeGear(1);
 			}
 		}
-		else if (buttonGear1Pressed) {
-			SetControlOrig(0x10005, 0x0);
-			buttonGear1Pressed = false;
+		else
+		{
+			if (buttonGear1Pressed == true)
+			{
+				buttonGear1Pressed = false;
+			}
 		}
+		
 
 		//GEAR 2
 		if (*ffbOffset5 & 0x2)
 		{
-			if (!buttonGear2Pressed)
+			if (buttonGear2Pressed == false)
 			{
-				SetControlOrig(0x10006, 0x1);
-				SetControlOrig(0x10005, 0x0);
-				SetControlOrig(0x10007, 0x0);
-				SetControlOrig(0x10008, 0x0);
 				buttonGear2Pressed = true;
+				currentGearPressed = 2;
+				ChangeGear(2);
 			}
-		}
-		else if (buttonGear2Pressed) {
-			SetControlOrig(0x10006, 0x0);
-			buttonGear2Pressed = false;
 		}
 
 		//GEAR 3
 		if (*ffbOffset5 & 0x4)
 		{
-			if (!buttonGear3Pressed)
+			if (buttonGear3Pressed == false)
 			{
-				SetControlOrig(0x10007, 0x1);
-				SetControlOrig(0x10005, 0x0);
-				SetControlOrig(0x10006, 0x0);
-				SetControlOrig(0x10008, 0x0);
 				buttonGear3Pressed = true;
+				currentGearPressed = 3;
+				ChangeGear(3);
 			}
 		}
-		else if (buttonGear3Pressed) {
-			SetControlOrig(0x10007, 0x0);
-			buttonGear3Pressed = false;
+		else
+		{
+			if (buttonGear3Pressed == true)
+			{
+				buttonGear3Pressed = false;
+			}
 		}
+		
 
-		//GEAR 4 TODO
+		//GEAR 4
 		if (*ffbOffset5 & 0x8)
 		{
-			if (!buttonGear4Pressed)
+			if (buttonGear4Pressed == false)
 			{
-				SetControlOrig(0x10008, 0x1);
-				SetControlOrig(0x10005, 0x0);
-				SetControlOrig(0x10006, 0x0);
-				SetControlOrig(0x10007, 0x0);
 				buttonGear4Pressed = true;
+				currentGearPressed = 4;
+				ChangeGear(4);
 			}
 		}
-		else if (buttonGear4Pressed) {
-			SetControlOrig(0x10008, 0x0);
-			buttonGear4Pressed = false;
+		else
+		{
+			if (buttonGear4Pressed == true)
+			{
+				buttonGear4Pressed = false;
+			}
 		}
 
-
-		// Need to do this in a mo
-
+		// SHIFT DOWN
+		if (*ffbOffset & 0x2000)
+		{
+			if (previousDown == false)
+			{
+				currentGearPressed = currentGearPressed - 1;
+				if(currentGearPressed < 1) currentGearPressed = 1;
+				ChangeGear(currentGearPressed);
+				previousDown = true;
+			}
+		}
+		else
+		{
+			if (previousDown == true)
+			{
+				previousDown = false;
+			}
+		}
+		// SHIFT UP
+		if (*ffbOffset & 0x1000)
+		{
+			if (previousUp == false)
+			{
+				currentGearPressed = currentGearPressed + 1;
+				if (currentGearPressed > 4) currentGearPressed = 4;
+				ChangeGear(currentGearPressed);
+				previousUp = true;
+			}
+		}
+		else
+		{
+			if (previousUp == true)
+			{
+				previousUp = false;
+			}
+		}
+		
 		// WHEEL
 		int iWheel0 = (((float)*ffbOffset2) - 128);
 		float wheel = (iWheel0 * 0.0078125f);
