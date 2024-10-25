@@ -691,6 +691,9 @@ void GameDetect::DetectCurrentGame()
 		case 0x8e59a4b3:
 			currentGame = GameID::Friction;
 			break;
+		case 0x802f621b: // Arcana Heart 2
+			currentGame = GameID::ExBoardGeneric;
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
