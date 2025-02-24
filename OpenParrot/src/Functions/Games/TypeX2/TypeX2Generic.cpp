@@ -22,6 +22,7 @@ extern void HauntedMuseum2Inputs(Helpers* helpers);
 extern void GaiaAttack4Inputs(Helpers* helpers);
 static bool ProMode;
 extern bool BG4EnableTracks;
+bool FFBReportWheelPosition;
 
 // EADP
 extern int(__fastcall* EADPVolumeSetupOri)(void* ECX, void* EDX, float a2);
@@ -456,36 +457,39 @@ BOOL __stdcall WriteFileWrapTx2(HANDLE hFile,
 		{
 			switch (taskBuffer[pos])
 			{
-			case 0x20:
+			case 0x11:	// Begin reporting steering position?
+				FFBReportWheelPosition = true;
+				break;
+
+			case 0x20:	// Reset
 				g_replyBuffers[hFile].push_back(1);
-
-				pos += 2;
+				FFBReportWheelPosition = false;
 				break;
 
-			case 0x1F:
-			case 0x00:
-			case 0x04:
-			{
-				int wheelValue = *wheelSection;
-
-				if (GameDetect::X2Type == X2Type::VRL)
-				{
-					wheelValue = 255 - wheelValue;
-				}
-
-				wheelValue = (int)((wheelValue / 256.0f) * 1024.0f);
-				wheelValue += 1024;
-
-				g_replyBuffers[hFile].push_back(HIBYTE(wheelValue));
-				g_replyBuffers[hFile].push_back(LOBYTE(wheelValue));
-
-				pos += 2;
-				break;
-			}
+			//case 0x1F:	// Motor Stop
+			//case 0x00:	// No Operation
+			//case 0x04:	// Centering Spring?
 			default:
-				pos += 2;
+			{
+				if (FFBReportWheelPosition)
+				{
+					int wheelValue = *wheelSection;
+
+					if (GameDetect::X2Type == X2Type::VRL)
+					{
+						wheelValue = 255 - wheelValue;
+					}
+
+					wheelValue = (int)((wheelValue / 256.0f) * 1024.0f);
+					wheelValue += 1024;
+
+					g_replyBuffers[hFile].push_back(HIBYTE(wheelValue));
+					g_replyBuffers[hFile].push_back(LOBYTE(wheelValue));
+				}
 				break;
 			}
+			}
+			pos += 2;
 		}
 
 		*lpNumberOfBytesWritten = nNumberOfBytesToWrite;
