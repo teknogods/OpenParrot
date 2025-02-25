@@ -462,33 +462,48 @@ BOOL __stdcall WriteFileWrapTx2(HANDLE hFile,
 				break;
 
 			case 0x20:	// Reset
-				g_replyBuffers[hFile].push_back(1);
 				FFBReportWheelPosition = false;
-				break;
+				g_replyBuffers[hFile].push_back(0xA0);	// Ready for calibration state
+				g_replyBuffers[hFile].push_back(0x00);
+				pos += 2;
+				continue;
 
-			//case 0x1F:	// Motor Stop
-			//case 0x00:	// No Operation
-			//case 0x04:	// Centering Spring?
-			default:
+			case 0x1F:	// Motor Stop
 			{
-				if (FFBReportWheelPosition)
+				if (!FFBReportWheelPosition)
 				{
-					int wheelValue = *wheelSection;
-
-					if (GameDetect::X2Type == X2Type::VRL)
-					{
-						wheelValue = 255 - wheelValue;
-					}
-
-					wheelValue = (int)((wheelValue / 256.0f) * 1024.0f);
-					wheelValue += 1024;
-
-					g_replyBuffers[hFile].push_back(HIBYTE(wheelValue));
-					g_replyBuffers[hFile].push_back(LOBYTE(wheelValue));
+					g_replyBuffers[hFile].push_back(0x1F);	// By removing MSB (& 0x80) we skip calibration
+					g_replyBuffers[hFile].push_back(0x00);
+					pos += 2;
+					continue;
 				}
 				break;
 			}
+			//case 0x00:	// No Operation
+			//case 0x04:	// Centering Spring?
 			}
+
+			if (FFBReportWheelPosition)
+			{
+				int wheelValue = *wheelSection;
+
+				if (GameDetect::X2Type == X2Type::VRL)
+				{
+					wheelValue = 255 - wheelValue;
+				}
+
+				wheelValue = (int)((wheelValue / 256.0f) * 1024.0f);
+				wheelValue += 1024;
+
+				g_replyBuffers[hFile].push_back(HIBYTE(wheelValue));
+				g_replyBuffers[hFile].push_back(LOBYTE(wheelValue));
+			}
+			else
+			{
+				g_replyBuffers[hFile].push_back(0x8C);	// Post-calibration status from board
+				g_replyBuffers[hFile].push_back(0xA0);
+			}
+
 			pos += 2;
 		}
 
