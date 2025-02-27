@@ -12,8 +12,7 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
-extern void BG4ManualHack(Helpers* helpers);
-extern void BG4ProInputs(Helpers* helpers);
+extern void BG4General(Helpers* helpers);
 extern void KOFSkyStageInputs(Helpers* helpers);
 extern void EADPInputs(Helpers* helpers);
 extern void MusicGunGun2Inputs(Helpers* helpers);
@@ -521,10 +520,7 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 		switch (GameDetect::currentGame)
 		{
 		case GameID::BG4:
-			if (ProMode)
-				BG4ProInputs(0);
-			else
-				BG4ManualHack(0);
+			BG4General(0);
 			break;
 		case GameID::KOFSkyStage100J:
 			KOFSkyStageInputs(0);
@@ -655,9 +651,9 @@ static InitFunction initFunction([]()
 		case X2Type::BG4:
 		{
 			// TODO: DOCUMENT PATCHES
-			injector::MakeNOP(0x4CBCB8, 10);
+			/*injector::MakeNOP(0x4CBCB8, 10);
 			injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
-			injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);
+			injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);*/
 
 			// redirect E:\data to .\data
 			injector::WriteMemoryRaw(0x0076D96C, "./data/", 8, true);
@@ -688,19 +684,9 @@ static InitFunction initFunction([]()
 
 			if (ProMode)
 			{
-				injector::MakeNOP(imageBase + 0x1E7AB, 6);
-				injector::MakeNOP(imageBase + 0x1E7DC, 6);
-				injector::MakeNOP(imageBase + 0x1E7A5, 6);
-				injector::MakeNOP(imageBase + 0x1E82B, 6);
-				injector::MakeNOP(imageBase + 0x1E79F, 6);
-				injector::MakeNOP(imageBase + 0x1E858, 6);
-				injector::MakeNOP(imageBase + 0x1E799, 6);
-				injector::MakeNOP(imageBase + 0x1E880, 6);
-				injector::MakeNOP(imageBase + 0x27447, 3);
-			
-				//
 				if (!ToBool(config["General"]["Custom Resolution (Professional Edition)"]))
 				{
+					// The extra 6px fixes some weird scaling issues
 					injector::WriteMemory<DWORD>(imageBase + 0x1f4c6d, 1366, true);
 					injector::WriteMemory<DWORD>(imageBase + 0xa0536, 1366, true);
 				}
@@ -713,9 +699,6 @@ static InitFunction initFunction([]()
 					injector::WriteMemory<DWORD>(imageBase + 0x1f4c77, resHeight, true);
 					injector::WriteMemory<DWORD>(imageBase + 0xa0531, resHeight, true);
 				}
-
-				// Fix 6MT warning upon key entry
-				injector::WriteMemoryRaw(imageBase + 0xD4AC3, "\xE9\x0E\x01\x00", 4, true);
 
 				if (ToBool(config["General"]["Professional Edition Hold Gear"]))
 				{
