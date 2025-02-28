@@ -4,19 +4,20 @@
 #include "Functions/Global.h"
 #include "Utility/Helper.h"
 
-static bool init;
-static bool StopPausing;
-static bool BG4EnableTracks;
+bool BG4EnableTracks;
+
+static bool _init;
+static bool _stopPausing;
 
 void BG4General(Helpers* helpers)
 {
-	if (!init)
+	if (!_init)
 	{
 		UINT8 WaitForAttract = helpers->ReadByte(0x42D964, true);
 
 		if (WaitForAttract)
 		{
-			init = true;
+			_init = true;
 
 			if (BG4EnableTracks)
 				helpers->WriteIntPtr(0x4165C0, 0x3FFFFFFF, true);
@@ -27,10 +28,10 @@ void BG4General(Helpers* helpers)
 
 	if (ScreenVal == 0x08)
 	{
-		if (!StopPausing)
-			StopPausing = true;
+		if (!_stopPausing)
+			_stopPausing = true;
 	}
 
-	if (StopPausing)
+	if (_stopPausing)
 		helpers->WriteByte(0x42D29C, 0x01, true);
 }
