@@ -12,8 +12,7 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
-extern void BG4ManualHack(Helpers* helpers);
-extern void BG4ProInputs(Helpers* helpers);
+extern void BG4General(Helpers* helpers);
 extern void KOFSkyStageInputs(Helpers* helpers);
 extern void EADPInputs(Helpers* helpers);
 extern void MusicGunGun2Inputs(Helpers* helpers);
@@ -22,6 +21,7 @@ extern void HauntedMuseum2Inputs(Helpers* helpers);
 extern void GaiaAttack4Inputs(Helpers* helpers);
 static bool ProMode;
 extern bool BG4EnableTracks;
+bool FFBReportWheelPosition;
 
 // EADP
 extern int(__fastcall* EADPVolumeSetupOri)(void* ECX, void* EDX, float a2);
@@ -456,15 +456,33 @@ BOOL __stdcall WriteFileWrapTx2(HANDLE hFile,
 		{
 			switch (taskBuffer[pos])
 			{
-			case 0x20:
-				g_replyBuffers[hFile].push_back(1);
-
-				pos += 2;
+			case 0x11:	// Begin reporting steering position?
+				FFBReportWheelPosition = true;
 				break;
 
-			case 0x1F:
-			case 0x00:
-			case 0x04:
+			case 0x20:	// Reset
+				FFBReportWheelPosition = false;
+				g_replyBuffers[hFile].push_back(0xA0);	// Ready for calibration state
+				g_replyBuffers[hFile].push_back(0x00);
+				pos += 2;
+				continue;
+
+			case 0x1F:	// Motor Stop
+			{
+				if (!FFBReportWheelPosition)
+				{
+					g_replyBuffers[hFile].push_back(0x1F);	// By removing MSB (& 0x80) we skip calibration
+					g_replyBuffers[hFile].push_back(0x00);
+					pos += 2;
+					continue;
+				}
+				break;
+			}
+			//case 0x00:	// No Operation
+			//case 0x04:	// Centering Spring?
+			}
+
+			if (FFBReportWheelPosition)
 			{
 				int wheelValue = *wheelSection;
 
@@ -478,14 +496,14 @@ BOOL __stdcall WriteFileWrapTx2(HANDLE hFile,
 
 				g_replyBuffers[hFile].push_back(HIBYTE(wheelValue));
 				g_replyBuffers[hFile].push_back(LOBYTE(wheelValue));
+			}
+			else
+			{
+				g_replyBuffers[hFile].push_back(0x8C);	// Post-calibration status from board
+				g_replyBuffers[hFile].push_back(0xA0);
+			}
 
-				pos += 2;
-				break;
-			}
-			default:
-				pos += 2;
-				break;
-			}
+			pos += 2;
 		}
 
 		*lpNumberOfBytesWritten = nNumberOfBytesToWrite;
@@ -502,10 +520,7 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 		switch (GameDetect::currentGame)
 		{
 		case GameID::BG4:
-			if (ProMode)
-				BG4ProInputs(0);
-			else
-				BG4ManualHack(0);
+			BG4General(0);
 			break;
 		case GameID::KOFSkyStage100J:
 			KOFSkyStageInputs(0);
@@ -635,11 +650,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4:
 		{
-			// TODO: DOCUMENT PATCHES
-			injector::MakeNOP(0x4CBCB8, 10);
-			injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
-			injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);
-
 			// redirect E:\data to .\data
 			injector::WriteMemoryRaw(0x0076D96C, "./data/", 8, true);
 			injector::WriteMemoryRaw(0x007ACA60, ".\\data", 7, true);
@@ -669,19 +679,9 @@ static InitFunction initFunction([]()
 
 			if (ProMode)
 			{
-				injector::MakeNOP(imageBase + 0x1E7AB, 6);
-				injector::MakeNOP(imageBase + 0x1E7DC, 6);
-				injector::MakeNOP(imageBase + 0x1E7A5, 6);
-				injector::MakeNOP(imageBase + 0x1E82B, 6);
-				injector::MakeNOP(imageBase + 0x1E79F, 6);
-				injector::MakeNOP(imageBase + 0x1E858, 6);
-				injector::MakeNOP(imageBase + 0x1E799, 6);
-				injector::MakeNOP(imageBase + 0x1E880, 6);
-				injector::MakeNOP(imageBase + 0x27447, 3);
-			
-				//
 				if (!ToBool(config["General"]["Custom Resolution (Professional Edition)"]))
 				{
+					// The extra 6px fixes some weird scaling issues
 					injector::WriteMemory<DWORD>(imageBase + 0x1f4c6d, 1366, true);
 					injector::WriteMemory<DWORD>(imageBase + 0xa0536, 1366, true);
 				}
@@ -694,9 +694,6 @@ static InitFunction initFunction([]()
 					injector::WriteMemory<DWORD>(imageBase + 0x1f4c77, resHeight, true);
 					injector::WriteMemory<DWORD>(imageBase + 0xa0531, resHeight, true);
 				}
-
-				// Fix 6MT warning upon key entry
-				injector::WriteMemoryRaw(imageBase + 0xD4AC3, "\xE9\x0E\x01\x00", 4, true);
 
 				if (ToBool(config["General"]["Professional Edition Hold Gear"]))
 				{
