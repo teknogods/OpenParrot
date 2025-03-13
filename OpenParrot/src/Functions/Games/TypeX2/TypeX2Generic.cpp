@@ -721,11 +721,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4_Eng:
 		{
-			// TODO: DOCUMENT PATCHES
-			//injector::MakeNOP(0x4CBCB8, 10);
-			//injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
-			//injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);
-
 			// redirect E:\data to .\data
 			injector::WriteMemoryRaw(0x0073139C, "./data/", 8, true);
 			injector::WriteMemoryRaw(0x00758978, ".\\data", 7, true);
