@@ -666,6 +666,7 @@ static InitFunction initFunction([]()
 			injector::WriteMemoryRaw(imageBase + 0x2EF484, "\x6A\x60\x68\x28\xac\x7c\x00", 7, true);				// We replace the dll injection routine with the initial stack pushes to correctly set up the stack for the subroutine call following the patched instructions...
 			safeJMP(imageBase + 0x2ef484 + 7, imageBase + 0x2837e7);												// THEN insert a jump back to the original entry point +7 bytes offset (to skip the patched in JMP) which calls __SEH_prolog with the stack pushes from earlier
 																													// Has to be done this way as TP does not patch quickly enough to prevent the initial entry point JMP, it will branch regardless (Thanks Pocky for workaround)
+																													// This shouldnt cause an issue with clean exes as they wont jump here in the first place
 
 			injector::WriteMemoryRaw(imageBase + 0xCBCB8, "\x8B\x84\x81\x94\x00\x00\x00\x8B\x40\x04", 10, true);	// Revert weird transmission patch?
 																													// Causes Seq/6MT to be disabled in pro mode
