@@ -660,6 +660,18 @@ static InitFunction initFunction([]()
 			// Rename window name
 			injector::WriteMemoryRaw(imageBase + 0x36B790, "\x4F\x70\x65\x6E\x50\x61\x72\x72\x6F\x74\x20\x2D\x20\x42\x61\x74\x74\x6C\x65\x20\x47\x65\x61\x72\x20\x34\x20\x54\x75\x6E\x65\x64", 37, true);
 
+			// Below will (mostly) un-patch dirty executables
+			injector::MemoryFill(imageBase + 0x2EF470, 0, 48, true);												// Remove dll injection routine
+
+			injector::WriteMemoryRaw(imageBase + 0x2EF484, "\x6A\x60\x68\x28\xac\x7c\x00", 7, true);				// We replace the dll injection routine with the initial stack pushes to correctly set up the stack for the subroutine call following the patched instructions...
+			safeJMP(imageBase + 0x2ef484 + 7, imageBase + 0x2837e7);												// THEN insert a jump back to the original entry point +7 bytes offset (to skip the patched in JMP) which calls __SEH_prolog with the stack pushes from earlier
+																													// Has to be done this way as TP does not patch quickly enough to prevent the initial entry point JMP, it will branch regardless (Thanks Pocky for workaround)
+																													// This shouldnt cause an issue with clean exes as they wont jump here in the first place
+
+			injector::WriteMemoryRaw(imageBase + 0xCBCB8, "\x8B\x84\x81\x94\x00\x00\x00\x8B\x40\x04", 10, true);	// Revert weird transmission patch?
+																													// Causes Seq/6MT to be disabled in pro mode
+			// End of dirty executable patches
+			
 			if (ToBool(config["General"]["IntroFix"]))
 			{
 				// thanks for Ducon2016 for the patch!
@@ -714,11 +726,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4_Eng:
 		{
-			// TODO: DOCUMENT PATCHES
-			//injector::MakeNOP(0x4CBCB8, 10);
-			//injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
-			//injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);
-
 			// redirect E:\data to .\data
 			injector::WriteMemoryRaw(0x0073139C, "./data/", 8, true);
 			injector::WriteMemoryRaw(0x00758978, ".\\data", 7, true);
