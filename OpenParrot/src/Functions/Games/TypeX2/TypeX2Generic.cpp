@@ -12,6 +12,9 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
+typedef void(__stdcall* TPSetFFB_t)(int var1, int var2, int var3, int var4, int var5, float var6, float var7, float var8, float var9, float var10);
+static TPSetFFB_t TPsetFFB = nullptr;
+
 extern void BG4General(Helpers* helpers);
 extern void KOFSkyStageInputs(Helpers* helpers);
 extern void EADPInputs(Helpers* helpers);
@@ -502,7 +505,10 @@ BOOL __stdcall WriteFileWrapTx2(HANDLE hFile,
 				g_replyBuffers[hFile].push_back(0x8C);	// Post-calibration status from board
 				g_replyBuffers[hFile].push_back(0xA0);
 			}
-
+			if (TPsetFFB != nullptr)
+			{
+				TPsetFFB(taskBuffer[pos], taskBuffer[pos + 1], 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			}
 			pos += 2;
 		}
 
@@ -576,6 +582,18 @@ static InitFunction initFunction([]()
 	iatHook("kernel32.dll", GetDiskFreeSpaceExAWrap, "GetDiskFreeSpaceExA");
 	iatHook("kernel32.dll", GetDiskFreeSpaceExAWrap, "GetDiskFreeSpaceExW");
 	
+	if (ToBool(config["FFB Blaster"]["Enable"]))
+	{
+		HMODULE ffbBlasterH = GetModuleHandleA("FFBBlaster.dll");
+		if (ffbBlasterH)
+		{
+			FARPROC ffbBlasterSetFFBPtr = GetProcAddress(ffbBlasterH, "TPSetFFB");
+			if (ffbBlasterSetFFBPtr)
+			{
+				TPsetFFB = reinterpret_cast<TPSetFFB_t>(ffbBlasterSetFFBPtr);
+			}
+		}
+	}
 	switch (GameDetect::X2Type)
 	{
 		case X2Type::Wontertainment: // By 00C0FFEE
