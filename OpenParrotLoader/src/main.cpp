@@ -295,39 +295,38 @@ int wmain(int argc, wchar_t* argv[])
 
 	if (GetPrivateProfileInt(L"FFB Blaster", L"Enable", 0, iniPath))
 	{
-
-#ifdef _WIN64
-		std::filesystem::path ffbBlasterFilename = L"FFBBlaster64.dll";
-#else
-		std::filesystem::path ffbBlasterFilename = L"FFBBlaster.dll";
-#endif
 		std::filesystem::path workingDirectory = std::filesystem::current_path();
-		std::filesystem::path ffbBlasterPath = workingDirectory / L"FFBBlaster" / ffbBlasterFilename;
+		std::filesystem::path ffbBlasterPath;
 
-		wprintf(L"Looking for %ls at: %ls\n", ffbBlasterFilename.c_str(), ffbBlasterPath.wstring().c_str());
+#ifdef _M_IX86
+		ffbBlasterPath = workingDirectory / L"FFBBlaster" / L"x86" / L"FFBBlaster.dll";
+#else
+		ffbBlasterPath = workingDirectory / L"FFBBlaster" / L"x64" / L"FFBBlaster64.dll";
+#endif
+
+		wprintf(L"Looking for FFB Blaster at: %ls\n", ffbBlasterPath.wstring().c_str());
 
 		if (std::filesystem::exists(ffbBlasterPath))
 		{
 			wchar_t* ffbBlasterPathW = new wchar_t[wcslen(ffbBlasterPath.wstring().c_str()) + 1] { 0 };
 			wcscpy(ffbBlasterPathW, ffbBlasterPath.wstring().c_str());
 
-			wprintf(L"%ls found: %ls\n", ffbBlasterFilename.c_str(), ffbBlasterPathW);
+			wprintf(L"FFB Blaster found: %ls\n", ffbBlasterPathW);
 
-			HMODULE hModA = NULL;
 			if (LoadHookDLL(ffbBlasterPathW, baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint))
 			{
-				wprintf(L"%ls loaded successfully!\n", ffbBlasterFilename.c_str());
+				wprintf(L"FFB Blaster loaded successfully!\n");
 			}
 			else
 			{
-				wprintf(L"Failed to load %ls. Continuing with core DLL only...\n", ffbBlasterFilename.c_str());
+				wprintf(L"Failed to load FFB Blaster. Continuing with core DLL only...\n");
 			}
 
 			delete[] ffbBlasterPathW;
 		}
 		else
 		{
-			wprintf(L"%ls not found at: %ls\n", ffbBlasterFilename.c_str(), ffbBlasterPath.wstring().c_str());
+			wprintf(L"FFB Blaster not found at: %ls\n", ffbBlasterPath.wstring().c_str());
 		}
 	}
 
