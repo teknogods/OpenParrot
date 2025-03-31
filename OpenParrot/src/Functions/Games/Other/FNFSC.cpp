@@ -98,33 +98,26 @@ static int __cdecl SetControl(u_int param_1, u_int param_2)
 
 static void ChangeGear(int gearNo)
 {
+	std::string currGear = "Current Gear: " + std::to_string(gearNo);
+	SetControlOrig(0x10005, 0x1);
+	SetControlOrig(0x10006, 0x1);
+	SetControlOrig(0x10007, 0x1);
+	SetControlOrig(0x10008, 0x1);
 	if (gearNo == 1)
 	{
-		SetControlOrig(0x10005, 0x1);
-		SetControlOrig(0x10006, 0x0);
-		SetControlOrig(0x10007, 0x0);
-		SetControlOrig(0x10008, 0x0);
+		SetControlOrig(0x10005, 0x0);
 	}
 	else if (gearNo == 2)
 	{
-		SetControlOrig(0x10005, 0x0);
-		SetControlOrig(0x10006, 0x1);
-		SetControlOrig(0x10007, 0x0);
-		SetControlOrig(0x10008, 0x0);
+		SetControlOrig(0x10006, 0x0);
 	}
 	else if (gearNo == 3)
 	{
-		SetControlOrig(0x10005, 0x0);
-		SetControlOrig(0x10006, 0x0);
-		SetControlOrig(0x10007, 0x1);
-		SetControlOrig(0x10008, 0x0);
+		SetControlOrig(0x10007, 0x0);
 	}
 	else if (gearNo == 4)
 	{
-		SetControlOrig(0x10005, 0x0);
-		SetControlOrig(0x10006, 0x0);
-		SetControlOrig(0x10007, 0x0);
-		SetControlOrig(0x10008, 0x1);
+		SetControlOrig(0x10008, 0x0);
 	}
 }
 
@@ -499,6 +492,13 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 				buttonGear2Pressed = true;
 				currentGearPressed = 2;
 				ChangeGear(2);
+			}
+		}
+		else
+		{
+			if (buttonGear2Pressed == true)
+			{
+				buttonGear2Pressed = false;
 			}
 		}
 
