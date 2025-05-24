@@ -188,3 +188,39 @@ std::tuple <int, int> CalculateWindowCenterPosition(int width, int height)
 	int yPos = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
 	return std::make_tuple(xPos, yPos);
 }
+
+// for printing errors from LoadLib etc
+std::wstring GetLastErrorAsString()
+{
+	DWORD errorCode = GetLastError();
+	if (errorCode == 0) {
+		return L"No error";
+	}
+
+	LPWSTR messageBuffer = nullptr;
+	DWORD size = FormatMessageW(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr,
+		errorCode,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPWSTR)&messageBuffer,
+		0,
+		nullptr
+	);
+
+	if (size == 0) {
+		return L"Failed to get error message";
+	}
+
+	std::wstring message(messageBuffer);
+	LocalFree(messageBuffer);
+
+	// Remove newline characters that Windows tends to add
+	while (!message.empty() && (message.back() == L'\n' || message.back() == L'\r')) {
+		message.pop_back();
+	}
+
+	return L"Error " + std::to_wstring(errorCode) + L": " + message;
+}
