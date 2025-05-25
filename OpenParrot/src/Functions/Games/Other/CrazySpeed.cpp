@@ -7,6 +7,9 @@
 #include <queue>
 #include <intrin.h>
 #include <winscard.h>
+#include "CrazySpeed.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "Utility/stb_image_write.h"
 
 static const HANDLE hIoHandle = (HANDLE)0x8001;
 static std::queue<BYTE> ioBuffer;
@@ -809,9 +812,73 @@ static void __fastcall GRendererD3D9_BeginDisplay(void* thisClass, void* unused,
 	float x0, float x1, float y0, float y1)
 {
 	//TpInfo("GRendererD3D9_BeginDisplay called with viewport: %d x %d", vpin.Width, vpin.Height);
-	vpin.Width = customResWidth;
-	vpin.Height = customResHeight;
+	if (vpin.Width == 1360 && vpin.Height == 768) {
+		vpin.Width = customResWidth;
+		vpin.Height = customResHeight;
+	}
 	return GRendererD3D9_BeginDisplay_Original(thisClass, unused, backgroundColor, vpin, x0, x1, y0, y1);
+}
+
+static void CreateFileNextToExe(const std::string& content) {
+	char modulePath[MAX_PATH];
+	GetModuleFileNameA(NULL, modulePath, MAX_PATH);
+
+	char* lastSlash = strrchr(modulePath, '\\');
+	if (lastSlash) {
+		strcpy(lastSlash + 1, "rearviewMirrorOverlay_scaled.overlay");
+	}
+
+	HANDLE hFile = CreateFileA(modulePath, GENERIC_WRITE | GENERIC_READ, 0, NULL,
+		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	DWORD bytesWritten;
+	WriteFile(hFile, content.c_str(), content.length(), &bytesWritten, NULL);
+	SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+
+	CloseHandle(hFile);
+	return;
+}
+
+static void CreateMirrorFile()
+{
+	float scaleX = customResWidth / 1360.0f;
+	float scaleY = customResHeight / 768.0f;
+
+	int scaledLeft = (int)(424 * scaleX);
+	int scaledTop = (int)(40 * scaleY);
+	int scaledWidth = (int)(512 * scaleX);
+	int scaledHeight = (int)(95 * scaleY);
+
+	std::string overlayContent =
+		"CFS/rearviewMirrorOverlay\n"
+		"{\n"
+		"\tzorder 500\n\n"
+		"\tcontainer Panel(CFS/SceneRearView/Panel)\n"
+		"\t{\n"
+		"\t\telement Panel(CFS/SceneRearView)\n"
+		"\t\t{\n"
+		"\t\t\tmetrics_mode pixels\n"
+		"\t\t\thorz_align left\n"
+		"\t\t\tvert_align top\n"
+		"\t\t\tleft " + std::to_string(scaledLeft) + "\n"
+		"\t\t\ttop " + std::to_string(scaledTop) + "\n"
+		"\t\t\twidth " + std::to_string(scaledWidth) + "\n"
+		"\t\t\theight " + std::to_string(scaledHeight) + "\n"
+		"\t\t\tuv_coords\t1.0 0.0 0.0 1.0\n\n"
+		"\t\t\tmaterial CFS/SceneRearView\n"
+		"\t\t}\n"
+		"\t}\n"
+		"}\n";
+
+	CreateFileNextToExe(overlayContent);
+	return;
+}
+
+static void CreateFixedImageDb()
+{
+	std::ofstream file("Image_db.txt", std::ios::binary);
+	file.write(reinterpret_cast<const char*>(imageDb), 1145);
+	file.close();
 }
 
 static InitFunction CrazySpeedFunc([]()
@@ -823,6 +890,7 @@ static InitFunction CrazySpeedFunc([]()
 
 		checkDLLCRC();
 		HMODULE dongleDll = LoadLibraryA("dic32u.dll");
+		//HMODULE cgDll = LoadLibraryA("cg.dll");
 		bool useCustomRes = ToBool(config["Graphics"]["Use Custom Resolution"]);
 
 		MH_Initialize();
@@ -835,9 +903,24 @@ static InitFunction CrazySpeedFunc([]()
 			MH_CreateHook((void*)0x742a40, GRendererD3D9_BeginDisplay, (void**)&GRendererD3D9_BeginDisplay_Original);
 			customResWidth = FetchDwordInformation("Graphics", "Resolution Width", 1360);
 			customResHeight = FetchDwordInformation("Graphics", "Resolution Height", 768);
+			float scaleFactorWidth = (float)customResWidth / 1360.0f;
+			float scaleFactorHeight = (float)customResHeight / 768.0f;
+
 			// main render res and window size
 			injector::WriteMemory<DWORD>(0x4e6b6f, customResWidth, true);
 			injector::WriteMemory<DWORD>(0x4e6b6a, customResHeight, true);
+
+			// Other hardcoded resolutions, not sure they do anything
+			//injector::WriteMemory<DWORD>(0x803410, customResWidth, true);
+			//injector::WriteMemory<DWORD>(0x803414, customResHeight, true);
+
+			//injector::WriteMemory<DWORD>(0x4e6b6f, customResWidth, true);
+			//injector::WriteMemory<DWORD>(0x4e6b6a, customResHeight, true);
+
+			// mirror rendertexture size
+			//injector::WriteMemory<DWORD>(0x4277eb, (DWORD)(512 * 2), true);
+			//injector::WriteMemory<DWORD>(0x4277e6, (DWORD)(128 * 2), true);
+			//TpInfo("RenderTexture size set to %d x %d\n", (uint32_t)(512 * scaleFactorWidth), (uint32_t)(128 * scaleFactorHeight));
 		}
 
 #ifdef DEBUG
@@ -894,6 +977,19 @@ static InitFunction CrazySpeedFunc([]()
 		// although, after some more runs this bug has disappeared, which is scary. keeping it in case someone else runs into this issue.
 		// it does still hammer core 1 though.
 		//injector::MakeJMP(0x746daa, WorkerThreadSleep, true);
+
+		// Create a copy of the mirror file next to the exe, but with res scaled position and scale
+		CreateMirrorFile();
+
+		// Create a fixed image_db.txt that includes a texture entry for the No Decal version of the cars
+		CreateFixedImageDb();
+		// And then we create and save an empty texture for said no decal variation. Fixes the cars being black without decals.
+		// Otherwise the shader samples a black texture with 1.0f alpha for some reason. Not sure if that's a DX9 regression or something...
+		int width = 512, height = 512, channels = 4;
+		unsigned char* data = (unsigned char*)malloc(width * height * channels);
+		memset(data, 0, width * height * channels);
+
+		stbi_write_png("../Media/models/upgtexture/car_pic_00.png", width, height, channels, data, width * channels);
 
 	}, GameID::CrazySpeed);
 #endif

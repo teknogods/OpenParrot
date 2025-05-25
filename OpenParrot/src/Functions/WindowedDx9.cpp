@@ -71,6 +71,11 @@ static HRESULT WINAPI CreateDeviceWrap(IDirect3D9* self, UINT Adapter, D3DDEVTYP
 	if (GameDetect::currentGame == GameID::TroubleWitches)
 		pPresentationParameters->BackBufferFormat = D3DFMT_A8R8G8B8; // TODO: query current desktop format and use it
 
+	if (GameDetect::currentGame == GameID::CrazySpeed)
+	{
+		pPresentationParameters->BackBufferFormat = D3DFMT_X8R8G8B8;
+	}
+
 	HRESULT hr = g_oldCreateDevice(self, Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
 
 	if (*ppReturnedDeviceInterface)
@@ -114,6 +119,11 @@ static InitFunction initFunc([]()
 {
 	if (GameDetect::currentGame == GameID::BG4 || GameDetect::currentGame == GameID::BG4_Eng || GameDetect::currentGame == GameID::JLeague || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::RumbleFish2 || GameDetect::currentGame == GameID::DirtyDrivin || GameDetect::currentGame == GameID::Friction)
 		return;
+
+	if (GameDetect::currentGame == GameID::CrazySpeed)
+	{
+		return;
+	}
 
 	// Make local variables for speed
 	Windowed = ToBool(config["General"]["Windowed"]);
