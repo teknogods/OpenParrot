@@ -11,6 +11,8 @@
 static const HANDLE hIoHandle = (HANDLE)0x8001;
 static std::queue<BYTE> ioBuffer;
 static SCARDHANDLE g_fakeCardHandle = 0x1337;
+static DWORD customResWidth = 1360;
+static DWORD customResHeight = 768;
 
 extern int* ffbOffset;
 extern int* ffbOffset2;
@@ -770,7 +772,7 @@ static bool checkDLLCRC() {
 	}
 
 	DWORD actualCRC = GetCRC32(buffer.data(), 0x400);
-	
+
 	TpInfo("DLL CRC: %08X", actualCRC);
 	if (actualCRC == forbiddenCRC) {
 		MessageBoxA(nullptr, "Incompatible DLL detected! dic32u.dll contains another loader. Please replace it with a valid dongle dll. The game will now exit.", "Error", MB_OK | MB_ICONERROR);
@@ -779,6 +781,37 @@ static bool checkDLLCRC() {
 	}
 
 	return true;
+}
+
+struct GViewport
+{
+public:
+	int    BufferWidth, BufferHeight;
+	int    Left, Top;
+	int    Width, Height;
+	int    ScissorLeft, ScissorTop;
+	int    ScissorWidth, ScissorHeight;
+	float   Scale, AspectRatio;
+	unsigned int Flags;
+};
+
+struct GColor
+{
+	unsigned int Raw;
+};
+
+static void (__fastcall* GRendererD3D9_BeginDisplay_Original)(void* thisClass, void* unused,
+	GColor backgroundColor, GViewport& vpin,
+	float x0, float x1, float y0, float y1);
+
+static void __fastcall GRendererD3D9_BeginDisplay(void* thisClass, void* unused,
+	GColor backgroundColor, GViewport& vpin,
+	float x0, float x1, float y0, float y1)
+{
+	//TpInfo("GRendererD3D9_BeginDisplay called with viewport: %d x %d", vpin.Width, vpin.Height);
+	vpin.Width = customResWidth;
+	vpin.Height = customResHeight;
+	return GRendererD3D9_BeginDisplay_Original(thisClass, unused, backgroundColor, vpin, x0, x1, y0, y1);
 }
 
 static InitFunction CrazySpeedFunc([]()
@@ -790,12 +823,23 @@ static InitFunction CrazySpeedFunc([]()
 
 		checkDLLCRC();
 		HMODULE dongleDll = LoadLibraryA("dic32u.dll");
+		bool useCustomRes = ToBool(config["Graphics"]["Use Custom Resolution"]);
 
 		MH_Initialize();
 		MH_CreateHookApi(L"kernel32.dll", "GetSystemInfo", &GetSystemInfo_hook, (void**)&GetSystemInfo_orig);
 		//MH_CreateHookApi(L"kernel32.dll"), "SetEvent"), &SetEvent_wrp, (void**)&SetEvent_orig);
 		//MH_CreateHook((void*)0x54afb0, sub_54AFB0_hook, (void**)&sub_54AFB0_orig);
 		//MH_CreateHook((void*)0x5535ac, htonsHook, (void**)&htonsOrig);
+		if (useCustomRes) {
+			// Scaleform GFX scaling
+			MH_CreateHook((void*)0x742a40, GRendererD3D9_BeginDisplay, (void**)&GRendererD3D9_BeginDisplay_Original);
+			customResWidth = FetchDwordInformation("Graphics", "Resolution Width", 1360);
+			customResHeight = FetchDwordInformation("Graphics", "Resolution Height", 768);
+			// main render res and window size
+			injector::WriteMemory<DWORD>(0x4e6b6f, customResWidth, true);
+			injector::WriteMemory<DWORD>(0x4e6b6a, customResHeight, true);
+		}
+
 #ifdef DEBUG
 		MH_CreateHook((void*)0x7468a0, errorPrintHook, (void**)&errorPrintOrig);
 #endif
@@ -843,15 +887,6 @@ static InitFunction CrazySpeedFunc([]()
 		{
 			injector::WriteMemory<DWORD>(0x4e6bef, 0x4e6c53, true); // start in windowed mode
 		}
-
-		// res tests, patching only the main res will render 3d fine, but ui won't scale, as is usual
-		//injector::WriteMemory<DWORD>(0x4e6b6f, 1920, true);
-		//injector::WriteMemory<DWORD>(0x4e6b6a, 1080, true);
-
-		// so, to get the ui to scale we would need to find the SetViewport function on the GFxMovieRoot object
-		// however, even with the SDK i was unable to find the function in the exe, cause there's a lot of stuff...
-		// maybe something to check in the future, just putting this down here as a note :)
-		// but if someone does find it, it should make the ui scale perfectly, simply because they used Scaleform GFx
 
 		// for some reason sometimes GetQueuedCompletionStatus exits immediately instead of waiting or something, every time
 		// and then all of the many many threads it spawns will spin, using 100% cpu across all cores on my 9800x3d... jesus christ.
