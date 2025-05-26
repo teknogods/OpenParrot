@@ -754,9 +754,9 @@ static LONG WINAPI SCardTransmit_hook(
 	return SCARD_S_SUCCESS;
 }
 
+
 static bool checkDLLCRC() {
 	const char* dllPath = "dic32u.dll";
-	const DWORD forbiddenCRC = 0xA9989470;
 
 	if (GetFileAttributesA(dllPath) == INVALID_FILE_ATTRIBUTES) {
 		return true;
@@ -777,7 +777,7 @@ static bool checkDLLCRC() {
 	DWORD actualCRC = GetCRC32(buffer.data(), 0x400);
 
 	TpInfo("DLL CRC: %08X", actualCRC);
-	if (actualCRC == forbiddenCRC) {
+	if (actualCRC == 0xA9989470 || actualCRC == 0xB90771D3) {
 		MessageBoxA(nullptr, "Incompatible DLL detected! dic32u.dll contains another loader. Please replace it with a valid dongle dll. The game will now exit.", "Error", MB_OK | MB_ICONERROR);
 		exit(0);
 		return false;
@@ -940,6 +940,7 @@ static InitFunction CrazySpeedFunc([]()
 		MH_CreateHookApi(L"winscard.dll", "SCardReleaseContext", SCardReleaseContext_hook, nullptr);
 		MH_CreateHookApi(L"winscard.dll", "SCardConnectA", SCardConnectA_hook, (void**)&SCardConnectA_orig);
 		MH_CreateHookApi(L"winscard.dll", "SCardTransmit", SCardTransmit_hook, (void**)&SCardTransmit_orig);
+		//MH_CreateHookApi(L"winscard.dll", "SCardGetAttrib", SCardGetAttrib_hook, (void**)&SCardGetAttrib_orig);
 		//MH_CreateHookApi(L"kernel32.dll"), "GetQueuedCompletionStatus"), &GetQueuedCompletionStatus_hook, (void**)&GetQueuedCompletionStatus_orig);
 		MH_EnableHook(MH_ALL_HOOKS);
 
