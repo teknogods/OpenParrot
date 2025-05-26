@@ -561,7 +561,137 @@ static int __fastcall errorPrintHook(void* thisPtr, void* edx, void* Src, size_t
 	return errorPrintOrig(thisPtr, Src, Size);
 }
 
-// CARD READER STUFF
+/// 
+///  CARD READER (SMARTCARD)
+/// 
+
+namespace CardDataManager {
+	struct VirtualFile {
+		std::vector<uint8_t> data;
+		bool isValid;
+
+		VirtualFile() : isValid(true) {
+			data.resize(0x1000, 0x00);
+		}
+	};
+
+	static std::map<uint16_t, VirtualFile> virtualFiles;
+	static uint16_t selectedFile = 0x7A00;
+	static std::string cardDataFilePath = "card_data.bin";
+
+	static VirtualFile* GetCurrentFile() {
+		auto it = virtualFiles.find(selectedFile);
+		if (it == virtualFiles.end()) {
+			virtualFiles[selectedFile] = VirtualFile();
+		}
+		return &virtualFiles[selectedFile];
+	}
+
+	static bool LoadCardFromFile(const std::string& filePath = "") {
+		std::string path = filePath.empty() ? cardDataFilePath : filePath;
+
+		std::ifstream file(path, std::ios::binary);
+		if (!file.is_open()) {
+			virtualFiles[0x7A00] = VirtualFile();
+			virtualFiles[0x7A01] = VirtualFile();
+			return false;
+		}
+
+		file.seekg(0, std::ios::end);
+		size_t fileSize = file.tellg();
+		file.seekg(0, std::ios::beg);
+
+		// I think 0x1000 for each virtual file should be enough. At least I hope so.
+		if (fileSize >= 0x2000) {
+			virtualFiles[0x7A00].data.resize(0x1000);
+			virtualFiles[0x7A01].data.resize(0x1000);
+
+			file.read(reinterpret_cast<char*>(virtualFiles[0x7A00].data.data()), 0x1000);
+			file.read(reinterpret_cast<char*>(virtualFiles[0x7A01].data.data()), 0x1000);
+		}
+		else {
+			virtualFiles[0x7A00] = VirtualFile();
+			virtualFiles[0x7A01] = VirtualFile();
+		}
+
+		return true;
+	}
+
+	static bool SaveCardToFile(const std::string& filePath = "") {
+		std::string path = filePath.empty() ? cardDataFilePath : filePath;
+
+		std::ofstream file(path, std::ios::binary);
+		if (!file.is_open()) {
+			return false;
+		}
+
+		if (virtualFiles.find(0x7A00) != virtualFiles.end()) {
+			file.write(reinterpret_cast<const char*>(virtualFiles[0x7A00].data.data()), 0x1000);
+		}
+		else {
+			std::vector<uint8_t> empty(0x1000, 0x00);
+			file.write(reinterpret_cast<const char*>(empty.data()), 0x1000);
+		}
+
+		if (virtualFiles.find(0x7A01) != virtualFiles.end()) {
+			file.write(reinterpret_cast<const char*>(virtualFiles[0x7A01].data.data()), 0x1000);
+		}
+		else {
+			std::vector<uint8_t> empty(0x1000, 0x00);
+			file.write(reinterpret_cast<const char*>(empty.data()), 0x1000);
+		}
+
+		return file.good();
+	}
+
+	static const uint8_t* GetCardData(size_t& outSize) {
+		VirtualFile* file = GetCurrentFile();
+		outSize = file->data.size();
+		return file->data.data();
+	}
+
+	static bool UpdateCardData(const uint8_t* buffer, size_t size, size_t offset = 0) {
+		if (!buffer || size == 0) {
+			return false;
+		}
+
+		VirtualFile* file = GetCurrentFile();
+		if (offset + size > file->data.size()) {
+			file->data.resize(offset + size);
+		}
+
+		std::memcpy(file->data.data() + offset, buffer, size);
+		return true;
+	}
+
+	static void CreateDefaultCard() {
+		virtualFiles[0x7A00] = VirtualFile();
+		virtualFiles[0x7A01] = VirtualFile();
+
+		virtualFiles[0x7A00].data[0] = 0xC4;
+		virtualFiles[0x7A00].data[1] = 0x03;
+	}
+
+	static bool IsCardPresent() {
+		return true;
+	}
+
+	static void SetSelectedFile(uint16_t fileId) {
+		selectedFile = fileId;
+	}
+
+	static uint16_t GetSelectedFile() {
+		return selectedFile;
+	}
+}
+
+enum SCardCommands {
+	SCARD_READ_BINARY = 0xB0, // Read binary command
+	SCARD_UPDATE_BINARY = 0xD6, // Update binary command
+	SCARD_SELECT_FILE = 0xA4, // Select file command
+	SCARD_VERIFY_PIN = 0x20, // Verify PIN command
+};
+
 static LONG(WINAPI* SCardEstablishContext_orig)(
 	DWORD dwScope,
 	LPCVOID pvReserved1,
@@ -716,34 +846,51 @@ static LONG WINAPI SCardTransmit_hook(
 		return SCARD_S_SUCCESS;
 	}
 
-	// Select file
-	if (command == 0xA4) {
+	if (command == SCARD_SELECT_FILE) {
+		if (cbSendLength >= 7) {
+			uint16_t fileId = (pbSendBuffer[5] << 8) | pbSendBuffer[6];
+			CardDataManager::SetSelectedFile(fileId);
+		}
 		pbRecvBuffer[0] = 0x9F;
 		pbRecvBuffer[1] = 0x0F;
 		*pcbRecvLength = 2;
-
 		return SCARD_S_SUCCESS;
 	}
 
-	// READ BINARY
 	// 0x1A, 0x00 == card has been renewed, this one is invalid, use the new one instead
-	if (command == 0xB0) {
-		const BYTE cardData[] = {
-			// random test data
-			0xC4, 0x01,
-			//0x1A, 0x00,
-			// Success status at the end
-			0x90, 0x00
-		};
+	if (command == SCARD_READ_BINARY) {
+		uint16_t readOffset = (pbSendBuffer[2] << 8) | pbSendBuffer[3];
+		uint8_t readLength = pbSendBuffer[4];
 
-		memcpy(pbRecvBuffer, cardData, sizeof(cardData));
-		*pcbRecvLength = sizeof(cardData);
+		size_t cardDataSize;
+		const uint8_t* cardData = CardDataManager::GetCardData(cardDataSize);
 
+		if (cardData && readOffset < cardDataSize) {
+			size_t availableBytes = cardDataSize - readOffset;
+			size_t bytesToRead = min(readLength, availableBytes);
+
+			memcpy(pbRecvBuffer, cardData + readOffset, bytesToRead);
+			pbRecvBuffer[bytesToRead] = 0x90;
+			pbRecvBuffer[bytesToRead + 1] = 0x00;
+			*pcbRecvLength = bytesToRead + 2;
+		}
+		else {
+			pbRecvBuffer[0] = 0x90;
+			pbRecvBuffer[1] = 0x00;
+			*pcbRecvLength = 2;
+		}
 		return SCARD_S_SUCCESS;
 	}
 
-	// UPDATE BINARY
-	if (command == 0xD6) {
+	if (command == SCARD_UPDATE_BINARY) {
+		uint16_t writeOffset = (pbSendBuffer[2] << 8) | pbSendBuffer[3];
+		uint8_t writeLength = pbSendBuffer[4];
+
+		if (cbSendLength >= 5 + writeLength) {
+			CardDataManager::UpdateCardData(pbSendBuffer + 5, writeLength, writeOffset);
+			CardDataManager::SaveCardToFile();
+		}
+
 		pbRecvBuffer[0] = 0x90;
 		pbRecvBuffer[1] = 0x00;
 		*pcbRecvLength = 2;
@@ -752,6 +899,59 @@ static LONG WINAPI SCardTransmit_hook(
 	}
 
 	return SCARD_S_SUCCESS;
+}
+
+static LONG(WINAPI* SCardGetAttrib_orig)(
+	SCARDHANDLE hCard,
+	DWORD dwAttrId,
+	LPBYTE pbAttr,
+	LPDWORD pcbAttrLen
+	);
+
+static LONG WINAPI SCardGetAttrib_hook(
+	SCARDHANDLE hCard,
+	DWORD dwAttrId,
+	LPBYTE pbAttr,
+	LPDWORD pcbAttrLen
+) {
+	TpInfo("[SCARD] SCardGetAttrib - AttrId: %08X", dwAttrId);
+
+	if (hCard != g_fakeCardHandle) {
+		return SCardGetAttrib_orig(hCard, dwAttrId, pbAttr, pcbAttrLen);
+	}
+
+	switch (dwAttrId) {
+	case SCARD_ATTR_ATR_STRING:
+	{
+		// Hardcoded for now, not sure if we need to have unique Ids later on
+		static const BYTE atrData[] = {
+			0x3B, 0x7F, 0x94, 0x00, 0x00, 0x80, 0x31, 0x80,
+			0x65, 0xB0, 0x85, 0x04, 0x01, 0x02, 0x03, 0x04,
+			0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C,
+			0x90, 0x00
+		};
+
+		DWORD atrSize = sizeof(atrData);
+
+		if (!pbAttr) {
+			*pcbAttrLen = atrSize;
+			return SCARD_S_SUCCESS;
+		}
+
+		if (*pcbAttrLen < atrSize) {
+			*pcbAttrLen = atrSize;
+			return SCARD_E_INSUFFICIENT_BUFFER;
+		}
+
+		memcpy(pbAttr, atrData, atrSize);
+		*pcbAttrLen = atrSize;
+		return SCARD_S_SUCCESS;
+	}
+
+	default:
+		TpInfo("[SCARD] Unhandled SCardGetAttrib - AttrId: %08X", dwAttrId);
+		return SCARD_E_UNSUPPORTED_FEATURE;
+	}
 }
 
 
@@ -803,7 +1003,7 @@ struct GColor
 	unsigned int Raw;
 };
 
-static void (__fastcall* GRendererD3D9_BeginDisplay_Original)(void* thisClass, void* unused,
+static void(__fastcall* GRendererD3D9_BeginDisplay_Original)(void* thisClass, void* unused,
 	GColor backgroundColor, GViewport& vpin,
 	float x0, float x1, float y0, float y1);
 
@@ -893,6 +1093,12 @@ static InitFunction CrazySpeedFunc([]()
 		//HMODULE cgDll = LoadLibraryA("cg.dll");
 		bool useCustomRes = ToBool(config["Graphics"]["Use Custom Resolution"]);
 
+		CardDataManager::LoadCardFromFile();
+		if (!CardDataManager::IsCardPresent()) {
+			CardDataManager::CreateDefaultCard();
+			CardDataManager::SaveCardToFile();
+		}
+
 		MH_Initialize();
 		MH_CreateHookApi(L"kernel32.dll", "GetSystemInfo", &GetSystemInfo_hook, (void**)&GetSystemInfo_orig);
 		//MH_CreateHookApi(L"kernel32.dll"), "SetEvent"), &SetEvent_wrp, (void**)&SetEvent_orig);
@@ -940,7 +1146,7 @@ static InitFunction CrazySpeedFunc([]()
 		MH_CreateHookApi(L"winscard.dll", "SCardReleaseContext", SCardReleaseContext_hook, nullptr);
 		MH_CreateHookApi(L"winscard.dll", "SCardConnectA", SCardConnectA_hook, (void**)&SCardConnectA_orig);
 		MH_CreateHookApi(L"winscard.dll", "SCardTransmit", SCardTransmit_hook, (void**)&SCardTransmit_orig);
-		//MH_CreateHookApi(L"winscard.dll", "SCardGetAttrib", SCardGetAttrib_hook, (void**)&SCardGetAttrib_orig);
+		MH_CreateHookApi(L"winscard.dll", "SCardGetAttrib", SCardGetAttrib_hook, (void**)&SCardGetAttrib_orig);
 		//MH_CreateHookApi(L"kernel32.dll"), "GetQueuedCompletionStatus"), &GetQueuedCompletionStatus_hook, (void**)&GetQueuedCompletionStatus_orig);
 		MH_EnableHook(MH_ALL_HOOKS);
 
@@ -988,9 +1194,11 @@ static InitFunction CrazySpeedFunc([]()
 		// Otherwise the shader samples a black texture with 1.0f alpha for some reason. Not sure if that's a DX9 regression or something...
 		int width = 512, height = 512, channels = 4;
 		unsigned char* data = (unsigned char*)malloc(width * height * channels);
-		memset(data, 0, width * height * channels);
-
-		stbi_write_png("../Media/models/upgtexture/car_pic_00.png", width, height, channels, data, width * channels);
+		if (data != nullptr)
+		{
+			memset(data, 0, width * height * channels);
+			stbi_write_png("../Media/models/upgtexture/car_pic_00.png", width, height, channels, data, width * channels);
+		}
 
 	}, GameID::CrazySpeed);
 #endif
