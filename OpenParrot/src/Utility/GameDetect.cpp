@@ -692,6 +692,7 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::Friction;
 			break;
 		case 0x73455940:
+		case 0xf6b59ca5: // booting via PIX debugger
 			currentGame = GameID::CrazySpeed;
 			break;
 #endif
