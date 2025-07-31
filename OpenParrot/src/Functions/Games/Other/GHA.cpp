@@ -11,7 +11,9 @@
 #include <shlobj.h>
 #include <fstream>
 using namespace std;
-#include "Functions/XInputEmu.h"
+
+#include "xinput.h"
+#include "Utility/Helper.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -21,28 +23,8 @@ int vertical6 = 0;
 HWND hWndRT6 = 0;
 
 extern int* ffbOffset;
+extern int* ffbOffset2;
 extern int* ffbOffset3;
-extern int* ffbOffset4;
-extern XINPUT_GAMEPAD gamepadState;
-
-static bool GHAStart;
-static bool GHAStart2;
-static bool GHAUP;
-static bool GHADOWN;
-static bool GHALEFT;
-static bool GHARIGHT;
-static bool GHAUP2;
-static bool GHADOWN2;
-static bool GHALEFT2;
-static bool GHARIGHT2;
-static bool GHAA;
-static bool GHAB;
-static bool GHAX;
-static bool GHAY;
-static bool GHALB;
-static bool GHARB;
-
-static bool init;
 
 // hooks ori
 BOOL(__stdcall *original_SetWindowPos6)(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
@@ -50,7 +32,6 @@ BOOL(__stdcall *original_CreateWindowExA6)(DWORD dwExStyle, LPCSTR lpClassName, 
 BOOL(__stdcall *original_DefWindowProcA6)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 BOOL(__stdcall *original_SetCursorPosRT6)(int X, int Y);
 BOOL(__stdcall *original_SetWindowTextWRT6)(HWND hWnd, LPCWSTR lpString);
-BOOL(__stdcall *original_XInputGetStateGHA)(DWORD dwUserIndex, XINPUT_STATE* pState);
 
 DWORD WINAPI WindowRT6(LPVOID lpParam)
 {
@@ -77,8 +58,29 @@ DWORD WINAPI WindowRT6(LPVOID lpParam)
 	}
 }
 
-void GHAInputs()
+static bool init;
+static bool LeftStart;
+static bool LeftStrumUp;
+static bool LeftStrumDown;
+static bool LeftGreen;
+static bool LeftRed;
+static bool LeftYellow;
+static bool LeftBlue;
+static bool LeftOrange;
+static bool RightStart;
+static bool RightStrumUp;
+static bool RightStrumDown;
+static bool RightGreen;
+static bool RightRed;
+static bool RightYellow;
+static bool RightBlue;
+static bool RightOrange;
+
+void GHAInputs(Helpers* helpers)
 {
+	DWORD Buttons = helpers->ReadInt32(0x746AB0, true);
+	BYTE Active = *(BYTE*)(imageBase + 0x857AE0);
+
 	if (!init)
 	{
 		BYTE Modify = *(BYTE*)(imageBase + 0x13B3DC4);
@@ -87,249 +89,369 @@ void GHAInputs()
 		{
 			init = true;
 			*(BYTE*)(imageBase + 0x857AE0) = 0x00;
-		}	
-	}
-	
-	BYTE Active = *(BYTE*)(imageBase + 0x857AE0);
-
-	if (*ffbOffset & XINPUT_GAMEPAD_START) // START KEY MACRO (When not playing song)
-	{
-		if (!GHAStart)
-		{
-			GHAStart = true;
-			GHAStart2 = true;
-			if (!Active)
-			{
-				gamepadState.wButtons += 0xF000;
-				gamepadState.bLeftTrigger += 0xFF;
-				gamepadState.bRightTrigger += 0xFF;
-			}
 		}
-		else
+	}
+	else
+	{
+		if (*ffbOffset & 0x01) // Left Start
 		{
-			if (GHAStart2)
+			if (!LeftStart)
 			{
-				GHAStart2 = false;
+				LeftStart = true;
+
 				if (!Active)
-				{
-					gamepadState.wButtons -= 0xF000;
-					gamepadState.bLeftTrigger -= 0xFF;
-					gamepadState.bRightTrigger -= 0xFF;
-
-				}
+					*(BYTE*)(Buttons + 0x85) = 0x08;
 			}
-		}
-	}
-	else
-	{
-		if (GHAStart)
-		{
-			GHAStart = false;
-
-			if (Active)
-			{
-				if (gamepadState.wButtons == 0xF000 && gamepadState.bLeftTrigger == 0xFF && gamepadState.bRightTrigger == 0xFF)
-				{
-					gamepadState.wButtons -= 0xF000;
-					gamepadState.bLeftTrigger -= 0xFF;
-					gamepadState.bRightTrigger -= 0xFF;
-				}
-			}
-		}
-	}
-
-	if (*ffbOffset & XINPUT_GAMEPAD_X) // GREEN KEY MACRO
-	{
-		if (!GHAX)
-		{
-			GHAX = true;
-			gamepadState.bLeftTrigger += 0xFF;
-		}
-	}
-	else
-	{
-		if (GHAX)
-		{
-			GHAX = false;
-			gamepadState.bLeftTrigger -= 0xFF;
-		}
-	}
-
-	if (*ffbOffset & XINPUT_GAMEPAD_Y) // BLUE KEY MACRO
-	{
-		if (!GHAY)
-		{
-			GHAY = true;
-			gamepadState.bRightTrigger += 0xFF;
-		}
-	}
-	else
-	{
-		if (GHAY)
-		{
-			GHAY = false;
-			gamepadState.bRightTrigger -= 0xFF;
-		}
-	}
-
-	if (*ffbOffset & XINPUT_GAMEPAD_A)
-	{
-		if (!GHAA)
-		{
-			GHAA = true;
-			gamepadState.wButtons += XINPUT_GAMEPAD_A;
-		}
-	}
-	else
-	{
-		if (GHAA)
-		{
-			GHAA = false;
-			gamepadState.wButtons -= XINPUT_GAMEPAD_A;
-		}
-	}
-
-	if (*ffbOffset & XINPUT_GAMEPAD_B)
-	{
-		if (!GHAB)
-		{
-			GHAB = true;
-			gamepadState.wButtons += XINPUT_GAMEPAD_B;
-		}
-	}
-	else
-	{
-		if (GHAB)
-		{
-			GHAB = false;
-			gamepadState.wButtons -= XINPUT_GAMEPAD_B;
-		}
-	}
-
-	if (*ffbOffset & XINPUT_GAMEPAD_DPAD_UP)
-	{
-		if (!GHAUP)
-		{
-			GHAUP = true;
-			GHAUP2 = true;
-			gamepadState.wButtons += XINPUT_GAMEPAD_DPAD_UP;
+			else if (!Active)
+				*(BYTE*)(Buttons + 0x85) = 0x00;
 		}
 		else
 		{
-			if (GHAUP2)
+			if (LeftStart)
 			{
-				GHAUP2 = false;
-				gamepadState.wButtons -= XINPUT_GAMEPAD_DPAD_UP;
+				LeftStart = false;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x85) = 0x00;
 			}
 		}
-	}
-	else
-	{
-		if (GHAUP)
-			GHAUP = false;
-	}
 
-	if (*ffbOffset & XINPUT_GAMEPAD_DPAD_DOWN)
-	{
-		if (!GHADOWN)
+		if (*ffbOffset & 0x02) // Left Strum Up
 		{
-			GHADOWN = true;
-			GHADOWN2 = true;
-			gamepadState.wButtons += XINPUT_GAMEPAD_DPAD_DOWN;
+			if (!LeftStrumUp)
+			{
+				LeftStrumUp = true;
+				*(BYTE*)(Buttons + 0x75) += 0x10;
+
+				if (Active)
+					*(BYTE*)(Buttons + 0x84) = 0x01;
+			}
+			else if (Active)
+				*(BYTE*)(Buttons + 0x84) = 0x00;
 		}
 		else
 		{
-			if (GHADOWN2)
+			if (LeftStrumUp)
 			{
-				GHADOWN2 = false;
-				gamepadState.wButtons -= XINPUT_GAMEPAD_DPAD_DOWN;
+				LeftStrumUp = false;
+				*(BYTE*)(Buttons + 0x75) -= 0x10;
+
+				if (Active)
+					*(BYTE*)(Buttons + 0x84) = 0x00;
 			}
 		}
-	}
-	else
-	{
-		if (GHADOWN)
-			GHADOWN = false;
-	}
 
-	if (*ffbOffset & XINPUT_GAMEPAD_DPAD_LEFT)
-	{
-		if (!GHALEFT)
+		if (*ffbOffset & 0x04) // Left Strum Down
 		{
-			GHALEFT = true;
-			GHALEFT2 = true;
-			gamepadState.wButtons += XINPUT_GAMEPAD_DPAD_LEFT;
+			if (!LeftStrumDown)
+			{
+				LeftStrumDown = true;
+				*(BYTE*)(Buttons + 0x75) += 0x40;
+
+				if (Active)
+					*(BYTE*)(Buttons + 0x84) = 0x01;
+			}
+			else if (Active)
+				*(BYTE*)(Buttons + 0x84) = 0x00;
 		}
 		else
 		{
-			if (GHALEFT2)
+			if (LeftStrumDown)
 			{
-				GHALEFT2 = false;
-				gamepadState.wButtons -= XINPUT_GAMEPAD_DPAD_LEFT;
+				LeftStrumDown = false;
+				*(BYTE*)(Buttons + 0x75) -= 0x40;
+
+				if (Active)
+					*(BYTE*)(Buttons + 0x84) = 0x00;
 			}
 		}
-	}
-	else
-	{
-		if (GHALEFT)
-			GHALEFT = false;
-	}
 
-	if (*ffbOffset & XINPUT_GAMEPAD_DPAD_RIGHT)
-	{
-		if (!GHARIGHT)
+		if (*ffbOffset & 0x08) // Left Green Fret
 		{
-			GHARIGHT = true;
-			GHARIGHT2 = true;
-			gamepadState.wButtons += XINPUT_GAMEPAD_DPAD_RIGHT;
+			if (!LeftGreen)
+			{
+				LeftGreen = true;
+				*(BYTE*)(Buttons + 0x52) += 0xFF;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x84) = 0x40;
+			}
+			else if (!Active)
+				*(BYTE*)(Buttons + 0x84) = 0x00;
 		}
 		else
 		{
-			if (GHARIGHT2)
+			if (LeftGreen)
 			{
-				GHARIGHT2 = false;
-				gamepadState.wButtons -= XINPUT_GAMEPAD_DPAD_RIGHT;
+				LeftGreen = false;
+				*(BYTE*)(Buttons + 0x52) -= 0xFF;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x84) = 0x00;
 			}
 		}
-	}
-	else
-	{
-		if (GHARIGHT)
-			GHARIGHT = false;
-	}
 
-	if (*ffbOffset & XINPUT_GAMEPAD_LEFT_SHOULDER)
-	{
-		if (!GHALB)
+		if (*ffbOffset & 0x10) // Left Red Fret
 		{
-			GHALB = true;
-			gamepadState.wButtons += XINPUT_GAMEPAD_LEFT_SHOULDER;
-		}
-	}
-	else
-	{
-		if (GHALB)
-		{
-			GHALB = false;
-			gamepadState.wButtons -= XINPUT_GAMEPAD_LEFT_SHOULDER;
-		}
-	}
+			if (!LeftRed)
+			{
+				LeftRed = true;
+				*(BYTE*)(Buttons + 0x50) += 0xFF;
 
-	if (*ffbOffset & XINPUT_GAMEPAD_RIGHT_SHOULDER)
-	{
-		if (!GHARB)
-		{
-			GHARB = true;
-			gamepadState.wButtons += XINPUT_GAMEPAD_RIGHT_SHOULDER;
+				if (!Active)
+					*(BYTE*)(Buttons + 0x85) = 0x01;
+			}
+			else if (!Active)
+				*(BYTE*)(Buttons + 0x85) = 0x00;
 		}
+		else
+		{
+			if (LeftRed)
+			{
+				LeftRed = false;
+				*(BYTE*)(Buttons + 0x50) -= 0xFF;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x85) = 0x00;
+			}
+		}
+
+		if (*ffbOffset & 0x20) // Left Yellow Fret
+		{
+			if (!LeftYellow)
+			{
+				LeftYellow = true;
+				*(BYTE*)(Buttons + 0x51) += 0xFF;
+			}
+		}
+		else
+		{
+			if (LeftYellow)
+			{
+				LeftYellow = false;
+				*(BYTE*)(Buttons + 0x51) -= 0xFF;
+			}
+		}
+
+		if (*ffbOffset & 0x40) // Left Blue Fret
+		{
+			if (!LeftBlue)
+			{
+				LeftBlue = true;
+				*(BYTE*)(Buttons + 0x53) += 0xFF;
+			}
+		}
+		else
+		{
+			if (LeftBlue)
+			{
+				LeftBlue = false;
+				*(BYTE*)(Buttons + 0x53) -= 0xFF;
+			}
+		}
+
+		if (*ffbOffset & 0x80) // Left Orange Fret
+		{
+			if (!LeftOrange)
+			{
+				LeftOrange = true;
+				*(BYTE*)(Buttons + 0x4E) += 0xFF;
+			}
+		}
+		else
+		{
+			if (LeftOrange)
+			{
+				LeftOrange = false;
+				*(BYTE*)(Buttons + 0x4E) -= 0xFF;
+			}
+		}
+
+		if (*ffbOffset & 0x100) // Right Start
+		{
+			if (!RightStart)
+			{
+				RightStart = true;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x121) = 0x08;
+			}
+			else if (!Active)
+				*(BYTE*)(Buttons + 0x121) = 0x00;
+		}
+		else
+		{
+			if (RightStart)
+			{
+				RightStart = false;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x121) = 0x00;
+			}
+		}
+
+		if (*ffbOffset & 0x200) // Right Strum Up
+		{
+			if (!RightStrumUp)
+			{
+				RightStrumUp = true;
+				*(BYTE*)(Buttons + 0x111) += 0x10;
+
+				if (Active)
+					*(BYTE*)(Buttons + 0x120) = 0x01;
+			}
+			else if (Active)
+				*(BYTE*)(Buttons + 0x120) = 0x00;
+		}
+		else
+		{
+			if (RightStrumUp)
+			{
+				RightStrumUp = false;
+				*(BYTE*)(Buttons + 0x111) -= 0x10;
+
+				if (Active)
+					*(BYTE*)(Buttons + 0x120) = 0x00;
+			}
+		}
+
+		if (*ffbOffset & 0x400) // Right Strum Down
+		{
+			if (!RightStrumDown)
+			{
+				RightStrumDown = true;
+				*(BYTE*)(Buttons + 0x111) += 0x40;
+
+				if (Active)
+					*(BYTE*)(Buttons + 0x120) = 0x01;
+			}
+			else if (Active)
+				*(BYTE*)(Buttons + 0x120) = 0x00;
+		}
+		else
+		{
+			if (RightStrumDown)
+			{
+				RightStrumDown = false;
+				*(BYTE*)(Buttons + 0x111) -= 0x40;
+
+				if (Active)
+					*(BYTE*)(Buttons + 0x120) = 0x00;
+			}
+		}
+
+		if (*ffbOffset & 0x800) // Right Green Fret
+		{
+			if (!RightGreen)
+			{
+				RightGreen = true;
+				*(BYTE*)(Buttons + 0xEE) += 0xFF;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x120) = 0x40;
+			}
+			else if (!Active)
+				*(BYTE*)(Buttons + 0x120) = 0x00;
+		}
+		else
+		{
+			if (RightGreen)
+			{
+				RightGreen = false;
+				*(BYTE*)(Buttons + 0xEE) -= 0xFF;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x120) = 0x00;
+			}
+		}
+
+		if (*ffbOffset & 0x1000) // Right Red Fret
+		{
+			if (!RightRed)
+			{
+				RightRed = true;
+				*(BYTE*)(Buttons + 0xEC) += 0xFF;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x121) = 0x01;
+			}
+			else if (!Active)
+				*(BYTE*)(Buttons + 0x121) = 0x00;
+		}
+		else
+		{
+			if (RightRed)
+			{
+				RightRed = false;
+				*(BYTE*)(Buttons + 0xEC) -= 0xFF;
+
+				if (!Active)
+					*(BYTE*)(Buttons + 0x121) = 0x00;
+			}
+		}
+
+		if (*ffbOffset & 0x2000) // Right Yellow Fret
+		{
+			if (!RightYellow)
+			{
+				RightYellow = true;
+				*(BYTE*)(Buttons + 0xED) += 0xFF;
+			}
+		}
+		else
+		{
+			if (RightYellow)
+			{
+				RightYellow = false;
+				*(BYTE*)(Buttons + 0xED) -= 0xFF;
+			}
+		}
+
+		if (*ffbOffset & 0x4000) // Right Blue Fret
+		{
+			if (!RightBlue)
+			{
+				RightBlue = true;
+				*(BYTE*)(Buttons + 0xEF) += 0xFF;
+			}
+		}
+		else
+		{
+			if (RightBlue)
+			{
+				RightBlue = false;
+				*(BYTE*)(Buttons + 0xEF) -= 0xFF;
+			}
+		}
+
+		if (*ffbOffset & 0x8000) // Right Orange Fret
+		{
+			if (!RightOrange)
+			{
+				RightOrange = true;
+				*(BYTE*)(Buttons + 0xEA) += 0xFF;
+			}
+		}
+		else
+		{
+			if (RightOrange)
+			{
+				RightOrange = false;
+				*(BYTE*)(Buttons + 0xEA) -= 0xFF;
+			}
+		}
+
+		*(BYTE*)(Buttons + 0x66) = *ffbOffset2; // Left Guitar Tilt
+		*(BYTE*)(Buttons + 0x102) = *ffbOffset3; // Right Guitar Tilt
 	}
-	else
+}
+
+static DWORD WINAPI RunningLoop(LPVOID lpParam)
+{
+	while (true)
 	{
-		if (GHARB)
-		{
-			GHARB = false;
-			gamepadState.wButtons -= XINPUT_GAMEPAD_RIGHT_SHOULDER;
-		}
+		GHAInputs(0);
+		Sleep(16);
 	}
 }
 
@@ -399,6 +521,14 @@ static InitFunction GHAFunc([]()
 
 	init_GlobalRegHooks();
 	GetDesktopResolution(horizontal6, vertical6);
+
+	// Disable Xinput Inputs
+	injector::MakeNOP(imageBase + 0x132168, 4);
+	injector::MakeNOP(imageBase + 0x13215C, 4);
+	injector::MakeNOP(imageBase + 0x1089F0, 3);
+	injector::MakeNOP(imageBase + 0x108A01, 3);
+	injector::MakeNOP(imageBase + 0x108A07, 3);
+	injector::MakeNOP(imageBase + 0x108AEE, 3);
 
 	// CONFIG FILE HANDLING
 	char working_directory[MAX_PATH + 1];
@@ -493,6 +623,8 @@ static InitFunction GHAFunc([]()
 		MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT6, NULL);
 		MH_EnableHook(MH_ALL_HOOKS);
 	}
+
+	CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 
 }, GameID::GHA);
 #endif

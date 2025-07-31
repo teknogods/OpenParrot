@@ -129,6 +129,14 @@ int __cdecl MusicGunGun2VolumeSetup(float a1)
 	return MusicGunGun2VolumeSetupOri(a1);
 }
 
+int(__fastcall* MusicGunGun2MultiHeadFixOri)(void* ECX, void* EDX);
+int __fastcall MusicGunGun2MultiHeadFixHook(void* ECX, void* EDX)
+{
+	*(DWORD*)((int)ECX + 416) = 1;
+
+	return MusicGunGun2MultiHeadFixOri(ECX, EDX);
+}
+
 void MusicGunGun2Inputs(Helpers* helpers)
 {
 	if (!Init)

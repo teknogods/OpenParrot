@@ -76,9 +76,6 @@ std::wstring utf8_decode(const std::string &str)
 
 static void QuitGame()
 {
-	if (GameDetect::currentGame == GameID::GHA)
-		system("taskkill /f /im GHA.exe"); // is this necessary?
-
 	if ((GameDetect::currentGame == GameID::StarWarsEs3X) || (GameDetect::currentGame == GameID::StarWarsJapEs3X) || (GameDetect::currentGame == GameID::StarWarsEs3XLauncher) || (GameDetect::currentGame == GameID::StarWarsJapEs3XLauncher))
 	{
 		system("taskkill /f /im RSLauncher.exe");
@@ -181,6 +178,7 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 	{
 		if (GetAsyncKeyState(ExitKeyValue))
 		{
+			/*
 #ifdef _DEBUG
 #if _M_IX86
 			xdbg = MyGetProcessId(L"x32dbg.exe");
@@ -189,6 +187,7 @@ DWORD WINAPI GlobalGameThread(__in  LPVOID lpParameter)
 #endif
 			EnumWindows(EnumWindowsProcMy, xdbg);
 #endif
+*/
 			if (g_HWND == NULL)
 				QuitGame();
 			else
@@ -530,6 +529,11 @@ static void ResetffbOffset()
 	*ffbOffset7 = 0;
 	*ffbOffset8 = 0;
 	*ffbOffset9 = 0;
+}
+
+DWORD genericRetZero()
+{
+	return 0;
 }
 
 static InitFunction globalFunc([]()

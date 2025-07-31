@@ -10,6 +10,7 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
+static bool FreePlay;
 static bool Coin;
 static bool Coin2;
 static bool Test;
@@ -241,6 +242,12 @@ static void Inputs(Helpers* helpers)
 	{
 		if (D3D9hWnd > NULL)
 			OriWndProc = (WNDPROC)::SetWindowLongPtr((HWND)D3D9hWnd, GWLP_WNDPROC, (LONG_PTR)WndProc);
+	}
+
+	if (FreePlay)
+	{
+		if (CoinBase > 0)
+			*(DWORD*)(CoinBase + 0x04) = 0x00;
 	}
 
 	if (*ffbOffset & 0x02)
@@ -1904,6 +1911,8 @@ static InitFunction FrictionFunc([]()
 
 		injector::WriteMemory<DWORD>(imageBase + 0x4140E, ResX, true);
 		injector::WriteMemory<DWORD>(imageBase + 0x41407, ResY, true);
+
+		FreePlay = ToBool(config["General"]["FreePlay"]);
 
 		DisableProcessWindowsGhosting(); // Stop window not responding on loading startup if clicked on
 

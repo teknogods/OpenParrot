@@ -153,6 +153,18 @@ HANDLE __stdcall Hook_CreateFileA(LPCSTR lpFileName,
 			hTemplateFile);
 		return hResult;
 	}
+	if (GameDetect::currentGame == GameID::CrazySpeed)
+	{
+		if (strstr(lpFileName, "Image_db.txt")) {
+			return __CreateFileA("./Image_db.txt",
+				dwDesiredAccess,
+				dwShareMode,
+				lpSecurityAttributes,
+				dwCreationDisposition,
+				dwFlagsAndAttributes,
+				hTemplateFile);
+		}
+	}
 	HANDLE hResult = __CreateFileA(lpFileName,
 		dwDesiredAccess,
 		dwShareMode,
@@ -206,6 +218,19 @@ HANDLE __stdcall Hook_CreateFileW(LPCWSTR lpFileName,
 		jvsHandle = hResult;
 		JVSAlreadyTaken = true;
 		return hResult;
+	}
+
+	if (GameDetect::currentGame == GameID::CrazySpeed)
+	{
+		if (wcsstr(lpFileName, L"rearviewMirrorOverlay.overlay")) {
+			return __CreateFileW(L"./rearviewMirrorOverlay_scaled.overlay",
+				dwDesiredAccess,
+				dwShareMode,
+				lpSecurityAttributes,
+				dwCreationDisposition,
+				dwFlagsAndAttributes,
+				hTemplateFile);
+		}
 	}
 
 	HANDLE hResult = __CreateFileW(lpFileName,

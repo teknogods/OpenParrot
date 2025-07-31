@@ -10,8 +10,10 @@
 
 #include <fcntl.h>
 #include <io.h>
+#include <Shlwapi.h>
 
 #pragma comment(lib, "ntdll.lib")
+#pragma comment(lib, "Shlwapi.lib")
 #pragma optimize("", off)
 STARTUPINFO si;
 PROCESS_INFORMATION pi;
@@ -162,16 +164,16 @@ int wmain(int argc, wchar_t* argv[])
 	gamePath = argv[2];
 
 	// Prepare wchars
-	wchar_t* loaderPathW = new wchar_t[wcslen(loaderPath.wstring().c_str()) + 1]{ 0 };
+	wchar_t* loaderPathW = new wchar_t[wcslen(loaderPath.wstring().c_str()) + 1] { 0 };
 	wcscpy(loaderPathW, loaderPath.wstring().c_str());
 
-	wchar_t* corePathW = new wchar_t[wcslen(corePath.wstring().c_str()) + 1]{ 0 };
+	wchar_t* corePathW = new wchar_t[wcslen(corePath.wstring().c_str()) + 1] { 0 };
 	wcscpy(corePathW, corePath.wstring().c_str());
 
-	wchar_t* gamePathW = new wchar_t[wcslen(gamePath.wstring().c_str()) + 1]{ 0 };
+	wchar_t* gamePathW = new wchar_t[wcslen(gamePath.wstring().c_str()) + 1] { 0 };
 	wcscpy(gamePathW, gamePath.wstring().c_str());
 
-	wchar_t* gameFolderW = new wchar_t[wcslen(gamePath.parent_path().wstring().c_str()) + 1]{ 0 };
+	wchar_t* gameFolderW = new wchar_t[wcslen(gamePath.parent_path().wstring().c_str()) + 1] { 0 };
 	wcscpy(gameFolderW, gamePath.parent_path().wstring().c_str());
 
 	// Print paths
@@ -205,7 +207,7 @@ int wmain(int argc, wchar_t* argv[])
 	if (argc == 4)
 	{
 		size_t cmdSize = wcslen(gamePathW) + wcslen(argv[3]) + 4;
-		wchar_t* cmdW = new wchar_t[cmdSize]{ 0 };
+		wchar_t* cmdW = new wchar_t[cmdSize] { 0 };
 		swprintf(cmdW, cmdSize, L"\"%ls\" %ls", gamePathW, argv[3]);
 
 		if (!CreateProcess(gamePathW, // No module name (use command line). 
@@ -286,12 +288,55 @@ int wmain(int argc, wchar_t* argv[])
 
 	wprintf(L"Loading core...\n");
 
+	WCHAR iniPath[MAX_PATH];
+	wcscpy_s(iniPath, gamePathW);
+	PathRemoveFileSpecW(iniPath);
+	wcscat_s(iniPath, L"\\teknoparrot.ini");
+
+	if (GetPrivateProfileInt(L"FFB Blaster", L"Enable", 0, iniPath))
+	{
+		std::filesystem::path workingDirectory = std::filesystem::current_path();
+		std::filesystem::path ffbBlasterPath;
+
+#ifdef _M_IX86
+		ffbBlasterPath = workingDirectory / L"FFBBlaster" / L"x86" / L"FFBBlaster.dll";
+#else
+		ffbBlasterPath = workingDirectory / L"FFBBlaster" / L"x64" / L"FFBBlaster64.dll";
+#endif
+
+		wprintf(L"Looking for FFB Blaster at: %ls\n", ffbBlasterPath.wstring().c_str());
+
+		if (std::filesystem::exists(ffbBlasterPath))
+		{
+			wchar_t* ffbBlasterPathW = new wchar_t[wcslen(ffbBlasterPath.wstring().c_str()) + 1] { 0 };
+			wcscpy(ffbBlasterPathW, ffbBlasterPath.wstring().c_str());
+
+			wprintf(L"FFB Blaster found: %ls\n", ffbBlasterPathW);
+
+			if (LoadHookDLL(ffbBlasterPathW, baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint))
+			{
+				wprintf(L"FFB Blaster loaded successfully!\n");
+			}
+			else
+			{
+				wprintf(L"Failed to load FFB Blaster. Continuing with core DLL only...\n");
+			}
+
+			delete[] ffbBlasterPathW;
+		}
+		else
+		{
+			wprintf(L"FFB Blaster not found at: %ls\n", ffbBlasterPath.wstring().c_str());
+		}
+	}
+
 	if (!LoadHookDLL(corePathW, baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint))
 	{
 		TerminateProcess(pi.hProcess, 0);
 		(void)_getch();
 		return 0;
 	}
+
 	wprintf(L"Success!\n");
 
 	wprintf(L"\nHave fun :)\n");

@@ -4,6 +4,8 @@ BOOL WINAPI ReadFileHooked(_In_ HANDLE hFile, _Out_writes_bytes_to_opt_(nNumberO
 void *__cdecl memcpy_0(void *a1, const void *a2, size_t a3);
 DWORD FetchDwordInformation(const char* setting, const char* subkey, DWORD defaultValue);
 
+DWORD genericRetZero();
+
 struct windowHooks
 {
 	int createWindowExA;

@@ -33,6 +33,7 @@ static DWORD WINAPI InputRT3(LPVOID lpParam)
 {
 	// We write directly into this struct in memory to bypass having to use debug stuff
 	DWORD* keypadStruct = (DWORD*)(0x31df2e0 + mainModuleBase);
+
 	bool keypadPressed[12] = {};
 
 	while (true)
@@ -427,6 +428,11 @@ static void __cdecl DrawControlIconsHook(float* wheelIcon, float* pedalIcon, flo
 	return DrawControlIconsOrig(wheelIcon, pedalIcon, scaleMultiplier, a4, a5, a6);
 }
 
+static int ret0()
+{
+	return 0;
+}
+
 static InitFunction FNFFunc([]()
 	{
 		GetDesktopResolution(horizontal3, vertical3);
@@ -442,7 +448,7 @@ static InitFunction FNFFunc([]()
 
 		// at this point a bunch of these hacks aren't needed but 
 		// this game is chipping away at my sanity so ill leave them here while they work
-
+		
 		// Disable debug inputs
 		injector::WriteMemory<BYTE>((mainModuleBase + 0x135994), 0x1013, true);
 		injector::MakeNOP((mainModuleBase + 0x40240), 6, true);
@@ -470,7 +476,7 @@ static InitFunction FNFFunc([]()
 
 		// IO OK
 		injector::WriteMemory<DWORD>(mainModuleBase + 0x31b6a98, 0x1000, true);
-
+		
 		// REMOVE ERROR MESSAGEBOX ON CLOSE
 		injector::WriteMemory<BYTE>((mainModuleBase + 0x4CC2A), 0xEB, true);
 
@@ -487,8 +493,9 @@ static InitFunction FNFFunc([]()
 		// REMOVE ESC BOX
 		injector::MakeNOP((0x440A0B), 5, true);
 
-		// WIP/experiment regarding res scaling
+		safeJMP(0x4769e0, ret0, true);
 
+		// WIP/experiment regarding res scaling
 		MH_Initialize();
 		//MH_CreateHook((void*)(mainModuleBase + 0x37620), DrawControlIconsHook, (void**)&DrawControlIconsOrig);
 		MH_CreateHookApi(L"Kernel32.dll", "GetCommandLineA", &GetCommandLineAHook, (void**)&GetCommandLineAOriginal);

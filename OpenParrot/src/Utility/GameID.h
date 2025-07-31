@@ -146,5 +146,6 @@ enum class GameID
 	HauntedMuseum2100,
 	HauntedMuseum2101J,
 	GaiaAttack4,
-	Friction
+	Friction,
+	CrazySpeed
 };

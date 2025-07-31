@@ -1,9 +1,14 @@
 #pragma once
-
 #include <string>
+#include <MinHook.h>
+
 void info(const char* format, ...);
 
-#include <MinHook.h>
+#ifdef _DEBUG
+#define TpInfo(format, ...) info(format, ##__VA_ARGS__)
+#else
+#define TpInfo(format, ...)
+#endif
 
 inline void safeJMP(injector::memory_pointer_tr at, injector::memory_pointer_raw dest, bool vp = true)
 {
@@ -152,3 +157,5 @@ std::string ToNarrow(const std::wstring& wide);
 
 std::tuple <int, int> CalculateWindowSize(int width, int height, DWORD dwStyle, DWORD dwStyleEx);
 std::tuple <int, int> CalculateWindowCenterPosition(int width, int height);
+
+std::wstring GetLastErrorAsString();

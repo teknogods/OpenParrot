@@ -12,8 +12,10 @@ extern int* ffbOffset3;
 extern int* ffbOffset4;
 extern int* ffbOffset5;
 
-extern void BG4ManualHack(Helpers* helpers);
-extern void BG4ProInputs(Helpers* helpers);
+typedef void(__stdcall* TPSetFFB_t)(int var1, int var2, int var3, int var4, int var5, float var6, float var7, float var8, float var9, float var10);
+static TPSetFFB_t TPsetFFB = nullptr;
+
+extern void BG4General(Helpers* helpers);
 extern void KOFSkyStageInputs(Helpers* helpers);
 extern void EADPInputs(Helpers* helpers);
 extern void MusicGunGun2Inputs(Helpers* helpers);
@@ -22,6 +24,7 @@ extern void HauntedMuseum2Inputs(Helpers* helpers);
 extern void GaiaAttack4Inputs(Helpers* helpers);
 static bool ProMode;
 extern bool BG4EnableTracks;
+bool FFBReportWheelPosition;
 
 // EADP
 extern int(__fastcall* EADPVolumeSetupOri)(void* ECX, void* EDX, float a2);
@@ -50,6 +53,8 @@ extern bool EADPAttractVidPlay;
 // Music GunGun 2
 extern int(__cdecl* MusicGunGun2VolumeSetupOri)(float a1);
 extern int __cdecl MusicGunGun2VolumeSetup(float a1);
+extern int(__fastcall* MusicGunGun2MultiHeadFixOri)(void* ECX, void* EDX);
+extern int __fastcall MusicGunGun2MultiHeadFixHook(void* ECX, void* EDX);
 extern char* (__cdecl* MusicGunGun2strncpyOri)(char* Destination, const char* Source, size_t Count);
 extern char* __cdecl MusicGunGun2strncpy(char* Destination, const char* Source, size_t Count);
 extern HWND(WINAPI* MusicGunGun2CreateWindowExAOri)(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
@@ -97,7 +102,7 @@ static std::string ParseFileNamesA(LPCSTR lpFileName)
 	if (!strncmp(lpFileName, ".\\TGM3\\", 7)) 
 	{
 		memset(moveBufA, 0, 256);
-		sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName + 2);
+		sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName);
 		return moveBufA;
 	}
 
@@ -454,15 +459,33 @@ BOOL __stdcall WriteFileWrapTx2(HANDLE hFile,
 		{
 			switch (taskBuffer[pos])
 			{
-			case 0x20:
-				g_replyBuffers[hFile].push_back(1);
-
-				pos += 2;
+			case 0x11:	// Begin reporting steering position?
+				FFBReportWheelPosition = true;
 				break;
 
-			case 0x1F:
-			case 0x00:
-			case 0x04:
+			case 0x20:	// Reset
+				FFBReportWheelPosition = false;
+				g_replyBuffers[hFile].push_back(0xA0);	// Ready for calibration state
+				g_replyBuffers[hFile].push_back(0x00);
+				pos += 2;
+				continue;
+
+			case 0x1F:	// Motor Stop
+			{
+				if (!FFBReportWheelPosition)
+				{
+					g_replyBuffers[hFile].push_back(0x1F);	// By removing MSB (& 0x80) we skip calibration
+					g_replyBuffers[hFile].push_back(0x00);
+					pos += 2;
+					continue;
+				}
+				break;
+			}
+			//case 0x00:	// No Operation
+			//case 0x04:	// Centering Spring?
+			}
+
+			if (FFBReportWheelPosition)
 			{
 				int wheelValue = *wheelSection;
 
@@ -476,14 +499,17 @@ BOOL __stdcall WriteFileWrapTx2(HANDLE hFile,
 
 				g_replyBuffers[hFile].push_back(HIBYTE(wheelValue));
 				g_replyBuffers[hFile].push_back(LOBYTE(wheelValue));
-
-				pos += 2;
-				break;
 			}
-			default:
-				pos += 2;
-				break;
+			else
+			{
+				g_replyBuffers[hFile].push_back(0x8C);	// Post-calibration status from board
+				g_replyBuffers[hFile].push_back(0xA0);
 			}
+			if (TPsetFFB != nullptr)
+			{
+				TPsetFFB(taskBuffer[pos], taskBuffer[pos + 1], 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			}
+			pos += 2;
 		}
 
 		*lpNumberOfBytesWritten = nNumberOfBytesToWrite;
@@ -500,10 +526,7 @@ static DWORD WINAPI RunningLoop(LPVOID lpParam)
 		switch (GameDetect::currentGame)
 		{
 		case GameID::BG4:
-			if (ProMode)
-				BG4ProInputs(0);
-			else
-				BG4ManualHack(0);
+			BG4General(0);
 			break;
 		case GameID::KOFSkyStage100J:
 			KOFSkyStageInputs(0);
@@ -559,6 +582,18 @@ static InitFunction initFunction([]()
 	iatHook("kernel32.dll", GetDiskFreeSpaceExAWrap, "GetDiskFreeSpaceExA");
 	iatHook("kernel32.dll", GetDiskFreeSpaceExAWrap, "GetDiskFreeSpaceExW");
 	
+	if (ToBool(config["FFB Blaster"]["Enable"]))
+	{
+		HMODULE ffbBlasterH = GetModuleHandleA("FFBBlaster.dll");
+		if (ffbBlasterH)
+		{
+			FARPROC ffbBlasterSetFFBPtr = GetProcAddress(ffbBlasterH, "TPSetFFB");
+			if (ffbBlasterSetFFBPtr)
+			{
+				TPsetFFB = reinterpret_cast<TPSetFFB_t>(ffbBlasterSetFFBPtr);
+			}
+		}
+	}
 	switch (GameDetect::X2Type)
 	{
 		case X2Type::Wontertainment: // By 00C0FFEE
@@ -633,11 +668,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4:
 		{
-			// TODO: DOCUMENT PATCHES
-			injector::MakeNOP(0x4CBCB8, 10);
-			injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
-			injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);
-
 			// redirect E:\data to .\data
 			injector::WriteMemoryRaw(0x0076D96C, "./data/", 8, true);
 			injector::WriteMemoryRaw(0x007ACA60, ".\\data", 7, true);
@@ -648,6 +678,18 @@ static InitFunction initFunction([]()
 			// Rename window name
 			injector::WriteMemoryRaw(imageBase + 0x36B790, "\x4F\x70\x65\x6E\x50\x61\x72\x72\x6F\x74\x20\x2D\x20\x42\x61\x74\x74\x6C\x65\x20\x47\x65\x61\x72\x20\x34\x20\x54\x75\x6E\x65\x64", 37, true);
 
+			// Below will (mostly) un-patch dirty executables
+			injector::MemoryFill(imageBase + 0x2EF470, 0, 48, true);												// Remove dll injection routine
+
+			injector::WriteMemoryRaw(imageBase + 0x2EF484, "\x6A\x60\x68\x28\xac\x7c\x00", 7, true);				// We replace the dll injection routine with the initial stack pushes to correctly set up the stack for the subroutine call following the patched instructions...
+			safeJMP(imageBase + 0x2ef484 + 7, imageBase + 0x2837e7);												// THEN insert a jump back to the original entry point +7 bytes offset (to skip the patched in JMP) which calls __SEH_prolog with the stack pushes from earlier
+																													// Has to be done this way as TP does not patch quickly enough to prevent the initial entry point JMP, it will branch regardless (Thanks Pocky for workaround)
+																													// This shouldnt cause an issue with clean exes as they wont jump here in the first place
+
+			injector::WriteMemoryRaw(imageBase + 0xCBCB8, "\x8B\x84\x81\x94\x00\x00\x00\x8B\x40\x04", 10, true);	// Revert weird transmission patch?
+																													// Causes Seq/6MT to be disabled in pro mode
+			// End of dirty executable patches
+			
 			if (ToBool(config["General"]["IntroFix"]))
 			{
 				// thanks for Ducon2016 for the patch!
@@ -667,19 +709,9 @@ static InitFunction initFunction([]()
 
 			if (ProMode)
 			{
-				injector::MakeNOP(imageBase + 0x1E7AB, 6);
-				injector::MakeNOP(imageBase + 0x1E7DC, 6);
-				injector::MakeNOP(imageBase + 0x1E7A5, 6);
-				injector::MakeNOP(imageBase + 0x1E82B, 6);
-				injector::MakeNOP(imageBase + 0x1E79F, 6);
-				injector::MakeNOP(imageBase + 0x1E858, 6);
-				injector::MakeNOP(imageBase + 0x1E799, 6);
-				injector::MakeNOP(imageBase + 0x1E880, 6);
-				injector::MakeNOP(imageBase + 0x27447, 3);
-			
-				//
 				if (!ToBool(config["General"]["Custom Resolution (Professional Edition)"]))
 				{
+					// The extra 6px fixes some weird scaling issues
 					injector::WriteMemory<DWORD>(imageBase + 0x1f4c6d, 1366, true);
 					injector::WriteMemory<DWORD>(imageBase + 0xa0536, 1366, true);
 				}
@@ -692,9 +724,6 @@ static InitFunction initFunction([]()
 					injector::WriteMemory<DWORD>(imageBase + 0x1f4c77, resHeight, true);
 					injector::WriteMemory<DWORD>(imageBase + 0xa0531, resHeight, true);
 				}
-
-				// Fix 6MT warning upon key entry
-				injector::WriteMemoryRaw(imageBase + 0xD4AC3, "\xE9\x0E\x01\x00", 4, true);
 
 				if (ToBool(config["General"]["Professional Edition Hold Gear"]))
 				{
@@ -715,11 +744,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4_Eng:
 		{
-			// TODO: DOCUMENT PATCHES
-			//injector::MakeNOP(0x4CBCB8, 10);
-			//injector::WriteMemory<uint8_t>(0x4CBCB8, 0xB8, true);
-			//injector::WriteMemory<uint32_t>(0x4CBCB9, 1, true);
-
 			// redirect E:\data to .\data
 			injector::WriteMemoryRaw(0x0073139C, "./data/", 8, true);
 			injector::WriteMemoryRaw(0x00758978, ".\\data", 7, true);
@@ -1344,6 +1368,7 @@ static InitFunction initFunction([]()
 		MH_Initialize();
 		MH_CreateHook((void*)(imageBase + 0x1ADA90), MusicGunGun2VolumeSetup, (void**)&MusicGunGun2VolumeSetupOri);
 		MH_CreateHook((void*)(imageBase + 0x1143B0), MusicGunGun2strncpy, (void**)&MusicGunGun2strncpyOri);
+		MH_CreateHook((void*)(imageBase + 0x12E70), MusicGunGun2MultiHeadFixHook, (void**)&MusicGunGun2MultiHeadFixOri);
 		if (!(ToBool(config["General"]["Windowed"])))
 			MH_CreateHookApi(L"user32.dll", "CreateWindowExA", MusicGunGun2CreateWindowExAHook, (void**)&MusicGunGun2CreateWindowExAOri);
 		MH_EnableHook(MH_ALL_HOOKS);

@@ -388,7 +388,8 @@ static InitFunction initFunc([]()
 		|| GameDetect::currentGame == GameID::VF5EsportsTest
 		|| GameDetect::currentGame == GameID::BlazBlueCrossTagBattle
 		|| GameDetect::currentGame == GameID::Doa6
-		|| GameDetect::currentGame == GameID::GGXrdAPM3)
+		|| GameDetect::currentGame == GameID::GGXrdAPM3
+		|| GameDetect::currentGame == GameID::MusicGunGun2)
 		return;
 	MH_Initialize();
 
