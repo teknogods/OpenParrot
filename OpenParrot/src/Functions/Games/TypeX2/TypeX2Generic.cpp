@@ -497,7 +497,6 @@ static BOOL __stdcall GetDiskFreeSpaceWWrap(LPCWSTR lpRootPathName, LPDWORD lpSe
 #include <mmiscapi.h>
 
 // BG4 used for music
-// TODO: doesnt work currently?
 static HMMIO __stdcall mmioOpenAWrap(LPSTR pszFileName, LPMMIOINFO pmmioinfo, DWORD fdwOpen)
 {
 	return mmioOpenA((LPSTR)ParseFileNamesA((LPCSTR)pszFileName).c_str(), pmmioinfo, fdwOpen);
@@ -853,7 +852,7 @@ static InitFunction initFunction([]()
 			iatHook("kernel32.dll", DeleteFileWWrap, "DeleteFileW");
 
 			// Music
-			iatHook("WINMM.dll", mmioOpenA, "mmioOpenA");
+			iatHook("winmm.dll", mmioOpenAWrap, "mmioOpenA");
 
 			// The below is needed for bg4 to lookup paths correctly and not just point to C
 			iatHook("kernel32.dll", GetLogicalDrivesWrap, "GetLogicalDrives");
