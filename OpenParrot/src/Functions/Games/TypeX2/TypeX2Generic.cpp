@@ -204,15 +204,6 @@ static std::string ParseFileNamesA(LPCSTR lpFileName)
 				return moveBufA;
 			}
 
-			if (!strncmp(lpFileName + 1, ":.\\data", 7)) // BG4
-			{
-				sprintf(moveBufA, ".\\%s", lpFileName + 4);
-#ifdef _DEBUG
-				info("D:.\\data redirect: %s", moveBufA);
-#endif
-				return moveBufA;
-			}
-
 			// Magical Beat has d: WTF?
 			sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName + 2);
 		}
@@ -493,10 +484,11 @@ static BOOL __stdcall GetDiskFreeSpaceWWrap(LPCWSTR lpRootPathName, LPDWORD lpSe
 }
 
 // Below required for BG4 specifically to return correct paths
+// Should improve folder redirection accuracy on other TTX games, but needs testing
 
 #include <mmiscapi.h>
 
-// BG4 used for music
+// BG4 used for music, used extensively in VRL iirc
 static HMMIO __stdcall mmioOpenAWrap(LPSTR pszFileName, LPMMIOINFO pmmioinfo, DWORD fdwOpen)
 {
 	return mmioOpenA((LPSTR)ParseFileNamesA((LPCSTR)pszFileName).c_str(), pmmioinfo, fdwOpen);
@@ -509,11 +501,12 @@ static DWORD __stdcall GetLogicalDrivesWrap()
 
 static UINT __stdcall GetDriveTypeAWrap(LPCSTR lpRootPathName)
 {
-	return DRIVE_FIXED;
+	return DRIVE_FIXED;	// All partitions on TTX hdd are fixed
 }
 
 static DWORD __stdcall GetCurrentDirectoryAWrap(DWORD nBufferLength, LPSTR lpBuffer)
 {
+	// TTX games (normally) run from root of E drive
 	const char* path = "E:\\";
 	int len = strlen(path);
 	strncpy(lpBuffer, path, len);
@@ -775,10 +768,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4:
 		{
-			// redirect E:\data to .\data
-			//injector::WriteMemoryRaw(0x0076D96C, "./data/", 8, true);
-			//injector::WriteMemoryRaw(0x007ACA60, ".\\data", 7, true);
-			
 			// Fix sound only being in left ear
 			injector::WriteMemoryRaw(imageBase + 0x36C3DC, "\x00\x60\xA9\x45", 4, true);
 
@@ -863,10 +852,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4_Eng:
 		{
-			// redirect E:\data to .\data
-			injector::WriteMemoryRaw(0x0073139C, "./data/", 8, true);
-			injector::WriteMemoryRaw(0x00758978, ".\\data", 7, true);
-
 			if (ToBool(config["General"]["IntroFix"]))
 			{
 				// thanks for Ducon2016 for the patch!
@@ -891,6 +876,18 @@ static InitFunction initFunction([]()
 
 			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
 			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
+
+			// The below is needed for bg4 to remove past event data from nvram
+			iatHook("kernel32.dll", DeleteFileAWrap, "DeleteFileA");
+			iatHook("kernel32.dll", DeleteFileWWrap, "DeleteFileW");
+
+			// Music
+			iatHook("winmm.dll", mmioOpenAWrap, "mmioOpenA");
+
+			// The below is needed for bg4 to lookup paths correctly and not just point to C
+			iatHook("kernel32.dll", GetLogicalDrivesWrap, "GetLogicalDrives");
+			iatHook("kernel32.dll", GetDriveTypeAWrap, "GetDriveTypeA");
+			iatHook("kernel32.dll", GetCurrentDirectoryAWrap, "GetCurrentDirectoryA");
 
 			break;
 		}
