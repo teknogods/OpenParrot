@@ -819,6 +819,10 @@ static InitFunction initFunction([]()
 					injector::WriteMemory<DWORD>(imageBase + 0xa0536, resWidth, true);
 					injector::WriteMemory<DWORD>(imageBase + 0x1f4c77, resHeight, true);
 					injector::WriteMemory<DWORD>(imageBase + 0xa0531, resHeight, true);
+					// Scale font to match new screen resolution
+					injector::WriteMemory<FLOAT>(imageBase + 0x1fc331, resWidth / 800.0f, true);
+					injector::WriteMemory<FLOAT>(imageBase + 0x1fc329, resHeight / 600.0f, true);
+					injector::WriteMemory<FLOAT>(imageBase + 0x1fc4a7, 168.0f * (resWidth / 1360.0f), true);	// 168 is the base value game uses for 1360 width scale
 				}
 
 				if (ToBool(config["General"]["Professional Edition Hold Gear"]))
