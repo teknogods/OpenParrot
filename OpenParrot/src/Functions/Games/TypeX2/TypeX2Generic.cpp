@@ -204,17 +204,39 @@ static std::string ParseFileNamesA(LPCSTR lpFileName)
 				return moveBufA;
 			}
 
-			if (!strncmp(lpFileName + 1, ":.\\data", 7)) // BG4
-			{
-				sprintf(moveBufA, ".\\%s", lpFileName + 4);
-#ifdef _DEBUG
-				info("D:.\\data redirect: %s", moveBufA);
-#endif
-				return moveBufA;
-			}
-
 			// Magical Beat has d: WTF?
 			sprintf(moveBufA, ".\\OpenParrot\\%s", lpFileName + 2);
+		}
+		return moveBufA;
+	}
+	else if (!strncmp(lpFileName, "E:", 2) || !strncmp(lpFileName, "e:", 2))
+	{
+		memset(moveBufA, 0, 256);
+
+		char pathRoot[MAX_PATH];
+		GetModuleFileNameA(GetModuleHandle(nullptr), pathRoot, _countof(pathRoot));
+		strrchr(pathRoot, '\\')[0] = '\0';
+
+		if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+		{
+			sprintf(moveBufA, ".\\%s", lpFileName + 3);
+#ifdef _DEBUG
+			info("PathRoot: %s", pathRoot);
+			info("ParseFileNamesA - 3: %s", lpFileName + 3);
+			info("ParseFileNamesA movBuf: %s", moveBufA);
+#endif
+			// convert char to string, and replace '/' to '\\'
+			std::string movBufOP = moveBufA;
+			std::replace(movBufOP.begin(), movBufOP.end(), '/', '\\');
+
+			// if redirected path contains the full path, don't redirect, fixes running games from D:
+			if (movBufOP.find(pathRoot + 3) != std::string::npos)
+			{
+#ifdef _DEBUG
+				info("!!!!!!!!!!!NO REDIRECT!!!!!!!!!!!!");
+#endif
+				return lpFileName;
+			}
 		}
 		return moveBufA;
 	}
@@ -262,6 +284,42 @@ static std::wstring ParseFileNamesW(LPCWSTR lpFileName)
 		{
 			// Magical Beat has d: WTF?
 			swprintf(moveBufW, L".\\OpenParrot\\%ls", lpFileName + 2);
+		}
+		return moveBufW;
+	}
+	else if (!wcsncmp(lpFileName, L"E:", 2) || !wcsncmp(lpFileName, L"e:", 2))
+	{
+		memset(moveBufW, 0, 256);
+		if (lpFileName[2] == '\\' || lpFileName[2] == '/')
+		{
+			wchar_t pathRootW[MAX_PATH];
+			GetModuleFileNameW(GetModuleHandle(nullptr), pathRootW, _countof(pathRootW));
+
+			wcsrchr(pathRootW, L'\\')[0] = L'\0';
+
+			swprintf(moveBufW, L".\\%ls", lpFileName + 3);
+
+#ifdef _DEBUG
+			info("PathRootW: %ls", pathRootW);
+			info("ParseFileNamesW: %ls", lpFileName + 3);
+			info("ParseFileNamesW movBufW: %ls", moveBufW);
+#endif
+			// convert wchar to wstring, and replace '/' to '\\'
+			std::wstring movBufWOP = moveBufW;
+			std::replace(movBufWOP.begin(), movBufWOP.end(), '/', '\\');
+
+			// if redirected path contains the full path, don't redirect, fixes running games from D:
+			if (movBufWOP.find(pathRootW + 3) != std::wstring::npos)
+			{
+#ifdef _DEBUG
+				info("!!!!!!!!!!!NO REDIRECT_W!!!!!!!!!!!!");
+#endif
+				return lpFileName;
+			}
+		}
+		else
+		{
+			swprintf(moveBufW, L".\\%ls", lpFileName + 2);
 		}
 		return moveBufW;
 	}
@@ -395,6 +453,16 @@ static DWORD __stdcall GetFileAttributesWWrap(LPCWSTR lpFileName)
 	return GetFileAttributesW(ParseFileNamesW(lpFileName).c_str());
 }
 
+static BOOL __stdcall DeleteFileAWrap(LPCSTR lpFileName)
+{
+	return DeleteFileA(ParseFileNamesA(lpFileName).c_str());
+}
+
+static BOOL __stdcall DeleteFileWWrap(LPCWSTR lpFileName)
+{
+	return DeleteFileW(ParseFileNamesW(lpFileName).c_str());
+}
+
 static BOOL __stdcall GetDiskFreeSpaceExAWrap(LPCSTR lpDirectoryName, PULARGE_INTEGER lpFreeBytesAvailableToCaller, PULARGE_INTEGER lpTotalNumberOfBytes, PULARGE_INTEGER lpTotalNumberOfFreeBytes)
 {
 	return GetDiskFreeSpaceExA(NULL, lpFreeBytesAvailableToCaller, lpTotalNumberOfBytes, lpTotalNumberOfFreeBytes);
@@ -414,6 +482,38 @@ static BOOL __stdcall GetDiskFreeSpaceWWrap(LPCWSTR lpRootPathName, LPDWORD lpSe
 {
 	return GetDiskFreeSpaceW(NULL, lpSectorsPerCluster, lpBytesPerSector, lpNumberOfFreeClusters, lpTotalNumberOfClusters);
 }
+
+// Below required for BG4 specifically to return correct paths
+// Should improve folder redirection accuracy on other TTX games, but needs testing
+
+#include <mmiscapi.h>
+
+// BG4 used for music, used extensively in VRL iirc
+static HMMIO __stdcall mmioOpenAWrap(LPSTR pszFileName, LPMMIOINFO pmmioinfo, DWORD fdwOpen)
+{
+	return mmioOpenA((LPSTR)ParseFileNamesA((LPCSTR)pszFileName).c_str(), pmmioinfo, fdwOpen);
+}
+
+static DWORD __stdcall GetLogicalDrivesWrap()
+{
+	return 0x1C;	// 3rd, 4th and 5th LSB set for C, D and E drive respectively
+}
+
+static UINT __stdcall GetDriveTypeAWrap(LPCSTR lpRootPathName)
+{
+	return DRIVE_FIXED;	// All partitions on TTX hdd are fixed
+}
+
+static DWORD __stdcall GetCurrentDirectoryAWrap(DWORD nBufferLength, LPSTR lpBuffer)
+{
+	// TTX games (normally) run from root of E drive
+	const char* path = "E:\\";
+	int len = strlen(path);
+	strncpy(lpBuffer, path, len);
+	return len;
+}
+
+// 
 
 #include <deque>
 #include <iphlpapi.h>
@@ -668,10 +768,6 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4:
 		{
-			// redirect E:\data to .\data
-			injector::WriteMemoryRaw(0x0076D96C, "./data/", 8, true);
-			injector::WriteMemoryRaw(0x007ACA60, ".\\data", 7, true);
-			
 			// Fix sound only being in left ear
 			injector::WriteMemoryRaw(imageBase + 0x36C3DC, "\x00\x60\xA9\x45", 4, true);
 
@@ -723,6 +819,10 @@ static InitFunction initFunction([]()
 					injector::WriteMemory<DWORD>(imageBase + 0xa0536, resWidth, true);
 					injector::WriteMemory<DWORD>(imageBase + 0x1f4c77, resHeight, true);
 					injector::WriteMemory<DWORD>(imageBase + 0xa0531, resHeight, true);
+					// Scale font to match new screen resolution
+					injector::WriteMemory<FLOAT>(imageBase + 0x1fc331, resWidth / 800.0f, true);
+					injector::WriteMemory<FLOAT>(imageBase + 0x1fc329, resHeight / 600.0f, true);
+					injector::WriteMemory<FLOAT>(imageBase + 0x1fc4a7, 168.0f * (resWidth / 1360.0f), true);	// 168 is the base value game uses for 1360 width scale
 				}
 
 				if (ToBool(config["General"]["Professional Edition Hold Gear"]))
@@ -740,14 +840,22 @@ static InitFunction initFunction([]()
 			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
 			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
 
+			// The below is needed for bg4 to remove past event data from nvram
+			iatHook("kernel32.dll", DeleteFileAWrap, "DeleteFileA");
+			iatHook("kernel32.dll", DeleteFileWWrap, "DeleteFileW");
+
+			// Music
+			iatHook("winmm.dll", mmioOpenAWrap, "mmioOpenA");
+
+			// The below is needed for bg4 to lookup paths correctly and not just point to C
+			iatHook("kernel32.dll", GetLogicalDrivesWrap, "GetLogicalDrives");
+			iatHook("kernel32.dll", GetDriveTypeAWrap, "GetDriveTypeA");
+			iatHook("kernel32.dll", GetCurrentDirectoryAWrap, "GetCurrentDirectoryA");
+
 			break;
 		}
 		case X2Type::BG4_Eng:
 		{
-			// redirect E:\data to .\data
-			injector::WriteMemoryRaw(0x0073139C, "./data/", 8, true);
-			injector::WriteMemoryRaw(0x00758978, ".\\data", 7, true);
-
 			if (ToBool(config["General"]["IntroFix"]))
 			{
 				// thanks for Ducon2016 for the patch!
@@ -772,6 +880,18 @@ static InitFunction initFunction([]()
 
 			iatHook("kernel32.dll", ReadFileWrapTx2, "ReadFile");
 			iatHook("kernel32.dll", WriteFileWrapTx2, "WriteFile");
+
+			// The below is needed for bg4 to remove past event data from nvram
+			iatHook("kernel32.dll", DeleteFileAWrap, "DeleteFileA");
+			iatHook("kernel32.dll", DeleteFileWWrap, "DeleteFileW");
+
+			// Music
+			iatHook("winmm.dll", mmioOpenAWrap, "mmioOpenA");
+
+			// The below is needed for bg4 to lookup paths correctly and not just point to C
+			iatHook("kernel32.dll", GetLogicalDrivesWrap, "GetLogicalDrives");
+			iatHook("kernel32.dll", GetDriveTypeAWrap, "GetDriveTypeA");
+			iatHook("kernel32.dll", GetCurrentDirectoryAWrap, "GetCurrentDirectoryA");
 
 			break;
 		}
