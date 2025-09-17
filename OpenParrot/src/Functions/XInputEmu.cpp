@@ -56,8 +56,6 @@ int iround(double num) {
 	return (num > 0.0) ? (int)floor(num + 0.5) : (int)ceil(num - 0.5);
 }
 
-extern void GHAInputs();
-
 extern int* ffbOffset;
 extern int* ffbOffset2;
 extern int* ffbOffset3;
@@ -85,12 +83,6 @@ DWORD WINAPI XInputGetState
 		{
 			gamepadState.wButtons = *ffbOffset;
 		}
-#if __has_include(<atlstr.h>)
-		else if (GameDetect::currentGame == GameID::GHA)
-		{
-			GHAInputs();
-		}
-#endif
 		else if (GameDetect::currentGame == GameID::JLeague)
 		{
 			gamepadState.wButtons = 0;
@@ -151,6 +143,9 @@ DWORD WINAPI XInputGetState
 	}
 	else
 	{
+		if (GameDetect::currentGame == GameID::GHA && dwUserIndex == 1) // Enable Player 2
+			return ERROR_SUCCESS;
+
 		return ERROR_DEVICE_NOT_CONNECTED;
 	}
 }
@@ -223,6 +218,9 @@ DWORD WINAPI XInputGetCapabilities
 	}
 	else
 	{
+		if (GameDetect::currentGame == GameID::GHA && dwUserIndex == 1) // Enable Player 2
+			return ERROR_SUCCESS;
+
 		return ERROR_DEVICE_NOT_CONNECTED;
 	}
 }

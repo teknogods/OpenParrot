@@ -96,12 +96,17 @@ static InitFunction initFunction_DariusBurst([]()
 	init_RegHooks();
 	init_NesysEmu(true);
 
-	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	auto imageBase = (uintptr_t)GetModuleHandleA(0);
 
 	// Ignore cryptopipe check.
 	// NOTE: This could be cause for the non-working TEST MODE. No time to analyze since dump was released and we want to give instant support.
-	//injector::WriteMemory<BYTE>(imageBase + 0x2CC753, 0xEB, true);
-
+	// Update 2025:
+	// Something in modern windows 11 breaks CryptDecrypt. For now, i'll patch the check
+	// and also patch the second check so that the test menu also works. I did not notice any issues with this, so
+	// hopefully this will be fine for now until we can figure out if we can fix windows 11 compatibility.
+	injector::WriteMemory<BYTE>(imageBase + 0x2CC753, 0xEB, true);
+	injector::WriteMemory<BYTE>(imageBase + 0x1de917, 0x75, true);
+	
 	// D:
 	injector::WriteMemoryRaw(imageBase + 0x482F38, "\x2E\x5C\x44", 3, true); // D:\%s%04d%02d%02d_%02d%02d%02d_
 	injector::WriteMemoryRaw(imageBase + 0x4830A0, "\x2E\x5C\x44", 3, true); // D:\%s/%s/*
@@ -131,11 +136,16 @@ static InitFunction initFunction_DariusBurst116([]()
 	init_RegHooks();
 	init_NesysEmu(true);
 
-	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	auto imageBase = (uintptr_t)GetModuleHandleA(nullptr);
 
 	// Ignore cryptopipe check.
 	// NOTE: This could be cause for the non-working TEST MODE. No time to analyze since dump was released and we want to give instant support.
-	//injector::WriteMemory<BYTE>(imageBase + 0x302743, 0xEB, true);
+	// Update 2025:
+	// Something in modern windows 11 breaks CryptDecrypt. For now, i'll patch the check
+	// and also patch the second check so that the test menu also works. I did not notice any issues with this, so
+	// hopefully this will be fine for now until we can figure out if we can fix windows 11 compatibility.
+	injector::WriteMemory<BYTE>(imageBase + 0x302743, 0xEB, true);
+	injector::WriteMemory<BYTE>(imageBase + 0x1fb867, 0x75, true);
 
 	//// D:
 	injector::WriteMemoryRaw(imageBase + 0x4EEF68, "\x2E\x5C\x44", 3, true); // D:\%s%04d%02d%02d_%02d%02d%02d_
