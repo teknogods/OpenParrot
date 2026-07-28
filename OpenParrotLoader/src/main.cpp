@@ -4,6 +4,7 @@
 #include <winternl.h>
 #include <conio.h>
 #include "PE.h"
+#include <iterator>
 #include <string>
 #include "Utils.h"
 #include <filesystem>
@@ -27,6 +28,13 @@ char* LoaderExe = "OpenParrotLoader.exe";
 #else
 char* LoaderExe = "OpenParrotLoader64.exe";
 #endif
+
+static bool ShouldUseRemoteThread()
+{
+	wchar_t envVar[256] = { 0 };
+	DWORD result = GetEnvironmentVariable(L"TP_REMOTETHREAD", envVar, std::size(envVar));
+	return (result > 0);
+}
 
 int LoadHookDLL(const wchar_t* dllLocation, DWORD_PTR address)
 {
@@ -97,6 +105,77 @@ int LoadHookDLL(const wchar_t* dllLocation, DWORD_PTR address)
 
 	return 1;
 }
+
+int LoadHookDLLRemoteThread(const wchar_t* dllLocation)
+{
+	HMODULE kernel32Handle = GetModuleHandle(L"kernel32.dll");
+
+	if (kernel32Handle == nullptr)
+	{
+		wprintf(L"Failed to Load DLL via RemoteThread! (Error 1)\n");
+		return 0;
+	}
+
+	FARPROC loadLibraryW = GetProcAddress(kernel32Handle, "LoadLibraryW");
+	if (loadLibraryW == nullptr)
+	{
+		wprintf(L"Failed to Load DLL via RemoteThread! (Error 2)\n");
+		return 0;
+	}
+
+	// In case of stubborn executables, might not need this anymore?
+	HANDLE processHandle = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION, FALSE, pi.dwProcessId);
+	if (processHandle == nullptr)
+	{
+		wprintf(L"Failed to Load DLL via RemoteThread! (Error 3 - OpenProcess failed: 0x%X)\n", GetLastError());
+		return 0;
+	}
+
+	size_t dllPathSize = (wcslen(dllLocation) + 1) * sizeof(wchar_t);
+	LPVOID remoteDllPath = VirtualAllocEx(processHandle, nullptr, dllPathSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+	if (remoteDllPath == nullptr)
+	{
+		wprintf(L"Failed to Load DLL via RemoteThread! (Error 4 - VirtualAllocEx failed: 0x%X)\n", GetLastError());
+		CloseHandle(processHandle);
+		return 0;
+	}
+
+	if (!WriteProcessMemory(processHandle, remoteDllPath, dllLocation, dllPathSize, nullptr))
+	{
+		wprintf(L"Failed to Load DLL via RemoteThread! (Error 5 - WriteProcessMemory failed: 0x%X)\n", GetLastError());
+		VirtualFreeEx(processHandle, remoteDllPath, 0, MEM_RELEASE);
+		CloseHandle(processHandle);
+		return 0;
+	}
+
+	HANDLE remoteThread = CreateRemoteThread(processHandle, nullptr, 0, (LPTHREAD_START_ROUTINE)loadLibraryW, remoteDllPath, 0, NULL);
+
+	if (remoteThread == nullptr)
+	{
+		wprintf(L"Failed to Load DLL via RemoteThread! (Error 6 - CreateRemoteThread failed: 0x%X)\n", GetLastError());
+		VirtualFreeEx(processHandle, remoteDllPath, 0, MEM_RELEASE);
+		CloseHandle(processHandle);
+		return 0;
+	}
+
+	WaitForSingleObject(remoteThread, INFINITE);
+
+	DWORD exitCode = 0;
+	GetExitCodeThread(remoteThread, &exitCode);
+	CloseHandle(remoteThread);
+	VirtualFreeEx(processHandle, remoteDllPath, 0, MEM_RELEASE);
+	CloseHandle(processHandle);
+
+	if (exitCode == 0)
+	{
+		wprintf(L"Failed to Load DLL via RemoteThread! (Error 7 - LoadLibraryW returned NULL)\n");
+		return 0;
+	}
+
+	return 1;
+}
+
 int RunTo(DWORD_PTR Address, DWORD Mode, DWORD_PTR Eip)
 {
 	char tempbuf[4] = { 0 };
@@ -201,7 +280,14 @@ int wmain(int argc, wchar_t* argv[])
 
 	wprintf(L"\nLoading game...\n");
 
-	FilePEFile = getPEFileInformation(gamePathW);
+	bool useRemoteThread = ShouldUseRemoteThread();
+	if (useRemoteThread)
+	{
+		wprintf(L"Using RemoteThread injection method...\n");
+	}
+	else {
+		FilePEFile = getPEFileInformation(gamePathW);
+	}
 
 	// With arguments
 	if (argc == 4)
@@ -215,7 +301,7 @@ int wmain(int argc, wchar_t* argv[])
 			NULL,             // Process handle not inheritable. 
 			NULL,             // Thread handle not inheritable. 
 			FALSE,            // Set handle inheritance to FALSE. 
-			CREATE_SUSPENDED | CREATE_NEW_PROCESS_GROUP, // suspended creation flags. 
+			CREATE_SUSPENDED | CREATE_NEW_PROCESS_GROUP,    // creation flags. 
 			NULL,             // Use parent's environment block. 
 			gameFolderW,      // Use parent's starting directory. 
 			&si,              // Pointer to STARTUPINFO structure.
@@ -236,7 +322,7 @@ int wmain(int argc, wchar_t* argv[])
 			NULL,             // Process handle not inheritable. 
 			NULL,             // Thread handle not inheritable. 
 			FALSE,            // Set handle inheritance to FALSE. 
-			CREATE_SUSPENDED | CREATE_NEW_PROCESS_GROUP, // suspended creation flags. 
+			CREATE_SUSPENDED | CREATE_NEW_PROCESS_GROUP,    // creation flags. 
 			NULL,             // Use parent's environment block. 
 			gameFolderW,      // Use parent's starting directory. 
 			&si,              // Pointer to STARTUPINFO structure.
@@ -250,41 +336,51 @@ int wmain(int argc, wchar_t* argv[])
 		}
 	}
 
-	mycontext.ContextFlags = 0x00010000 + 1 + 2 + 4 + 8 + 0x10;
-	GetThreadContext(pi.hThread, &mycontext);
-
-	PROCESS_BASIC_INFORMATION pbi = { 0 };
-	DWORD pbiSize = sizeof(pbi);
-
-	if (!NT_SUCCESS(NtQueryInformationProcess(pi.hProcess, ProcessBasicInformation, &pbi, pbiSize, &pbiSize)))
-	{
-		wprintf(L"Failed to get process information!\n");
-		(void)_getch();
-		return 1;
-	}
-
 	DWORD_PTR baseAddress = 0;
-	SIZE_T read = 0;
 
-	ReadProcessMemory(pi.hProcess, (void*)((DWORD_PTR)pbi.PebBaseAddress + (sizeof(DWORD_PTR) * 2)), &baseAddress, sizeof(baseAddress), &read);
-
-	if (read != sizeof(DWORD_PTR))
+	if (useRemoteThread)
 	{
-		wprintf(L"Failed to get process environment!\n");
-		(void)_getch();
-		return 1;
+		// For RemoteThread method, process is created suspended, just wait briefly
+		Sleep(1000);
+		wprintf(L"Success!\n");
 	}
-
-	Sleep(1000);
-
-	if (!RunTo(baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint, 1, 0))
+	else
 	{
-		wprintf(L"Failed to run the process\n");
-		TerminateProcess(pi.hProcess, 0);
-		(void)_getch();
-		return 1;
+		mycontext.ContextFlags = 0x00010000 + 1 + 2 + 4 + 8 + 0x10;
+		GetThreadContext(pi.hThread, &mycontext);
+
+		PROCESS_BASIC_INFORMATION pbi = { 0 };
+		DWORD pbiSize = sizeof(pbi);
+
+		if (!NT_SUCCESS(NtQueryInformationProcess(pi.hProcess, ProcessBasicInformation, &pbi, pbiSize, &pbiSize)))
+		{
+			wprintf(L"Failed to get process information!\n");
+			(void)_getch();
+			return 1;
+		}
+
+		SIZE_T read = 0;
+
+		ReadProcessMemory(pi.hProcess, (void*)((DWORD_PTR)pbi.PebBaseAddress + (sizeof(DWORD_PTR) * 2)), &baseAddress, sizeof(baseAddress), &read);
+
+		if (read != sizeof(DWORD_PTR))
+		{
+			wprintf(L"Failed to get process environment!\n");
+			(void)_getch();
+			return 1;
+		}
+
+		Sleep(1000);
+
+		if (!RunTo(baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint, 1, 0))
+		{
+			wprintf(L"Failed to run the process\n");
+			TerminateProcess(pi.hProcess, 0);
+			(void)_getch();
+			return 1;
+		}
+		wprintf(L"Success!\n");
 	}
-	wprintf(L"Success!\n");
 
 	wprintf(L"Loading core...\n");
 
@@ -313,7 +409,17 @@ int wmain(int argc, wchar_t* argv[])
 
 			wprintf(L"FFB Blaster found: %ls\n", ffbBlasterPathW);
 
-			if (LoadHookDLL(ffbBlasterPathW, baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint))
+			bool ffbSuccess = false;
+			if (useRemoteThread)
+			{
+				ffbSuccess = LoadHookDLLRemoteThread(ffbBlasterPathW);
+			}
+			else
+			{
+				ffbSuccess = LoadHookDLL(ffbBlasterPathW, baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint);
+			}
+
+			if (ffbSuccess)
 			{
 				wprintf(L"FFB Blaster loaded successfully!\n");
 			}
@@ -330,7 +436,17 @@ int wmain(int argc, wchar_t* argv[])
 		}
 	}
 
-	if (!LoadHookDLL(corePathW, baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint))
+	bool coreSuccess = false;
+	if (useRemoteThread)
+	{
+		coreSuccess = LoadHookDLLRemoteThread(corePathW);
+	}
+	else
+	{
+		coreSuccess = LoadHookDLL(corePathW, baseAddress + FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint);
+	}
+
+	if (!coreSuccess)
 	{
 		TerminateProcess(pi.hProcess, 0);
 		(void)_getch();
@@ -342,8 +458,18 @@ int wmain(int argc, wchar_t* argv[])
 	wprintf(L"\nHave fun :)\n");
 
 	Sleep(2000);
-	ResumeThread(pi.hThread);
-	while (GetThreadContext(pi.hThread, &mycontext)) Sleep(2000);
+	
+	if (useRemoteThread)
+	{
+		ResumeThread(pi.hThread);
+		WaitForSingleObject(pi.hProcess, INFINITE);
+	}
+	else
+	{
+		ResumeThread(pi.hThread);
+		while (GetThreadContext(pi.hThread, &mycontext)) Sleep(2000);
+	}
+	
 	DWORD lpExitCode = 1;
 	::GetExitCodeThread(pi.hThread, &lpExitCode);
 

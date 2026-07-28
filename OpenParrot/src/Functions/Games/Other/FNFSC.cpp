@@ -501,6 +501,13 @@ DWORD WINAPI InputRT2(LPVOID lpParam)
 				ChangeGear(2);
 			}
 		}
+		else
+		{
+			if (buttonGear2Pressed == true)
+			{
+				buttonGear2Pressed = false;
+			}
+		}
 
 		//GEAR 3
 		if (*ffbOffset5 & 0x4)
