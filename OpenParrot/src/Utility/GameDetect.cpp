@@ -695,6 +695,11 @@ void GameDetect::DetectCurrentGame()
 		case 0xf6b59ca5: // booting via PIX debugger
 			currentGame = GameID::CrazySpeed;
 			break;
+		case 0xcdc858fc: // En-Eins Perfektewelt Anastasia 1.21 (D: path req)
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
