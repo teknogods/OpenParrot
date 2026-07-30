@@ -15,6 +15,7 @@
 #include "d3d9.h"
 #include "Utility/Helper.h"
 #include "Mmsystem.h"
+#include <intrin.h>
 
 #if _M_IX86
 #pragma optimize("", off)
