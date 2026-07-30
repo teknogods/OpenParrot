@@ -11,6 +11,23 @@
 
 namespace
 {
+	uintptr_t akaiMovieSeekingGuardContinue = 0;
+	uintptr_t akaiMovieSeekingGuardReturn = 0;
+
+	void __declspec(naked) AkaiMovieSeekingGuard()
+	{
+		__asm
+		{
+			mov eax, dword ptr [esi + 68h]
+			test eax, eax
+			jz missingInterface
+			mov ecx, dword ptr [eax]
+			jmp dword ptr [akaiMovieSeekingGuardContinue]
+		missingInterface:
+			jmp dword ptr [akaiMovieSeekingGuardReturn]
+		}
+	}
+
 	BOOL CALLBACK FindCurrentProcessWindow(HWND window, LPARAM parameter)
 	{
 		DWORD processId = 0;
@@ -62,6 +79,33 @@ static InitFunction initFunction([]()
 	if (GameDetect::IsAkaiKatana() &&
 		getenv("ANDROID_ALSA_SERVER") != nullptr)
 	{
+		const uintptr_t imageBase =
+			reinterpret_cast<uintptr_t>(GetModuleHandleA(nullptr));
+		akaiMovieSeekingGuardContinue = imageBase + 0x3329F;
+		akaiMovieSeekingGuardReturn = imageBase + 0x332D6;
+
+		// Akai Katana's movie update path checks its state flag at +0x14,
+		// then unconditionally dereferences the IMediaSeeking-style interface
+		// stored at +0x68. Wine can leave that interface null even though the
+		// graph reached the active state, crashing at Game.exe+0x3329D when
+		// attract enters its first movie. Preserve the original path whenever
+		// the interface exists and otherwise use the game's own zero-result
+		// return path for that update.
+		injector::MakeJMP(
+			imageBase + 0x3329A,
+			AkaiMovieSeekingGuard,
+			true);
+
+		// Wine's ASF source exposes an "Output" pin. Akai interprets that
+		// successful lookup as a prebuilt graph and skips SampleGrabber plus
+		// RenderFile, leaving its playback interfaces null. Force the game's
+		// existing graph-build path; the original videos remain decoded and
+		// rendered normally.
+		injector::MakeJMP(
+			imageBase + 0x33465,
+			imageBase + 0x3346D,
+			true);
+
 		HANDLE wakeThread = CreateThread(
 			nullptr, 0, WakeAkaiKatanaWindow, nullptr, 0, nullptr);
 		if (wakeThread != nullptr)
