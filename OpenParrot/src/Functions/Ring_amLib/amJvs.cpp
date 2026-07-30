@@ -61,6 +61,7 @@ static LPCreateFileW  __CreateFileW = NULL;
 LPCSTR emuPort = "\\\\.\\pipe\\teknoparrot_jvs";
 LPCWSTR emuPortW = L"\\\\.\\pipe\\teknoparrot_jvs";
 LPCSTR hookPort = "COM4";
+LPCWSTR hookPortW = L"COM4";
 DWORD amJvsDataOffset = 0;
 HANDLE jvsHandle = (HANDLE)-1;
 bool JVSAlreadyTaken = false;
@@ -206,7 +207,7 @@ HANDLE __stdcall Hook_CreateFileW(LPCWSTR lpFileName,
 		}
 	}
 #endif
-	if (wcscmp(lpFileName, L"COM4") == 0 && !JVSAlreadyTaken)
+	if (wcscmp(lpFileName, hookPortW) == 0 && !JVSAlreadyTaken)
 	{
 		HANDLE hResult = __CreateFileW(emuPortW,
 			dwDesiredAccess,
@@ -421,7 +422,7 @@ BOOL __stdcall Hook_ClearCommError(HANDLE hFile, LPDWORD lpErrors, LPCOMSTAT lpS
 
 static InitFunction jvsInit([]()
 {
-	if (GameDetect::IsNesicaGame())
+	if (GameDetect::IsNesicaGame() && !GameDetect::IsCosplayMahjong())
 	{
 		return;
 	}
@@ -430,6 +431,7 @@ static InitFunction jvsInit([]()
 	if (GameDetect::IsTypeX())
 	{
 		hookPort = "COM2";
+		hookPortW = L"COM2";
 	}
 
 	MH_Initialize();

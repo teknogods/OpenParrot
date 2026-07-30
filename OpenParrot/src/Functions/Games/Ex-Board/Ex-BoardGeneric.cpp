@@ -22,6 +22,14 @@ static vector<char> r(1024);
 
 unsigned char SRAM[SRAM_SIZE];
 
+static bool ShouldForceSoftwareDirectSoundExBoard()
+{
+	char value[8] = {};
+	const DWORD length = GetEnvironmentVariableA(
+		"TP_EXBOARD_SOFTWARE_DSOUND", value, static_cast<DWORD>(sizeof(value)));
+	return length == 1 && value[0] == '1';
+}
+
 void SRAM_save()
 {
 	FILE *fp = NULL;
@@ -430,6 +438,20 @@ HWND __stdcall CreateWindowExAWrap(DWORD dwExStyle,
 
 static InitFunction ExBoardGenericFunc([]()
 {
+	if (ShouldForceSoftwareDirectSoundExBoard())
+	{
+		const uintptr_t imageBase = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
+		const uintptr_t bufferFlagsAddress = imageBase + 0x8C048;
+		const uint32_t originalBufferFlags =
+			*reinterpret_cast<const uint32_t*>(bufferFlagsAddress);
+		if (originalBufferFlags == 0x000580E0)
+		{
+			// Wine exposes no hardware mixing buffers.  Avoid thousands of
+			// deferred buffer realizations by explicitly selecting software.
+			injector::WriteMemory<uint32_t>(
+				bufferFlagsAddress, 0x000180E8, true);
+		}
+	}
 	iatHook("kernel32.dll", CreateFileAWrapExBoard, "CreateFileA");
 	iatHook("kernel32.dll", ReadFileWrapExBoard, "ReadFile");
 	iatHook("kernel32.dll", WriteFileWrapExBoard, "WriteFile");

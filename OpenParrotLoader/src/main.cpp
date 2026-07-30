@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <winternl.h>
+#include <TlHelp32.h>
 #include <conio.h>
 #include "PE.h"
 #include <iterator>
@@ -32,8 +33,163 @@ char* LoaderExe = "OpenParrotLoader64.exe";
 static bool ShouldUseRemoteThread()
 {
 	wchar_t envVar[256] = { 0 };
-	DWORD result = GetEnvironmentVariable(L"TP_REMOTETHREAD", envVar, std::size(envVar));
+	DWORD result = GetEnvironmentVariable(
+		L"TP_REMOTETHREAD", envVar, static_cast<DWORD>(std::size(envVar)));
 	return (result > 0);
+}
+
+static DWORD PostStartRemoteThreadDelay()
+{
+	wchar_t envVar[32] = { 0 };
+	DWORD result = GetEnvironmentVariable(
+		L"TP_POSTSTART_REMOTETHREAD_MS", envVar,
+		static_cast<DWORD>(std::size(envVar)));
+	if (result == 0 || result >= std::size(envVar))
+		return 0;
+
+	wchar_t* end = nullptr;
+	unsigned long delay = wcstoul(envVar, &end, 10);
+	if (end == envVar || *end != L'\0')
+		return 0;
+	if (delay < 1)
+		delay = 1;
+	if (delay > 5000)
+		delay = 5000;
+	return static_cast<DWORD>(delay);
+}
+
+static DWORD EntryPointRemoteThreadDelay()
+{
+	wchar_t envVar[32] = { 0 };
+	DWORD result = GetEnvironmentVariable(
+		L"TP_ENTRYPOINT_REMOTETHREAD_MS", envVar,
+		static_cast<DWORD>(std::size(envVar)));
+	if (result == 0 || result >= std::size(envVar))
+		return 0;
+
+	wchar_t* end = nullptr;
+	unsigned long delay = wcstoul(envVar, &end, 10);
+	if (end == envVar || *end != L'\0')
+		return 0;
+	if (delay < 100)
+		delay = 100;
+	if (delay > 10000)
+		delay = 10000;
+	return static_cast<DWORD>(delay);
+}
+
+static bool ShouldUseLoaderManagedInit()
+{
+	wchar_t envVar[256] = { 0 };
+	DWORD result = GetEnvironmentVariable(
+		L"TP_LOADER_MANAGED_INIT", envVar,
+		static_cast<DWORD>(std::size(envVar)));
+	return result > 0;
+}
+
+static FARPROC ResolveRemoteProcedureAddress(DWORD processId, FARPROC localAddress)
+{
+	if (localAddress == nullptr)
+		return nullptr;
+
+	MEMORY_BASIC_INFORMATION memoryInfo = {};
+	if (VirtualQuery(reinterpret_cast<LPCVOID>(localAddress), &memoryInfo,
+		sizeof(memoryInfo)) == 0 || memoryInfo.AllocationBase == nullptr)
+	{
+		wprintf(L"Failed to resolve local procedure owner (0x%X)\n", GetLastError());
+		return nullptr;
+	}
+
+	HMODULE localModule = static_cast<HMODULE>(memoryInfo.AllocationBase);
+	wchar_t localModulePath[MAX_PATH] = {};
+	if (GetModuleFileNameW(localModule, localModulePath,
+		static_cast<DWORD>(std::size(localModulePath))) == 0)
+	{
+		wprintf(L"Failed to resolve local procedure module (0x%X)\n", GetLastError());
+		return nullptr;
+	}
+
+	const wchar_t* localModuleName = PathFindFileNameW(localModulePath);
+	const uintptr_t procedureOffset = reinterpret_cast<uintptr_t>(localAddress) -
+		reinterpret_cast<uintptr_t>(localModule);
+
+	FARPROC remoteAddress = nullptr;
+	for (unsigned int attempt = 0; attempt < 100 && remoteAddress == nullptr; ++attempt)
+	{
+		HANDLE snapshot = CreateToolhelp32Snapshot(
+			TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, processId);
+		if (snapshot != INVALID_HANDLE_VALUE)
+		{
+			MODULEENTRY32W moduleEntry = {};
+			moduleEntry.dwSize = sizeof(moduleEntry);
+			if (Module32FirstW(snapshot, &moduleEntry))
+			{
+				do
+				{
+					if (_wcsicmp(moduleEntry.szModule, localModuleName) == 0)
+					{
+						remoteAddress = reinterpret_cast<FARPROC>(
+							reinterpret_cast<uintptr_t>(moduleEntry.modBaseAddr) +
+							procedureOffset);
+						break;
+					}
+				} while (Module32NextW(snapshot, &moduleEntry));
+			}
+			CloseHandle(snapshot);
+		}
+
+		if (remoteAddress == nullptr)
+		{
+			if (WaitForSingleObject(pi.hProcess, 0) != WAIT_TIMEOUT)
+				break;
+			Sleep(25);
+		}
+	}
+
+	if (remoteAddress == nullptr)
+	{
+		// Standard x86 RemoteThread mode deliberately keeps the target's
+		// primary thread suspended until OpenParrot has been injected. Under
+		// Wine/Box86, Toolhelp cannot enumerate kernel32 in that state even
+		// though Wine maps its system DLLs at the same addresses in both x86
+		// processes. Preserve the long-standing x86 loader behavior as a
+		// narrow fallback; arbitrary DLL exports must still be resolved from
+		// the target module list.
+#if defined(_M_IX86)
+		if (_wcsicmp(localModuleName, L"kernel32.dll") == 0)
+		{
+			wprintf(L"Target kernel32 is not enumerable while suspended; "
+				L"using the Wine x86 local procedure address %p.\n",
+				localAddress);
+			return localAddress;
+		}
+#endif
+		wprintf(L"Failed to find %ls in target process %lu\n",
+			localModuleName, processId);
+		HANDLE snapshot = CreateToolhelp32Snapshot(
+			TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, processId);
+		if (snapshot != INVALID_HANDLE_VALUE)
+		{
+			MODULEENTRY32W moduleEntry = {};
+			moduleEntry.dwSize = sizeof(moduleEntry);
+			if (Module32FirstW(snapshot, &moduleEntry))
+			{
+				wprintf(L"Target modules visible to Toolhelp:\n");
+				do
+				{
+					wprintf(L"  %ls at %p\n", moduleEntry.szModule,
+						moduleEntry.modBaseAddr);
+				} while (Module32NextW(snapshot, &moduleEntry));
+			}
+			CloseHandle(snapshot);
+		}
+		return nullptr;
+	}
+
+	wprintf(L"Resolved target %ls procedure: local=%p remote=%p rva=0x%llX\n",
+		localModuleName, localAddress, remoteAddress,
+		static_cast<unsigned long long>(procedureOffset));
+	return remoteAddress;
 }
 
 int LoadHookDLL(const wchar_t* dllLocation, DWORD_PTR address)
@@ -46,7 +202,15 @@ int LoadHookDLL(const wchar_t* dllLocation, DWORD_PTR address)
 		return 0;
 	}
 
-	DWORD_PTR MyLoadLibraryW = (DWORD_PTR)GetProcAddress(kernel32Handle, "LoadLibraryW");
+	FARPROC localLoadLibraryW = GetProcAddress(kernel32Handle, "LoadLibraryW");
+	FARPROC remoteLoadLibraryW = ResolveRemoteProcedureAddress(
+		pi.dwProcessId, localLoadLibraryW);
+	if (remoteLoadLibraryW == nullptr)
+	{
+		wprintf(L"Failed to Load DLL! (Error 1b)\n");
+		return 0;
+	}
+	DWORD_PTR MyLoadLibraryW = reinterpret_cast<DWORD_PTR>(remoteLoadLibraryW);
 	DWORD_PTR addy = (DWORD_PTR)VirtualAllocEx(pi.hProcess, 0, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
 
 	if (addy == NULL)
@@ -116,10 +280,18 @@ int LoadHookDLLRemoteThread(const wchar_t* dllLocation)
 		return 0;
 	}
 
-	FARPROC loadLibraryW = GetProcAddress(kernel32Handle, "LoadLibraryW");
-	if (loadLibraryW == nullptr)
+	FARPROC localLoadLibraryW = GetProcAddress(kernel32Handle, "LoadLibraryW");
+	if (localLoadLibraryW == nullptr)
 	{
 		wprintf(L"Failed to Load DLL via RemoteThread! (Error 2)\n");
+		return 0;
+	}
+
+	FARPROC remoteLoadLibraryW = ResolveRemoteProcedureAddress(
+		pi.dwProcessId, localLoadLibraryW);
+	if (remoteLoadLibraryW == nullptr)
+	{
+		wprintf(L"Failed to Load DLL via RemoteThread! (Error 2b)\n");
 		return 0;
 	}
 
@@ -149,7 +321,9 @@ int LoadHookDLLRemoteThread(const wchar_t* dllLocation)
 		return 0;
 	}
 
-	HANDLE remoteThread = CreateRemoteThread(processHandle, nullptr, 0, (LPTHREAD_START_ROUTINE)loadLibraryW, remoteDllPath, 0, NULL);
+	HANDLE remoteThread = CreateRemoteThread(processHandle, nullptr, 0,
+		reinterpret_cast<LPTHREAD_START_ROUTINE>(remoteLoadLibraryW),
+		remoteDllPath, 0, NULL);
 
 	if (remoteThread == nullptr)
 	{
@@ -174,6 +348,221 @@ int LoadHookDLLRemoteThread(const wchar_t* dllLocation)
 	}
 
 	return 1;
+}
+
+static FARPROC ResolveRemoteDllExport(
+	const wchar_t* dllLocation, const char* exportName)
+{
+	HMODULE localModule = LoadLibraryExW(
+		dllLocation, nullptr, DONT_RESOLVE_DLL_REFERENCES);
+	if (localModule == nullptr)
+	{
+		wprintf(L"Failed to inspect remote DLL export! (Error 1 - 0x%X)\n",
+			GetLastError());
+		return nullptr;
+	}
+
+	FARPROC localExport = GetProcAddress(localModule, exportName);
+	if (localExport == nullptr)
+	{
+		wprintf(L"Failed to find remote DLL export! (Error 2 - 0x%X)\n",
+			GetLastError());
+		FreeLibrary(localModule);
+		return nullptr;
+	}
+
+	FARPROC remoteExport = ResolveRemoteProcedureAddress(
+		pi.dwProcessId, localExport);
+	FreeLibrary(localModule);
+	if (remoteExport == nullptr)
+	{
+		wprintf(L"Failed to resolve remote DLL export! (Error 3)\n");
+		return nullptr;
+	}
+	return remoteExport;
+}
+
+static int InstallEntryPointInitializer(const wchar_t* dllLocation,
+	LPVOID entryPoint, const BYTE* originalEntryPoint)
+{
+#ifdef _M_AMD64
+	FARPROC remoteInitialize = ResolveRemoteDllExport(
+		dllLocation, "InitializeASI");
+	if (remoteInitialize == nullptr)
+		return 0;
+
+	DWORD oldProtect = 0;
+	if (!VirtualProtectEx(pi.hProcess, entryPoint, 20,
+		PAGE_EXECUTE_READWRITE, &oldProtect))
+	{
+		wprintf(L"Failed to make parked entry point writable! (Error 4 - 0x%X)\n",
+			GetLastError());
+		return 0;
+	}
+
+	// Run InitializeASI on the game's primary thread, restore the 20 original
+	// entry-point bytes in place, then jump back to the real entry point. This
+	// avoids Wine/Box64's unreliable arbitrary-procedure CreateRemoteThread path.
+	BYTE trampoline[] = {
+		0x48, 0x83, 0xEC, 0x28,                         // sub rsp, 28h
+		0x48, 0xB8, 0, 0, 0, 0, 0, 0, 0, 0,           // mov rax, InitializeASI
+		0xFF, 0xD0,                                     // call rax
+		0x48, 0x83, 0xC4, 0x28,                         // add rsp, 28h
+		0x48, 0xB8, 0, 0, 0, 0, 0, 0, 0, 0,           // mov rax, entry point
+		0x48, 0xBA, 0, 0, 0, 0, 0, 0, 0, 0,           // mov rdx, original[0..7]
+		0x48, 0x89, 0x10,                               // mov [rax], rdx
+		0x48, 0xBA, 0, 0, 0, 0, 0, 0, 0, 0,           // mov rdx, original[8..15]
+		0x48, 0x89, 0x50, 0x08,                         // mov [rax+8], rdx
+		0x41, 0xBA, 0, 0, 0, 0,                         // mov r10d, original[16..19]
+		0x44, 0x89, 0x50, 0x10,                         // mov [rax+16], r10d
+		0xFF, 0xE0                                      // jmp rax
+	};
+	static_assert(sizeof(trampoline) == 69, "Unexpected entry trampoline size");
+
+	DWORD_PTR initializeAddress = reinterpret_cast<DWORD_PTR>(remoteInitialize);
+	DWORD_PTR entryPointAddress = reinterpret_cast<DWORD_PTR>(entryPoint);
+	memcpy(&trampoline[6], &initializeAddress, sizeof(initializeAddress));
+	memcpy(&trampoline[22], &entryPointAddress, sizeof(entryPointAddress));
+	memcpy(&trampoline[32], originalEntryPoint, 8);
+	memcpy(&trampoline[45], originalEntryPoint + 8, 8);
+	memcpy(&trampoline[59], originalEntryPoint + 16, 4);
+
+	LPVOID remoteTrampoline = VirtualAllocEx(pi.hProcess, nullptr, 0x1000,
+		MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+	if (remoteTrampoline == nullptr)
+	{
+		wprintf(L"Failed to allocate entry-point initializer! (Error 5 - 0x%X)\n",
+			GetLastError());
+		return 0;
+	}
+
+	SIZE_T written = 0;
+	if (!WriteProcessMemory(pi.hProcess, remoteTrampoline, trampoline,
+		sizeof(trampoline), &written) || written != sizeof(trampoline))
+	{
+		wprintf(L"Failed to write entry-point initializer! (Error 6 - 0x%X)\n",
+			GetLastError());
+		return 0;
+	}
+
+	BYTE entryJump[] = {
+		0x48, 0xB8, 0, 0, 0, 0, 0, 0, 0, 0,           // mov rax, trampoline
+		0xFF, 0xE0                                      // jmp rax
+	};
+	DWORD_PTR trampolineAddress = reinterpret_cast<DWORD_PTR>(remoteTrampoline);
+	memcpy(&entryJump[2], &trampolineAddress, sizeof(trampolineAddress));
+	written = 0;
+	if (!WriteProcessMemory(pi.hProcess, entryPoint, entryJump,
+		sizeof(entryJump), &written) || written != sizeof(entryJump))
+	{
+		wprintf(L"Failed to install entry-point initializer! (Error 7 - 0x%X)\n",
+			GetLastError());
+		return 0;
+	}
+
+	FlushInstructionCache(pi.hProcess, remoteTrampoline, sizeof(trampoline));
+	FlushInstructionCache(pi.hProcess, entryPoint, sizeof(entryJump));
+	wprintf(L"Primary-thread OpenParrot initializer installed at %p.\n",
+		remoteTrampoline);
+	return 1;
+#elif defined(_M_IX86)
+	FARPROC remoteInitialize = ResolveRemoteDllExport(
+		dllLocation, "InitializeASI");
+	if (remoteInitialize == nullptr)
+		return 0;
+
+	DWORD oldProtect = 0;
+	if (!VirtualProtectEx(pi.hProcess, entryPoint, 20,
+		PAGE_EXECUTE_READWRITE, &oldProtect))
+	{
+		wprintf(L"Failed to make parked entry point writable! (Error 4 - 0x%X)\n",
+			GetLastError());
+		return 0;
+	}
+
+	// Preserve the complete x86 entry register state while InitializeASI runs,
+	// restore the original 20 bytes, then jump back to the real entry point.
+	// This gives Wine/Box86 time to publish kernel32 without allowing the game
+	// to execute before OpenParrot has installed its hooks.
+	BYTE trampoline[] = {
+		0x9C,                                           // pushfd
+		0x60,                                           // pushad
+		0xB8, 0, 0, 0, 0,                               // mov eax, InitializeASI
+		0xFF, 0xD0,                                     // call eax
+		0xB8, 0, 0, 0, 0,                               // mov eax, entry point
+		0xBA, 0, 0, 0, 0,                               // mov edx, original[0..3]
+		0x89, 0x10,                                     // mov [eax], edx
+		0xBA, 0, 0, 0, 0,                               // mov edx, original[4..7]
+		0x89, 0x50, 0x04,                               // mov [eax+4], edx
+		0xBA, 0, 0, 0, 0,                               // mov edx, original[8..11]
+		0x89, 0x50, 0x08,                               // mov [eax+8], edx
+		0xBA, 0, 0, 0, 0,                               // mov edx, original[12..15]
+		0x89, 0x50, 0x0C,                               // mov [eax+12], edx
+		0xBA, 0, 0, 0, 0,                               // mov edx, original[16..19]
+		0x89, 0x50, 0x10,                               // mov [eax+16], edx
+		0x61,                                           // popad
+		0x9D,                                           // popfd
+		0xE9, 0, 0, 0, 0                                // jmp entry point
+	};
+	static_assert(sizeof(trampoline) == 60, "Unexpected x86 entry trampoline size");
+
+	DWORD initializeAddress = reinterpret_cast<DWORD>(remoteInitialize);
+	DWORD entryPointAddress = reinterpret_cast<DWORD>(entryPoint);
+	memcpy(&trampoline[3], &initializeAddress, sizeof(initializeAddress));
+	memcpy(&trampoline[10], &entryPointAddress, sizeof(entryPointAddress));
+	memcpy(&trampoline[15], originalEntryPoint, 4);
+	memcpy(&trampoline[22], originalEntryPoint + 4, 4);
+	memcpy(&trampoline[30], originalEntryPoint + 8, 4);
+	memcpy(&trampoline[38], originalEntryPoint + 12, 4);
+	memcpy(&trampoline[46], originalEntryPoint + 16, 4);
+
+	LPVOID remoteTrampoline = VirtualAllocEx(pi.hProcess, nullptr, 0x1000,
+		MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+	if (remoteTrampoline == nullptr)
+	{
+		wprintf(L"Failed to allocate entry-point initializer! (Error 5 - 0x%X)\n",
+			GetLastError());
+		return 0;
+	}
+
+	DWORD trampolineAddress = reinterpret_cast<DWORD>(remoteTrampoline);
+	DWORD returnDisplacement = entryPointAddress -
+		(trampolineAddress + static_cast<DWORD>(sizeof(trampoline)));
+	memcpy(&trampoline[56], &returnDisplacement, sizeof(returnDisplacement));
+
+	SIZE_T written = 0;
+	if (!WriteProcessMemory(pi.hProcess, remoteTrampoline, trampoline,
+		sizeof(trampoline), &written) || written != sizeof(trampoline))
+	{
+		wprintf(L"Failed to write entry-point initializer! (Error 6 - 0x%X)\n",
+			GetLastError());
+		return 0;
+	}
+
+	BYTE entryJump[] = { 0xE9, 0, 0, 0, 0 };
+	DWORD entryDisplacement = trampolineAddress - (entryPointAddress + 5);
+	memcpy(&entryJump[1], &entryDisplacement, sizeof(entryDisplacement));
+	written = 0;
+	if (!WriteProcessMemory(pi.hProcess, entryPoint, entryJump,
+		sizeof(entryJump), &written) || written != sizeof(entryJump))
+	{
+		wprintf(L"Failed to install entry-point initializer! (Error 7 - 0x%X)\n",
+			GetLastError());
+		return 0;
+	}
+
+	FlushInstructionCache(pi.hProcess, remoteTrampoline, sizeof(trampoline));
+	FlushInstructionCache(pi.hProcess, entryPoint, sizeof(entryJump));
+	wprintf(L"Primary-thread x86 OpenParrot initializer installed at %p.\n",
+		remoteTrampoline);
+	return 1;
+#else
+	(void)dllLocation;
+	(void)entryPoint;
+	(void)originalEntryPoint;
+	wprintf(L"Loader-managed entry-point initialization is unsupported.\n");
+	return 0;
+#endif
 }
 
 int RunTo(DWORD_PTR Address, DWORD Mode, DWORD_PTR Eip)
@@ -252,13 +641,29 @@ int wmain(int argc, wchar_t* argv[])
 	wchar_t* gamePathW = new wchar_t[wcslen(gamePath.wstring().c_str()) + 1] { 0 };
 	wcscpy(gamePathW, gamePath.wstring().c_str());
 
-	wchar_t* gameFolderW = new wchar_t[wcslen(gamePath.parent_path().wstring().c_str()) + 1] { 0 };
-	wcscpy(gameFolderW, gamePath.parent_path().wstring().c_str());
+	std::wstring gameFolder = gamePath.parent_path().wstring();
+	wchar_t requestedGameFolder[32768] = {};
+	DWORD requestedGameFolderLength = GetEnvironmentVariableW(
+		L"TP_GAME_WORKING_DIRECTORY", requestedGameFolder,
+		static_cast<DWORD>(std::size(requestedGameFolder)));
+	if (requestedGameFolderLength > 0 &&
+		requestedGameFolderLength < std::size(requestedGameFolder))
+	{
+		DWORD requestedGameFolderAttributes = GetFileAttributesW(requestedGameFolder);
+		if (requestedGameFolderAttributes != INVALID_FILE_ATTRIBUTES &&
+			(requestedGameFolderAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+		{
+			gameFolder = requestedGameFolder;
+		}
+	}
+	wchar_t* gameFolderW = new wchar_t[gameFolder.length() + 1] { 0 };
+	wcscpy(gameFolderW, gameFolder.c_str());
 
 	// Print paths
 	wprintf(L"Loader: %ls (%ls)\n", loaderPathW, GetFileVersion(loaderPathW));
 	wprintf(L"Core:   %ls (%ls)\n", corePathW, GetFileVersion(corePathW));
 	wprintf(L"Game:   %ls (%ls)\n", gamePathW, GetFileVersion(gamePathW));
+	wprintf(L"Working directory: %ls\n", gameFolderW);
 
 	if (argc == 4)
 		wprintf(L"Arguments: %ls\n", argv[3]);
@@ -280,12 +685,23 @@ int wmain(int argc, wchar_t* argv[])
 
 	wprintf(L"\nLoading game...\n");
 
-	bool useRemoteThread = ShouldUseRemoteThread();
+	DWORD postStartRemoteThreadDelay = PostStartRemoteThreadDelay();
+	DWORD entryPointRemoteThreadDelay = EntryPointRemoteThreadDelay();
+	bool loaderManagedInit = ShouldUseLoaderManagedInit();
+	bool useRemoteThread = ShouldUseRemoteThread() ||
+		postStartRemoteThreadDelay != 0 || entryPointRemoteThreadDelay != 0;
 	if (useRemoteThread)
 	{
-		wprintf(L"Using RemoteThread injection method...\n");
+		if (entryPointRemoteThreadDelay != 0)
+			wprintf(L"Using parked-entry-point RemoteThread injection method (%lu ms)...\n",
+				entryPointRemoteThreadDelay);
+		else if (postStartRemoteThreadDelay != 0)
+			wprintf(L"Using post-start RemoteThread injection method (%lu ms)...\n",
+				postStartRemoteThreadDelay);
+		else
+			wprintf(L"Using RemoteThread injection method...\n");
 	}
-	else {
+	if (!useRemoteThread || entryPointRemoteThreadDelay != 0) {
 		FilePEFile = getPEFileInformation(gamePathW);
 	}
 
@@ -337,11 +753,93 @@ int wmain(int argc, wchar_t* argv[])
 	}
 
 	DWORD_PTR baseAddress = 0;
+	LPVOID parkedEntryPoint = nullptr;
+	BYTE parkedOriginalEntryPoint[20] = {};
+	bool entryPointParked = false;
 
 	if (useRemoteThread)
 	{
-		// For RemoteThread method, process is created suspended, just wait briefly
-		Sleep(1000);
+		if (entryPointRemoteThreadDelay != 0)
+		{
+			PROCESS_BASIC_INFORMATION pbi = { 0 };
+			DWORD pbiSize = sizeof(pbi);
+			if (!NT_SUCCESS(NtQueryInformationProcess(pi.hProcess,
+				ProcessBasicInformation, &pbi, pbiSize, &pbiSize)))
+			{
+				wprintf(L"Failed to get process information for entry-point parking!\n");
+				TerminateProcess(pi.hProcess, 0);
+				return 1;
+			}
+
+			SIZE_T read = 0;
+			ReadProcessMemory(pi.hProcess,
+				reinterpret_cast<void*>(reinterpret_cast<DWORD_PTR>(pbi.PebBaseAddress) +
+					(sizeof(DWORD_PTR) * 2)),
+				&baseAddress, sizeof(baseAddress), &read);
+			if (read != sizeof(baseAddress) || baseAddress == 0)
+			{
+				wprintf(L"Failed to get process image base for entry-point parking!\n");
+				TerminateProcess(pi.hProcess, 0);
+				return 1;
+			}
+
+			parkedEntryPoint = reinterpret_cast<LPVOID>(baseAddress +
+				FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint);
+			read = 0;
+			if (!ReadProcessMemory(pi.hProcess, parkedEntryPoint,
+				parkedOriginalEntryPoint, sizeof(parkedOriginalEntryPoint), &read) ||
+				read != sizeof(parkedOriginalEntryPoint))
+			{
+				wprintf(L"Failed to read game entry point for parking! (0x%X)\n",
+					GetLastError());
+				TerminateProcess(pi.hProcess, 0);
+				return 1;
+			}
+
+			const BYTE spinLoop[2] = { 0xEB, 0xFE };
+			SIZE_T written = 0;
+			if (!WriteProcessMemory(pi.hProcess, parkedEntryPoint, spinLoop,
+				sizeof(spinLoop), &written) || written != sizeof(spinLoop))
+			{
+				wprintf(L"Failed to park game entry point! (0x%X)\n", GetLastError());
+				TerminateProcess(pi.hProcess, 0);
+				return 1;
+			}
+			FlushInstructionCache(pi.hProcess, parkedEntryPoint, sizeof(spinLoop));
+			entryPointParked = true;
+
+			if (ResumeThread(pi.hThread) == static_cast<DWORD>(-1))
+			{
+				wprintf(L"Failed to start process for entry-point parking! (0x%X)\n",
+					GetLastError());
+				TerminateProcess(pi.hProcess, 0);
+				return 1;
+			}
+			Sleep(entryPointRemoteThreadDelay);
+			wprintf(L"Game entry point is parked; target modules are ready.\n");
+		}
+		else if (postStartRemoteThreadDelay != 0)
+		{
+			// Wine/Box64 must begin mapping and relocating large PE images before
+			// LoadLibrary runs in a remote thread.  Do not suspend the primary thread
+			// again: it may still own ntdll's loader lock.  CreateRemoteThread will
+			// naturally wait behind that lock and load OpenParrot once relocation is
+			// complete.
+			if (ResumeThread(pi.hThread) == static_cast<DWORD>(-1))
+			{
+				wprintf(L"Failed to start process before RemoteThread injection! (0x%X)\n",
+					GetLastError());
+				TerminateProcess(pi.hProcess, 0);
+				return 1;
+			}
+			Sleep(postStartRemoteThreadDelay);
+		}
+		else
+		{
+			// Standard RemoteThread mode injects while the primary thread remains
+			// suspended, preserving the long-standing Windows/Linux behaviour.
+			Sleep(1000);
+		}
 		wprintf(L"Success!\n");
 	}
 	else
@@ -453,6 +951,67 @@ int wmain(int argc, wchar_t* argv[])
 		return 0;
 	}
 
+	// Load optional title-scoped compatibility code only after the core has
+	// completed its normal LoadLibrary initialization. The target's primary
+	// thread is still suspended (or parked) here, so the helper is active before
+	// game code resumes without perturbing OpenParrot's startup ordering.
+	wchar_t preloadValue[32768] = {};
+	const DWORD preloadValueLength = GetEnvironmentVariableW(
+		L"TP_PRELOAD_DLL", preloadValue,
+		static_cast<DWORD>(std::size(preloadValue)));
+	if (preloadValueLength > 0 &&
+		preloadValueLength < std::size(preloadValue))
+	{
+		std::filesystem::path preloadPath = preloadValue;
+		if (preloadPath.is_relative())
+			preloadPath = std::filesystem::absolute(preloadPath);
+
+		wprintf(L"Loading requested compatibility DLL: %ls\n",
+			preloadPath.wstring().c_str());
+		if (!std::filesystem::is_regular_file(preloadPath))
+		{
+			wprintf(L"Requested compatibility DLL does not exist.\n");
+			TerminateProcess(pi.hProcess, 0);
+			return 0;
+		}
+
+		const bool preloadSuccess = useRemoteThread
+			? LoadHookDLLRemoteThread(preloadPath.wstring().c_str())
+			: LoadHookDLL(
+				preloadPath.wstring().c_str(),
+				baseAddress +
+					FilePEFile.image_nt_headers.OptionalHeader.AddressOfEntryPoint);
+		if (!preloadSuccess)
+		{
+			wprintf(L"Failed to load requested compatibility DLL.\n");
+			TerminateProcess(pi.hProcess, 0);
+			return 0;
+		}
+		wprintf(L"Requested compatibility DLL loaded successfully.\n");
+	}
+
+	if (entryPointParked && loaderManagedInit)
+	{
+		// LoadLibrary has now returned, so Wine's target loader lock is free and
+		// the primary thread is spinning at the real game entry point. Install a
+		// primary-thread trampoline instead of starting another remote thread.
+		if (SuspendThread(pi.hThread) == static_cast<DWORD>(-1))
+		{
+			wprintf(L"Failed to suspend parked game entry point! (0x%X)\n",
+				GetLastError());
+			TerminateProcess(pi.hProcess, 0);
+			return 0;
+		}
+
+		if (!InstallEntryPointInitializer(corePathW, parkedEntryPoint,
+			parkedOriginalEntryPoint))
+		{
+			TerminateProcess(pi.hProcess, 0);
+			return 0;
+		}
+		entryPointParked = false;
+	}
+
 	wprintf(L"Success!\n");
 
 	wprintf(L"\nHave fun :)\n");
@@ -461,7 +1020,8 @@ int wmain(int argc, wchar_t* argv[])
 	
 	if (useRemoteThread)
 	{
-		ResumeThread(pi.hThread);
+		if (postStartRemoteThreadDelay == 0)
+			ResumeThread(pi.hThread);
 		WaitForSingleObject(pi.hProcess, INFINITE);
 	}
 	else

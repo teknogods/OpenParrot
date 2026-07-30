@@ -6,6 +6,7 @@
 #include <fstream>
 #include <queue>
 #include <intrin.h>
+#include <float.h>
 #include <winscard.h>
 #include "CrazySpeed.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -16,6 +17,81 @@ static std::queue<BYTE> ioBuffer;
 static SCARDHANDLE g_fakeCardHandle = 0x1337;
 static DWORD customResWidth = 1360;
 static DWORD customResHeight = 768;
+static PVOID crazySpeedFpuExceptionHandler = nullptr;
+static constexpr DWORD crazySpeedFloatMultipleTraps = 0xC00002B5;
+
+static LONG CALLBACK CrazySpeedFpuExceptionRecovery(
+	PEXCEPTION_POINTERS exceptionPointers)
+{
+	if (!exceptionPointers ||
+		!exceptionPointers->ExceptionRecord ||
+		!exceptionPointers->ContextRecord ||
+		exceptionPointers->ExceptionRecord->ExceptionCode !=
+			crazySpeedFloatMultipleTraps)
+		return EXCEPTION_CONTINUE_SEARCH;
+
+	HMODULE renderSystem = GetModuleHandleA("RenderSystem_Direct3D9.dll");
+	if (!renderSystem)
+		return EXCEPTION_CONTINUE_SEARCH;
+
+	const uintptr_t moduleBase = reinterpret_cast<uintptr_t>(renderSystem);
+	const uintptr_t exceptionIp =
+		static_cast<uintptr_t>(exceptionPointers->ContextRecord->Eip);
+	const uintptr_t relativeIp = exceptionIp - moduleBase;
+	if (exceptionIp < moduleBase ||
+		relativeIp < 0x10000 ||
+		relativeIp >= 0x13000)
+		return EXCEPTION_CONTINUE_SEARCH;
+
+	// Ogre's legacy colour packing paths use x87 FISTP. Box64 can preserve
+	// pending x87 status flags while the game temporarily changes its control
+	// word, raising STATUS_FLOAT_MULTIPLE_TRAPS at the conversion. Restrict
+	// recovery to the exact four-byte FISTP instruction used by these paths.
+	const BYTE expectedInstruction[] = { 0xDF, 0x7C, 0x24, 0x10 };
+	if (memcmp(reinterpret_cast<const void*>(exceptionIp),
+		expectedInstruction, sizeof(expectedInstruction)) != 0)
+		return EXCEPTION_CONTINUE_SEARCH;
+
+	_clearfp();
+	unsigned int controlWord = 0;
+	_controlfp_s(&controlWord, _MCW_EM, _MCW_EM);
+
+	// Re-running the faulting FISTP is not safe when the source value itself
+	// cannot be converted: it immediately raises the same exception again.
+	// Emulate the result produced by a masked invalid conversion, pop ST(0),
+	// and resume after the instruction.
+	CONTEXT* context = exceptionPointers->ContextRecord;
+	const ULONGLONG integerIndefinite = 0x8000000000000000ULL;
+	memcpy(reinterpret_cast<void*>(context->Esp + 0x10),
+		&integerIndefinite, sizeof(integerIndefinite));
+
+	const DWORD oldTop = (context->FloatSave.StatusWord >> 11) & 7;
+	const DWORD newTop = (oldTop + 1) & 7;
+	context->FloatSave.ControlWord |= 0x3F;
+	context->FloatSave.StatusWord =
+		(context->FloatSave.StatusWord & ~(0xFF | (7 << 11))) |
+		(newTop << 11);
+	context->FloatSave.TagWord |= 3 << (oldTop * 2);
+
+	// Wine restores the exception's saved CONTEXT on continuation, so update
+	// the FXSAVE copy as well as the legacy FLOATING_SAVE_AREA.
+	BYTE* extendedRegisters =
+		context->ExtendedRegisters;
+	*reinterpret_cast<WORD*>(extendedRegisters) |= 0x3F;
+	WORD* savedStatus = reinterpret_cast<WORD*>(extendedRegisters + 2);
+	*savedStatus = static_cast<WORD>(
+		(*savedStatus & ~(0xFF | (7 << 11))) | (newTop << 11));
+	extendedRegisters[4] &= ~(1 << oldTop);
+	DWORD* savedMxCsr =
+		reinterpret_cast<DWORD*>(extendedRegisters + 24);
+	*savedMxCsr = (*savedMxCsr | 0x1F80) & ~0x3F;
+	context->Eip += sizeof(expectedInstruction);
+
+	TpInfo(
+		"Crazy Speed Android: recovered x87 conversion at RenderSystem_Direct3D9+%08x",
+		static_cast<unsigned int>(relativeIp));
+	return EXCEPTION_CONTINUE_EXECUTION;
+}
 
 extern int* ffbOffset;
 extern int* ffbOffset2;
@@ -725,11 +801,26 @@ static LONG WINAPI SCardListReaders_hook(
 	LPDWORD pcchReaders
 ) {
 	TpInfo("[Crazy Speed SCARD] SCardListReaders");
-	if (mszReaders)
+	if (!pcchReaders)
+		return SCARD_E_INVALID_PARAMETER;
+
+	static constexpr char readerName[] = "CrazySpeedCardReaderForTp";
+	static constexpr DWORD readerListSize = sizeof(readerName) + 1;
+	if (!mszReaders)
 	{
-		strcpy(mszReaders, "CrazySpeedCardReaderForTp");
-		*pcchReaders = 25;
+		*pcchReaders = readerListSize;
+		return SCARD_S_SUCCESS;
 	}
+
+	if (*pcchReaders < readerListSize)
+	{
+		*pcchReaders = readerListSize;
+		return SCARD_E_INSUFFICIENT_BUFFER;
+	}
+
+	memcpy(mszReaders, readerName, sizeof(readerName));
+	mszReaders[sizeof(readerName)] = '\0';
+	*pcchReaders = readerListSize;
 	return SCARD_S_SUCCESS;
 }
 
@@ -1092,6 +1183,16 @@ static InitFunction CrazySpeedFunc([]()
 		HMODULE dongleDll = LoadLibraryA("dic32u.dll");
 		//HMODULE cgDll = LoadLibraryA("cg.dll");
 		bool useCustomRes = ToBool(config["Graphics"]["Use Custom Resolution"]);
+		const bool useAndroidCompatibility =
+			GetEnvironmentVariableA("TP_CRAZY_SPEED_FAKE_MEMORY_WMI", nullptr, 0) != 0;
+
+		if (useAndroidCompatibility && !crazySpeedFpuExceptionHandler)
+		{
+			crazySpeedFpuExceptionHandler =
+				AddVectoredExceptionHandler(1, CrazySpeedFpuExceptionRecovery);
+			if (!crazySpeedFpuExceptionHandler)
+				TpInfo("Crazy Speed Android: x87 exception recovery registration failed");
+		}
 
 		CardDataManager::LoadCardFromFile();
 		if (!CardDataManager::IsCardPresent()) {
@@ -1157,6 +1258,20 @@ static InitFunction CrazySpeedFunc([]()
 		iatHook("kernel32.dll", GetCommModemStatusWrap, "GetCommModemStatus");
 		iatHook("kernel32.dll", CloseHandleWrap, "CloseHandle");
 
+		if (useAndroidCompatibility)
+		{
+			// Wine's WinSCard stubs do not implement the full API and can return
+			// success without a valid MULTI_SZ reader list. MinHook's API hooks
+			// are not sufficient for every WOW64 import stub, so bind the game's
+			// imports directly to the existing card emulator as well.
+			iatHook("WinSCard.dll", SCardEstablishContext_hook, "SCardEstablishContext");
+			iatHook("WinSCard.dll", SCardListReaders_hook, "SCardListReadersA");
+			iatHook("WinSCard.dll", SCardReleaseContext_hook, "SCardReleaseContext");
+			iatHook("WinSCard.dll", SCardConnectA_hook, "SCardConnectA");
+			iatHook("WinSCard.dll", SCardTransmit_hook, "SCardTransmit");
+			iatHook("WinSCard.dll", SCardGetAttrib_hook, "SCardGetAttrib");
+		}
+
 		injector::WriteMemory<BYTE>(0x47f356, 0, true); // this and the one below are for having the dongle decrypt the data
 		injector::MakeNOP(0x47f49f, 2, true); // but we don't need it, as we stop the game from encrypting it in the first place
 		injector::MakeRET(0x47f1d0); // RSA encryption for the data it sends to the dongle
@@ -1169,6 +1284,25 @@ static InitFunction CrazySpeedFunc([]()
 		// skip overlapped check for io board or else it resets our numberOfReadBytes 
 		injector::MakeNOP(0x53d665, 0x17, true);
 		injector::WriteMemory<BYTE>(0x53d67c, 0xEB, true);
+
+		if (useAndroidCompatibility)
+		{
+			// Wine's wbemprox returns an empty enumeration for the obsolete
+			// Win32_LogicalMemoryConfiguration class. The original game assumes
+			// Next() returned an object and dereferences null at 0x502C18.
+			// Replace only that legacy inventory routine with a deterministic
+			// 8 GiB result for Android; native Windows/Linux launches retain the
+			// original WMI path unless the compatibility flag is explicitly set.
+			BYTE fakeMemoryWmi[] = {
+				0xC7, 0x47, 0x68, 0x00, 0x20, 0x00, 0x00, // mov [edi+68h], 8192
+				0xC3                                      // ret
+			};
+			injector::WriteMemoryRaw(
+				0x502BB0,
+				fakeMemoryWmi,
+				sizeof(fakeMemoryWmi),
+				true);
+		}
 
 		// server tests
 		//injector::WriteMemory<BYTE>(0x8ab79b, 0x00); // don't send execproc request

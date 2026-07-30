@@ -299,6 +299,33 @@ static InitFunction StarWarsEs3XLauncherFunc([]()
 {
 	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
 
+	// RSLauncher owns the JVS relay for the child game and must remain alive.
+	// Its receive loop waits for four stable COMSTAT samples but polls each one
+	// every 2 ms. That loop consumes roughly half a CPU core under Box64. Android
+	// can request a 4 ms poll here, which keeps the relay aligned with a 60 Hz
+	// game while leaving native Windows and Linux/Wine launches unchanged.
+	char jvsPollIntervalValue[8] = {};
+	const DWORD jvsPollIntervalLength = GetEnvironmentVariableA(
+		"TP_STARWARS_JVS_POLL_MS",
+		jvsPollIntervalValue,
+		sizeof(jvsPollIntervalValue));
+	if (jvsPollIntervalLength > 0 &&
+		jvsPollIntervalLength < sizeof(jvsPollIntervalValue))
+	{
+		const unsigned long jvsPollInterval = strtoul(
+			jvsPollIntervalValue, nullptr, 10);
+		const uintptr_t jvsPollInstruction = imageBase + 0x348C1;
+		if (jvsPollInterval >= 2 && jvsPollInterval <= 8 &&
+			*reinterpret_cast<BYTE*>(jvsPollInstruction) == 0xB9 &&
+			*reinterpret_cast<DWORD*>(jvsPollInstruction + 1) == 2)
+		{
+			injector::WriteMemory<DWORD>(
+				jvsPollInstruction + 1,
+				static_cast<DWORD>(jvsPollInterval),
+				true);
+		}
+	}
+
 	GenerateDongleData();
 
 	MH_Initialize();

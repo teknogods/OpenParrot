@@ -9,6 +9,46 @@
 #include "Utility/Hooking.Patterns.h"
 #include <Functions/Global.h>
 
+namespace
+{
+	BOOL CALLBACK FindCurrentProcessWindow(HWND window, LPARAM parameter)
+	{
+		DWORD processId = 0;
+		GetWindowThreadProcessId(window, &processId);
+		if (processId != GetCurrentProcessId() ||
+			GetWindow(window, GW_OWNER) != nullptr)
+			return TRUE;
+
+		*reinterpret_cast<HWND*>(parameter) = window;
+		return FALSE;
+	}
+
+	DWORD WINAPI WakeAkaiKatanaWindow(LPVOID)
+	{
+		HWND gameWindow = nullptr;
+		for (int attempt = 0; attempt < 200 && gameWindow == nullptr; ++attempt)
+		{
+			EnumWindows(FindCurrentProcessWindow,
+				reinterpret_cast<LPARAM>(&gameWindow));
+			if (gameWindow == nullptr)
+				Sleep(25);
+		}
+
+		if (gameWindow != nullptr)
+		{
+			// Wine's Android X11 path can create Akai Katana's window without
+			// queuing the initial paint that its blocking GetMessage loop
+			// expects. Wait until D3D9 has finished creating the device, then
+			// wake that loop exactly once. Repeated paints are unnecessary and
+			// can drive the game's NESYS polling path continuously.
+			Sleep(750);
+			PostMessageA(gameWindow, WM_PAINT, 0, 0);
+		}
+		return 0;
+	}
+
+}
+
 static InitFunction initFunction([]()
 {
 	init_FastIoEmu();
@@ -19,6 +59,14 @@ static InitFunction initFunction([]()
 #if _M_IX86
 	init_CryptoPipe(GameDetect::NesicaKey);
 #endif
+	if (GameDetect::IsAkaiKatana() &&
+		getenv("ANDROID_ALSA_SERVER") != nullptr)
+	{
+		HANDLE wakeThread = CreateThread(
+			nullptr, 0, WakeAkaiKatanaWindow, nullptr, 0, nullptr);
+		if (wakeThread != nullptr)
+			CloseHandle(wakeThread);
+	}
 }, GameID::Nesica);
 
 static int ReturnTrue()

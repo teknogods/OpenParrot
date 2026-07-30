@@ -11,6 +11,8 @@ public:
 	static X2Type X2Type;
 	static bool IsTypeX();
 	static bool IsNesicaGame();
+	static bool IsCosplayMahjong();
+	static bool IsAkaiKatana();
 	static void SetGameId(GameID gameId, char* name);
 	static NesicaKey NesicaKey;
 	static std::string GetGameName();
@@ -19,4 +21,6 @@ public:
 
 private:
 	static bool isNesica;
+	static bool isCosplayMahjong;
+	static bool isAkaiKatana;
 };

@@ -22,18 +22,17 @@ static bool VolDown;
 static bool Start;
 static bool Coin;
 
-static void ReturnKey()
+static void ConfirmSetupDialog(HWND dialog)
 {
-	INPUT ip;
+	HWND startButton = FindWindowExA(dialog, NULL, "Button", "Start");
+	if (startButton != NULL)
+	{
+		SendMessageA(startButton, BM_CLICK, 0, 0);
+		return;
+	}
 
-	ip.type = INPUT_KEYBOARD;
-	ip.ki.wScan = 0;
-	ip.ki.time = 0;
-	ip.ki.dwExtraInfo = 0;
-
-	ip.ki.wVk = 0x0D;
-	ip.ki.dwFlags = 0;
-	SendInput(1, &ip, sizeof(INPUT));
+	PostMessageA(dialog, WM_KEYDOWN, VK_RETURN, 0);
+	PostMessageA(dialog, WM_KEYUP, VK_RETURN, 0);
 }
 
 static int ThreadLoop()
@@ -44,7 +43,7 @@ static int ThreadLoop()
 		if (hWnd > NULL)
 		{
 			SetForegroundWindow(hWnd);
-			ReturnKey();
+			ConfirmSetupDialog(hWnd);
 		}
 	}
 

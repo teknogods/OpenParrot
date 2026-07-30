@@ -43,6 +43,27 @@ BOOL(__stdcall* original_CreateWindowExA4)(DWORD dwExStyle, LPCSTR lpClassName, 
 BOOL(__stdcall* original_DefWindowProcA4)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 BOOL(__stdcall* original_SetCursorPosRT4)(int X, int Y);
 
+using FontLoadRT4 = int(__cdecl*)(int image, char* fileName);
+static FontLoadRT4 original_FontLoadRT4 = nullptr;
+
+static int __cdecl FontLoadRT4AndroidFallback(int image, char* fileName)
+{
+	int font = original_FontLoadRT4(image, fileName);
+	if (font != 0 || fileName == nullptr ||
+		_stricmp(fileName, "system\\fonts\\font_dmark.tga") != 0)
+	{
+		return font;
+	}
+
+	// Wine's D3D8 paths on the S26 fail the title's only 1024x512 font
+	// texture and the game immediately dereferences the null Font_Load result.
+	// Retry with a smaller shipped font so initialization can continue. The
+	// hook is installed only for Android below; Windows and Linux are unchanged.
+	TpInfo("FNFSB: font_dmark failed; retrying with russ512 Android fallback");
+	char fallback[] = "system\\fonts\\russ512.tga";
+	return original_FontLoadRT4(image, fallback);
+}
+
 DWORD WINAPI DefWindowProcART4(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static int xClick;
@@ -411,6 +432,11 @@ static InitFunction FNFSBFunc([]()
 		MH_CreateHookApi(L"user32.dll", "SetCursorPos", &SetCursorPosRT4, (void**)&original_SetCursorPosRT4);
 		MH_CreateHookApi(L"user32.dll", "DefWindowProcA", &DefWindowProcART4, (void**)&original_DefWindowProcA4);
 		MH_CreateHookApi(L"user32.dll", "SetWindowPos", &SetWindowPosRT4, (void**)&original_SetWindowPos4);
+		if (getenv("ANDROID_ALSA_SERVER") != nullptr)
+		{
+			MH_CreateHook((LPVOID)(mainModuleBase + 0xE6C20),
+				&FontLoadRT4AndroidFallback, (void**)&original_FontLoadRT4);
+		}
 		MH_EnableHook(MH_ALL_HOOKS);
 
 		CreateThread(NULL, 0, InputRT4, NULL, 0, NULL);

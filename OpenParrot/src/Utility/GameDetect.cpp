@@ -3,6 +3,8 @@
 #include <filesystem>
 #pragma optimize("", off)
 bool GameDetect::isNesica = false;
+bool GameDetect::isCosplayMahjong = false;
+bool GameDetect::isAkaiKatana = false;
 bool GameDetect::enableNesysEmu = true;
 NesicaKey GameDetect::NesicaKey;
 X2Type GameDetect::X2Type = X2Type::None;
@@ -17,8 +19,34 @@ void GameDetect::DetectCurrentLinuxGame()
 
 void GameDetect::DetectCurrentGame()
 {
+	isNesica = false;
+	isCosplayMahjong = false;
+	isAkaiKatana = false;
 	// TODO: move all game detection bound to crcResult immediately below to use the newCrcResult switch at end with its new CRC instead.
-	uint32_t crcResult = GetCRC32(GetModuleHandle(nullptr), 0x400);
+	auto moduleBase = reinterpret_cast<const char*>(GetModuleHandle(nullptr));
+	uint32_t crcResult{};
+	if (GetEnvironmentVariableA("TP_CRC_NORMALIZE_LAA", nullptr, 0) != 0)
+	{
+		// Android may launch a private Large Address Aware copy of an x86
+		// executable so Wine can satisfy the cabinet's large early allocation.
+		// The flag lives inside the first 0x400 bytes used for game detection;
+		// normalize only that bit so the copy keeps the original profile CRC.
+		memcpy(newCrc, moduleBase, sizeof(newCrc));
+		auto dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(newCrc);
+		if (dosHeader->e_magic == IMAGE_DOS_SIGNATURE &&
+			dosHeader->e_lfanew > 0 &&
+			static_cast<size_t>(dosHeader->e_lfanew) + sizeof(IMAGE_NT_HEADERS) <= sizeof(newCrc))
+		{
+			auto ntHeader = reinterpret_cast<PIMAGE_NT_HEADERS>(newCrc + dosHeader->e_lfanew);
+			if (ntHeader->Signature == IMAGE_NT_SIGNATURE)
+				ntHeader->FileHeader.Characteristics &= ~IMAGE_FILE_LARGE_ADDRESS_AWARE;
+		}
+		crcResult = GetCRC32(newCrc, sizeof(newCrc));
+	}
+	else
+	{
+		crcResult = GetCRC32(moduleBase, sizeof(newCrc));
+	}
 	NesicaKey = NesicaKey::None;
 	switch (crcResult)
 	{
@@ -98,6 +126,7 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::Nesica;
 		NesicaKey = NesicaKey::None;
 		isNesica = true;
+		isAkaiKatana = true;
 		break;
 	case 0x9369715e: // SF 3rd Strike
 	case 0xd3f62267: // test.exe
@@ -310,6 +339,7 @@ void GameDetect::DetectCurrentGame()
 		currentGame = GameID::TroubleWitches;
 		X2Type = X2Type::Generic;
 		break;
+	case 0xe490fd38: // Tetris The Grand Master 3 Terror Instinct (alternate dump)
 	case 0xf795d548: // Tetris The Grand Master 3 Terror Instinct
 		currentGame = GameID::TetrisGM3;
 		X2Type = X2Type::Generic;
@@ -355,6 +385,9 @@ void GameDetect::DetectCurrentGame()
 		X2Type = X2Type::BattleFantasia;
 		break;
 	case 0x521d6765: // Arcana Heart 3
+		currentGame = GameID::ExBoardGeneric;
+		break;
+	case 0xf49620a8: // Arcana Heart 2 (eX-Board, AH2.exe)
 		currentGame = GameID::ExBoardGeneric;
 		break;
 	case 0x581aa812: // Daemon Bride
@@ -476,6 +509,9 @@ void GameDetect::DetectCurrentGame()
 #endif
 		switch (newCrcResult)
 		{
+		case 0x802f621b: // Arcana Heart 2 (eX-Board, AH2.exe), relocation-safe CRC
+			currentGame = GameID::ExBoardGeneric;
+			break;
 #ifndef _AMD64_
 		case 0xfe7afff4:
 			currentGame = GameID::FNFSB2;
@@ -487,11 +523,13 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::Nesica;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
+			isCosplayMahjong = true;
 			break;
 		case 0x04ce5f18: // Akai Katana Shin for NESiCAxLive
 			currentGame = GameID::Nesica;
 			NesicaKey = NesicaKey::None;
 			isNesica = true;
+			isAkaiKatana = true;
 			break;
 		case 0xaf3d84cc: //Battle Fantasia Network Edition for NESiCAxLive (I/O not working)
 			currentGame = GameID::Nesica;
@@ -560,6 +598,9 @@ void GameDetect::DetectCurrentGame()
 			currentGame = GameID::H2Overdrive;
 			break;
 		case 0x8456EEC1:
+		case 0x231E1D00: // Dirty Drivin' 1.14 alternate dump
+		case 0x9E477906: // Dirty Drivin' 1.14 alternate dump, Large Address Aware
+		case 0x390F8AC7: // Dirty Drivin' 1.14 alternate dump, normalized LAA header
 			currentGame = GameID::DirtyDrivin;
 			break;
 		case 0x4D91A27A:
@@ -569,7 +610,8 @@ void GameDetect::DetectCurrentGame()
 		case 0x28b99e8d:
 			currentGame = GameID::RadikalBikers; //3rd Party using Aaron Giles Emulator
 			break;
-		case 0xbd8c984d: // Battle Gear 4 English Ver (2.03) 
+		case 0x9699f0cd: // Battle Gear 4 original Japanese release (2005)
+		case 0xbd8c984d: // Battle Gear 4 English Ver (2.03)
 			currentGame = GameID::BG4_Eng;
 			X2Type = X2Type::BG4_Eng;
 			break;
@@ -879,8 +921,21 @@ bool GameDetect::IsNesicaGame()
 	return isNesica;
 }
 
+bool GameDetect::IsCosplayMahjong()
+{
+	return isCosplayMahjong;
+}
+
+bool GameDetect::IsAkaiKatana()
+{
+	return isAkaiKatana;
+}
+
 bool GameDetect::IsTypeX()
 {
+	if (isCosplayMahjong)
+		return true;
+
 	switch (GameDetect::currentGame)
 	{
 	case GameID::TypeXGeneric:

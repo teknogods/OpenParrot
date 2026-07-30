@@ -47,9 +47,29 @@ LSTATUS __stdcall RegOpenKeyExWGlobalWrap(
 {
 	if (GameDetect::currentGame == GameID::GHA)
 	{
-		if (_wcsicmp(lpSubKey, L"SOFTWARE\\Aspyr\\Guitar Hero III") == 0)
+		if (lpSubKey != nullptr &&
+			_wcsicmp(lpSubKey, L"SOFTWARE\\Aspyr\\Guitar Hero III") == 0)
 		{
-			return ERROR_SUCCESS;
+			// GHA queries this machine-style key before doing any useful work.
+			// The old hook returned success without assigning phkResult, which
+			// leaves the game with an invalid HKEY and fails deterministically on
+			// Wine.  Back the emulated values with a real per-user key so the
+			// returned handle can also be closed safely without requiring admin
+			// access on Windows.
+			if (phkResult == nullptr)
+				return ERROR_INVALID_PARAMETER;
+
+			DWORD disposition = 0;
+			return RegCreateKeyExW(
+				HKEY_CURRENT_USER,
+				L"SOFTWARE\\Aspyr\\Guitar Hero III",
+				0,
+				nullptr,
+				REG_OPTION_NON_VOLATILE,
+				KEY_QUERY_VALUE | KEY_SET_VALUE,
+				nullptr,
+				phkResult,
+				&disposition);
 		}
 	}
 	return orig_RegOpenKeyExW(hKey, lpSubKey, ulOptions, samDesired, phkResult);
@@ -190,30 +210,62 @@ LSTATUS __stdcall RegQueryValueExWGlobalWrap(
 	LPDWORD                           lpcbData
 )
 {
-#if __has_include(<atlstr.h>)
 	if (GameDetect::currentGame == GameID::GHA)
 	{
-		if (_wcsicmp(lpValueName, L"Language") == 0)
+		if (lpValueName != nullptr && _wcsicmp(lpValueName, L"Language") == 0)
 		{
-			*lpcbData = 3;
-			memcpy(lpData, (LPCWSTR)("en\0"), 3);
+			static constexpr wchar_t language[] = L"en";
+			const DWORD required = sizeof(language);
+			if (lpcbData == nullptr)
+				return ERROR_INVALID_PARAMETER;
+			if (lpType != nullptr)
+				*lpType = REG_SZ;
+			if (lpData == nullptr)
+			{
+				*lpcbData = required;
+				return ERROR_SUCCESS;
+			}
+			if (*lpcbData < required)
+			{
+				*lpcbData = required;
+				return ERROR_MORE_DATA;
+			}
+			memcpy(lpData, language, required);
+			*lpcbData = required;
 			return ERROR_SUCCESS;
 		}
-		else if (_wcsicmp(lpValueName, L"Path") == 0)
+		else if (lpValueName != nullptr && _wcsicmp(lpValueName, L"Path") == 0)
 		{
-			wchar_t working_directory[MAX_PATH + 1];
-			GetCurrentDirectory(sizeof(working_directory), working_directory);
-			std::wstring path = working_directory;
-			path += _T("\\");
-			path += _T("\0");
-			CStringW PathString = (path.c_str());
+			wchar_t workingDirectory[MAX_PATH + 1] = {};
+			const DWORD length = GetCurrentDirectoryW(MAX_PATH, workingDirectory);
+			if (length == 0 || length >= MAX_PATH)
+				return ERROR_PATH_NOT_FOUND;
 
-			*lpcbData = MAX_PATH + 1;
-			memcpy(lpData, (LPCWSTR)PathString, MAX_PATH + 1);
+			std::wstring path(workingDirectory, length);
+			if (path.empty() || path.back() != L'\\')
+				path.push_back(L'\\');
+
+			const DWORD required = static_cast<DWORD>(
+				(path.size() + 1) * sizeof(wchar_t));
+			if (lpcbData == nullptr)
+				return ERROR_INVALID_PARAMETER;
+			if (lpType != nullptr)
+				*lpType = REG_SZ;
+			if (lpData == nullptr)
+			{
+				*lpcbData = required;
+				return ERROR_SUCCESS;
+			}
+			if (*lpcbData < required)
+			{
+				*lpcbData = required;
+				return ERROR_MORE_DATA;
+			}
+			memcpy(lpData, path.c_str(), required);
+			*lpcbData = required;
 			return ERROR_SUCCESS;
 		}
 	}
-#endif
 
 	return orig_RegQueryValueExW(hKey, lpValueName, lpReserved, lpType, lpData, lpcbData);
 }

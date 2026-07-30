@@ -5,6 +5,72 @@
 #include "NesysNewsFile.h"
 #include <Utility\GameDetect.h>
 #pragma optimize("", off)
+
+namespace
+{
+	bool IsAndroidNesysDebugEnabled()
+	{
+		const char* logging = getenv("TP_ANDROID_DEBUG_LOGGING");
+		return logging != nullptr &&
+			(_stricmp(logging, "1") == 0 ||
+				_stricmp(logging, "true") == 0 ||
+				_stricmp(logging, "enabled") == 0);
+	}
+
+	bool IsAndroidGrooveNesysCompatibilityEnabled()
+	{
+		return GameDetect::currentGame == GameID::GrooveCoaster2 &&
+			getenv("ANDROID_ALSA_SERVER") != nullptr;
+	}
+
+	void AppendGrooveNesysLog(const char* message)
+	{
+		if (!IsAndroidNesysDebugEnabled() ||
+			GameDetect::currentGame != GameID::GrooveCoaster2)
+			return;
+
+		FILE* log = nullptr;
+		if (fopen_s(&log, "groove-nesys-debug.log", "ab") != 0 ||
+			log == nullptr)
+			return;
+
+		fwrite(message, 1, strlen(message), log);
+		fwrite("\r\n", 1, 2, log);
+		fclose(log);
+	}
+
+	void LogGrooveNesysHttpRequest(const NesysHttpAccessPost* request,
+		size_t requestLength)
+	{
+		if (!IsAndroidNesysDebugEnabled())
+			return;
+
+		char message[1536] = {};
+		_snprintf_s(message, sizeof(message), _TRUNCATE,
+			"[OpenParrot][GrooveCoaster2][NESYS] POST url=%.*s port=%u "
+			"seq=%u mode=%u requestLength=%zu dataSize=%u",
+			1023, request->url, request->httpPort, request->sequence,
+			request->mode, requestLength, request->dataSize);
+		OutputDebugStringA(message);
+		AppendGrooveNesysLog(message);
+
+		const size_t fixedSize = offsetof(NesysHttpAccessPost, data);
+		if (requestLength <= fixedSize)
+			return;
+
+		const size_t available = requestLength - fixedSize;
+		const size_t dataSize =
+			(std::min)(available, static_cast<size_t>(request->dataSize));
+		const size_t previewSize = (std::min)(dataSize, sizeof(message) - 64);
+		_snprintf_s(message, sizeof(message), _TRUNCATE,
+			"[OpenParrot][GrooveCoaster2][NESYS] POST body=%.*s",
+			static_cast<int>(previewSize), request->data);
+		OutputDebugStringA(message);
+		AppendGrooveNesysLog(message);
+	}
+
+}
+
 NesysEmu::NesysEmu()
 	: m_initialized(false)
 {
@@ -19,7 +85,9 @@ NesysEmu::NesysEmu()
 
 		const _LIBRARY_INFO* linfo = reinterpret_cast<const _LIBRARY_INFO*>(data);
 
-#ifdef _DEBUG"NESYS CLIENT START: pid %d, exePath %s, version %s", linfo->pid, linfo->exePath, linfo->version);
+#ifdef _DEBUG
+		info("NESYS CLIENT START: pid %d, exePath %s, version %s",
+			linfo->pid, linfo->exePath, linfo->version);
 #endif
 
 		SendResponse(SCOMMAND_CLIENT_START_REPLY, nullptr);
@@ -134,9 +202,41 @@ NesysEmu::NesysEmu()
 			dataSize = fread(data, 1, 16384, f);
 			fclose(f);
 
-			data[dataSize] = '\0';
+			if (dataSize < sizeof(data))
+			{
+				data[dataSize] = '\0';
+				++dataSize;
+			}
+		}
+		else if (IsAndroidGrooveNesysCompatibilityEnabled() &&
+			(card->dataType == 401 || card->dataType == 402))
+		{
+			// Groove asks NESYS for a session before it has card data. The old
+			// fallback reported success with 16 KiB of zeroes, which the game
+			// then passed to MSXML as an empty document.
+			static const char sessionXml[] =
+				"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+				"<root><session>"
+				"<card_id>7020392010281502</card_id>"
+				"<mac_addr>DEADBABECAFE</mac_addr>"
+				"<session_id>0123456789012345</session_id>"
+				"<expires>9999</expires>"
+				"<player_id>0</player_id>"
+				"</session></root>";
+			dataSize = sizeof(sessionXml) - 1;
+			memcpy(data, sessionXml, dataSize);
+		}
 
-			++dataSize;
+		if (IsAndroidNesysDebugEnabled() &&
+			GameDetect::currentGame == GameID::GrooveCoaster2)
+		{
+			char message[256] = {};
+			_snprintf_s(message, sizeof(message), _TRUNCATE,
+				"[OpenParrot][GrooveCoaster2][NESYS] card-select "
+				"type=%u paramSize=%u responseSize=%zu stored=%s",
+				card->dataType, card->paramSize, dataSize,
+				f != nullptr ? "true" : "false");
+			AppendGrooveNesysLog(message);
 		}
 
 		struct cardstatus
@@ -150,8 +250,8 @@ NesysEmu::NesysEmu()
 
 		cardstatus* s = (cardstatus*)malloc(sizeof(cardstatus) + dataSize);
 		s->status = 1;
-		s->times = 100;
-		s->days = 100;
+		s->times = IsAndroidGrooveNesysCompatibilityEnabled() ? 1 : 100;
+		s->days = IsAndroidGrooveNesysCompatibilityEnabled() ? 1 : 100;
 		s->size = dataSize;
 		memcpy(s->data, data, s->size);
 		if(GameDetect::currentGame != GameID::CrimzonClover) // if someone fixes card code, remove this
@@ -316,6 +416,68 @@ NesysEmu::NesysEmu()
 		SendResponse(SCOMMAND_GAMESTATUS_RESET_REPLY, nullptr);
 	};
 
+	m_commandHandlers[LCOMMAND_HTTPACCESS_POST_REQUEST] =
+		[=](const uint8_t* data, size_t length)
+	{
+		if (!IsAndroidGrooveNesysCompatibilityEnabled() ||
+			length < offsetof(NesysHttpAccessPost, data))
+			return;
+
+		const auto* request =
+			reinterpret_cast<const NesysHttpAccessPost*>(data);
+		LogGrooveNesysHttpRequest(request, length);
+
+		int status = 1;
+		SendResponse(SCOMMAND_HTTPACCESS_START, &status);
+
+		static const char responseXml[] =
+			"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+			"<root>"
+			"<session>"
+			"<player_id>0</player_id>"
+			"<session_id>1</session_id>"
+			"<game_id>42</game_id>"
+			"</session>"
+			"<match_conf></match_conf>"
+			"<match_entry></match_entry>"
+			"</root>";
+
+		const size_t dataSize = strlen(responseXml);
+		const size_t responseSize =
+			offsetof(NesysHttpAccessResult, data) + dataSize;
+		auto* response = static_cast<NesysHttpAccessResult*>(
+			calloc(1, responseSize));
+		if (response == nullptr)
+		{
+			SendResponse(SCOMMAND_NW_ERROR, nullptr);
+			return;
+		}
+
+		strcpy_s(response->httpHeader, sizeof(response->httpHeader),
+			"HTTP/1.1 200 OK\r\n"
+			"Content-Type: text/xml; charset=utf-8\r\n"
+			"Connection: close\r\n");
+		response->httpStatusCode = 200;
+		response->errorCode = 0;
+		response->sequence = request->sequence;
+		response->dataSize = static_cast<unsigned int>(dataSize);
+		memcpy(response->data, responseXml, dataSize);
+
+		if (IsAndroidNesysDebugEnabled())
+		{
+			char message[256] = {};
+			_snprintf_s(message, sizeof(message), _TRUNCATE,
+				"[OpenParrot][GrooveCoaster2][NESYS] reply seq=%u "
+				"status=200 dataSize=%u",
+				response->sequence, response->dataSize);
+			OutputDebugStringA(message);
+			AppendGrooveNesysLog(message);
+		}
+
+		SendResponse(SCOMMAND_HTTPACCESS_REPLY, response, responseSize);
+		free(response);
+	};
+
 	m_commandHandlers[LCOMMAND_LOCALNW_INFO_REQUEST] = [=](const uint8_t* data, size_t length)
 	{
 		// may also need 'notice' replies
@@ -432,6 +594,17 @@ void NesysEmu::ProcessRequest(const uint8_t* data, size_t length)
 
 void NesysEmu::ProcessRequestInternal(const NesysCommandHeader* header)
 {
+	if (IsAndroidNesysDebugEnabled() &&
+		GameDetect::currentGame == GameID::GrooveCoaster2)
+	{
+		char message[192] = {};
+		_snprintf_s(message, sizeof(message), _TRUNCATE,
+			"[OpenParrot][GrooveCoaster2][NESYS] command=0x%08X "
+			"length=%u",
+			static_cast<unsigned int>(header->command), header->length);
+		AppendGrooveNesysLog(message);
+	}
+
 	auto handler = m_commandHandlers.find(header->command);
 
 	if (handler != m_commandHandlers.end())

@@ -14,7 +14,7 @@ static unsigned char hasp_buffer[0xD40];
 static bool isFreePlay;
 static bool isEventMode2P;
 static bool isEventMode4P;
-static const char* ipaddr;
+static std::string ipaddr = "0.0.0.0";
 
 // Data for IC card, Force Feedback etc OFF.
 static unsigned char settingData[405] = {
@@ -259,14 +259,14 @@ typedef int (WINAPI* BIND)(SOCKET, CONST SOCKADDR*, INT);
 static BIND pbind = NULL;
 
 static unsigned int WINAPI Hook_bind(SOCKET s, const sockaddr* addr, int namelen) {
-	sockaddr_in bindAddr = { 0 };
-	bindAddr.sin_family = AF_INET;
-	bindAddr.sin_addr.s_addr = inet_addr("192.168.96.20");
-	bindAddr.sin_port = htons(50765);
-	if (addr == (sockaddr*)& bindAddr) {
+	const auto* requested = reinterpret_cast<const sockaddr_in*>(addr);
+	if (requested != nullptr && namelen >= sizeof(sockaddr_in) &&
+		requested->sin_family == AF_INET &&
+		requested->sin_addr.s_addr == inet_addr("192.168.96.20") &&
+		requested->sin_port == htons(50765)) {
 		sockaddr_in bindAddr2 = { 0 };
 		bindAddr2.sin_family = AF_INET;
-		bindAddr2.sin_addr.s_addr = inet_addr(ipaddr);
+		bindAddr2.sin_addr.s_addr = inet_addr(ipaddr.c_str());
 		bindAddr2.sin_port = htons(50765);
 		return pbind(s, (sockaddr*)& bindAddr2, namelen);
 	}
@@ -552,18 +552,41 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 
 	setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP, (char*)& reuse, sizeof(reuse));
 
-	sockaddr_in bindAddr = { 0 };
-	bindAddr.sin_family = AF_INET;
-	bindAddr.sin_addr.s_addr = inet_addr(ipaddr);
-	bindAddr.sin_port = htons(50765);
-	bind(sock, (sockaddr*)& bindAddr, sizeof(bindAddr));
+	const bool useAndroidTransport =
+		getenv("ANDROID_ALSA_SERVER") != nullptr;
+	const bool useLoopbackTransport =
+		useAndroidTransport && ipaddr == "0.0.0.0";
+	if (useAndroidTransport)
+	{
+		// This socket only transmits the terminal packets. Binding it to 50765
+		// also occupies the game's receive port under Winlator, so the game can
+		// never receive the packets and the sender fills its own multicast
+		// queue. Use an ephemeral source port on Android. When no concrete
+		// adapter was selected, use loopback unicast because Android does not
+		// route multicast into the Winlator network namespace.
+		if (!useLoopbackTransport)
+		{
+			in_addr multicastInterface = { 0 };
+			multicastInterface.s_addr = inet_addr(ipaddr.c_str());
+			setsockopt(sock, IPPROTO_IP, IP_MULTICAST_IF,
+				(char*)&multicastInterface, sizeof(multicastInterface));
+		}
+	}
+	else
+	{
+		// Preserve the established Windows and desktop-Wine terminal transport.
+		sockaddr_in bindAddr = { 0 };
+		bindAddr.sin_family = AF_INET;
+		bindAddr.sin_addr.s_addr = inet_addr(ipaddr.c_str());
+		bindAddr.sin_port = htons(50765);
+		bind(sock, (sockaddr*)&bindAddr, sizeof(bindAddr));
 
-
-	ip_mreq mreq;
-	mreq.imr_multiaddr.s_addr = inet_addr("225.0.0.1");
-	mreq.imr_interface.s_addr = inet_addr(ipaddr);
-
-	setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)& mreq, sizeof(mreq));
+		ip_mreq mreq = {};
+		mreq.imr_multiaddr.s_addr = inet_addr("225.0.0.1");
+		mreq.imr_interface.s_addr = inet_addr(ipaddr.c_str());
+		setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP,
+			(char*)&mreq, sizeof(mreq));
+	}
 
 	const uint8_t* byteSequences_Free[] = {
 		terminalPackage1_Free,
@@ -603,7 +626,7 @@ static DWORD WINAPI SpamMulticast(LPVOID)
 
 	sockaddr_in toAddr = { 0 };
 	toAddr.sin_family = AF_INET;
-	toAddr.sin_addr.s_addr = inet_addr("225.0.0.1");
+	toAddr.sin_addr.s_addr = inet_addr(useLoopbackTransport ? "127.0.0.1" : "225.0.0.1");
 	toAddr.sin_port = htons(50765);
 
 
@@ -674,8 +697,7 @@ static InitFunction Wmmt6RFunc([]()
 	std::string networkip = config["General"]["NetworkAdapterIP"];
 	if (!networkip.empty())
 	{
-		//strcpy(ipaddr, networkip.c_str());
-		ipaddr = networkip.c_str();
+		ipaddr = networkip;
 	}
 
 	hookPort = "COM3";

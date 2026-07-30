@@ -103,6 +103,32 @@ struct NesysCommandHeader
 	uint8_t data[];
 };
 
+struct __declspec(align(4)) NesysHttpAccessPost
+{
+	char url[1024];
+	char proxy[1024];
+	char authName[32];
+	char authPassword[32];
+	unsigned __int16 httpPort;
+	unsigned __int16 proxyPort;
+	unsigned int sequence;
+	unsigned int timeout;
+	unsigned int mode;
+	unsigned int dataSize;
+	char httpHeader[1024];
+	char data[1];
+};
+
+struct __declspec(align(4)) NesysHttpAccessResult
+{
+	char httpHeader[1025];
+	unsigned int httpStatusCode;
+	unsigned int errorCode;
+	unsigned int sequence;
+	unsigned int dataSize;
+	unsigned __int8 data[1];
+};
+
 class NesysEmu
 {
 public:

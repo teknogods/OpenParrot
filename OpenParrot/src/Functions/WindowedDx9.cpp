@@ -92,8 +92,41 @@ static HRESULT WINAPI PresentWrap(IDirect3DDevice9* self, CONST RECT* pSourceRec
 	return g_oldPresent(self, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
+static void SanitizeCrazySpeedPresentationParameters(D3DPRESENT_PARAMETERS* pPresentationParameters)
+{
+	if (GameDetect::currentGame != GameID::CrazySpeed || !pPresentationParameters)
+		return;
+
+	constexpr DWORD MaxReasonableBackBufferDimension = 16384;
+	if (pPresentationParameters->BackBufferWidth != 0 &&
+		pPresentationParameters->BackBufferHeight != 0 &&
+		pPresentationParameters->BackBufferWidth <= MaxReasonableBackBufferDimension &&
+		pPresentationParameters->BackBufferHeight <= MaxReasonableBackBufferDimension)
+	{
+		return;
+	}
+
+	DWORD width = FetchDwordInformation("Graphics", "Resolution Width", 1360);
+	DWORD height = FetchDwordInformation("Graphics", "Resolution Height", 768);
+	if (width == 0 || width > MaxReasonableBackBufferDimension)
+		width = 1360;
+	if (height == 0 || height > MaxReasonableBackBufferDimension)
+		height = 768;
+
+	TpInfo(
+		"Crazy Speed: replacing invalid D3D9 backbuffer %lu x %lu with %lu x %lu",
+		pPresentationParameters->BackBufferWidth,
+		pPresentationParameters->BackBufferHeight,
+		width,
+		height);
+	pPresentationParameters->BackBufferWidth = width;
+	pPresentationParameters->BackBufferHeight = height;
+}
+
 static HRESULT WINAPI ResetWrap(IDirect3DDevice9* self, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
+	SanitizeCrazySpeedPresentationParameters(pPresentationParameters);
+
 	if (Windowed)
 	{
 		pPresentationParameters->Windowed = TRUE;
@@ -115,6 +148,8 @@ static HRESULT WINAPI ResetWrap(IDirect3DDevice9* self, D3DPRESENT_PARAMETERS* p
 
 static HRESULT WINAPI CreateDeviceWrap(IDirect3D9* self, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice9** ppReturnedDeviceInterface)
 {
+	SanitizeCrazySpeedPresentationParameters(pPresentationParameters);
+
 	if (Windowed || GameDetect::currentGame == GameID::ElevatorActionDeathParade && !MultiScreen)
 	{
 		pPresentationParameters->Windowed = TRUE;
@@ -158,6 +193,8 @@ static HRESULT WINAPI CreateDeviceWrap(IDirect3D9* self, UINT Adapter, D3DDEVTYP
 static IDirect3D9* WINAPI Direct3DCreate9Wrap(UINT SDKVersion)
 {
 	auto d3d9 = g_origDirect3DCreate9(SDKVersion);
+	if (!d3d9)
+		return nullptr;
 
 	auto old = HookVtableFunction(&d3d9->lpVtbl->CreateDevice, CreateDeviceWrap);
 	g_oldCreateDevice = (old) ? old : g_oldCreateDevice;
@@ -178,7 +215,6 @@ static InitFunction initFunc([]()
 {
 	if (GameDetect::currentGame == GameID::BG4 || GameDetect::currentGame == GameID::BG4_Eng || GameDetect::currentGame == GameID::JLeague || GameDetect::currentGame == GameID::TER || GameDetect::currentGame == GameID::RumbleFish2 || GameDetect::currentGame == GameID::DirtyDrivin || GameDetect::currentGame == GameID::Friction)
 		return;
-
 	if (GameDetect::currentGame == GameID::CrazySpeed)
 	{
 		// This will fix the rearview mirror being fully white

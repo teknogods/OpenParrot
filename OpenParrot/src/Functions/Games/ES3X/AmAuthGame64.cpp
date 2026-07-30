@@ -240,7 +240,6 @@ static void prepareWMMT()
 		fwrite(AMConfig, 1, sizeof(AMConfig), file2);
 		fclose(file2);
 	}
-
 	if (FILE* wc = fopen("WritableConfig.ini", "r"))
 	{
 		fclose(wc);

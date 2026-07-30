@@ -1,5 +1,4 @@
-﻿#if __has_include(<atlstr.h>)
-#include <StdInc.h>
+﻿#include <StdInc.h>
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #include "Utility\Hooking.Patterns.h"
@@ -8,7 +7,6 @@
 #include <dinput.h>
 #include "Functions/GlobalRegHooks.h"
 #include "Utility\Hooking.Patterns.h"
-#include <atlstr.h>
 #include <windows.h>
 #include <string>
 #include <iostream>
@@ -46,6 +44,284 @@ static bool MenuHackStopWriting = false;
 static bool CoinPressed = false;
 static bool NameEntryHack;
 static BYTE GameState;
+static BYTE DirtyLastLoggedGameState = 0xFF;
+static HANDLE DirtyVulcanLuxHandle = INVALID_HANDLE_VALUE;
+
+static decltype(&CreateFileA) DirtyCreateFileAOri = nullptr;
+static decltype(&CreateFileW) DirtyCreateFileWOri = nullptr;
+static decltype(&socket) DirtySocketOri = nullptr;
+
+static bool IsDirtyDiagnosticsEnabled()
+{
+	static const bool enabled = []()
+	{
+		char value[8] = {};
+		const DWORD length =
+			GetEnvironmentVariableA(
+				"TP_ANDROID_DEBUG_LOGGING",
+				value,
+				_countof(value));
+		return length > 0 && length < _countof(value) && value[0] == '1';
+	}();
+	return enabled;
+}
+
+static void WriteDirtyDiagnosticProfile(
+	const char* section,
+	const char* key,
+	const char* value,
+	const char* file)
+{
+	if (IsDirtyDiagnosticsEnabled())
+		WritePrivateProfileStringA(section, key, value, file);
+}
+
+static void DirtyOutputDebugString(const char* value)
+{
+	if (IsDirtyDiagnosticsEnabled())
+		OutputDebugStringA(value);
+}
+
+static SOCKET WSAAPI DirtySocketHook(
+	const int addressFamily,
+	const int socketType,
+	const int protocol)
+{
+	const SOCKET result =
+		DirtySocketOri(addressFamily, socketType, protocol);
+	const int error = WSAGetLastError();
+	char diagnostic[192] = {};
+	sprintf_s(
+		diagnostic,
+		"TP_DIRTY_DIAG socket af=%d type=%d protocol=%d "
+		"result=%08X error=%d caller=%08X",
+		addressFamily,
+		socketType,
+		protocol,
+		static_cast<unsigned int>(result),
+		error,
+		static_cast<unsigned int>(
+			reinterpret_cast<uintptr_t>(_ReturnAddress())));
+	DirtyOutputDebugString(diagnostic);
+	WSASetLastError(error);
+	return result;
+}
+
+static bool IsDirtyVulcanLuxPath(const char* path)
+{
+	if (path == nullptr)
+		return false;
+
+	const char* name = path;
+	if (const char* separator = strrchr(path, '\\'))
+		name = separator + 1;
+	if (const char* separator = strrchr(name, '/'))
+		name = separator + 1;
+	return _stricmp(name, "Vulcan.lux") == 0;
+}
+
+static bool IsDirtyVulcanLuxPath(const wchar_t* path)
+{
+	if (path == nullptr)
+		return false;
+
+	const wchar_t* name = path;
+	if (const wchar_t* separator = wcsrchr(path, L'\\'))
+		name = separator + 1;
+	if (const wchar_t* separator = wcsrchr(name, L'/'))
+		name = separator + 1;
+	return _wcsicmp(name, L"Vulcan.lux") == 0;
+}
+
+static bool BuildDirtyLaaFallbackPath(
+	const char* path,
+	std::string& fallback)
+{
+	static constexpr char stagingSegment[] = "\\.teknoparrot-laa\\";
+	if (path == nullptr)
+		return false;
+
+	for (const char* cursor = path; *cursor != '\0'; ++cursor)
+	{
+		if (_strnicmp(
+			cursor,
+			stagingSegment,
+			sizeof(stagingSegment) - 1) == 0)
+		{
+			fallback.assign(path, cursor - path);
+			fallback.append(cursor + sizeof(stagingSegment) - 1);
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool BuildDirtyLaaFallbackPath(
+	const wchar_t* path,
+	std::wstring& fallback)
+{
+	static constexpr wchar_t stagingSegment[] = L"\\.teknoparrot-laa\\";
+	if (path == nullptr)
+		return false;
+
+	for (const wchar_t* cursor = path; *cursor != L'\0'; ++cursor)
+	{
+		if (_wcsnicmp(
+			cursor,
+			stagingSegment,
+			_countof(stagingSegment) - 1) == 0)
+		{
+			fallback.assign(path, cursor - path);
+			fallback.append(cursor + _countof(stagingSegment) - 1);
+			return true;
+		}
+	}
+	return false;
+}
+
+static void WriteDirtyVulcanLuxOpenDiagnostic(
+	const HANDLE file,
+	const DWORD openError,
+	const bool usedFallback)
+{
+	LARGE_INTEGER size = {};
+	SetLastError(ERROR_SUCCESS);
+	const BOOL sizeResult =
+		file != INVALID_HANDLE_VALUE && GetFileSizeEx(file, &size);
+	const DWORD sizeError = GetLastError();
+	char currentDirectory[MAX_PATH] = {};
+	GetCurrentDirectoryA(_countof(currentDirectory), currentDirectory);
+	char diagnostic[512] = {};
+	sprintf_s(
+		diagnostic,
+		"handle=%08X openError=%lu sizeResult=%u size=%llu sizeError=%lu "
+		"fallback=%u cwd=%s",
+		reinterpret_cast<uintptr_t>(file),
+		static_cast<unsigned long>(openError),
+		static_cast<unsigned int>(sizeResult),
+		static_cast<unsigned long long>(size.QuadPart),
+		static_cast<unsigned long>(sizeError),
+		static_cast<unsigned int>(usedFallback),
+		currentDirectory);
+	WriteDirtyDiagnosticProfile(
+		"Lux",
+		"CreateFile",
+		diagnostic,
+		".\\DirtyDrivinStateDiagnostic.ini");
+	SetLastError(openError);
+}
+
+static HANDLE WINAPI DirtyCreateFileAHook(
+	LPCSTR fileName,
+	DWORD desiredAccess,
+	DWORD shareMode,
+	LPSECURITY_ATTRIBUTES securityAttributes,
+	DWORD creationDisposition,
+	DWORD flagsAndAttributes,
+	HANDLE templateFile)
+{
+	HANDLE file = DirtyCreateFileAOri(
+		fileName,
+		desiredAccess,
+		shareMode,
+		securityAttributes,
+		creationDisposition,
+		flagsAndAttributes,
+		templateFile);
+	DWORD openError = GetLastError();
+	bool usedFallback = false;
+	std::string fallback;
+	if (file == INVALID_HANDLE_VALUE &&
+		BuildDirtyLaaFallbackPath(fileName, fallback))
+	{
+		file = DirtyCreateFileAOri(
+			fallback.c_str(),
+			desiredAccess,
+			shareMode,
+			securityAttributes,
+			creationDisposition,
+			flagsAndAttributes,
+			templateFile);
+		openError = GetLastError();
+		usedFallback = file != INVALID_HANDLE_VALUE;
+	}
+	if (file == INVALID_HANDLE_VALUE && IsDirtyVulcanLuxPath(fileName))
+	{
+		file = DirtyCreateFileAOri(
+			"Vulcan.lux",
+			desiredAccess,
+			shareMode,
+			securityAttributes,
+			creationDisposition,
+			flagsAndAttributes,
+			templateFile);
+		openError = GetLastError();
+		usedFallback = file != INVALID_HANDLE_VALUE;
+	}
+	if (IsDirtyVulcanLuxPath(fileName))
+	{
+		DirtyVulcanLuxHandle = file;
+		WriteDirtyVulcanLuxOpenDiagnostic(file, openError, usedFallback);
+	}
+	SetLastError(openError);
+	return file;
+}
+
+static HANDLE WINAPI DirtyCreateFileWHook(
+	LPCWSTR fileName,
+	DWORD desiredAccess,
+	DWORD shareMode,
+	LPSECURITY_ATTRIBUTES securityAttributes,
+	DWORD creationDisposition,
+	DWORD flagsAndAttributes,
+	HANDLE templateFile)
+{
+	HANDLE file = DirtyCreateFileWOri(
+		fileName,
+		desiredAccess,
+		shareMode,
+		securityAttributes,
+		creationDisposition,
+		flagsAndAttributes,
+		templateFile);
+	DWORD openError = GetLastError();
+	bool usedFallback = false;
+	std::wstring fallback;
+	if (file == INVALID_HANDLE_VALUE &&
+		BuildDirtyLaaFallbackPath(fileName, fallback))
+	{
+		file = DirtyCreateFileWOri(
+			fallback.c_str(),
+			desiredAccess,
+			shareMode,
+			securityAttributes,
+			creationDisposition,
+			flagsAndAttributes,
+			templateFile);
+		openError = GetLastError();
+		usedFallback = file != INVALID_HANDLE_VALUE;
+	}
+	if (file == INVALID_HANDLE_VALUE && IsDirtyVulcanLuxPath(fileName))
+	{
+		file = DirtyCreateFileWOri(
+			L"Vulcan.lux",
+			desiredAccess,
+			shareMode,
+			securityAttributes,
+			creationDisposition,
+			flagsAndAttributes,
+			templateFile);
+		openError = GetLastError();
+		usedFallback = file != INVALID_HANDLE_VALUE;
+	}
+	if (IsDirtyVulcanLuxPath(fileName))
+	{
+		DirtyVulcanLuxHandle = file;
+		WriteDirtyVulcanLuxOpenDiagnostic(file, openError, usedFallback);
+	}
+	SetLastError(openError);
+	return file;
+}
 
 // controls
 extern int* ffbOffset;
@@ -136,6 +412,658 @@ static char Digits[256];
 static int Digit1CoinValueinHex;
 static int Digit2CoinValueinHex;
 static bool SoundFail;
+static VOID(WINAPI* DirtyExitProcessOri)(UINT exitCode) = nullptr;
+static BOOL(WINAPI* DirtyTerminateProcessOri)(HANDLE process, UINT exitCode) = nullptr;
+static VOID(WINAPI* DirtyPostQuitMessageOri)(int exitCode) = nullptr;
+using DirtyAppThreadMain = int(__thiscall*)(void*);
+static DirtyAppThreadMain DirtyAppThreadMainOri =
+	reinterpret_cast<DirtyAppThreadMain>(0x00560EF0);
+using DirtyAppUpdate = int(__cdecl*)(uintptr_t);
+static DirtyAppUpdate DirtyAppUpdateOri =
+	reinterpret_cast<DirtyAppUpdate>(0x00401180);
+static DWORD DirtyAppThreadStartedAt = 0;
+static volatile LONG DirtyAppUpdateStopLogged = 0;
+using DirtyWindowCreate = HRESULT(__stdcall*)(void*);
+static DirtyWindowCreate DirtyWindowCreateOri =
+	reinterpret_cast<DirtyWindowCreate>(0x00639890);
+static HRESULT __stdcall DirtyWindowCreateHook(void* parameters);
+using DirtyInitialWindowCreate =
+	HRESULT(__fastcall*)(
+		uintptr_t,
+		uintptr_t,
+		uintptr_t,
+		uintptr_t,
+		uintptr_t);
+static DirtyInitialWindowCreate DirtyInitialWindowCreateOri =
+	reinterpret_cast<DirtyInitialWindowCreate>(0x00637CA0);
+using DirtyInitStep = int(__cdecl*)();
+static volatile LONG dirtyExceptionCaptured = 0;
+
+static LONG CALLBACK DirtyExceptionDiagnostic(
+	EXCEPTION_POINTERS* exceptionPointers)
+{
+	if (exceptionPointers == nullptr ||
+		exceptionPointers->ExceptionRecord == nullptr ||
+		exceptionPointers->ContextRecord == nullptr ||
+		exceptionPointers->ExceptionRecord->ExceptionCode !=
+			EXCEPTION_ACCESS_VIOLATION)
+	{
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
+	if (InterlockedCompareExchange(&dirtyExceptionCaptured, 1, 0) != 0)
+		return EXCEPTION_CONTINUE_SEARCH;
+
+	const auto record = exceptionPointers->ExceptionRecord;
+	const auto context = exceptionPointers->ContextRecord;
+	DWORD stack[12] = {};
+	__try
+	{
+		memcpy(
+			stack,
+			reinterpret_cast<const void*>(context->Esp),
+			sizeof(stack));
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		memset(stack, 0, sizeof(stack));
+	}
+
+	char diagnostic[768] = {};
+	sprintf_s(
+		diagnostic,
+		"code=%08X address=%08X eip=%08X esp=%08X ebp=%08X "
+		"eax=%08X ebx=%08X ecx=%08X edx=%08X esi=%08X edi=%08X "
+		"access=%08X target=%08X stack="
+		"%08X,%08X,%08X,%08X,%08X,%08X,%08X,%08X,%08X,%08X,%08X,%08X",
+		record->ExceptionCode,
+		reinterpret_cast<uintptr_t>(record->ExceptionAddress),
+		context->Eip,
+		context->Esp,
+		context->Ebp,
+		context->Eax,
+		context->Ebx,
+		context->Ecx,
+		context->Edx,
+		context->Esi,
+		context->Edi,
+		record->NumberParameters > 0 ?
+			static_cast<unsigned int>(record->ExceptionInformation[0]) : 0,
+		record->NumberParameters > 1 ?
+			static_cast<unsigned int>(record->ExceptionInformation[1]) : 0,
+		stack[0],
+		stack[1],
+		stack[2],
+		stack[3],
+		stack[4],
+		stack[5],
+		stack[6],
+		stack[7],
+		stack[8],
+		stack[9],
+		stack[10],
+		stack[11]);
+	WriteDirtyDiagnosticProfile(
+		"Crash",
+		"Last",
+		diagnostic,
+		".\\DirtyDrivinCrashDiagnostic.ini");
+	DirtyOutputDebugString(diagnostic);
+	return EXCEPTION_CONTINUE_SEARCH;
+}
+
+static int TraceDirtyInitStep(
+	const char* name,
+	const DirtyInitStep function)
+{
+	const int result = function();
+	char diagnostic[96] = {};
+	sprintf_s(diagnostic, "result=%d", result);
+	WriteDirtyDiagnosticProfile(
+		"InitSteps",
+		name,
+		diagnostic,
+		".\\DirtyDrivinStateDiagnostic.ini");
+	return result;
+}
+
+static int __cdecl DirtyInitStep1Hook()
+{
+	return TraceDirtyInitStep(
+		"Step1_004044D0",
+		reinterpret_cast<DirtyInitStep>(0x004044D0));
+}
+
+static int __cdecl DirtyInitStep2Hook()
+{
+	return TraceDirtyInitStep(
+		"Step2_005A2E10",
+		reinterpret_cast<DirtyInitStep>(0x005A2E10));
+}
+
+using DirtyInitObjectMethod = int(__thiscall*)(void*);
+static DirtyInitObjectMethod DirtyInitStep3Method58Ori = nullptr;
+static DirtyInitObjectMethod DirtyInitStep3Method60Ori = nullptr;
+static DirtyInitObjectMethod DirtyInitStep3Method68Ori = nullptr;
+static bool DirtyBypassCabinetHardware = false;
+
+static int TraceDirtyInitStep3Method(
+	const char* name,
+	const DirtyInitObjectMethod function,
+	void* self)
+{
+	SetLastError(ERROR_SUCCESS);
+	const int result = function(self);
+	const DWORD lastError = GetLastError();
+	char diagnostic[160] = {};
+	sprintf_s(
+		diagnostic,
+		"result=%d self=%08X target=%08X lastError=%lu",
+		result,
+		reinterpret_cast<uintptr_t>(self),
+		reinterpret_cast<uintptr_t>(function),
+		static_cast<unsigned long>(lastError));
+	WriteDirtyDiagnosticProfile(
+		"InitStep3Methods",
+		name,
+		diagnostic,
+		".\\DirtyDrivinStateDiagnostic.ini");
+	return result;
+}
+
+static bool IsDirtyDrivinRunningUnderWine()
+{
+	const HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
+	return ntdll != nullptr &&
+		GetProcAddress(ntdll, "wine_get_version") != nullptr;
+}
+
+static int __fastcall DirtyInitStep3Method58Hook(void* self, void*)
+{
+	if (IsDirtyDrivinRunningUnderWine())
+	{
+		DirtyBypassCabinetHardware = true;
+		WriteDirtyDiagnosticProfile(
+			"InitStep3Methods",
+			"Method58",
+			"result=1 bypassedMissingRawThrillsHid=1",
+			".\\DirtyDrivinStateDiagnostic.ini");
+		return 1;
+	}
+
+	return TraceDirtyInitStep3Method(
+		"Method58",
+		DirtyInitStep3Method58Ori,
+		self);
+}
+
+static int __fastcall DirtyInitStep3Method60Hook(void* self, void*)
+{
+	if (*reinterpret_cast<const uintptr_t*>(0x009A1F8C) == 0)
+	{
+		WriteDirtyDiagnosticProfile(
+			"InitStep3Methods",
+			"Method60",
+			"result=1 bypassedMissingFtdiDevice=1",
+			".\\DirtyDrivinStateDiagnostic.ini");
+		return 1;
+	}
+
+	return TraceDirtyInitStep3Method(
+		"Method60",
+		DirtyInitStep3Method60Ori,
+		self);
+}
+
+static int __fastcall DirtyInitStep3Method68Hook(void* self, void*)
+{
+	if (DirtyBypassCabinetHardware)
+	{
+		WriteDirtyDiagnosticProfile(
+			"InitStep3Methods",
+			"Method68",
+			"result=1 bypassedMissingPortTalkDriver=1",
+			".\\DirtyDrivinStateDiagnostic.ini");
+		return 1;
+	}
+
+	return TraceDirtyInitStep3Method(
+		"Method68",
+		DirtyInitStep3Method68Ori,
+		self);
+}
+
+static int __cdecl DirtyInitStep3Hook()
+{
+	auto self = reinterpret_cast<void*>(0x009A1F70);
+	auto vtable = *reinterpret_cast<uintptr_t**>(self);
+	DirtyInitStep3Method58Ori =
+		reinterpret_cast<DirtyInitObjectMethod>(vtable[0x58 / sizeof(uintptr_t)]);
+	DirtyInitStep3Method60Ori =
+		reinterpret_cast<DirtyInitObjectMethod>(vtable[0x60 / sizeof(uintptr_t)]);
+	DirtyInitStep3Method68Ori =
+		reinterpret_cast<DirtyInitObjectMethod>(vtable[0x68 / sizeof(uintptr_t)]);
+	injector::WriteMemory<uintptr_t>(
+		reinterpret_cast<uintptr_t>(&vtable[0x58 / sizeof(uintptr_t)]),
+		reinterpret_cast<uintptr_t>(DirtyInitStep3Method58Hook),
+		true);
+	injector::WriteMemory<uintptr_t>(
+		reinterpret_cast<uintptr_t>(&vtable[0x60 / sizeof(uintptr_t)]),
+		reinterpret_cast<uintptr_t>(DirtyInitStep3Method60Hook),
+		true);
+	injector::WriteMemory<uintptr_t>(
+		reinterpret_cast<uintptr_t>(&vtable[0x68 / sizeof(uintptr_t)]),
+		reinterpret_cast<uintptr_t>(DirtyInitStep3Method68Hook),
+		true);
+
+	SetLastError(ERROR_SUCCESS);
+	const int result =
+		reinterpret_cast<DirtyInitStep>(0x005A24D0)();
+	const DWORD lastError = GetLastError();
+	char diagnostic[512] = {};
+	sprintf_s(
+		diagnostic,
+		"result=%d lastError=%lu object=%08X vtable=%08X "
+		"workerFail=%u method58Fail=%u initialized=%u value1FA8=%08X "
+		"field18=%08X field5C=%08X fieldA0=%08X",
+		result,
+		static_cast<unsigned long>(lastError),
+		reinterpret_cast<uintptr_t>(self),
+		reinterpret_cast<uintptr_t>(vtable),
+		*reinterpret_cast<const DWORD*>(0x009A1F98),
+		*reinterpret_cast<const DWORD*>(0x009A1F94),
+		*reinterpret_cast<const DWORD*>(0x009A1F88),
+		*reinterpret_cast<const DWORD*>(0x009A1FA8),
+		*reinterpret_cast<const DWORD*>(0x009A1F70 + 0x18),
+		*reinterpret_cast<const DWORD*>(0x009A1F70 + 0x5C),
+		*reinterpret_cast<const DWORD*>(0x009A1F70 + 0xA0));
+	WriteDirtyDiagnosticProfile(
+		"InitSteps",
+		"Step3_005A24D0",
+		diagnostic,
+		".\\DirtyDrivinStateDiagnostic.ini");
+	DirtyOutputDebugString(diagnostic);
+	return result;
+}
+
+static int __cdecl DirtyInitStep4Hook()
+{
+	return TraceDirtyInitStep(
+		"Step4_005656F0",
+		reinterpret_cast<DirtyInitStep>(0x005656F0));
+}
+
+static int __cdecl DirtyInitStep5Hook()
+{
+	return TraceDirtyInitStep(
+		"Step5_00410310",
+		reinterpret_cast<DirtyInitStep>(0x00410310));
+}
+
+static int __cdecl DirtyLuxInitHook()
+{
+	using DirtyLuxTextGetter = const char*(__thiscall*)(void*);
+	auto source = reinterpret_cast<void*>(0x007CE028);
+	auto vtable = *reinterpret_cast<uintptr_t**>(source);
+	const auto getLuxPath =
+		reinterpret_cast<DirtyLuxTextGetter>(vtable[0x08 / sizeof(uintptr_t)]);
+	const auto getLuxLabel =
+		reinterpret_cast<DirtyLuxTextGetter>(vtable[0x0C / sizeof(uintptr_t)]);
+	char luxPath[260] = {};
+	char luxLabel[128] = {};
+	strncpy_s(luxPath, getLuxPath(source), _TRUNCATE);
+	strncpy_s(luxLabel, getLuxLabel(source), _TRUNCATE);
+
+	SetLastError(ERROR_SUCCESS);
+	const int result = reinterpret_cast<DirtyInitStep>(0x0055F240)();
+	const DWORD lastError = GetLastError();
+	const uintptr_t errorSource =
+		*reinterpret_cast<const uintptr_t*>(0x0099D930);
+	const DWORD errorCode =
+		*reinterpret_cast<const DWORD*>(0x0099D934);
+	char diagnostic[768] = {};
+	sprintf_s(
+		diagnostic,
+		"result=%d object=%08X fileHandle=%08X lastError=%lu "
+		"errorSource=%08X errorCode=%u path=%s label=%s",
+		result,
+		*reinterpret_cast<const uintptr_t*>(0x007CE130),
+		reinterpret_cast<uintptr_t>(DirtyVulcanLuxHandle),
+		static_cast<unsigned long>(lastError),
+		errorSource,
+		errorCode,
+		luxPath,
+		luxLabel);
+	WriteDirtyDiagnosticProfile(
+		"Lux",
+		"Initialize",
+		diagnostic,
+		".\\DirtyDrivinStateDiagnostic.ini");
+	DirtyOutputDebugString(diagnostic);
+	return result;
+}
+
+static void WriteDirtyStateDiagnostic(const char* key, const char* value)
+{
+	WriteDirtyDiagnosticProfile(
+		"State",
+		key,
+		value,
+		".\\DirtyDrivinStateDiagnostic.ini");
+}
+
+static void WriteDirtyExitDiagnostic(const char* api, UINT exitCode)
+{
+	void* frames[12] = {};
+	const USHORT frameCount = CaptureStackBackTrace(
+		0,
+		static_cast<DWORD>(_countof(frames)),
+		frames,
+		nullptr);
+	char value[512] = {};
+	int used = sprintf_s(
+		value,
+		"%s code=%u thread=%u frames=",
+		api,
+		exitCode,
+		GetCurrentThreadId());
+	for (USHORT index = 0; index < frameCount && used > 0 &&
+		used < static_cast<int>(sizeof(value)); index++)
+	{
+		const int written = sprintf_s(
+			value + used,
+			sizeof(value) - used,
+			"%s%p",
+			index == 0 ? "" : ",",
+			frames[index]);
+		if (written <= 0)
+			break;
+		used += written;
+	}
+	WriteDirtyDiagnosticProfile(
+		"Exit",
+		api,
+		value,
+		".\\DirtyDrivinExitDiagnostic.ini");
+	DirtyOutputDebugString(value);
+}
+
+static VOID WINAPI DirtyExitProcessHook(UINT exitCode)
+{
+	WriteDirtyExitDiagnostic("ExitProcess", exitCode);
+	DirtyExitProcessOri(exitCode);
+}
+
+static BOOL WINAPI DirtyTerminateProcessHook(HANDLE process, UINT exitCode)
+{
+	WriteDirtyExitDiagnostic("TerminateProcess", exitCode);
+	return DirtyTerminateProcessOri(process, exitCode);
+}
+
+static VOID WINAPI DirtyPostQuitMessageHook(int exitCode)
+{
+	WriteDirtyExitDiagnostic("PostQuitMessage", static_cast<UINT>(exitCode));
+	DirtyPostQuitMessageOri(exitCode);
+}
+
+static uintptr_t __cdecl DirtyPublishCreatedApp(const uintptr_t app)
+{
+	*reinterpret_cast<uintptr_t*>(0x0099D88C) = app;
+	MemoryBarrier();
+	*reinterpret_cast<DWORD*>(0x0099D880) = 1;
+
+	char diagnostic[160] = {};
+	sprintf_s(
+		diagnostic,
+		"app=%08X elapsedMs=%lu ready=%u",
+		app,
+		static_cast<unsigned long>(
+			GetTickCount() - DirtyAppThreadStartedAt),
+		*reinterpret_cast<const DWORD*>(0x0099D880));
+	WriteDirtyStateDiagnostic("AppCreated", diagnostic);
+	return app;
+}
+
+static void __declspec(naked) DirtyStoreCreatedAppAndSignalReadyHook()
+{
+	__asm
+	{
+		push eax
+		call DirtyPublishCreatedApp
+		add esp, 4
+		ret
+	}
+}
+
+static int __cdecl DirtyAppUpdateHook(const uintptr_t shutdownRequested)
+{
+	const int result = DirtyAppUpdateOri(shutdownRequested);
+	if (result == 0 &&
+		InterlockedCompareExchange(&DirtyAppUpdateStopLogged, 1, 0) == 0)
+	{
+		char diagnostic[256] = {};
+		sprintf_s(
+			diagnostic,
+			"result=0 requested=%08X elapsedMs=%lu ready=%u app=%08X "
+			"stop=%u stage=%u gameState=%u",
+			shutdownRequested,
+			static_cast<unsigned long>(
+				GetTickCount() - DirtyAppThreadStartedAt),
+			*reinterpret_cast<const DWORD*>(0x0099D880),
+			*reinterpret_cast<const DWORD*>(0x0099D88C),
+			*reinterpret_cast<const DWORD*>(0x0099D888),
+			*reinterpret_cast<const DWORD*>(0x008816EC),
+			static_cast<unsigned int>(GameState));
+		WriteDirtyStateDiagnostic("AppUpdateStop", diagnostic);
+		DirtyOutputDebugString(diagnostic);
+	}
+	return result;
+}
+
+// The fifth term in Dirty Drivin's attract wave table multiplies time by
+// 472783486976.0 before using x87 FSIN. Box64 eventually reports
+// STATUS_FLOAT_MULTIPLE_TRAPS while reducing that very large argument. Reduce
+// the phase in double precision first, preserving the intended sine while
+// keeping the x87 input in its reliable range.
+static float __cdecl DirtyReducedFifthWave(const float value)
+{
+	if (!_finite(static_cast<double>(value)))
+		return 0.0f;
+
+	constexpr double frequency = 472783486976.0;
+	constexpr double twoPi = 6.283185307179586476925286766559;
+	const double phase = fmod(static_cast<double>(value) * frequency, twoPi);
+	if (!_finite(phase))
+		return 0.0f;
+	return static_cast<float>(sin(phase));
+}
+
+static void __declspec(naked) DirtyReducedFifthWaveHook()
+{
+	__asm
+	{
+		push eax
+		push dword ptr [esp + 20h]
+		call DirtyReducedFifthWave
+		add esp, 4
+		pop eax
+		ret
+	}
+}
+
+static int __fastcall DirtyAppThreadMainHook(void* self, void*)
+{
+	const DWORD startedAt = GetTickCount();
+	DirtyAppThreadStartedAt = startedAt;
+	InterlockedExchange(&DirtyAppUpdateStopLogged, 0);
+	WriteDirtyStateDiagnostic("AppThreadStart", "1");
+	const auto callSite = reinterpret_cast<const BYTE*>(0x0058F3E8);
+	const auto relativeTarget =
+		*reinterpret_cast<const int32_t*>(callSite + 1);
+	char callSiteDiagnostic[192] = {};
+	sprintf_s(
+		callSiteDiagnostic,
+		"bytes=%02X%02X%02X%02X%02X target=%08X expected=%08X",
+		callSite[0],
+		callSite[1],
+		callSite[2],
+		callSite[3],
+		callSite[4],
+		reinterpret_cast<uintptr_t>(callSite + 5 + relativeTarget),
+		reinterpret_cast<uintptr_t>(DirtyWindowCreateHook));
+	WriteDirtyStateDiagnostic("WindowCreateCallSite", callSiteDiagnostic);
+	const int result = DirtyAppThreadMainOri(self);
+
+	char diagnostic[384] = {};
+	sprintf_s(
+		diagnostic,
+		"result=%d elapsedMs=%lu create=%08X app=%08X stop=%08X "
+		"shutdown=%08X status=%08X stage=%u errorActive=%u errorCode=%u "
+		"gameState=%u",
+		result,
+		static_cast<unsigned long>(GetTickCount() - startedAt),
+		*reinterpret_cast<const DWORD*>(0x0099D80C),
+		*reinterpret_cast<const DWORD*>(0x0099D88C),
+		*reinterpret_cast<const DWORD*>(0x0099D888),
+		*reinterpret_cast<const DWORD*>(0x0099D818),
+		*reinterpret_cast<const DWORD*>(0x0099D8EC),
+		*reinterpret_cast<const DWORD*>(0x008816EC),
+		*reinterpret_cast<const DWORD*>(0x0099D930),
+		*reinterpret_cast<const DWORD*>(0x0099D934),
+		static_cast<unsigned int>(GameState));
+	WriteDirtyStateDiagnostic("AppThreadEnd", diagnostic);
+	DirtyOutputDebugString(diagnostic);
+	return result;
+}
+
+static HRESULT __stdcall DirtyWindowCreateHook(void* parameters)
+{
+	const auto videoBefore = *reinterpret_cast<const DWORD*>(0x0087F9C8);
+	bool clearedStaleCreate = false;
+	if (videoBefore != 0 &&
+		*reinterpret_cast<const DWORD*>(videoBefore + 8) == 0 &&
+		*reinterpret_cast<const BYTE*>(videoBefore + 0x30D) == 0 &&
+		*reinterpret_cast<const BYTE*>(videoBefore + 0x310) != 0)
+	{
+		*reinterpret_cast<BYTE*>(videoBefore + 0x310) = 0;
+		clearedStaleCreate = true;
+	}
+	char preDiagnostic[128] = {};
+	sprintf_s(
+		preDiagnostic,
+		"video=%08X active=%u closing=%u retry=%u",
+		videoBefore,
+		videoBefore == 0 ? 0 :
+			*reinterpret_cast<const BYTE*>(videoBefore + 0x30D),
+		videoBefore == 0 ? 0 :
+			*reinterpret_cast<const BYTE*>(videoBefore + 0x310),
+		clearedStaleCreate ? 1 : 0);
+	WriteDirtyStateDiagnostic("WindowCreatePre", preDiagnostic);
+	const HRESULT result = DirtyWindowCreateOri(parameters);
+	const auto video = *reinterpret_cast<const DWORD*>(0x0087F9C8);
+	char diagnostic[384] = {};
+	sprintf_s(
+		diagnostic,
+		"result=%08X video=%08X device=%08X active=%u closing=%u retry=%u "
+		"param0=%08X param1=%08X param2=%08X param3=%08X",
+		static_cast<unsigned int>(result),
+		video,
+		video == 0 ? 0 :
+			*reinterpret_cast<const DWORD*>(video + 8),
+		video == 0 ? 0 :
+			*reinterpret_cast<const BYTE*>(video + 0x30D),
+		video == 0 ? 0 :
+			*reinterpret_cast<const BYTE*>(video + 0x310),
+		clearedStaleCreate ? 1 : 0,
+		parameters == nullptr ? 0 :
+			reinterpret_cast<const DWORD*>(parameters)[0],
+		parameters == nullptr ? 0 :
+			reinterpret_cast<const DWORD*>(parameters)[1],
+		parameters == nullptr ? 0 :
+			reinterpret_cast<const DWORD*>(parameters)[2],
+		parameters == nullptr ? 0 :
+			reinterpret_cast<const DWORD*>(parameters)[3]);
+	WriteDirtyStateDiagnostic("WindowCreate", diagnostic);
+	DirtyOutputDebugString(diagnostic);
+	return result;
+}
+
+static HRESULT __fastcall DirtyInitialWindowCreateHook(
+	const uintptr_t instance,
+	const uintptr_t command,
+	const uintptr_t optionA,
+	const uintptr_t optionB,
+	const uintptr_t window)
+{
+	// Wine can expose the X11 window just after the game's first create call.
+	// A short title-scoped delay avoids racing the guest window handle setup.
+	if (IsDirtyDrivinRunningUnderWine())
+		Sleep(250);
+	const auto video = *reinterpret_cast<const DWORD*>(0x0087F9C8);
+	char preDiagnostic[192] = {};
+	sprintf_s(
+		preDiagnostic,
+		"instance=%08X command=%08X optionA=%08X optionB=%08X "
+		"window=%08X video=%08X active=%u closing=%u",
+		instance,
+		command,
+		optionA,
+		optionB,
+		window,
+		video,
+		video == 0 ? 0 :
+			*reinterpret_cast<const BYTE*>(video + 0x30D),
+		video == 0 ? 0 :
+			*reinterpret_cast<const BYTE*>(video + 0x310));
+	WriteDirtyStateDiagnostic("InitialWindowCreatePre", preDiagnostic);
+
+	HRESULT result =
+		DirtyInitialWindowCreateOri(
+			instance,
+			command,
+			optionA,
+			optionB,
+			window);
+	unsigned int attempts = 1;
+	while (IsDirtyDrivinRunningUnderWine() &&
+		result == HRESULT_FROM_WIN32(ERROR_INVALID_WINDOW_HANDLE) &&
+		attempts < 8)
+	{
+		const auto retryVideo =
+			*reinterpret_cast<const DWORD*>(0x0087F9C8);
+		if (retryVideo != 0 &&
+			*reinterpret_cast<const DWORD*>(retryVideo + 8) == 0)
+		{
+			*reinterpret_cast<BYTE*>(retryVideo + 0x310) = 0;
+		}
+		Sleep(250);
+		result =
+			DirtyInitialWindowCreateOri(
+				instance,
+				command,
+				optionA,
+				optionB,
+				window);
+		attempts++;
+	}
+	const auto videoAfter =
+		*reinterpret_cast<const DWORD*>(0x0087F9C8);
+	char postDiagnostic[224] = {};
+	sprintf_s(
+		postDiagnostic,
+		"result=%08X attempts=%u video=%08X device=%08X active=%u "
+		"closing=%u",
+		static_cast<unsigned int>(result),
+		attempts,
+		videoAfter,
+		videoAfter == 0 ? 0 :
+			*reinterpret_cast<const DWORD*>(videoAfter + 8),
+		videoAfter == 0 ? 0 :
+			*reinterpret_cast<const BYTE*>(videoAfter + 0x30D),
+		videoAfter == 0 ? 0 :
+			*reinterpret_cast<const BYTE*>(videoAfter + 0x310));
+	WriteDirtyStateDiagnostic("InitialWindowCreate", postDiagnostic);
+	return result;
+}
 
 static void CoinInput(Helpers* helpers)
 {
@@ -735,6 +1663,17 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 	while (true)
 	{
 		GameState = *(BYTE*)(0x570190 + BaseAddress9);
+		if (GameState != DirtyLastLoggedGameState)
+		{
+			char diagnostic[64] = {};
+			sprintf_s(
+				diagnostic,
+				"TP_DIRTY_DIAG state=%u",
+				static_cast<unsigned int>(GameState));
+			DirtyOutputDebugString(diagnostic);
+			WriteDirtyStateDiagnostic("LastGameState", diagnostic);
+			DirtyLastLoggedGameState = GameState;
+		}
 		BYTE Chosen = *(BYTE*)(0x5705E8 + BaseAddress9);
 
 		if (GameState == 0x05)
@@ -966,6 +1905,10 @@ void __stdcall D3D9CreateParamPatch()
 {
 #if _M_IX86
 	__asm mov d3dcall, edx
+#endif
+	DirtyOutputDebugString("TP_DIRTY_DIAG d3d9-create");
+	WriteDirtyStateDiagnostic("D3D9Create", "1");
+#if _M_IX86
 	__asm mov edx, [ebp + 0x1c]
 		__asm mov pPresentationParameters_RT9, edx
 	pPresentationParameters_RT9->Windowed = TRUE;
@@ -981,6 +1924,85 @@ void __stdcall D3D9CreateParamPatch()
 
 static InitFunction DirtyDrivinFunc([]()
 	{
+		DirtyOutputDebugString("TP_DIRTY_DIAG init");
+		WriteDirtyStateDiagnostic("Init", "1");
+		WriteDirtyStateDiagnostic("WindowCreatePre", "pending");
+		WriteDirtyStateDiagnostic("WindowCreate", "pending");
+		WriteDirtyStateDiagnostic("InitialWindowCreatePre", "pending");
+		WriteDirtyStateDiagnostic("InitialWindowCreate", "pending");
+		WriteDirtyDiagnosticProfile(
+			"Crash",
+			"Last",
+			"pending",
+			".\\DirtyDrivinCrashDiagnostic.ini");
+		WriteDirtyDiagnosticProfile(
+			"InitSteps",
+			"Step1_004044D0",
+			"pending",
+			".\\DirtyDrivinStateDiagnostic.ini");
+		const bool runningUnderWine = IsDirtyDrivinRunningUnderWine();
+		if (runningUnderWine)
+		{
+			// These compatibility hooks address Wine/Box86 startup and x87
+			// behavior only. Native Windows retains the established title path.
+			if (IsDirtyDiagnosticsEnabled())
+			{
+				AddVectoredExceptionHandler(1, DirtyExceptionDiagnostic);
+				DirtyExitProcessOri =
+					*reinterpret_cast<decltype(DirtyExitProcessOri)*>(
+						BaseAddress9 + 0x32B320);
+				DirtyTerminateProcessOri =
+					*reinterpret_cast<decltype(DirtyTerminateProcessOri)*>(
+						BaseAddress9 + 0x32B324);
+				DirtyPostQuitMessageOri =
+					*reinterpret_cast<decltype(DirtyPostQuitMessageOri)*>(
+						BaseAddress9 + 0x32B524);
+				injector::WriteMemory<uintptr_t>(
+					BaseAddress9 + 0x32B320,
+					reinterpret_cast<uintptr_t>(DirtyExitProcessHook),
+					true);
+				injector::WriteMemory<uintptr_t>(
+					BaseAddress9 + 0x32B324,
+					reinterpret_cast<uintptr_t>(DirtyTerminateProcessHook),
+					true);
+				injector::WriteMemory<uintptr_t>(
+					BaseAddress9 + 0x32B524,
+					reinterpret_cast<uintptr_t>(DirtyPostQuitMessageHook),
+					true);
+				injector::WriteMemory<uintptr_t>(
+					0x00769E00,
+					reinterpret_cast<uintptr_t>(DirtyAppThreadMainHook),
+					true);
+				injector::WriteMemory<uintptr_t>(
+					0x00561163,
+					reinterpret_cast<uintptr_t>(DirtyAppUpdateHook),
+					true);
+				injector::MakeCALL(0x00403A7B, DirtyInitStep1Hook);
+				injector::MakeCALL(0x00403AD4, DirtyInitStep2Hook);
+				injector::MakeCALL(0x00403B51, DirtyInitStep4Hook);
+				injector::MakeCALL(0x00403B5A, DirtyInitStep5Hook);
+				injector::MakeCALL(0x0040111E, DirtyLuxInitHook);
+			}
+
+			injector::MakeCALL(0x0058F3E8, DirtyWindowCreateHook);
+			injector::MakeCALL(0x0058F3BF, DirtyInitialWindowCreateHook);
+			injector::MakeCALL(0x00403AF9, DirtyInitStep3Hook);
+			injector::MakeNOP(0x005E2A42, 0x14);
+			injector::MakeCALL(
+				0x005E2A42,
+				DirtyReducedFifthWaveHook);
+
+			DirtyCreateFileAOri =
+				iatHook("kernel32.dll", DirtyCreateFileAHook, "CreateFileA");
+			DirtyCreateFileWOri =
+				iatHook("kernel32.dll", DirtyCreateFileWHook, "CreateFileW");
+			if (IsDirtyDiagnosticsEnabled())
+			{
+				DirtySocketOri =
+					iatHook("ws2_32.dll", DirtySocketHook, 23);
+			}
+		}
+
 		// PATCHING EXE AT RUNTIME (reboots, network, filepath, config, CRC...
 		injector::WriteMemoryRaw((0x335DD4 + BaseAddress9), "\x44\x69\x72\x74\x79\x20\x44\x72\x69\x76\x69\x6E\x27\x00", 14, true); // edit window caption text
 		injector::WriteMemoryRaw((0x3B00 + BaseAddress9), "\xEB", 1, true);
@@ -1059,4 +2081,3 @@ static InitFunction DirtyDrivinFunc([]()
 	}, GameID::DirtyDrivin);
 #endif
 #pragma optimize("", on)
-#endif

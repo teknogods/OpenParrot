@@ -131,6 +131,8 @@ static HRESULT WINAPI CreateTextureWrap(IDirect3DDevice8* self, UINT Width, UINT
 static IDirect3D8* WINAPI Direct3DCreate8Wrap(UINT SDKVersion)
 {
 	auto d3d9 = g_origDirect3DCreate8(SDKVersion);
+	if (!d3d9)
+		return nullptr;
 
 	auto old = HookVtableFunction(&d3d9->lpVtbl->CreateDevice, CreateDeviceWrap);
 	g_oldCreateDevice = (old) ? old : g_oldCreateDevice;

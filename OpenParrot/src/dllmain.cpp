@@ -114,6 +114,15 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 {
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
+		// Wine/Box64 can load us from a remote thread after the game's real
+		// entry point has been parked by OpenParrotLoader.  In that mode DllMain
+		// must remain inert: the loader invokes PrepareSafeInit after LoadLibrary
+		// has returned and the target loader lock has been released.
+		if (getenv("TP_LOADER_MANAGED_INIT") != nullptr)
+		{
+			return TRUE;
+		}
+
 		if (getenv("TP_DIRECTHOOK") != nullptr)
 		{
 			RunMain();
@@ -131,5 +140,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 extern "C" __declspec(dllexport) void InitializeASI()
 {
 	RunMain();
+}
+
+extern "C" __declspec(dllexport) DWORD WINAPI PrepareSafeInit(LPVOID)
+{
+	Main_SetSafeInit();
+	return 1;
 }
 #pragma optimize("", on)

@@ -1414,6 +1414,30 @@ static InitFunction Wmmt5Func([]()
 	}
 	//safeJMP(hook::get_pattern(V("48 83 EC 28 33 D2 B9 70 00 02 00 E8 ? ? ? ? 85 C0 79 06")), ReturnTrue);
 
+	// Winlator does not expose the cabinet's local network in the same way as
+	// the ES3 host. Mirror WMMT6R's error-modal bypass by forcing the WMMT5
+	// local-network result mapper through its success case. The signature is
+	// shared by the supported WMMT5 executables, while the patch is Android-only.
+	if (getenv("ANDROID_ALSA_SERVER") != nullptr)
+	{
+		auto location = hook::get_pattern<char>(
+			"E8 ? ? ? ? 85 C0 0F 85 ? ? ? ? 48 63 84 24 ? ? ? ? 83 F8 05 77 ?");
+		injector::MakeNOP(location + 7, 6, true);
+		injector::MakeNOP(location + 13, 8, true);
+		injector::WriteMemory<BYTE>(location + 13, 0xB8, true); // mov eax, 3
+		injector::WriteMemory<DWORD>(location + 14, 3, true);
+
+
+		// WMMT6R skips the missing terminal by redirecting this state-machine
+		// transition from "waiting" to the game's existing "complete" block.
+		// WMMT5 has the same transition with different object offsets.
+		auto terminalWaitLocation = hook::get_pattern<char>(
+			"C7 87 60 06 00 00 01 00 00 00 E9 ? ? ? ? 48 8B CF E8");
+		auto terminalCompleteLocation = hook::get_pattern<char>(
+			"C7 87 60 06 00 00 02 00 00 00 83 BF 40 06 00 00 02 75");
+		injector::MakeJMP(terminalWaitLocation + 10, terminalCompleteLocation, true);
+	}
+
 	if (isTerminal)
 	{
 		// Patch some func to 1
