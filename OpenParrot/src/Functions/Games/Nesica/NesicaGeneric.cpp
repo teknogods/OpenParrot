@@ -11,6 +11,7 @@
 
 namespace
 {
+#if _M_IX86
 	uintptr_t akaiMovieSeekingGuardContinue = 0;
 	uintptr_t akaiMovieSeekingGuardReturn = 0;
 
@@ -63,6 +64,7 @@ namespace
 		}
 		return 0;
 	}
+#endif
 
 }
 
@@ -75,7 +77,6 @@ static InitFunction initFunction([]()
 		init_NesysEmu();
 #if _M_IX86
 	init_CryptoPipe(GameDetect::NesicaKey);
-#endif
 	if (GameDetect::IsAkaiKatana() &&
 		getenv("ANDROID_ALSA_SERVER") != nullptr)
 	{
@@ -111,6 +112,7 @@ static InitFunction initFunction([]()
 		if (wakeThread != nullptr)
 			CloseHandle(wakeThread);
 	}
+#endif
 }, GameID::Nesica);
 
 static int ReturnTrue()
