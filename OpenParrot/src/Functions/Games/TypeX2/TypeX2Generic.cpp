@@ -4,6 +4,7 @@
 #include "Utility/InitFunction.h"
 #include "Functions/Global.h"
 #include "Utility/Helper.h"
+#include <float.h>
 #if _M_IX86
 using namespace std::string_literals;
 extern int* wheelSection;
@@ -25,6 +26,72 @@ extern void GaiaAttack4Inputs(Helpers* helpers);
 static bool ProMode;
 extern bool BG4EnableTracks;
 bool FFBReportWheelPosition;
+
+static constexpr DWORD bg4FloatMultipleTraps = 0xC00002B5;
+static PVOID bg4FpuExceptionHandler = nullptr;
+static DWORD bg4LastFpuExceptionIp = 0;
+
+static LONG CALLBACK BG4FpuExceptionRecovery(
+	PEXCEPTION_POINTERS exceptionPointers)
+{
+	if (!exceptionPointers ||
+		!exceptionPointers->ExceptionRecord ||
+		!exceptionPointers->ContextRecord ||
+		exceptionPointers->ExceptionRecord->ExceptionCode !=
+			bg4FloatMultipleTraps)
+		return EXCEPTION_CONTINUE_SEARCH;
+
+	CONTEXT* context = exceptionPointers->ContextRecord;
+	const DWORD exceptionIp = context->Eip;
+
+	HMODULE containingModule = nullptr;
+	char moduleName[MAX_PATH] = {};
+	if (GetModuleHandleExA(
+			GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+				GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+			reinterpret_cast<LPCSTR>(exceptionIp),
+			&containingModule) &&
+		containingModule)
+		GetModuleFileNameA(containingModule, moduleName, _countof(moduleName));
+
+	BYTE instruction[8] = {};
+	memcpy(instruction, reinterpret_cast<const void*>(exceptionIp),
+		sizeof(instruction));
+	TpInfo(
+		"BG4 Android: x87 trap at %s+%08x, bytes "
+		"%02x %02x %02x %02x %02x %02x %02x %02x",
+		moduleName[0] ? moduleName : "<unknown>",
+		containingModule
+			? exceptionIp - reinterpret_cast<DWORD>(containingModule)
+			: exceptionIp,
+		instruction[0], instruction[1], instruction[2], instruction[3],
+		instruction[4], instruction[5], instruction[6], instruction[7]);
+
+	// A retry is safe only once per instruction. If the instruction itself
+	// generates an unmaskable Box64 trap, allow Wine to terminate normally
+	// rather than spinning the game thread forever.
+	if (bg4LastFpuExceptionIp == exceptionIp)
+		return EXCEPTION_CONTINUE_SEARCH;
+	bg4LastFpuExceptionIp = exceptionIp;
+
+	_clearfp();
+	unsigned int controlWord = 0;
+	_controlfp_s(&controlWord, _MCW_EM, _MCW_EM);
+
+	// Wine resumes from the saved CONTEXT, so repair both its legacy x87 copy
+	// and the FXSAVE image restored by RtlRestoreContext. This is title- and
+	// Android-scoped because native Windows does not exhibit the Box64 state
+	// leak and must retain the cabinet executable's original floating policy.
+	context->FloatSave.ControlWord |= 0x3F;
+	context->FloatSave.StatusWord &= ~0x3F;
+	BYTE* extendedRegisters = context->ExtendedRegisters;
+	*reinterpret_cast<WORD*>(extendedRegisters) |= 0x3F;
+	*reinterpret_cast<WORD*>(extendedRegisters + 2) &= ~0x3F;
+	DWORD* savedMxCsr =
+		reinterpret_cast<DWORD*>(extendedRegisters + 24);
+	*savedMxCsr = (*savedMxCsr | 0x1F80) & ~0x3F;
+	return EXCEPTION_CONTINUE_EXECUTION;
+}
 
 typedef HRESULT(WINAPI* ChaseDirectPlayHost_t)(
 	void* peer,
@@ -302,6 +369,35 @@ static std::string ParseFileNamesA(LPCSTR lpFileName)
 #ifdef _DEBUG
 	info("ParseFileNamesA original: %s", lpFileName);
 #endif
+	// KOF XIII Climax builds absolute media paths from a lower-case copy of the
+	// executable directory. The generic redirect below compares that path
+	// case-sensitively and otherwise turns a valid D:\TeknoParrotGames\... path
+	// into .\OpenParrot\teknoparrotgames\..., which is nested under the game
+	// directory. Some Climax dumps retain the Type X KOF XIII CRC,
+	// so accept both detector IDs and preserve the already-correct path.
+	if ((GameDetect::currentGame == GameID::KOFXIIIClimax ||
+		 GameDetect::currentGame == GameID::KOFXIII) &&
+		lpFileName != nullptr &&
+		(lpFileName[0] == 'D' || lpFileName[0] == 'd') &&
+		lpFileName[1] == ':' &&
+		(lpFileName[2] == '\\' || lpFileName[2] == '/'))
+	{
+		char pathRoot[MAX_PATH] = {};
+		GetModuleFileNameA(
+			GetModuleHandle(nullptr), pathRoot, _countof(pathRoot));
+		char* separator = strrchr(pathRoot, '\\');
+		if (separator != nullptr)
+		{
+			*separator = '\0';
+			const size_t rootLength = strlen(pathRoot);
+			if (_strnicmp(lpFileName, pathRoot, rootLength) == 0 &&
+				(lpFileName[rootLength] == '\0' ||
+				 lpFileName[rootLength] == '\\' ||
+				 lpFileName[rootLength] == '/'))
+				return lpFileName;
+		}
+	}
+
 	// Tetris ram folder redirect
 	if (!strncmp(lpFileName, ".\\TGM3\\", 7)) 
 	{
@@ -467,6 +563,29 @@ static std::wstring ParseFileNamesW(LPCWSTR lpFileName)
 #ifdef _DEBUG
 	info("ParseFileNamesW original: %ls", lpFileName);
 #endif
+	if ((GameDetect::currentGame == GameID::KOFXIIIClimax ||
+		 GameDetect::currentGame == GameID::KOFXIII) &&
+		lpFileName != nullptr &&
+		(lpFileName[0] == L'D' || lpFileName[0] == L'd') &&
+		lpFileName[1] == L':' &&
+		(lpFileName[2] == L'\\' || lpFileName[2] == L'/'))
+	{
+		wchar_t pathRoot[MAX_PATH] = {};
+		GetModuleFileNameW(
+			GetModuleHandle(nullptr), pathRoot, _countof(pathRoot));
+		wchar_t* separator = wcsrchr(pathRoot, L'\\');
+		if (separator != nullptr)
+		{
+			*separator = L'\0';
+			const size_t rootLength = wcslen(pathRoot);
+			if (_wcsnicmp(lpFileName, pathRoot, rootLength) == 0 &&
+				(lpFileName[rootLength] == L'\0' ||
+				 lpFileName[rootLength] == L'\\' ||
+				 lpFileName[rootLength] == L'/'))
+				return lpFileName;
+		}
+	}
+
 	if (!wcsncmp(lpFileName, L"D:", 2) || !wcsncmp(lpFileName, L"d:", 2))
 	{
 		memset(moveBufW, 0, 256);
@@ -1011,6 +1130,16 @@ static InitFunction initFunction([]()
 		}
 		case X2Type::BG4:
 		{
+			if (getenv("ANDROID_ALSA_SERVER") != nullptr &&
+				bg4FpuExceptionHandler == nullptr)
+			{
+				bg4FpuExceptionHandler =
+					AddVectoredExceptionHandler(1, BG4FpuExceptionRecovery);
+				unsigned int controlWord = 0;
+				_clearfp();
+				_controlfp_s(&controlWord, _MCW_EM, _MCW_EM);
+			}
+
 			// Fix sound only being in left ear
 			injector::WriteMemoryRaw(imageBase + 0x36C3DC, "\x00\x60\xA9\x45", 4, true);
 
@@ -1025,8 +1154,17 @@ static InitFunction initFunction([]()
 																													// Has to be done this way as TP does not patch quickly enough to prevent the initial entry point JMP, it will branch regardless (Thanks Pocky for workaround)
 																													// This shouldnt cause an issue with clean exes as they wont jump here in the first place
 
-			injector::WriteMemoryRaw(imageBase + 0xCBCB8, "\x8B\x84\x81\x94\x00\x00\x00\x8B\x40\x04", 10, true);	// Revert weird transmission patch?
-																													// Causes Seq/6MT to be disabled in pro mode
+			if (getenv("ANDROID_ALSA_SERVER") == nullptr)
+			{
+				injector::WriteMemoryRaw(imageBase + 0xCBCB8, "\x8B\x84\x81\x94\x00\x00\x00\x8B\x40\x04", 10, true);	// Revert weird transmission patch?
+																														// Causes Seq/6MT to be disabled in pro mode
+			}
+			// The commonly distributed 2.08 executable already contains
+			// `mov eax,1` at this site.  Restoring the clean transmission-table
+			// lookup makes the single-cabinet Winlator launch enter the external
+			// server check and stop at error 11.  Retain that existing game
+			// patch only inside Android; desktop Windows/Linux keep the clean
+			// lookup and their normal LAN/pro-mode behavior.
 			// End of dirty executable patches
 			
 			if (ToBool(config["General"]["IntroFix"]))

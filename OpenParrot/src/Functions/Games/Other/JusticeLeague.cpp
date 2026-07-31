@@ -494,6 +494,12 @@ DWORD WINAPI WindowRT8(LPVOID lpParam)
 			}
 			else ShowWindow(hWndRT8, SW_SHOWDEFAULT);
 		}
+		// This helper only polls mouse buttons for optional window movement.
+		// Yield between polls on Android so it does not consume an entire guest
+		// CPU core and starve the engine's startup work under Box64/Winlator.
+		// Preserve the established native Windows polling behavior.
+		if (getenv("ANDROID_ALSA_SERVER") != nullptr)
+			Sleep(16);
 	}
 }
 
