@@ -1157,14 +1157,19 @@ static InitFunction initFunction([]()
 			if (getenv("ANDROID_ALSA_SERVER") == nullptr)
 			{
 				injector::WriteMemoryRaw(imageBase + 0xCBCB8, "\x8B\x84\x81\x94\x00\x00\x00\x8B\x40\x04", 10, true);	// Revert weird transmission patch?
-																														// Causes Seq/6MT to be disabled in pro mode
+																										// Causes Seq/6MT to be disabled in pro mode
 			}
-			// The commonly distributed 2.08 executable already contains
-			// `mov eax,1` at this site.  Restoring the clean transmission-table
-			// lookup makes the single-cabinet Winlator launch enter the external
-			// server check and stop at error 11.  Retain that existing game
-			// patch only inside Android; desktop Windows/Linux keep the clean
-			// lookup and their normal LAN/pro-mode behavior.
+			else
+			{
+				// A clean 2.08 executable reaches the external transmission/server
+				// check after calibration and can remain on a black screen in a
+				// single-cabinet Winlator session.  Apply the same `mov eax,1`
+				// bypass carried by commonly distributed patched executables, but
+				// only in process memory.  This leaves the user's executable and CRC
+				// untouched, while desktop Windows/Linux retain the clean lookup and
+				// their normal LAN/pro-mode behavior.
+				injector::WriteMemoryRaw(imageBase + 0xCBCB8, "\xB8\x01\x00\x00\x00\x90\x90\x90\x90\x90", 10, true);
+			}
 			// End of dirty executable patches
 			
 			if (ToBool(config["General"]["IntroFix"]))
