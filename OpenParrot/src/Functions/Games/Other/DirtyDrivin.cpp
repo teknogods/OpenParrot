@@ -1783,7 +1783,8 @@ DWORD WINAPI InputRT9(LPVOID lpParam)
 			}
 		}
 
-		if (ToBool(config["General"]["Windowed"]))
+		if (ToBool(config["General"]["Windowed"]) &&
+			!IsDirtyDrivinRunningUnderWine())
 		{
 			if (hWndRT9 == 0)
 			{
@@ -2072,7 +2073,8 @@ static InitFunction DirtyDrivinFunc([]()
 			// injector::WriteMemoryRaw((0x96fd70), "\x00", 1, true);
 		}
 
-		if (ToBool(config["General"]["Windowed"]))
+		if (ToBool(config["General"]["Windowed"]) &&
+			!IsDirtyDrivinRunningUnderWine())
 		{
 			injector::MakeJMP(0x63B332, 0x729EF0);
 			injector::MakeCALL(0x729EF0, D3D9CreateParamPatch);
