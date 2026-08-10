@@ -737,6 +737,11 @@ void GameDetect::DetectCurrentGame()
 		case 0xf6b59ca5: // booting via PIX debugger
 			currentGame = GameID::CrazySpeed;
 			break;
+		case 0xcdc858fc: // En-Eins Perfektewelt Anastasia 1.21 (D: path req)
+			currentGame = GameID::Nesica;
+			NesicaKey = NesicaKey::None;
+			isNesica = true;
+			break;
 #endif
 #ifdef _AMD64_
 		case 0xf322d053:
@@ -848,13 +853,17 @@ void GameDetect::DetectCurrentGame()
 		case 0x4fade723: // GGS 1.2
 		case 0xa3982762: // GGS 1.3 Prototype
 		case 0xc851b571: // GGS 1.3 Update build
+		case 0xc03e8582: // GGS 1.8 Update build
 			SetGameId(GameID::GGS, "Guilty Gear Strive");
 			break;
-		case 0x72F9B475: // 00.18
+		case 0x72F9B475: // 00.18 JPN
 			SetGameId(GameID::TaikoV0, "Taiko no Tatsujin Nijiiro (Version 00.18)");
 			break;
-		case 0xA12445B9:
+		case 0xA12445B9: // 08.18 JPN
 			SetGameId(GameID::TaikoV8, "Taiko no Tatsujin Nijiiro (Version 08.18)");
+			break;
+		case 0xA1C6D6CC: // 32.09 CHN
+			SetGameId(GameID::TaikoV32, "Taiko no Tatsujin Nijiiro (Version 32.09)");
 			break;
 		case 0xd9557fd6: // Base and 1.2
 		case 0x8fdfa4dd: // Patched Base and 1.2

@@ -721,4 +721,114 @@ static InitFunction TaikoV8Func([]()
 
 	MH_EnableHook(MH_ALL_HOOKS);
 }, GameID::TaikoV8);
+
+static InitFunction TaikoV32Func([]()
+{
+	uintptr_t imageBase = (uintptr_t)GetModuleHandleA(0);
+	uintptr_t amBase = (uintptr_t)GetModuleHandleA("AMFrameWork.dll");
+
+	// Skip ExitWindowsEx (reboots pc when debugging)
+	injector::MakeNOP(amBase + 0x35AB1, 10);
+
+	// Path fixes
+	injector::WriteMemoryRaw(imageBase + 0xC7B2A0, ".\\SettingChina2.bin", 15, true); // g:\\SettingChina2.bin
+	injector::WriteMemoryRaw(imageBase + 0xC7B2B8, ".\\SettingChina1.bin", 15, true); // f:\\SettingChina1.bin
+	injector::WriteMemoryRaw(imageBase + 0xC7B158, ".\\SettingChina1.bin", 15, true); // f:\\SettingChina1.bin
+
+	// Skip errors
+	injector::WriteMemory<BYTE>(imageBase + 0x3F690, 0xC3, true);
+
+	// Respatch (currently doesn't change render resolution)
+	if (ToBool(config["General"]["Custom Resolution (Stretches)"]))
+	{
+		DWORD resWidth = FetchDwordInformation("General", "Resolution Width", 1920);
+		DWORD resHeight = FetchDwordInformation("General", "Resolution Height", 1080);
+
+		injector::WriteMemory<DWORD>(imageBase + 0x4A4ED3, resWidth, true);
+		injector::WriteMemory<DWORD>(imageBase + 0x4A4EDA, resHeight, true);
+	}
+
+	// Fixes by the Taiko community (thanks Swigz, Samyuu and Mon!)
+	if (ToBool(config["General"]["FixAnimationsEnable"]))
+	{
+		DWORD aniFps = FetchDwordInformation("General", "FixAnimationsFps", 120);
+
+		injector::WriteMemory<float>(imageBase + 0xB1A2D4, 1.0f / (float)aniFps * 1000.0f, true); // Enso Game Frame Time
+		injector::WriteMemory<float>(imageBase + 0xB7755C, 0.0166800003498793f / 120.0f * (float)aniFps, true); // Model Animation 60 FPS Frame Time Factor
+		injector::WriteMemory<double>(imageBase + 0xB77730, (double)aniFps, true); // Lua Common.FPS
+		injector::WriteMemory<float>(imageBase + 0xB77814, (float)aniFps, true); // Compressed Animation Frame Rate
+	}
+
+	if (ToBool(config["General"]["UnlockAllSongs"]))
+	{
+		injector::WriteMemoryRaw(imageBase + 0x425BCD, "\xB0\x01", 2, true); // 32 C0 (XOR AL, AL) -> B0 01 (MOV AL, 1)
+	}
+
+	if (ToBool(config["General"]["SharedAudioMode"]))
+	{
+		injector::WriteMemory<BYTE>(imageBase + 0x777F87, 0xEB, true); // 74 (JZ) -> EB (JMP)
+	}
+
+	// Hooks
+	MH_Initialize();
+
+	MH_CreateHookApi(L"user32.dll", "CreateWindowExW", CreateWindowExWHook, (void**)&CreateWindowExWOri);
+	MH_CreateHookApi(L"user32.dll", "ShowCursor", ShowCursorHook, (void**)&ShowCursorOri);
+
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_ClearSram", bnusio_ClearSram, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_Close", bnusio_Close, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_Communication", bnusio_Communication, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_DecCoin", bnusio_DecCoin, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_DecService", bnusio_DecService, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetAnalogIn", bnusio_GetAnalogIn, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetBuffer", bnusio_GetBuffer, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetCDOut", bnusio_GetCDOut, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetCoin", bnusio_GetCoin, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetCoinError", bnusio_GetCoinError, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetCoinLock", bnusio_GetCoinLock, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetEncoder", bnusio_GetEncoder, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetExpansionMode", bnusio_GetExpansionMode, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetFirmwareVersion", bnusio_GetFirmwareVersion, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetGout", bnusio_GetGout, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetHopOut", bnusio_GetHopOut, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetIoBoardName", bnusio_GetIoBoardName, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetRegisterU16", bnusio_GetRegisterU16, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetRegisterU8", bnusio_GetRegisterU8, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetService", bnusio_GetService, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetServiceError", bnusio_GetServiceError, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetStatusU16", bnusio_GetStatusU16, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetStatusU8", bnusio_GetStatusU8, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetSwIn", bnusio_GetSwIn, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetSwIn64", bnusio_GetSwIn64, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_GetSystemError", bnusio_GetSystemError, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_IsConnected", bnusio_IsConnected, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_IsWideUsio", bnusio_IsWideUsio, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_Open", bnusio_Open, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_ResetCoin", bnusio_ResetCoin, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_ResetIoBoard", bnusio_ResetIoBoard, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetBuffer", bnusio_SetBuffer, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetCDOut", bnusio_SetCDOut, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetCoinLock", bnusio_SetCoinLock, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetExpansionMode", bnusio_SetExpansionMode, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetGout", bnusio_SetGout, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetHopOut", bnusio_SetHopOut, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetHopperLimit", bnusio_SetHopperLimit, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetHopperRequest", bnusio_SetHopperRequest, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetPLCounter", bnusio_SetPLCounter, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetRegisterU16", bnusio_SetRegisterU16, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetRegisterU8", bnusio_SetRegisterU8, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SetSystemError", bnusio_SetSystemError, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SramRead", bnusio_SramRead, NULL);
+	MH_CreateHookApi(L"bnusio.dll", "bnusio_SramWrite", bnusio_SramWrite, NULL);
+
+	MH_CreateHookApi(L"nbamUsbFinder.dll", "nbamUsbFinderInitialize", nbamUsbFinderInitialize, NULL);
+	MH_CreateHookApi(L"nbamUsbFinder.dll", "nbamUsbFinderRelease", nbamUsbFinderRelease, NULL);
+	MH_CreateHookApi(L"nbamUsbFinder.dll", "nbamUsbFinderGetSerialNumber", nbamUsbFinderGetSerialNumber, NULL);
+
+	MH_CreateHookApi(L"xinput9_1_0.dll", "XInputGetState", XInputGetStateHook, NULL);
+	MH_CreateHookApi(L"xinput9_1_0.dll", "XInputSetState", XInputSetStateHook, NULL);
+	MH_CreateHookApi(L"xinput9_1_0.dll", "XInputGetCapabilities", XInputGetCapabilitiesHook, NULL);
+
+	MH_EnableHook(MH_ALL_HOOKS);
+}, GameID::TaikoV32);
 #endif
