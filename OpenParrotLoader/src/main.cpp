@@ -920,6 +920,25 @@ int wmain(int argc, wchar_t* argv[])
 			if (ffbSuccess)
 			{
 				wprintf(L"FFB Blaster loaded successfully!\n");
+
+				HMODULE hModA = GetModuleHandleW(ffbBlasterPathW);
+				if (hModA)
+				{
+					void(*fn)() = (void(*)())GetProcAddress(hModA, "FFB_Blaster_Init");
+					if (fn)
+					{
+						wprintf(L"FFB Blaster initialization successful.\n");
+						fn();
+					}
+					else
+					{
+						wprintf(L"FFB Blaster initialization failed.\n");
+					}
+				}
+				else
+				{
+					wprintf(L"Could not get module handle for FFB Blaster.\n");
+				}
 			}
 			else
 			{
