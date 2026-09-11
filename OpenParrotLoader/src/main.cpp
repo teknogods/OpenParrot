@@ -8,6 +8,7 @@
 #include <iterator>
 #include <string>
 #include "Utils.h"
+#include "ApmTestLoader.h"
 #include <filesystem>
 
 #include <fcntl.h>
@@ -632,7 +633,10 @@ int wmain(int argc, wchar_t* argv[])
 	wprintf(L"    | |  __/   <| | | | (_) | |  | (_| | |  | | | (_) | |_ \n");
 	wprintf(L"    |_|\\___|_|\\_\\_| |_|\\___/|_|   \\__,_|_|  |_|  \\___/ \\__|\n\n");
 
-	if (argc == 1 || argc > 4)
+	if (argc > 1 && _wcsicmp(argv[1], L"--apm-test") == 0)
+		return RunApmTestLoader(argc, argv);
+
+	if (argc < 3 || argc > 4)
 	{
 		wprintf(L"Please use the following format:\n");
 #if _M_IX86
