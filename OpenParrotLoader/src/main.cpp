@@ -565,6 +565,29 @@ static int InstallEntryPointInitializer(const wchar_t* dllLocation,
 #endif
 }
 
+static bool CallRemoteExportedFunction(const wchar_t* dllLocation, const char* functionName)
+{
+	FARPROC remoteFunction = ResolveRemoteDllExport(dllLocation, functionName);
+	if (remoteFunction == nullptr)
+	{
+		wprintf(L"Failed to resolve %hs for remote call.\n", functionName);
+		return false;
+	}
+
+	HANDLE remoteThread = CreateRemoteThread(pi.hProcess, nullptr, 0,
+		reinterpret_cast<LPTHREAD_START_ROUTINE>(remoteFunction), nullptr, 0, nullptr);
+	if (remoteThread == nullptr)
+	{
+		wprintf(L"Failed to create remote thread for %hs! (Error 0x%X)\n",
+			functionName, GetLastError());
+		return false;
+	}
+
+	WaitForSingleObject(remoteThread, INFINITE);
+	CloseHandle(remoteThread);
+	return true;
+}
+
 int RunTo(DWORD_PTR Address, DWORD Mode, DWORD_PTR Eip)
 {
 	char tempbuf[4] = { 0 };
@@ -921,23 +944,13 @@ int wmain(int argc, wchar_t* argv[])
 			{
 				wprintf(L"FFB Blaster loaded successfully!\n");
 
-				HMODULE hModA = GetModuleHandleW(ffbBlasterPathW);
-				if (hModA)
+				if (CallRemoteExportedFunction(ffbBlasterPathW, "FFB_Blaster_Init"))
 				{
-					void(*fn)() = (void(*)())GetProcAddress(hModA, "FFB_Blaster_Init");
-					if (fn)
-					{
-						wprintf(L"FFB Blaster initialization successful.\n");
-						fn();
-					}
-					else
-					{
-						wprintf(L"FFB Blaster initialization failed.\n");
-					}
+					wprintf(L"FFB Blaster initialization successful.\n");
 				}
 				else
 				{
-					wprintf(L"Could not get module handle for FFB Blaster.\n");
+					wprintf(L"FFB Blaster initialization failed.\n");
 				}
 			}
 			else
